@@ -1,7 +1,7 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
 _addon.version  = '0.20200926'
-_addon.command  = 'bp3'
+_addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
 windower.register_event('addon command', function(...)
@@ -33,6 +33,7 @@ end)
 ActionPacket.open_listener(bp.helpers['noknock'].block)
 windower.register_event('prerender', function()
     bp.helpers['actions'].setMoving(bp)
+    bp.helpers['distance'].render(bp)
     bp.helpers['popchat'].render(bp)
     bp.helpers['debuffs'].render(bp)
     bp.helpers['target'].render(bp)
@@ -110,7 +111,7 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
                         bp.helpers['queue'].remove(bp, spell, actor)
 
                         -- Update Cure weights.
-                        --bp.helpers['cures'].updateWeight(original)
+                        bp.helpers['cures'].updateWeight(bp, original)
 
                     end
 
@@ -291,6 +292,9 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
 
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, res.job_abilities[param], actor)
+
+                        -- Update Cure weights.
+                        bp.helpers['cures'].updateWeight(bp, original)
 
                     end
 

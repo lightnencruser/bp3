@@ -88,6 +88,14 @@ return {
         [17]={
             ["name"]="models", 
             ["status"]=true
+        }, 
+        [18]={
+            ["name"]="distance", 
+            ["status"]=true
+        },
+        [19]={
+            ["name"]="cures", 
+            ["status"]=true
         }
     }, 
     ["Addons"]={

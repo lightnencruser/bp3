@@ -38,6 +38,8 @@ return {
         {name='noknock',        status=true},
         {name='bits',           status=true},        
         {name='models',         status=true},
+        {name='distance',       status=true},
+        {name='cures',          status=true},
 
     },
 

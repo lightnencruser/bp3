@@ -1,6 +1,4 @@
 return {
-    ["mode"]=1, 
-    ["important"]="25,165,200", 
     ["layout"]={
         ["draggable"]=false, 
         ["padding"]=4, 
@@ -33,5 +31,6 @@ return {
             ["y"]=865, 
             ["x"]=420
         }
-    }
+    }, 
+    ["important"]="25,165,200"
 }

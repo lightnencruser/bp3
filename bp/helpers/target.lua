@@ -13,31 +13,25 @@ function target.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/target_settings.lua', windower.addon_path))
-    self.layout     = self.settings.layout or {pos={x=420, y=800}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Mulish', size=8}, padding=2, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=420, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Mulish', size=9}, padding=4, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
     local debug     = false
 
     -- Public Variables.
     self.targets    = {player=false, party=false, luopan=false, entrust=false}
-    self.mode       = 1
+    self.mode       = self.settings.mode or 1
 
     -- Private Functions.
     local persist = function()
         local next = next
 
-        if self.settings and next(self.settings) == nil then
-            self.settings.max       = self.max
+        if self.settings then
             self.settings.mode      = self.mode
             self.settings.layout    = self.layout
-            self.settings.attempts  = self.attempts
-
-        elseif self.settings and next(self.settings) ~= nil then
-            self.settings.max       = self.max
-            self.settings.mode      = self.mode
-            self.settings.layout    = self.layout
-            self.settings.attempts  = self.attempts
+            self.settings.important = self.important
 
         end
 
@@ -394,48 +388,60 @@ function target.new()
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local update    = {[1]='',[2]='',[3]='',[4]=''}
-        local color     = string.format('%s,%s,%s', 25, 165, 200)
 
         -- Handle Player Target.
         if self.targets.player then
-            update[1] = string.format('Player Target:  \\cs(%s)[ %s ]\\cr ', color, self.targets.player.name)
+            update[1] = string.format('Player Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.player.name)
 
         elseif not self.targets.player then
-            update[1] = string.format('Player Target:  \\cs(%s)[ N/A ]\\cr', color)
+            update[1] = ''
 
         end
 
         -- Handle Party Target.
         if self.targets.party then
-            update[2] = string.format('Party Target:  \\cs(%s)[ %s ]\\cr ', color, self.targets.party.name)
+            update[2] = string.format(' +  Party Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.party.name)
 
         elseif not self.targets.party then
-            update[2] = string.format('Party Target:  \\cs(%s)[ N/A ]\\cr', color)
+            update[2] = ''
 
         end
 
         -- Handle Entrust Target.
         if self.targets.entrust then
-            update[3] = string.format('Entrust Target:  \\cs(%s)[ %s ]\\cr ', color, self.targets.entrust.name)
+            update[3] = string.format(' +  Entrust Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.entrust.name)
 
         elseif not self.targets.entrust then
-            update[3] = string.format('Entrust Target:  \\cs(%s)[ N/A ]\\cr', color)
+            update[3] = ''
 
         end
 
         -- Handle Luopan Target.
         if self.targets.luopan then
-            update[4] = string.format('Luopan Target:  \\cs(%s)[ %s ]\\cr ', color, self.targets.luopan.name)
+            update[4] = string.format(' +  Luopan Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.luopan.name)
 
         elseif not self.targets.luopan then
-            update[4] = string.format('Luopan Target:  \\cs(%s)[ N/A ]\\cr', color)
+            update[4] = ''
 
         end
-        self.display:text(table.concat(update, '    '))
-        self.display:update()
 
-        if not self.display:visible() then
-            self.display:show()
+        if (update[1] ~= '' or update[2] ~= '' or update[3] ~= '' or update[4] ~= '') then
+            self.display:text(table.concat(update, ''))
+            self.display:update()
+
+            if not self.display:visible() then
+                self.display:show()
+            end
+        
+        else
+            update[1] = string.format(' Targets:  \\cs(%s)[ %s ]\\cr ', self.important, ' None ')
+            self.display:text(table.concat(update, ''))
+            self.display:update()
+            
+            if not self.display:visible() then
+                self.display:show()
+            end
+
         end
 
     end

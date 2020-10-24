@@ -313,12 +313,21 @@ return {
         }, 
         [2]=true
     }, 
-    ["ARTS"]={
+    ["SUMMON"]={
         [1]={
-            [1]="Light Arts", 
-            [2]="Dark Arts"
+            [1]="Carbuncle", 
+            [2]="Cait Sith", 
+            [3]="Ifrit", 
+            [4]="Shiva", 
+            [5]="Garuda", 
+            [6]="Titan", 
+            [7]="Ramuh", 
+            [8]="Leviathan", 
+            [9]="Fenrir", 
+            [10]="Diabolos", 
+            [11]="Siren"
         }, 
-        [2]="Light Arts"
+        [2]="Ifrit"
     }, 
     ["MISERY"]={
         [1]={
@@ -328,13 +337,7 @@ return {
         [2]=false
     }, 
     ["SEKKA"]="Evisceration", 
-    ["RA"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
+    ["WSNAME"]="Evisceration", 
     ["FOOD"]={
         [1]={
             [1]="Sublime Sushi", 
@@ -355,20 +358,26 @@ return {
         }, 
         [2]="Light Spirit"
     }, 
-    ["BUFFS"]={
+    ["ARTS"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Light Arts", 
+            [2]="Dark Arts"
         }, 
-        [2]=false
+        [2]="Light Arts"
     }, 
-    ["WSNAME"]="Evisceration", 
     ["COMPOSURE"]={
         [1]={
             [1]=true, 
             [2]=false
         }, 
         [2]=true
+    }, 
+    ["RA"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
     }, 
     ["SC"]={
         [1]={
@@ -377,33 +386,19 @@ return {
         }, 
         [2]=false
     }, 
-    ["SUMMON"]={
+    ["BUFFS"]={
         [1]={
-            [1]="Carbuncle", 
-            [2]="Cait Sith", 
-            [3]="Ifrit", 
-            [4]="Shiva", 
-            [5]="Garuda", 
-            [6]="Titan", 
-            [7]="Ramuh", 
-            [8]="Leviathan", 
-            [9]="Fenrir", 
-            [10]="Diabolos", 
-            [11]="Siren"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Ifrit"
+        [2]=false
     }, 
-    ["GAINS"]={
+    ["ALLOW AOE"]={
         [1]={
-            [1]="Gain-DEX", 
-            [2]="Gain-STR", 
-            [3]="Gain-MND", 
-            [4]="Gain-INT", 
-            [5]="Gain-AGI", 
-            [6]="Gain-VIT", 
-            [7]="Gain-CHR"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Gain-DEX"
+        [2]=false
     }, 
     ["layout"]={
         ["draggable"]=true, 
@@ -446,12 +441,17 @@ return {
         [2]=false
     }, 
     ["DEFAULT WS"]="Howling Fist", 
-    ["ALLOW AOE"]={
+    ["GAINS"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Gain-DEX", 
+            [2]="Gain-STR", 
+            [3]="Gain-MND", 
+            [4]="Gain-INT", 
+            [5]="Gain-AGI", 
+            [6]="Gain-VIT", 
+            [7]="Gain-CHR"
         }, 
-        [2]=false
+        [2]="Gain-DEX"
     }, 
     ["SKILLS"]={
         [1]={

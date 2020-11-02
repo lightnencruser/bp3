@@ -43,7 +43,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["AM"]={
+    ["BPRAGE"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -64,12 +64,13 @@ return {
         }, 
         [2]="Fire"
     }, 
-    ["HATE"]={
+    ["EMBOLDEN"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Palanx", 
+            [2]="Temper", 
+            [3]="Regen IV"
         }, 
-        [2]=false
+        [2]="Phalanx"
     }, 
     ["WEATHER"]={
         [1]={
@@ -84,12 +85,14 @@ return {
         }, 
         [2]="Aurorastorm"
     }, 
-    ["SAMBAS"]={
+    ["SPIKES"]={
         [1]={
-            [1]="Drain Samba II", 
-            [2]="Haste Samba"
+            [1]="None", 
+            [2]="Blaze Spikes", 
+            [3]="Ice Spikes", 
+            [4]="Shock Spikes"
         }, 
-        [2]="Haste Samba"
+        [2]="None"
     }, 
     ["THRENODY"]={
         [1]={
@@ -104,7 +107,7 @@ return {
         }, 
         [2]="Fire Threnody II"
     }, 
-    ["JA"]={
+    ["SKILLUP"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -129,14 +132,20 @@ return {
         }, 
         [2]=false
     }, 
-    ["AM THRESHOLD"]=3000, 
-    ["IMPETUS WS"]="Raging Fists", 
-    ["BOOST"]={
+    ["STATUS"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
+    }, 
+    ["IMPETUS WS"]="Raging Fists", 
+    ["BLU MODE"]={
+        [1]={
+            [1]="DPS", 
+            [2]="NUKE"
+        }, 
+        [2]="DPS"
     }, 
     ["TP THRESHOLD"]=1000, 
     ["DIA"]={
@@ -160,14 +169,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["STEPS"]={
-        [1]={
-            [1]="Quickstep", 
-            [2]="Box Step", 
-            [3]="Stutter Step"
-        }, 
-        [2]="Quickstep"
-    }, 
+    ["RANGED WS"]="Leaden Salute", 
     ["WHITE"]={
         [1]={
             [1]="Addendum: White", 
@@ -175,12 +177,12 @@ return {
         }, 
         [2]="Addendum: White"
     }, 
-    ["BLU MODE"]={
+    ["BOOST"]={
         [1]={
-            [1]="DPS", 
-            [2]="NUKE"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="DPS"
+        [2]=false
     }, 
     ["CHIVALRY"]={
         [1]={
@@ -213,26 +215,23 @@ return {
         }, 
         [2]=false
     }, 
-    ["RANGED WS"]="Leaden Salute", 
-    ["TIER"]={
+    ["STEPS"]={
         [1]={
-            [1]="I", 
-            [2]="II", 
-            [3]="III", 
-            [4]="IV", 
-            [5]="V", 
-            [6]="Random"
+            [1]="Quickstep", 
+            [2]="Box Step", 
+            [3]="Stutter Step"
         }, 
-        [2]="I"
+        [2]="Quickstep"
     }, 
-    ["STATUS"]={
+    ["SUBLIMATION"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]=true, 
+            [2]=false
         }, 
-        [2]=false
+        [2]=true
     }, 
-    ["BPRAGE"]={
+    ["AM THRESHOLD"]=3000, 
+    ["AM"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -260,36 +259,32 @@ return {
         }, 
         [2]=false
     }, 
-    ["EMBOLDEN"]={
-        [1]={
-            [1]="Palanx", 
-            [2]="Temper", 
-            [3]="Regen IV"
-        }, 
-        [2]="Phalanx"
-    }, 
-    ["1HR"]={
+    ["HATE"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["SKILLUP"]={
+    ["SKILLS"]={
+        [1]={
+            [1]="Singing"
+        }, 
+        [2]="Singing"
+    }, 
+    ["JA"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["SPIKES"]={
+    ["SAMBAS"]={
         [1]={
-            [1]="None", 
-            [2]="Blaze Spikes", 
-            [3]="Ice Spikes", 
-            [4]="Shock Spikes"
+            [1]="Drain Samba II", 
+            [2]="Haste Samba"
         }, 
-        [2]="None"
+        [2]="Haste Samba"
     }, 
     ["AM LEVEL"]={
         [1]={
@@ -306,26 +301,35 @@ return {
         }, 
         [2]=false
     }, 
-    ["SUBLIMATION"]={
+    ["TIER"]={
+        [1]={
+            [1]="I", 
+            [2]="II", 
+            [3]="III", 
+            [4]="IV", 
+            [5]="V", 
+            [6]="Random"
+        }, 
+        [2]="I"
+    }, 
+    ["GAINS"]={
+        [1]={
+            [1]="Gain-DEX", 
+            [2]="Gain-STR", 
+            [3]="Gain-MND", 
+            [4]="Gain-INT", 
+            [5]="Gain-AGI", 
+            [6]="Gain-VIT", 
+            [7]="Gain-CHR"
+        }, 
+        [2]="Gain-DEX"
+    }, 
+    ["COMPOSURE"]={
         [1]={
             [1]=true, 
             [2]=false
         }, 
         [2]=true
-    }, 
-    ["RA"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["MISERY"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
     }, 
     ["SEKKA"]="Evisceration", 
     ["SUMMON"]={
@@ -371,14 +375,20 @@ return {
         }, 
         [2]="Light Arts"
     }, 
-    ["COMPOSURE"]={
+    ["RA"]={
         [1]={
-            [1]=true, 
-            [2]=false
+            [1]=false, 
+            [2]=true
         }, 
-        [2]=true
+        [2]=false
     }, 
-    ["WSNAME"]="Evisceration", 
+    ["MISERY"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
     ["SC"]={
         [1]={
             [1]=false, 
@@ -386,13 +396,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["BUFFS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
+    ["WSNAME"]="Evisceration", 
     ["ALLOW AOE"]={
         [1]={
             [1]=false, 
@@ -401,33 +405,33 @@ return {
         [2]=false
     }, 
     ["layout"]={
-        ["draggable"]=true, 
+        ["draggable"]=false, 
         ["padding"]=8, 
-        ["font"]={
-            ["name"]="Lucida Console", 
-            ["size"]=9
-        }, 
+        ["stroke_width"]=2, 
         ["colors"]={
             ["text"]={
-                ["r"]=100, 
+                ["b"]=20, 
                 ["alpha"]=255, 
-                ["g"]=215, 
-                ["b"]=0
+                ["g"]=200, 
+                ["r"]=245
             }, 
             ["bg"]={
-                ["r"]=0, 
+                ["b"]=0, 
                 ["alpha"]=150, 
                 ["g"]=0, 
-                ["b"]=0
+                ["r"]=0
             }, 
             ["stroke"]={
-                ["r"]=0, 
+                ["b"]=0, 
                 ["alpha"]=255, 
                 ["g"]=0, 
-                ["b"]=0
+                ["r"]=0
             }
         }, 
-        ["stroke_width"]=2, 
+        ["font"]={
+            ["name"]="Lucida Console", 
+            ["size"]=8
+        }, 
         ["pos"]={
             ["y"]=10, 
             ["x"]=10
@@ -441,22 +445,18 @@ return {
         [2]=false
     }, 
     ["DEFAULT WS"]="Howling Fist", 
-    ["GAINS"]={
+    ["BUFFS"]={
         [1]={
-            [1]="Gain-DEX", 
-            [2]="Gain-STR", 
-            [3]="Gain-MND", 
-            [4]="Gain-INT", 
-            [5]="Gain-AGI", 
-            [6]="Gain-VIT", 
-            [7]="Gain-CHR"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Gain-DEX"
+        [2]=false
     }, 
-    ["SKILLS"]={
+    ["1HR"]={
         [1]={
-            [1]="Singing"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Singing"
+        [2]=false
     }
 }

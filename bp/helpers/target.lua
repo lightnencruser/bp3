@@ -13,7 +13,7 @@ function target.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/target_settings.lua', windower.addon_path))
-    self.layout     = self.settings.layout or {pos={x=420, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Mulish', size=9}, padding=4, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=420, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
@@ -69,6 +69,18 @@ function target.new()
 
     end
     self.writeSettings()
+
+    self.getTarget = function()
+        return self.targets.player or self.targets.party or false
+    end
+
+    self.clear = function()
+        self.targets.targets.player     = false
+        self.targets.targets.party      = false
+        self.targets.targets.entrust    = false
+        self.targets.targets.luopan     = false
+
+    end
 
     -- Public Functions.
     self.setTarget = function(bp, target)
@@ -186,10 +198,6 @@ function target.new()
 
     end
 
-    self.getTarget = function()
-        return self.targets.player or self.targets.party or false
-    end
-
     self.canEngage = function(bp, mob)
         local bp    = bp or false
         local mob   = mob or false
@@ -296,6 +304,154 @@ function target.new()
 
     end
 
+    self.validTarget = function(bp, id, target)
+        local bp        = bp or false
+        local player    = windower.ffxi.get_player() or false
+        local target    = target or false
+        local id        = id or false
+        
+        if bp and player and id and target and res.spells[id] then
+            local helpers   = bp.helpers
+            local spell     = res.spells[id]
+
+            if type(target) == 'table' then
+                local target = windower.ffxi.get_mob_by_id(target) or false
+
+                if target then
+
+                    if (spell.targets):contains("Self") and player.name == target.name then
+                        return target
+                        
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                        return target
+                        
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                        return target
+                            
+                    elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
+                        return target
+                            
+                    end
+
+                end
+
+            elseif (type(target) == 'number' or tonumber(target) ~= nil) then
+                local target = windower.ffxi.get_mob_by_id(target) or false
+
+                if target then
+
+                    if (spell.targets):contains("Self") and player.name == target.name then
+                        return target
+                        
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                        return target
+                        
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                        return target
+                            
+                    elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
+                        return target
+                            
+                    end
+
+                end
+
+            elseif type(target) == 'string' then
+                local target = windower.ffxi.get_mob_by_name(target) or false
+
+                if target then
+
+                    if (spell.targets):contains("Self") and player.name == target.name then
+                        return target
+                        
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                        return target
+                        
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                        return target
+                            
+                    elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
+                        return target
+                            
+                    end
+
+                end
+
+            end
+            
+        elseif bp and player and id and target and res.job_abilities[id] then
+            local spell = res.job_abilities[id]
+            
+            if type(target) == 'table' then
+                local target = windower.ffxi.get_mob_by_id(target) or false
+
+                if target then
+
+                    if (spell.targets):contains("Self") and player.name == target.name then
+                        return target
+                        
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                        return target
+                        
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                        return target
+                            
+                    elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
+                        return target
+                            
+                    end
+
+                end
+
+            elseif (type(target) == 'number' or tonumber(target) ~= nil) then
+                local target = windower.ffxi.get_mob_by_id(target) or false
+
+                if target then
+
+                    if (spell.targets):contains("Self") and player.name == target.name then
+                        return target
+                        
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                        return target
+                        
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                        return target
+                            
+                    elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
+                        return target
+                            
+                    end
+
+                end
+
+            elseif type(target) == 'string' then
+                local target = windower.ffxi.get_mob_by_name(target) or false
+
+                if target then
+
+                    if (spell.targets):contains("Self") and player.name == target.name then
+                        return target
+                        
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                        return target
+                        
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                        return target
+                            
+                    elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
+                        return target
+                            
+                    end
+
+                end
+
+            end
+            
+        end
+        return false
+        
+    end
+
     self.isDead = function(bp, target)
         local bp        = bp or false
         local target    = target or false
@@ -353,14 +509,6 @@ function target.new()
 
         end
         return false
-
-    end
-
-    self.clear = function()
-        self.targets.targets.player     = false
-        self.targets.targets.party      = false
-        self.targets.targets.entrust    = false
-        self.targets.targets.luopan     = false
 
     end
 

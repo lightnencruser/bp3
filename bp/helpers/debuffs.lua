@@ -248,10 +248,9 @@ function debuffs.new()
     end
 
     self.render = function(bp)
-        local bp        = bp or false
-        local target    = windower.ffxi.get_mob_by_target('t') or false
+        local bp = bp or false
 
-        if bp and target and os.clock()-self.update.last > self.update.delay then
+        if bp and bp.helpers['target'].getTarget() and os.clock()-self.update.last > self.update.delay then
             local player    = windower.ffxi.get_player()
             local helpers   = bp.helpers
             local next      = next
@@ -288,7 +287,7 @@ function debuffs.new()
             end
             self.update.last = os.clock()
 
-        elseif not target and os.clock()-self.update.last > self.update.delay then
+        elseif not bp.helpers['target'].getTarget() and os.clock()-self.update.last > self.update.delay then
             local next = next
 
             if self.display:visible() then

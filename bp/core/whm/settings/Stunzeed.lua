@@ -43,7 +43,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["AM"]={
+    ["RA"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -64,12 +64,11 @@ return {
         }, 
         [2]="Fire"
     }, 
-    ["HATE"]={
+    ["SKILLS"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Singing"
         }, 
-        [2]=false
+        [2]="Singing"
     }, 
     ["WEATHER"]={
         [1]={
@@ -84,12 +83,12 @@ return {
         }, 
         [2]="Aurorastorm"
     }, 
-    ["SAMBAS"]={
+    ["STUNS"]={
         [1]={
-            [1]="Drain Samba II", 
-            [2]="Haste Samba"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Haste Samba"
+        [2]=false
     }, 
     ["THRENODY"]={
         [1]={
@@ -104,7 +103,219 @@ return {
         }, 
         [2]="Fire Threnody II"
     }, 
+    ["BPWARD"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["BPRAGE"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["BURST"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["SPIKES"]={
+        [1]={
+            [1]="None", 
+            [2]="Blaze Spikes", 
+            [3]="Ice Spikes", 
+            [4]="Shock Spikes"
+        }, 
+        [2]="None"
+    }, 
+    ["IMPETUS WS"]="Raging Fists", 
+    ["DEBUFFS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["TP THRESHOLD"]=1000, 
+    ["DIA"]={
+        [1]={
+            [1]="Dia", 
+            [2]="Bio"
+        }, 
+        [2]="Dia"
+    }, 
+    ["RANGED WS"]="Leaden Salute", 
+    ["AOEHATE"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["GAINS"]={
+        [1]={
+            [1]="Gain-DEX", 
+            [2]="Gain-STR", 
+            [3]="Gain-MND", 
+            [4]="Gain-INT", 
+            [5]="Gain-AGI", 
+            [6]="Gain-VIT", 
+            [7]="Gain-CHR"
+        }, 
+        [2]="Gain-DEX"
+    }, 
+    ["WHITE"]={
+        [1]={
+            [1]="Addendum: White", 
+            [2]="Addendum: Black"
+        }, 
+        [2]="Addendum: White"
+    }, 
+    ["BOOST"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["CHIVALRY"]={
+        [1]={
+            [1]=1000, 
+            [2]=1500, 
+            [3]=2000, 
+            [4]=2500, 
+            [5]=3000
+        }, 
+        [2]=2000
+    }, 
+    ["SAMBAS"]={
+        [1]={
+            [1]="Drain Samba II", 
+            [2]="Haste Samba"
+        }, 
+        [2]="Haste Samba"
+    }, 
+    ["QD"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["SUBLIMATION"]={
+        [1]={
+            [1]=true, 
+            [2]=false
+        }, 
+        [2]=true
+    }, 
+    ["AM THRESHOLD"]=3000, 
+    ["EMBOLDEN"]={
+        [1]={
+            [1]="Palanx", 
+            [2]="Temper", 
+            [3]="Regen IV"
+        }, 
+        [2]="Phalanx"
+    }, 
+    ["WSNAME"]="Evisceration", 
+    ["PET"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["AM"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["HATE"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
     ["JA"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["CONVERT"]={
+        [1]={
+            [1]=true, 
+            [2]=false
+        }, 
+        [2]=false
+    }, 
+    ["SEKKA"]="Evisceration", 
+    ["WS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["SHADOWS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["AM LEVEL"]={
+        [1]={
+            [1]=3, 
+            [2]=2, 
+            [3]=1
+        }, 
+        [2]=3
+    }, 
+    ["SKILLUP"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["TIER"]={
+        [1]={
+            [1]="I", 
+            [2]="II", 
+            [3]="III", 
+            [4]="IV", 
+            [5]="V", 
+            [6]="Random"
+        }, 
+        [2]="I"
+    }, 
+    ["STEPS"]={
+        [1]={
+            [1]="Quickstep", 
+            [2]="Box Step", 
+            [3]="Stutter Step"
+        }, 
+        [2]="Quickstep"
+    }, 
+    ["BLU MODE"]={
+        [1]={
+            [1]="DPS", 
+            [2]="NUKE"
+        }, 
+        [2]="DPS"
+    }, 
+    ["SC"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -121,228 +332,6 @@ return {
             [6]="Enwater"
         }, 
         [2]="Enfire"
-    }, 
-    ["BURST"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["AM THRESHOLD"]=3000, 
-    ["IMPETUS WS"]="Raging Fists", 
-    ["BOOST"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["TP THRESHOLD"]=1000, 
-    ["DIA"]={
-        [1]={
-            [1]="Dia", 
-            [2]="Bio"
-        }, 
-        [2]="Dia"
-    }, 
-    ["STUNS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["AOEHATE"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["STEPS"]={
-        [1]={
-            [1]="Quickstep", 
-            [2]="Box Step", 
-            [3]="Stutter Step"
-        }, 
-        [2]="Quickstep"
-    }, 
-    ["WHITE"]={
-        [1]={
-            [1]="Addendum: White", 
-            [2]="Addendum: Black"
-        }, 
-        [2]="Addendum: White"
-    }, 
-    ["BLU MODE"]={
-        [1]={
-            [1]="DPS", 
-            [2]="NUKE"
-        }, 
-        [2]="DPS"
-    }, 
-    ["CHIVALRY"]={
-        [1]={
-            [1]=1000, 
-            [2]=1500, 
-            [3]=2000, 
-            [4]=2500, 
-            [5]=3000
-        }, 
-        [2]=2000
-    }, 
-    ["BPWARD"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["QD"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["DEBUFFS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["RANGED WS"]="Leaden Salute", 
-    ["TIER"]={
-        [1]={
-            [1]="I", 
-            [2]="II", 
-            [3]="III", 
-            [4]="IV", 
-            [5]="V", 
-            [6]="Random"
-        }, 
-        [2]="I"
-    }, 
-    ["STATUS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["BPRAGE"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["WS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["PET"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["CONVERT"]={
-        [1]={
-            [1]=true, 
-            [2]=false
-        }, 
-        [2]=false
-    }, 
-    ["EMBOLDEN"]={
-        [1]={
-            [1]="Palanx", 
-            [2]="Temper", 
-            [3]="Regen IV"
-        }, 
-        [2]="Phalanx"
-    }, 
-    ["1HR"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SKILLUP"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SPIKES"]={
-        [1]={
-            [1]="None", 
-            [2]="Blaze Spikes", 
-            [3]="Ice Spikes", 
-            [4]="Shock Spikes"
-        }, 
-        [2]="None"
-    }, 
-    ["AM LEVEL"]={
-        [1]={
-            [1]=3, 
-            [2]=2, 
-            [3]=1
-        }, 
-        [2]=3
-    }, 
-    ["SHADOWS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SUBLIMATION"]={
-        [1]={
-            [1]=true, 
-            [2]=false
-        }, 
-        [2]=true
-    }, 
-    ["RA"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["MISERY"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SEKKA"]="Evisceration", 
-    ["SUMMON"]={
-        [1]={
-            [1]="Carbuncle", 
-            [2]="Cait Sith", 
-            [3]="Ifrit", 
-            [4]="Shiva", 
-            [5]="Garuda", 
-            [6]="Titan", 
-            [7]="Ramuh", 
-            [8]="Leviathan", 
-            [9]="Fenrir", 
-            [10]="Diabolos", 
-            [11]="Siren"
-        }, 
-        [2]="Ifrit"
     }, 
     ["FOOD"]={
         [1]={
@@ -364,12 +353,12 @@ return {
         }, 
         [2]="Light Spirit"
     }, 
-    ["ARTS"]={
+    ["BUFFS"]={
         [1]={
-            [1]="Light Arts", 
-            [2]="Dark Arts"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Light Arts"
+        [2]=false
     }, 
     ["COMPOSURE"]={
         [1]={
@@ -378,20 +367,29 @@ return {
         }, 
         [2]=true
     }, 
-    ["WSNAME"]="Evisceration", 
-    ["SC"]={
+    ["STATUS"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["BUFFS"]={
+    ["FOOTWORK WS"]="Tornado Kick", 
+    ["SUMMON"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Carbuncle", 
+            [2]="Cait Sith", 
+            [3]="Ifrit", 
+            [4]="Shiva", 
+            [5]="Garuda", 
+            [6]="Titan", 
+            [7]="Ramuh", 
+            [8]="Leviathan", 
+            [9]="Fenrir", 
+            [10]="Diabolos", 
+            [11]="Siren"
         }, 
-        [2]=false
+        [2]="Ifrit"
     }, 
     ["ALLOW AOE"]={
         [1]={
@@ -400,38 +398,12 @@ return {
         }, 
         [2]=false
     }, 
-    ["layout"]={
-        ["draggable"]=true, 
-        ["padding"]=8, 
-        ["font"]={
-            ["name"]="Lucida Console", 
-            ["size"]=9
+    ["MISERY"]={
+        [1]={
+            [1]=false, 
+            [2]=true
         }, 
-        ["colors"]={
-            ["text"]={
-                ["r"]=100, 
-                ["alpha"]=255, 
-                ["g"]=215, 
-                ["b"]=0
-            }, 
-            ["bg"]={
-                ["r"]=0, 
-                ["alpha"]=150, 
-                ["g"]=0, 
-                ["b"]=0
-            }, 
-            ["stroke"]={
-                ["r"]=0, 
-                ["alpha"]=255, 
-                ["g"]=0, 
-                ["b"]=0
-            }
-        }, 
-        ["stroke_width"]=2, 
-        ["pos"]={
-            ["y"]=10, 
-            ["x"]=10
-        }
+        [2]=false
     }, 
     ["SANGUINE"]={
         [1]={
@@ -441,22 +413,18 @@ return {
         [2]=false
     }, 
     ["DEFAULT WS"]="Howling Fist", 
-    ["GAINS"]={
+    ["ARTS"]={
         [1]={
-            [1]="Gain-DEX", 
-            [2]="Gain-STR", 
-            [3]="Gain-MND", 
-            [4]="Gain-INT", 
-            [5]="Gain-AGI", 
-            [6]="Gain-VIT", 
-            [7]="Gain-CHR"
+            [1]="Light Arts", 
+            [2]="Dark Arts"
         }, 
-        [2]="Gain-DEX"
+        [2]="Light Arts"
     }, 
-    ["SKILLS"]={
+    ["1HR"]={
         [1]={
-            [1]="Singing"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Singing"
+        [2]=false
     }
 }

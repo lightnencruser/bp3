@@ -2,7 +2,7 @@ local buffs = {}
 function buffs.new()
     local self = {}
 
-    self.buffActive = function(bp, id)
+    self.buffActive = function(id)
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
 
@@ -21,7 +21,26 @@ function buffs.new()
 
     end
 
-    self.getFinishingMoves = function(bp)
+    self.count = function()
+        local player    = windower.ffxi.get_player() or false
+        local count     = 0
+
+        if player then
+
+            for i=0, 32 do
+
+                if player.buffs[i] ~= 255 then
+                    count = (count + 1)
+                end
+
+            end
+
+        end
+        return count
+
+    end
+
+    self.getFinishingMoves = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
 

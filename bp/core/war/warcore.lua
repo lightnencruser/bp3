@@ -13,7 +13,11 @@ function core.get()
     local self = {}
 
     -- Static Variables
-    self.settings = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job, player.name))
+    self.settings   = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job, player.name))
+    self.layout     = self.settings.layout or {pos={x=10, y=10}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=8, stroke_width=1, draggable=false}
+    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.config     = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important  = string.format('%s,%s,%s', 25, 200, 200)
 
     -- Public Variables
     self["JOB POINTS"]         = windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent
@@ -92,9 +96,9 @@ function core.get()
 
     -- Private Functions.
     local persist = function()
-        local next = next
 
         if self.settings then
+            self.settings.layout                = self.layout
             self.settings["AM"]                 = self["AM"]
             self.settings["AM LEVEL"]           = self["AM LEVEL"]
             self.settings["AM THRESHOLD"]       = self["AM THRESHOLD"]
@@ -152,7 +156,7 @@ function core.get()
             self.settings["WHITE"]              = self["WHITE"]
             self.settings["MISERY"]             = self["MISERY"]
             self.settings["IMPETUS WS"]         = self["IMPETUS WS"]
-            self.settings["FOOTWORK WS"]        = self["FOORWORK WS"]
+            self.settings["FOOTWORK WS"]        = self["FOOTWORK WS"]
             self.settings["DEFAULT WS"]         = self["DEFAULT WS"]
 
         end
@@ -160,7 +164,39 @@ function core.get()
     end
     persist()
 
-    -- Static Functions.
+    -- Static Functions
+    local resetDisplay = function()
+        self.display:pos(self.layout.pos.x, self.layout.pos.y)
+        self.display:font(self.layout.font.name)
+        self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
+        self.display:alpha(self.layout.colors.text.alpha)
+        self.display:size(self.layout.font.size)
+        self.display:pad(self.layout.padding)
+        self.display:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
+        self.display:bg_alpha(self.layout.colors.bg.alpha)
+        self.display:stroke_width(self.layout.stroke_width)
+        self.display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
+        self.display:stroke_alpha(self.layout.colors.stroke.alpha)
+        self.display:hide()
+        self.display:update()
+
+        self.config:pos(10, 10)
+        self.config:font(self.layout.font.name)
+        self.config:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
+        self.config:alpha(self.layout.colors.text.alpha)
+        self.config:size(self.layout.font.size + 1)
+        self.config:pad(self.layout.padding)
+        self.config:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
+        self.config:bg_alpha(self.layout.colors.bg.alpha)
+        self.config:stroke_width(self.layout.stroke_width)
+        self.config:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
+        self.config:stroke_alpha(self.layout.colors.stroke.alpha)
+        self.config:hide()
+        self.config:update()
+
+    end
+    resetDisplay()
+
     self.writeSettings = function()
         persist()
 
@@ -175,6 +211,13 @@ function core.get()
     end
     self.writeSettings()
 
+    self.reload = function()
+        self.writeSettings()
+        self.display:destroy()
+        self.config:destroy()
+
+    end
+
     -- Public Functions.
     self.handleCommands = function(bp, commands)
         local bp = bp or false
@@ -182,11 +225,14 @@ function core.get()
         if commands and commands[1] then
             local command = commands[1]
 
+            if command == 'config' then
+                self.renderConfig(bp)
+            end
+
         end
 
     end
 
-    -- Public Functions.
     self.handleItems = function(bp)
         local bp = bp or false
 
@@ -240,6 +286,7 @@ function core.get()
                 end
 
                 -- HANDLE EVERYTHING INSIDE THE QUEUE.
+                bp.helpers['cures'].handleCuring(bp)
                 helpers['queue'].handle(bp)
 
             end
@@ -248,9 +295,52 @@ function core.get()
 
     end
 
-    self.handleWindow = function(bp)
+    self.render = function(bp)
         local bp = bp or false
 
+    end
+
+    self.renderConfig = function(bp)
+        local bp = bp or false
+
+        if not self.config:visible() then
+            local color = self.important
+            local s     = {}
+
+            for name, settings in pairs(self) do
+
+                if type(settings) == 'table' and name ~= 'important' then
+
+                    if settings[2] and (type(settings[2]) == 'string' or type(settings[2]) == 'number' or type(settings[2]) == 'boolean') and type(settings[2]) ~= 'function' then
+                        table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings[2]):upper():lpad(' ', (25-#name))))
+
+                    elseif not settings[2] and type(settings[2]) == 'boolean' then
+                        table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings[2]):upper():lpad(' ', (25-#name))))
+
+                    end
+
+                elseif type(settings) ~= 'table' and name ~= 'important' then
+
+                    if (type(settings) == 'string' or type(settings) == 'number' or type(settings) == 'boolean') then
+                        table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings):upper():lpad(' ', (25-#name))))
+
+                    elseif not settings and type(settings) == 'boolean' then
+                        table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings[2]):upper():lpad(' ', (25-#name))))
+
+                    end
+
+
+                end
+
+            end
+            self.config:text(table.concat(s, ''))
+            self.config:update()
+            self.config:show()
+
+        elseif self.config:visible() then
+            self.config:hide()
+
+        end
 
     end
 

@@ -4,15 +4,15 @@ return {
     ['Ping Delay']                = 0.6,
     ['Main Character']            = 'Eliidyr',
     ['Characters']                = {
-        'Eliidyr','Turtle','Ninjar','Mutant','Duhpeter','Lordpotato'
+        -- MY CHARACTER
     },
 
     ['Controllers'] = {
-        'Eliidyr','Turtle','Ninjar','Mutant','Duhpeter','Uwu','Doomvtwo','Zutangdupes','Wutangdupes','Minimimi'
+        -- CHARACTERS THAT CAN CONTROL
     },
 
     ['Auto Join'] = {
-        'Eliidyr','Turtle','Ninjar','Mutant','Duhpeter','Uwu','Doomvtwo','Zutangdupes','Wutangdupes','Gianni','Minimimi'
+        -- AUTO JOIN LIST
     },
 
     ['Addons'] = {
@@ -40,6 +40,7 @@ return {
         {name='models',         status=true},
         {name='distance',       status=true},
         {name='cures',          status=true},
+        {name='commands',       status=true},
 
     },
 

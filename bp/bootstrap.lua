@@ -2,6 +2,7 @@ local bootstrap = {}
 bootstrap.load = function()
     local self = {}
 
+    self.debug      = false
     self.core       = false
     self.settings   = {}
     self.helpers    = {}
@@ -11,6 +12,7 @@ bootstrap.load = function()
     self.MA         = {}
     self.WS         = {}
     self.IT         = {}
+    self.buffs      = {list={}, count=0}
     self.res        = require('resources')
     self.files      = require('files')
     self.packets    = require('packets')
@@ -30,7 +32,7 @@ bootstrap.load = function()
     self.pinger     = os.clock()
     self.pos        = {x=windower.ffxi.get_mob_by_target('me').x, y=windower.ffxi.get_mob_by_target('me').y, x=windower.ffxi.get_mob_by_target('me').z}
     self.shutdown   = {[131]=131}
-    self.allowed    = {
+    self.blocked    = {
 
     [026]=026,[048]=048,[050]=050,[053]=053,[070]=070,
     [071]=071,[080]=080,[087]=087,[094]=094,[230]=230,
@@ -41,7 +43,22 @@ bootstrap.load = function()
     [252]=252,[256]=256,[257]=257,[280]=280,[281]=281,
     [284]=284,
 
-}
+    }
+
+    self.skillup    = {
+        
+        ["Divine"]     = {list={"Banish","Flash","Banish II","Enlight","Repose"}, target='t'},
+        ["Enhancing"]  = {list={"Barfire","Barblizzard","Baraero","Barstone","Barthunder","Barwater"}, target='me'},
+        ["Enfeebling"] = {list={"Bind","Blind","Dia","Poison","Gravity","Slow","Silence"}, target='t'},
+        ["Elemental"]  = {list={"Stone"}, target='t'},
+        ["Dark"]       = {list={"Aspir","Aspir II","Bio","Bio II","Drain","Drain II"}, target='t'},
+        ["Singing"]    = {list={"Mage's Ballad","Mage's Ballad II","Mage's Ballad III"}, target='me'},
+        ["Summoning"]  = {list={"Carbuncle"}, target='me'},
+        ["Blue"]       = {list={"Cocoon","Pollen"}, target='me'},
+        ["Geomancy"]   = {list={"Indi-Refresh"}, target='me'},
+        
+        
+    }
 
     self.writeSetting = function(dir, settings)
         local dir, settings = dir or false, settings or {}
@@ -52,7 +69,7 @@ bootstrap.load = function()
 
     end
 
-    local buildCore = function()
+    self.buildCore = function(update)
         local player = windower.ffxi.get_player() or false
 
         if player then
@@ -60,13 +77,19 @@ bootstrap.load = function()
             local f   = self.files.new(dir)
 
             if f:exists() then
-                return dofile(string.format('%s%s', windower.addon_path, dir))
+
+                if update and self.helpers ~= nil then
+                    self.helpers['popchat'].pop(string.format('Core loaded for %s!', player.main_job_full))
+                    self.core.reload()
+                end
+                self.core = dofile(string.format('%s%s', windower.addon_path, dir))
+
             end
 
         end
 
     end
-    self.core = buildCore()
+    self.buildCore(false)
 
     local buildSettings = function()
         local player = windower.ffxi.get_player() or false
@@ -163,7 +186,7 @@ bootstrap.load = function()
     end
     registerEvents()
 
-    buildResources = function()
+    local buildResources = function()
 
         for _,v in pairs(self.res.job_abilities) do
             if v.en then
@@ -191,6 +214,25 @@ bootstrap.load = function()
 
     end
     buildResources()
+
+    local buildBuffs = function()
+        local player = windower.ffxi.get_player() or false
+
+        if player then
+            local buffs = player.buffs
+
+            for i=1, 32 do
+                    
+                if buffs[i] ~= 255 then
+                    self.buffs.count = (self.buffs.count + 1)
+                end
+
+            end
+
+        end
+
+    end
+    buildBuffs()
 
     return self
 

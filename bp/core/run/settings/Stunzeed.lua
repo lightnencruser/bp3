@@ -1,12 +1,5 @@
 return {
-    ["DRAINS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["MIGHTY GUARD"]={
+    ["COMPOSURE"]={
         [1]={
             [1]=true, 
             [2]=false
@@ -23,18 +16,27 @@ return {
         ["Induration"]={}, 
         ["Transfixion"]={}
     }, 
-    ["SHOTS"]={
+    ["CONVERT HPP"]=40, 
+    ["MIGHTY GUARD"]={
         [1]={
-            [1]="Fire Shot", 
-            [2]="Ice Shot", 
-            [3]="Wind Shot", 
-            [4]="Earth Shot", 
-            [5]="Thunder Shot", 
-            [6]="Water Shot", 
-            [7]="Light Shot", 
-            [8]="Dark Shot"
+            [1]=true, 
+            [2]=false
         }, 
-        [2]="Fire Shot"
+        [2]=true
+    }, 
+    ["HATE"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=true
+    }, 
+    ["BPWARD"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
     }, 
     ["TANK MODE"]={
         [1]={
@@ -43,33 +45,22 @@ return {
         }, 
         [2]=false
     }, 
-    ["AM"]={
+    ["ARTS"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Light Arts", 
+            [2]="Dark Arts"
         }, 
-        [2]=false
+        [2]="Light Arts"
     }, 
-    ["ELEMENT"]={
+    ["CONVERT MPP"]=35, 
+    ["SPIKES"]={
         [1]={
-            [1]="Fire", 
-            [2]="Ice", 
-            [3]="Wind", 
-            [4]="Earth", 
-            [5]="Lightning", 
-            [6]="Water", 
-            [7]="Light", 
-            [8]="Dark", 
-            [9]="Random"
+            [1]="None", 
+            [2]="Blaze Spikes", 
+            [3]="Ice Spikes", 
+            [4]="Shock Spikes"
         }, 
-        [2]="Fire"
-    }, 
-    ["HATE"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
+        [2]="None"
     }, 
     ["WEATHER"]={
         [1]={
@@ -84,27 +75,21 @@ return {
         }, 
         [2]="Aurorastorm"
     }, 
-    ["SAMBAS"]={
+    ["HATE DELAY"]=25, 
+    ["GAINS"]={
         [1]={
-            [1]="Drain Samba II", 
-            [2]="Haste Samba"
+            [1]="Gain-DEX", 
+            [2]="Gain-STR", 
+            [3]="Gain-MND", 
+            [4]="Gain-INT", 
+            [5]="Gain-AGI", 
+            [6]="Gain-VIT", 
+            [7]="Gain-CHR"
         }, 
-        [2]="Haste Samba"
+        [2]="Gain-DEX"
     }, 
-    ["THRENODY"]={
-        [1]={
-            [1]="Fire Threnody II", 
-            [2]="Ice Threnody II", 
-            [3]="Wind Threnody II", 
-            [4]="Earth Threnody II", 
-            [5]="Lightning Threnody II", 
-            [6]="Water Threnody II", 
-            [7]="Light Threnody II", 
-            [8]="Dark Threnody II"
-        }, 
-        [2]="Fire Threnody II"
-    }, 
-    ["JA"]={
+    ["SANGUINE HPP"]=45, 
+    ["RA"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -122,22 +107,8 @@ return {
         }, 
         [2]="Enfire"
     }, 
-    ["BURST"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["AM THRESHOLD"]=3000, 
-    ["IMPETUS WS"]="Raging Fists", 
-    ["BOOST"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
+    ["WSNAME"]="Evisceration", 
+    ["RANGED WS"]="Leaden Salute", 
     ["TP THRESHOLD"]=1000, 
     ["DIA"]={
         [1]={
@@ -160,20 +131,13 @@ return {
         }, 
         [2]=false
     }, 
-    ["STEPS"]={
+    ["VPULSE HPP"]=65, 
+    ["BOOST"]={
         [1]={
-            [1]="Quickstep", 
-            [2]="Box Step", 
-            [3]="Stutter Step"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Quickstep"
-    }, 
-    ["WHITE"]={
-        [1]={
-            [1]="Addendum: White", 
-            [2]="Addendum: Black"
-        }, 
-        [2]="Addendum: White"
+        [2]=false
     }, 
     ["BLU MODE"]={
         [1]={
@@ -181,6 +145,14 @@ return {
             [2]="NUKE"
         }, 
         [2]="DPS"
+    }, 
+    ["IMPETUS WS"]="Raging Fists", 
+    ["DEBUFFS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
     }, 
     ["CHIVALRY"]={
         [1]={
@@ -192,38 +164,33 @@ return {
         }, 
         [2]=2000
     }, 
-    ["BPWARD"]={
+    ["BURST"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["QD"]={
+    ["ELEMENT"]={
+        [1]={
+            [1]="Fire", 
+            [2]="Ice", 
+            [3]="Wind", 
+            [4]="Earth", 
+            [5]="Lightning", 
+            [6]="Water", 
+            [7]="Light", 
+            [8]="Dark", 
+            [9]="Random"
+        }, 
+        [2]="Fire"
+    }, 
+    ["MISERY"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
-    }, 
-    ["DEBUFFS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["RANGED WS"]="Leaden Salute", 
-    ["TIER"]={
-        [1]={
-            [1]="I", 
-            [2]="II", 
-            [3]="III", 
-            [4]="IV", 
-            [5]="V", 
-            [6]="Random"
-        }, 
-        [2]="I"
     }, 
     ["STATUS"]={
         [1]={
@@ -232,7 +199,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["BPRAGE"]={
+    ["AM"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -246,123 +213,20 @@ return {
         }, 
         [2]=false
     }, 
-    ["PET"]={
+    ["JA"]={
         [1]={
             [1]=false, 
             [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["CONVERT"]={
-        [1]={
-            [1]=true, 
-            [2]=false
-        }, 
-        [2]=false
-    }, 
-    ["EMBOLDEN"]={
-        [1]={
-            [1]="Palanx", 
-            [2]="Temper", 
-            [3]="Regen IV"
-        }, 
-        [2]="Phalanx"
-    }, 
-    ["1HR"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SKILLUP"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SPIKES"]={
-        [1]={
-            [1]="None", 
-            [2]="Blaze Spikes", 
-            [3]="Ice Spikes", 
-            [4]="Shock Spikes"
-        }, 
-        [2]="None"
-    }, 
-    ["AM LEVEL"]={
-        [1]={
-            [1]=3, 
-            [2]=2, 
-            [3]=1
-        }, 
-        [2]=3
-    }, 
-    ["SHADOWS"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["SUBLIMATION"]={
-        [1]={
-            [1]=true, 
-            [2]=false
         }, 
         [2]=true
     }, 
-    ["SEKKA"]="Evisceration", 
-    ["COMPOSURE"]={
-        [1]={
-            [1]=true, 
-            [2]=false
-        }, 
-        [2]=true
-    }, 
-    ["RA"]={
+    ["BPRAGE"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["MISERY"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
-    ["FOOD"]={
-        [1]={
-            [1]="Sublime Sushi", 
-            [2]="Sublime Sushi +1"
-        }, 
-        [2]="Sublime Sushi"
-    }, 
-    ["SPIRITS"]={
-        [1]={
-            [1]="Light Spirit", 
-            [2]="Fire Spirirt", 
-            [3]="Ice Spirit", 
-            [4]="Air Spirit", 
-            [5]="Earth Spirit", 
-            [6]="Thunder Spirit", 
-            [7]="Water Spirit", 
-            [8]="Dark Spirit"
-        }, 
-        [2]="Light Spirit"
-    }, 
-    ["ARTS"]={
-        [1]={
-            [1]="Light Arts", 
-            [2]="Dark Arts"
-        }, 
-        [2]="Light Arts"
-    }, 
-    ["WSNAME"]="Evisceration", 
     ["SUMMON"]={
         [1]={
             [1]="Carbuncle", 
@@ -379,14 +243,94 @@ return {
         }, 
         [2]="Ifrit"
     }, 
-    ["SC"]={
+    ["PET"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["BUFFS"]={
+    ["CONVERT"]={
+        [1]={
+            [1]=true, 
+            [2]=false
+        }, 
+        [2]=false
+    }, 
+    ["SHADOWS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["SKILLUP"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["DRAINS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
+    ["STEPS"]={
+        [1]={
+            [1]="Quickstep", 
+            [2]="Box Step", 
+            [3]="Stutter Step"
+        }, 
+        [2]="Quickstep"
+    }, 
+    ["ADDENDUM"]={
+        [1]={
+            [1]="Addendum: White", 
+            [2]="Addendum: Black"
+        }, 
+        [2]="Addendum: White"
+    }, 
+    ["SUBLIMATION"]={
+        [1]={
+            [1]=true, 
+            [2]=false
+        }, 
+        [2]=true
+    }, 
+    ["AM LEVEL"]={
+        [1]={
+            [1]=3, 
+            [2]=2, 
+            [3]=1
+        }, 
+        [2]=3
+    }, 
+    ["EMBOLDEN"]={
+        [1]={
+            [1]="Palanx", 
+            [2]="Temper", 
+            [3]="Regen IV"
+        }, 
+        [2]="Phalanx"
+    }, 
+    ["COR SHOTS"]={
+        [1]={
+            [1]="Fire Shot", 
+            [2]="Ice Shot", 
+            [3]="Wind Shot", 
+            [4]="Earth Shot", 
+            [5]="Thunder Shot", 
+            [6]="Water Shot", 
+            [7]="Light Shot", 
+            [8]="Dark Shot"
+        }, 
+        [2]="Fire Shot"
+    }, 
+    ["SEKKA"]="Evisceration", 
+    ["SANGUINE"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -400,8 +344,31 @@ return {
         }, 
         [2]=false
     }, 
+    ["STEPS DELAY"]=25, 
+    ["BUFFS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=true
+    }, 
+    ["FOOD"]={
+        [1]={
+            [1]="Sublime Sushi", 
+            [2]="Sublime Sushi +1"
+        }, 
+        [2]="Sublime Sushi"
+    }, 
+    ["VPULSE MPP"]=65, 
+    ["SAMBAS"]={
+        [1]={
+            [1]="Drain Samba II", 
+            [2]="Haste Samba"
+        }, 
+        [2]="Haste Samba"
+    }, 
     ["layout"]={
-        ["draggable"]=true, 
+        ["draggable"]=false, 
         ["padding"]=8, 
         ["font"]={
             ["name"]="Lucida Console", 
@@ -409,14 +376,14 @@ return {
         }, 
         ["colors"]={
             ["text"]={
-                ["r"]=100, 
+                ["r"]=245, 
                 ["alpha"]=255, 
-                ["g"]=215, 
-                ["b"]=0
+                ["g"]=200, 
+                ["b"]=20
             }, 
             ["bg"]={
                 ["r"]=0, 
-                ["alpha"]=150, 
+                ["alpha"]=245, 
                 ["g"]=0, 
                 ["b"]=0
             }, 
@@ -427,13 +394,13 @@ return {
                 ["b"]=0
             }
         }, 
-        ["stroke_width"]=2, 
+        ["stroke_width"]=1, 
         ["pos"]={
-            ["y"]=10, 
-            ["x"]=10
+            ["y"]=5, 
+            ["x"]=5
         }
     }, 
-    ["SANGUINE"]={
+    ["SC"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -441,22 +408,18 @@ return {
         [2]=false
     }, 
     ["DEFAULT WS"]="Howling Fist", 
-    ["GAINS"]={
+    ["FOOTWORK WS"]="Tornado Kick", 
+    ["1HR"]={
         [1]={
-            [1]="Gain-DEX", 
-            [2]="Gain-STR", 
-            [3]="Gain-MND", 
-            [4]="Gain-INT", 
-            [5]="Gain-AGI", 
-            [6]="Gain-VIT", 
-            [7]="Gain-CHR"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Gain-DEX"
+        [2]=false
     }, 
     ["SKILLS"]={
         [1]={
-            [1]="Singing"
+            [1]="Enhancing"
         }, 
-        [2]="Singing"
+        [2]="Enhancing"
     }
 }

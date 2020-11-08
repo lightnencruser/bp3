@@ -19,17 +19,12 @@ function bubbles.new()
 
     -- Public Variables.
     self.bubbles    = self.settings.debuffs or {self.allowed[365], self.allowed[365], self.allowed[365]}
-    self.active   = {false, false, false}
 
     -- Private Functions
     local persist = function()
         local next = next
 
-        if self.settings and next(self.settings) == nil then
-            self.settings.bubbles = self.bubbles
-            self.settings.layout  = self.layout
-
-        elseif self.settings and next(self.settings) ~= nil then
+        if self.settings then
             self.settings.bubbles = self.bubbles
             self.settings.layout  = self.layout
 

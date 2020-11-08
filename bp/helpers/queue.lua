@@ -29,10 +29,9 @@ function queue.new()
     local persist = function()
         local next = next
 
-        if self.settings and next(self.settings) == nil then
+        if self.settings then
             self.settings.max       = self.max
             self.settings.layout    = self.layout
-            self.writeSettings()
 
         end
 
@@ -67,6 +66,7 @@ function queue.new()
         end
 
     end
+    self.writeSettings()
 
     self.attempt = function()
 
@@ -78,6 +78,13 @@ function queue.new()
             self.clear()
 
         end
+
+    end
+
+    self.clear = function()
+        self.queue:clear()
+        self.queue = Q{}
+        --self.update(self.display)
 
     end
 
@@ -118,7 +125,7 @@ function queue.new()
 
                         -- Add string to update table.
                         if i == 1 then
-                            table.insert(update, string.format((' %s [-[ ACTION QUEUE ]-] %s\n<\\cs(%s)%s\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
+                            table.insert(update, string.format((' %s **[ ACTION QUEUE ]** %s\n<\\cs(%s)%s\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
                                 (''):lpad(' ', 20), (''):rpad(' ', 20),
                                 (colors.attempts),
                                 (attempts),
@@ -252,18 +259,16 @@ function queue.new()
                             
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
                                 
-                                if action.prefix == '/song' and target.id ~= player.id and helpers['party'].isInParty(bp, target.id, true) then
-
-                                    if helpers['actions'].isReady('JA', 'Pianissimo') then
-                                        self.queue:insert(1, {action=bp.JA['Pianissimo'], target=windower.ffxi.get_mob_by_target('me'), priority=priority, attempts=0})
+                                if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
+                                    
+                                    if helpers['actions'].isReady(bp, 'JA', 'Pianissimo') and helpers['songs'].piano then
+                                        self.queue:insert(1, {action=bp.JA['Pianissimo'], target=target, priority=priority, attempts=0})
                                         self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+
+                                    else
+                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+
                                     end
-
-                                elseif action.prefix == '/song' and target.id ~= player.id and not helpers['party'].isInParty(bp, target.id, true) then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
-
-                                elseif action.prefix == '/song' and target.id == player.id then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Self') and target.id == player.id and player['vitals'].mp >= action.mp_cost then
                                     self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
@@ -306,11 +311,13 @@ function queue.new()
                         end
 
                     elseif action_type == 'Ranged' then
-
-                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, {id=65536,en='Ranged',prefix='/ra',type='Ranged', range=14}, target) then
-
+                        helpers['equipment'].update()
+                        
+                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, helpers['actions'].unique.ranged, target) and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                            helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
+                            
                             if distance < (ranges[action.range]+target.model_size) then
-                                self.queue:insert(1, {action={id=65536,en='Ranged',element=-1,prefix='/ra',type='Ranged', range=14}, target=target, priority=priority, attempts=0})
+                                self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
                             end
 
                         end
@@ -409,18 +416,16 @@ function queue.new()
 
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
 
-                                if action.prefix == '/song' and target.id ~= player.id and helpers['party'].isInParty(bp, target.id, true) then
-
-                                    if helpers['actions'].isReady('JA', 'Pianissimo') then
-                                        self.queue:push({action=bp.JA['Pianissimo'], target=windower.ffxi.get_mob_by_target('me'), priority=priority, attempts=0})
+                                if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
+                                    
+                                    if helpers['actions'].isReady(bp, 'JA', 'Pianissimo') and helpers['songs'].piano then
+                                        self.queue:push({action=bp.JA['Pianissimo'], target=target, priority=priority, attempts=0})
                                         self.queue:push({action=action, target=target, priority=priority, attempts=0})
+
+                                    else
+                                        self.queue:push({action=action, target=target, priority=priority, attempts=0})
+
                                     end
-
-                                elseif action.prefix == '/song' and target.id ~= player.id and not helpers['party'].isInParty(bp, target.id, true) then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
-
-                                elseif action.prefix == '/song' and target.id == player.id then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
 
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Self') and target.id == player.id and player['vitals'].mp >= action.mp_cost then
                                     self.queue:push({action=action, target=target, priority=priority, attempts=0})
@@ -464,10 +469,10 @@ function queue.new()
 
                     elseif action_type == 'Ranged' then
 
-                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, {id=65536,en='Ranged',prefix='/ra',type='Ranged', range=14}, target) then
+                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, helpers['actions'].unique.ranged, target) then
 
                             if distance < (ranges[action.range]+target.model_size) then
-                                self.queue:push({action={id=65536,en='Ranged',element=-1,prefix='/ra',type='Ranged', range=14}, target=target, priority=priority, attempts=0})
+                                self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
                             end
 
                         end
@@ -641,20 +646,22 @@ function queue.new()
                     end
 
                 elseif type == 'Ranged' and not midaction then
+                    helpers['equipment'].update()
 
                     if helpers['actions'].canAct(bp) and helpers['target'].allowed(bp, target) then
                         local mob      = windower.ffxi.get_mob_by_id(target.id)
                         local distance = mob.distance:sqrt()
-
-                        if attempts == 15 or system['Ranged'] == nil then
-                            helpers['queue'].remove(bp, {id=65536,en='Ranged',element=-1,prefix='/ra',type='Ranged', range=14}, target)
+                        
+                        if (attempts == 15 or not helpers['equipment'].ammo) or helpers['equipment'].ammo and helpers['equipment'].ammo.en == 'Gil' then
+                            helpers['queue'].remove(bp, helpers['actions'].unique.ranged, target)
 
                         elseif distance < (ranges[action.range]+target.model_size) then
-                            windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
+                            windower.send_command(string.format("input %s %s", action.prefix, target.id))
                             helpers['queue'].attempt(bp)
+                            helpers['equipment'].update()
 
                         elseif distance > (ranges[action.range]+target.model_size) then
-                            helpers['queue'].remove(bp, {id=65536,en='Ranged',element=-1,prefix='/ra',type='Ranged', range=14}, target)
+                            helpers['queue'].remove(bp, helpers['actions'].unique.ranged, target)
 
                         end
 
@@ -761,15 +768,6 @@ function queue.new()
 
     end
 
-    self.clear = function(bp)
-        local bp = bp or false
-
-        self.queue:clear()
-        self.queue = Q{}
-        --self.update(self.display)
-
-    end
-
     self.inQueue = function(bp, action, target)
         local bp        = bp or false
         local action    = action or false
@@ -796,6 +794,29 @@ function queue.new()
                 if type(v) == 'table' and type(action) == 'table' and v.action then
 
                     if v.action.id == action.id and v.action.type == action.type and v.action.en == action.en then
+                        return true
+                    end
+
+                end
+
+            end
+
+        end
+        return false
+
+    end
+
+    self.typeInQueue = function(bp, action)
+        local bp        = bp or false
+        local action    = action or false
+
+        if action and self.queue.data then
+
+            for _,v in ipairs(self.queue.data) do
+
+                if type(v) == 'table' and type(action) == 'table' and v.action then
+
+                    if v.action.type == action.type then
                         return true
                     end
 

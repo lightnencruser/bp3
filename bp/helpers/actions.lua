@@ -22,23 +22,28 @@ function actions.new()
 
     local delays = {
 
-        ['Misc']          = 2.0,  ['WeaponSkill']     = 0.6,  ['Item']            = 2.7,  ['JobAbility']      = 0.6,
-        ['CorsairRoll']   = 0.6,  ['CorsairShot']     = 0.6,  ['Samba']           = 0.6,  ['Waltz']           = 0.6,
-        ['Jig']           = 0.6,  ['Step']            = 0.6,  ['Flourish1']       = 0.6,  ['Flourish2']       = 0.6,
-        ['Flourish3']     = 0.6,  ['Scholar']         = 0.6,  ['Effusion']        = 0.6,  ['Rune']            = 0.6,
-        ['Ward']          = 0.6,  ['BloodPactRage']   = 0.6,  ['BloodPactWard']   = 0.6,  ['PetCommand']      = 0.6,
-        ['Monster']       = 1.0,  ['Dismount']        = 1.0,  ['Ranged']          = 0.6,  ['WhiteMagic']      = 2.7,
-        ['BlackMagic']    = 2.7,  ['BardSong']        = 2.7,  ['Ninjutsu']        = 2.7,  ['SummonerPact']    = 2.7,
-        ['BlueMagic']     = 2.7,  ['Geomancy']        = 2.7,  ['Trust']           = 2.7,
+        ['Misc']        = 1.5,  ['WeaponSkill']     = 0.6,  ['Item']          = 2.7,    ['JobAbility']    = 0.6,
+        ['CorsairRoll'] = 1.5,  ['CorsairShot']     = 0.6,  ['Samba']         = 0.6,    ['Waltz']         = 0.6,
+        ['Jig']         = 0.6,  ['Step']            = 0.6,  ['Flourish1']     = 0.6,    ['Flourish2']     = 0.6,
+        ['Flourish3']   = 0.6,  ['Scholar']         = 0.6,  ['Effusion']      = 0.6,    ['Rune']          = 0.6,
+        ['Ward']        = 0.6,  ['BloodPactRage']   = 0.6,  ['BloodPactWard'] = 0.6,    ['PetCommand']    = 0.6,
+        ['Monster']     = 1.0,  ['Dismount']        = 1.0,  ['Ranged']        = 1.0,    ['WhiteMagic']    = 2.7,
+        ['BlackMagic']  = 2.7,  ['BardSong']        = 2.7,  ['Ninjutsu']      = 2.7,    ['SummonerPact']  = 2.7,
+        ['BlueMagic']   = 2.7,  ['Geomancy']        = 2.7,  ['Trust']     = 2.7,
 
     }
 
     -- Public Variables.
-    self.midaction    = false
-    self.moving       = false
-    self.injecting    = false
-    self.allowed      = {act=true, move=true, cast=true, item=true, move=true}
-    self.position     = {x=0, y=0, z=0}
+    self.midaction  = false
+    self.moving     = false
+    self.injecting  = false
+    self.allowed    = {act=true, move=true, cast=true, item=true, move=true}
+    self.position   = {x=0, y=0, z=0}
+    self.unique     = {
+
+        ranged = {id=65536,en='Ranged',element=-1,prefix='/ra',type='Ranged', range=13},
+
+    }
 
     -- Static Functions.
     self.doAction = function(target, param, action, x, y, z)
@@ -435,29 +440,7 @@ function actions.new()
             end
 
         elseif action and type(action) == 'string' and action == 'Ranged' then
-            local ranged_delay
-
-            if helpers['equipment'].ranged ~= nil or helpers['equipment'].ammo ~= nil then
-
-                if helpers['equipment'].ranged ~= 0 then
-                    ranged_delay = system['Ranged'].delay
-                    return delays['Misc'] + (math.ceil(ranged_delay/106))
-
-                elseif helpers['equipment'].ranged ~= 0 and helpers['equipment'].ammo == 0 then
-                    ranged_delay = helpers['equipment'].ammo.delay
-                    return delays['Misc'] + (math.ceil(ranged_delay/106))
-
-                else
-                    ranged_delay = 600
-                    return delays['Misc'] + (math.ceil(ranged_delay/106))
-
-                end
-
-            else
-                ranged_delay = 600
-                return delays['Misc'] + (math.ceil(ranged_delay/106))
-
-            end
+            return delays['Ranged'] + math.ceil( 550/106 )
 
         end
 

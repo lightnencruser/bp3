@@ -8,7 +8,8 @@ commands.new = function()
         local msg   = ''
         
         if core and commands and commands[1] then
-            local command = windower.convert_auto_trans(commands[1])
+            local command   = windower.convert_auto_trans(commands[1])
+            local player    = windower.ffxi.get_player()
             
             if (command == 'on' or command == 'off' or command == 'toggle') then
                 
@@ -154,9 +155,6 @@ commands.new = function()
             elseif command == 'blu' then
                 core.nextSetting(bp, 'BLU MODE')
 
-            elseif command == 'qd' then
-                core.nextSetting(bp, 'QUICK DRAW')
-
             elseif command == 'shots' then
                 core.nextSetting(bp, 'COR SHOTS')
 
@@ -229,6 +227,8 @@ commands.new = function()
 
                         if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
                             core.setSetting(bp, 'WSNAME', weaponskills[v].en)
+                            break
+                            
                         end
                         
                     end
@@ -246,6 +246,8 @@ commands.new = function()
 
                         if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
                             core.setSetting(bp, 'RANGED WS', weaponskills[v].en)
+                            break
+
                         end
                         
                     end
@@ -253,7 +255,7 @@ commands.new = function()
                 end
 
             elseif command == 'default' then
-                local weaponskill = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
+                local weaponskill   = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
                 local weaponskills  = bp.res.weapon_skills
 
                 for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
@@ -263,6 +265,8 @@ commands.new = function()
                         
                         if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
                             core.setSetting(bp, 'DEFAULT WS', weaponskills[v].en)
+                            break
+
                         end
                         
                     end
@@ -270,7 +274,7 @@ commands.new = function()
                 end
 
             elseif command == 'impetus' then
-                local weaponskill = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
+                local weaponskill   = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
                 local weaponskills  = bp.res.weapon_skills
 
                 for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
@@ -280,6 +284,8 @@ commands.new = function()
                         
                         if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
                             core.setSetting(bp, 'IMPETUS WS', weaponskills[v].en)
+                            break
+
                         end
                         
                     end
@@ -287,7 +293,7 @@ commands.new = function()
                 end
                 
             elseif command == 'footwork' then
-                local weaponskill = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
+                local weaponskill   = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
                 local weaponskills  = bp.res.weapon_skills
 
                 for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
@@ -297,6 +303,8 @@ commands.new = function()
                         
                         if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
                             core.setSetting(bp, 'FOOTWORK WS', weaponskills[v].en)
+                            break
+
                         end
                         
                     end
@@ -304,7 +312,7 @@ commands.new = function()
                 end
 
             elseif command == 'sekka' then
-                local weaponskill = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
+                local weaponskill   = windower.convert_auto_trans(table.concat(commands, " "):sub(7))
                 local weaponskills  = bp.res.weapon_skills
 
                 for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
@@ -314,6 +322,8 @@ commands.new = function()
                         
                         if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
                             core.setSetting(bp, 'SEKKA', weaponskills[v].en)
+                            break
+
                         end
                         
                     end
@@ -331,6 +341,8 @@ commands.new = function()
 
                         if v and type(v) == 'string' and enspell == v:sub(1,3):lower() then
                             core.setSetting(bp, 'ENSPELL', v)
+                            break
+
                         end
                         
                     end
@@ -342,12 +354,14 @@ commands.new = function()
             
                 if gain then
                     local gain = windower.convert_auto_trans(commands[2]):lower()
-                    local list      = bp.core['GAINS'][1]
+                    local list = bp.core['GAINS'][1]
 
                     for _,v in pairs(list) do
                         
                         if v and type(v) == 'string' and gain == v:lower() then
                             core.setSetting(bp, 'GAINS', v)
+                            break
+
                         end
                         
                     end

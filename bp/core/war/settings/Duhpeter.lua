@@ -43,7 +43,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["BPRAGE"]={
+    ["AM"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -64,13 +64,12 @@ return {
         }, 
         [2]="Fire"
     }, 
-    ["EMBOLDEN"]={
+    ["HATE"]={
         [1]={
-            [1]="Palanx", 
-            [2]="Temper", 
-            [3]="Regen IV"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Phalanx"
+        [2]=false
     }, 
     ["WEATHER"]={
         [1]={
@@ -112,12 +111,16 @@ return {
         }, 
         [2]=false
     }, 
-    ["DEBUFFS"]={
+    ["ENSPELL"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Enfire", 
+            [2]="Enblizzard", 
+            [3]="Enaero", 
+            [4]="Enstone", 
+            [5]="Enthunder", 
+            [6]="Enwater"
         }, 
-        [2]=false
+        [2]="Enfire"
     }, 
     ["BURST"]={
         [1]={
@@ -128,7 +131,7 @@ return {
     }, 
     ["AM THRESHOLD"]=3000, 
     ["IMPETUS WS"]="Raging Fists", 
-    ["BPWARD"]={
+    ["BOOST"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -143,7 +146,13 @@ return {
         }, 
         [2]="Dia"
     }, 
-    ["RANGED WS"]="Leaden Salute", 
+    ["STUNS"]={
+        [1]={
+            [1]=false, 
+            [2]=true
+        }, 
+        [2]=false
+    }, 
     ["AOEHATE"]={
         [1]={
             [1]=false, 
@@ -151,16 +160,13 @@ return {
         }, 
         [2]=false
     }, 
-    ["ENSPELL"]={
+    ["STEPS"]={
         [1]={
-            [1]="Enfire", 
-            [2]="Enblizzard", 
-            [3]="Enaero", 
-            [4]="Enstone", 
-            [5]="Enthunder", 
-            [6]="Enwater"
+            [1]="Quickstep", 
+            [2]="Box Step", 
+            [3]="Stutter Step"
         }, 
-        [2]="Enfire"
+        [2]="Quickstep"
     }, 
     ["WHITE"]={
         [1]={
@@ -186,13 +192,12 @@ return {
         }, 
         [2]=2000
     }, 
-    ["STEPS"]={
+    ["BPWARD"]={
         [1]={
-            [1]="Quickstep", 
-            [2]="Box Step", 
-            [3]="Stutter Step"
+            [1]=false, 
+            [2]=true
         }, 
-        [2]="Quickstep"
+        [2]=false
     }, 
     ["QD"]={
         [1]={
@@ -201,29 +206,33 @@ return {
         }, 
         [2]=false
     }, 
-    ["BOOST"]={
+    ["DEBUFFS"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["STUNS"]={
+    ["RANGED WS"]="Leaden Salute", 
+    ["TIER"]={
+        [1]={
+            [1]="I", 
+            [2]="II", 
+            [3]="III", 
+            [4]="IV", 
+            [5]="V", 
+            [6]="Random"
+        }, 
+        [2]="I"
+    }, 
+    ["STATUS"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
     }, 
-    ["SUBLIMATION"]={
-        [1]={
-            [1]=true, 
-            [2]=false
-        }, 
-        [2]=true
-    }, 
-    ["WSNAME"]="Evisceration", 
-    ["AM"]={
+    ["BPRAGE"]={
         [1]={
             [1]=false, 
             [2]=true
@@ -251,18 +260,20 @@ return {
         }, 
         [2]=false
     }, 
-    ["HATE"]={
+    ["EMBOLDEN"]={
+        [1]={
+            [1]="Palanx", 
+            [2]="Temper", 
+            [3]="Regen IV"
+        }, 
+        [2]="Phalanx"
+    }, 
+    ["1HR"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
-    }, 
-    ["SKILLS"]={
-        [1]={
-            [1]="Singing"
-        }, 
-        [2]="Singing"
     }, 
     ["SKILLUP"]={
         [1]={
@@ -295,32 +306,19 @@ return {
         }, 
         [2]=false
     }, 
-    ["TIER"]={
+    ["SUBLIMATION"]={
         [1]={
-            [1]="I", 
-            [2]="II", 
-            [3]="III", 
-            [4]="IV", 
-            [5]="V", 
-            [6]="Random"
+            [1]=true, 
+            [2]=false
         }, 
-        [2]="I"
+        [2]=true
     }, 
-    ["SUMMON"]={
+    ["ARTS"]={
         [1]={
-            [1]="Carbuncle", 
-            [2]="Cait Sith", 
-            [3]="Ifrit", 
-            [4]="Shiva", 
-            [5]="Garuda", 
-            [6]="Titan", 
-            [7]="Ramuh", 
-            [8]="Leviathan", 
-            [9]="Fenrir", 
-            [10]="Diabolos", 
-            [11]="Siren"
+            [1]="Light Arts", 
+            [2]="Dark Arts"
         }, 
-        [2]="Ifrit"
+        [2]="Light Arts"
     }, 
     ["COMPOSURE"]={
         [1]={
@@ -336,13 +334,7 @@ return {
         }, 
         [2]=false
     }, 
-    ["MISERY"]={
-        [1]={
-            [1]=false, 
-            [2]=true
-        }, 
-        [2]=false
-    }, 
+    ["SEKKA"]="Evisceration", 
     ["FOOD"]={
         [1]={
             [1]="Sublime Sushi", 
@@ -370,14 +362,23 @@ return {
         }, 
         [2]=false
     }, 
-    ["STATUS"]={
+    ["SUMMON"]={
         [1]={
-            [1]=false, 
-            [2]=true
+            [1]="Carbuncle", 
+            [2]="Cait Sith", 
+            [3]="Ifrit", 
+            [4]="Shiva", 
+            [5]="Garuda", 
+            [6]="Titan", 
+            [7]="Ramuh", 
+            [8]="Leviathan", 
+            [9]="Fenrir", 
+            [10]="Diabolos", 
+            [11]="Siren"
         }, 
-        [2]=false
+        [2]="Ifrit"
     }, 
-    ["SEKKA"]="Evisceration", 
+    ["WSNAME"]="Evisceration", 
     ["SC"]={
         [1]={
             [1]=false, 
@@ -385,19 +386,24 @@ return {
         }, 
         [2]=false
     }, 
-    ["ARTS"]={
-        [1]={
-            [1]="Light Arts", 
-            [2]="Dark Arts"
-        }, 
-        [2]="Light Arts"
-    }, 
-    ["ALLOW AOE"]={
+    ["MISERY"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
+    }, 
+    ["GAINS"]={
+        [1]={
+            [1]="Gain-DEX", 
+            [2]="Gain-STR", 
+            [3]="Gain-MND", 
+            [4]="Gain-INT", 
+            [5]="Gain-AGI", 
+            [6]="Gain-VIT", 
+            [7]="Gain-CHR"
+        }, 
+        [2]="Gain-DEX"
     }, 
     ["layout"]={
         ["draggable"]=false, 
@@ -440,23 +446,17 @@ return {
         [2]=false
     }, 
     ["DEFAULT WS"]="Howling Fist", 
-    ["GAINS"]={
-        [1]={
-            [1]="Gain-DEX", 
-            [2]="Gain-STR", 
-            [3]="Gain-MND", 
-            [4]="Gain-INT", 
-            [5]="Gain-AGI", 
-            [6]="Gain-VIT", 
-            [7]="Gain-CHR"
-        }, 
-        [2]="Gain-DEX"
-    }, 
-    ["1HR"]={
+    ["ALLOW AOE"]={
         [1]={
             [1]=false, 
             [2]=true
         }, 
         [2]=false
+    }, 
+    ["SKILLS"]={
+        [1]={
+            [1]="Singing"
+        }, 
+        [2]="Singing"
     }
 }

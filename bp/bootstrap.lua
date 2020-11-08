@@ -12,7 +12,6 @@ bootstrap.load = function()
     self.MA         = {}
     self.WS         = {}
     self.IT         = {}
-    self.buffs      = {list={}, count=0}
     self.res        = require('resources')
     self.files      = require('files')
     self.packets    = require('packets')
@@ -162,8 +161,8 @@ bootstrap.load = function()
             {name='zonechange',     type='zone change'},
             {name='daychange',      type='day change'},
             {name='jobchange',      type='job change'},
-            {name='gain buff',      type='gain buff'},
-            {name='lose buff',      type='lose buff'},
+            {name='gainbuff',       type='gain buff'},
+            {name='losebuff',       type='lose buff'},
             {name='prerender',      type='prerender'},
             {name='ipcmessage',     type='ipc message'},
 
@@ -184,7 +183,7 @@ bootstrap.load = function()
         end
 
     end
-    registerEvents()
+    --registerEvents()
 
     local buildResources = function()
 
@@ -214,25 +213,6 @@ bootstrap.load = function()
 
     end
     buildResources()
-
-    local buildBuffs = function()
-        local player = windower.ffxi.get_player() or false
-
-        if player then
-            local buffs = player.buffs
-
-            for i=1, 32 do
-                    
-                if buffs[i] ~= 255 then
-                    self.buffs.count = (self.buffs.count + 1)
-                end
-
-            end
-
-        end
-
-    end
-    buildBuffs()
 
     return self
 

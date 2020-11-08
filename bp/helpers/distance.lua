@@ -76,7 +76,7 @@ function distance.new()
             self.distance = (target.distance):sqrt()
 
             if self.distance > 0 and self.distance ~= nil then
-                update = string.format('%02d.%d%d', tostring(self.distance):sub(1,2), tostring(self.distance):sub(4,4), tostring(self.distance):sub(5,5))
+                update = string.format('%05.2f', self.distance)
                 self.display:text(string.format('{  \\cs(%s)%s\\cr  }', self.important, update))
 
                 if not self.display:visible() then

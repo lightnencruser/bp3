@@ -20,7 +20,7 @@ function core.get()
     self.important  = string.format('%s,%s,%s', 25, 200, 200)
 
     -- Private Variables.
-    local timers     = {hate=0}
+    local timers     = {hate=0, steps=0}
 
     -- Public Variables
     self["JOB POINTS"]          = windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent
@@ -60,8 +60,6 @@ function core.get()
     self["SPIKES"]              = self.settings["SPIKES"] or {{"None","Blaze Spikes","Ice Spikes","Shock Spikes"}, "None"}
     self["DIA"]                 = self.settings["DIA"] or {{"Dia","Bio"}, "Dia"}
     self["SANGUINE"]            = self.settings["SANGUINE"] or {{false,true}, false}
-    self["THRENODY"]            = self.settings["THRENODY"] or {{"Fire Threnody II","Ice Threnody II","Wind Threnody II","Earth Threnody II","Lightning Threnody II","Water Threnody II","Light Threnody II","Dark Threnody II"}, "Fire Threnody II"}
-    self["QUICK DRAW"]          = self.settings["QUICK DRAW"] or {{false,true}, false}
     self["COR SHOTS"]           = self.settings["SHOTS"] or {{"Fire Shot","Ice Shot","Wind Shot","Earth Shot","Thunder Shot","Water Shot","Light Shot","Dark Shot"}, "Fire Shot"}
     self["BOOST"]               = self.settings["BOOST"] or {{false,true}, false}
     self["PET"]                 = self.settings["PET"] or {{false,true}, false}
@@ -84,6 +82,7 @@ function core.get()
     self["VPULSE HPP"]          = self.settings["VPULSE HPP"] or 65
     self["VPULSE MPP"]          = self.settings["VPULSE MPP"] or 65
     self["HATE DELAY"]          = self.settings["HATE DELAY"] or 25
+    self["STEPS DELAY"]         = self.settings["HATE DELAY"] or 20
     self["CONVERT HPP"]         = self.settings["CONVERT HPP"] or 40
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
 
@@ -143,9 +142,7 @@ function core.get()
             self.settings["SPIKES"]             = self["SPIKES"]
             self.settings["DIA"]                = self["DIA"]
             self.settings["SANGUINE"]           = self["SANGUINE"]
-            self.settings["THRENODY"]           = self["THRENODY"]
-            self.settings["QD"]                 = self["QD"]
-            self.settings["SHOTS"]              = self["SHOTS"]
+            self.settings["COR SHOTS"]          = self["COR SHOTS"]
             self.settings["BOOST"]              = self["BOOST"]
             self.settings["PET"]                = self["PET"]
             self.settings["SPIRITS"]            = self["SPIRITS"]
@@ -168,6 +165,7 @@ function core.get()
             self.settings["VPULSE HPP"]         = self["VPULSE HPP"]
             self.settings["VPULSE MPP"]         = self["VPULSE MPP"]
             self.settings["HATE DELAY"]         = self["HATE DELAY"]
+            self.settings["STEPS DELAY"]        = self["HATE DELAY"]
             self.settings["CONVERT HPP"]        = self["CONVERT HPP"]
             self.settings["CONVERT MPP"]        = self["CONVERT MPP"]
 
@@ -905,6 +903,42 @@ function core.get()
                                 helpers['queue'].add(bp, bp.JA["Arcane Circle"], player)
                             
                             end
+
+                        -- RUN/.
+                        elseif player.sub_job == "RUN" then
+                            local runes  = helpers['runes'].runes
+                            local active = helpers["runes"].active
+                            
+                            -- RUNE ENCHANMENTS.
+                            if helpers['actions'].canAct() and active:length() > 0 and active:length() < 3 then
+                                
+                                if runes[active:length()] == 1 then
+                                    
+                                    if helpers['actions'].isReady(bp, "JA", runes[2].en) and not helpers['queue'].inQueue(bp, runes[2], player) then
+                                        helpers['queue'].add(bp, runes[2] "me")
+                                    end
+                                    
+                                elseif runes[active:length()] == 2 then
+                                    
+                                    if helpers['actions'].isReady(bp, "JA", runes[3].en) and not helpers['queue'].inQueue(bp, runes[3], player) then
+                                        helpers['queue'].add(bp, runes[3], "me")
+                                    end
+                                    
+                                elseif runes[active:length()] == 3 then
+                                    
+                                    if helpers['actions'].isReady(bp, "JA", runes[1].en) and not helpers['queue'].inQueue(bp, runes[1], player) then
+                                        helpers['queue'].add(bp, runes[1], "me")
+                                    end
+                                    
+                                end
+                                
+                            elseif active:length() == 0 then
+                                
+                                if helpers['actions'].isReady(bp, "JA", runes[1].en) and not helpers['queue'].inQueue(bp, runes[1], player) then
+                                    helpers['queue'].add(bp, runes[1], "me")
+                                end
+                                
+                            end
                             
                         -- /BLU.
                         elseif player.sub_job == "BLU" then
@@ -967,6 +1001,62 @@ function core.get()
                         
                         end
                         
+                    end
+
+                    -- DEBUFF LOGIC.
+                    if self.getSetting('DEBUFFS') and target then
+                        
+                        -- /DNC.
+                        if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
+                        
+                            -- STEPS.
+                            if helpers["actions"].isReady(bp, "JA", self.getSetting('STEPS')) and os.clock()-timers.steps > self.getSetting('STEPS DELAY') then
+                                helpers['queue'].add(bp, bp.JA[self.getSetting('STEPS')], target)
+                                timers.steps = os.clock()
+
+                            end
+
+                        elseif player.main_job == 'COR' and helpers['actions'].canAct() then
+                            
+                            -- QUICK DRAW.
+                            if helpers["actions"].isReady(bp, "JA", self.getSetting('COR SHOTS')) then
+                                helpers['queue'].add(bp, bp.JA[self.getSetting('COR SHOTS')], target)
+                            end
+
+                        end
+                        
+                    end
+                
+                    -- DRAINS LOGIC
+                    if self.getSetting('DRAINS') and helpers['actions'].canCast() and target then
+                        
+                        if helpers["actions"].isReady(bp, "MA", "Drain III") and player["vitals"].mpp < self.getSetting('DRAIN THRESHOLD') then
+                            helpers["queue"].add(bp, bp.MA["Drain III"], target)
+                            
+                        elseif helpers["actions"].isReady(bp, "MA", "Drain II") and player["vitals"].mpp < self.getSetting('DRAIN THRESHOLD') then
+                            helpers["queue"].add(bp, bp.MA["Drain II"], target)
+                            
+                        elseif helpers["actions"].isReady(bp, "MA", "Drain") and player["vitals"].mpp < self.getSetting('DRAIN THRESHOLD') then
+                            helpers["queue"].add(bp, bp.MA["Drain"], target)
+                            
+                        end
+                        
+                        if helpers["actions"].isReady(bp, "MA", "Aspir III") and player["vitals"].mpp < self.getSetting('ASPIR THRESHOLD') then
+                            helpers["queue"].add(bp, bp.MA["Aspir III"], target)
+                        
+                        elseif helpers["actions"].isReady(bp, "MA", "Aspir II") and player["vitals"].mpp < self.getSetting('ASPIR THRESHOLD') then
+                            helpers["queue"].add(bp, bp.MA["Aspir II"], target)
+                            
+                        elseif helpers["actions"].isReady(bp, "MA", "Aspir") and player["vitals"].mpp < self.getSetting('ASPIR THRESHOLD') then
+                            helpers["queue"].add(bp, bp.MA["Aspir"], target)
+                        
+                        end
+                        
+                    end
+
+                    -- HANDLE RANGED ATTACKS.
+                    if self.getSetting('DEBUFFS') and helpers['queue'].queue:length() == 0 then
+                        helpers['queue'].addToFront(bp, helpers['actions'].unique.ranged, target)
                     end
 
                 end

@@ -3,8 +3,9 @@ function party.new()
     local self = {}
 
     self.getMembers = function(bp, alliance)
-        local party, alliance = windower.ffxi.get_party() or false, alliance or false
-        local members = {}
+        local party     = windower.ffxi.get_party() or false
+        local alliance  = alliance or false
+        local members   = {}
 
         if party then
 
@@ -36,19 +37,25 @@ function party.new()
     end
 
     self.getMember = function(bp, player, alliance)
-        local player, alliance, party = player or false, alliance or false, windower.ffxi.get_party() or false
+        local player    = player or false
+        local alliance  = alliance or false
+        local party     = windower.ffxi.get_party() or false
 
-        if type(player) == "table" then
-            player = player
+        if player then
 
-        elseif type(player) == "string" then
-            player = windower.ffxi.get_mob_by_name(helpers["party"].findName(player))
+            if type(player) == "table" then
+                player = player
 
-        elseif type(player) == "number" then
-            player = windower.ffxi.get_mob_by_id(player)
+            elseif type(player) == "string" and self.findByName(bp, player, alliance) then
+                player = windower.ffxi.get_mob_by_name(self.findByName(bp, player, alliance))
 
-        else
-            return false
+            elseif type(player) == "number" then
+                player = windower.ffxi.get_mob_by_id(player)
+
+            else
+                return false
+
+            end
 
         end
 
@@ -82,19 +89,25 @@ function party.new()
     end
 
     self.isInParty = function(bp, player, alliance)
-        local player, alliance, party = player or false, alliance or false, windower.ffxi.get_party() or false
+        local player    = player or false
+        local alliance  = alliance or false
+        local party     = windower.ffxi.get_party() or false
 
-        if type(player) == "table" then
-            player = player
+        if player then
 
-        elseif type(player) == "string" then
-            player = windower.ffxi.get_mob_by_name(helpers["party"].findName(player))
+            if type(player) == "table" then
+                player = player
 
-        elseif type(player) == "number" then
-            player = windower.ffxi.get_mob_by_id(player)
+            elseif type(player) == "string" then
+                player = windower.ffxi.get_mob_by_name(self.findByName(bp, player, alliance))
 
-        else
-            return false
+            elseif type(player) == "number" then
+                player = windower.ffxi.get_mob_by_id(player)
+
+            else
+                return false
+
+            end
 
         end
 
@@ -196,10 +209,12 @@ function party.new()
     end
 
     self.findByName = function(bp, name, alliance)
-        local name, alliance, party = name or false, alliance or false, windower.ffxi.get_party() or false
+        local name      = name or false
+        local alliance  = alliance or false
+        local party     = windower.ffxi.get_party() or false
 
-        if name and party and type(name) == "string" and name ~= "" and #name > 3 then
-
+        if name and party and type(name) == "string" and name ~= "" and #name > 2 then
+            
             if alliance then
 
                 for i,v in pairs(party) do

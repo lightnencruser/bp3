@@ -151,7 +151,7 @@ function target.new()
 
         if target then
 
-            if (target.distance):sqrt() < 22 and self.castable(bp, target) then
+            if (target.distance):sqrt() < 22 then
                 self.targets.luopan = target
             end
 
@@ -190,7 +190,7 @@ function target.new()
 
         else
 
-            if (target.distance):sqrt() < 22 and target.name ~= player.name and self.castable(bp, target) then
+            if (target.distance):sqrt() < 22 and target.name ~= player.name and helpers['party'].isInParty(bp, target, false) then
                 self.targets.entrust = target
             end
 

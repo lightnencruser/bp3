@@ -498,6 +498,9 @@ function debuffs.new()
             self.layout.pos.x = x
             self.layout.pos.y = y
             self.writeSettings()
+        
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" AND "Y" COORDINATE!')
 
         end
 

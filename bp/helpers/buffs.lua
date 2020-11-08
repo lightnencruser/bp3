@@ -2,6 +2,31 @@ local buffs = {}
 function buffs.new()
     local self = {}
 
+    -- Public Variables
+    self.buffs = {}
+    self.count = 0
+
+    -- Private Functions.
+    local buildBuffs = function()
+        local player = windower.ffxi.get_player() or false
+
+        if player then
+            local buffs = player.buffs
+
+            for i=1, 32 do
+                    
+                if buffs[i] ~= 255 then
+                    self.count = (self.count + 1)
+                end
+
+            end
+
+        end
+
+    end
+    buildBuffs()
+
+    -- Public Functions.
     self.buffActive = function(id)
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
@@ -18,25 +43,6 @@ function buffs.new()
 
         end
         return false
-
-    end
-
-    self.count = function()
-        local player    = windower.ffxi.get_player() or false
-        local count     = 0
-
-        if player then
-
-            for i=0, 32 do
-
-                if player.buffs[i] ~= 255 then
-                    count = (count + 1)
-                end
-
-            end
-
-        end
-        return count
 
     end
 

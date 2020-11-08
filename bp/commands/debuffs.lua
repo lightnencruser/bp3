@@ -33,11 +33,7 @@ function debuffs.new()
 
                     if x and y then
                         bp.helpers['debuffs'].pos(bp, x, y)
-
-                    else
-                        bp.helpers['popchat'].pop('PLEASE ENTER AN "X" AND "Y" COORDINATE!')
-
-                    end                    
+                    end
 
                 end
 

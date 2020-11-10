@@ -45,6 +45,8 @@ return {
         {name='controls',       status=true},
         {name='autoload',       status=true},
         {name='romans',         status=true},
+        {name='maintenance',    status=true},
+        {name='aftermath',      status=true},
 
     },
 

@@ -490,8 +490,8 @@ function debuffs.new()
 
     self.pos = function(bp, x, y)
         local bp    = bp or false
-        local x     = tonumber(x) or false
-        local y     = tonumber(y) or false
+        local x     = tonumber(x) or self.layout.pos.x
+        local y     = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -500,7 +500,7 @@ function debuffs.new()
             self.writeSettings()
         
         elseif bp and (not x or not y) then
-            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" AND "Y" COORDINATE!')
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
         end
 

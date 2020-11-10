@@ -54,6 +54,11 @@ function stunner.new()
     end
     self.writeSettings()
 
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
     -- Public Functions.
     self.add = function(bp, action)
         local bp        = bp or false

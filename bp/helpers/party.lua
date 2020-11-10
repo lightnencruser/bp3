@@ -66,7 +66,7 @@ function party.new()
                 for i,v in pairs(party) do
 
                     if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil and (player.name):lower() == (v.name):lower() then
-                        return v
+                        return player
                     end
 
                 end
@@ -76,7 +76,7 @@ function party.new()
                 for i,v in pairs(party) do
 
                     if i:sub(1,1) == "p" and tonumber(i:sub(2)) ~= nil and (player.name):lower() == (v.name):lower() then
-                        return v
+                        return player
                     end
 
                 end

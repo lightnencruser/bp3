@@ -15,8 +15,17 @@ function songs.new()
                 if command == 'dummy' then
                     bp.helpers['songs'].changeDummy(bp)
 
-                elseif command == 'nitro' then
-                    bp.helpers['songs'].toggleNitro(bp)
+                elseif command == 'delay' and commands[3] then
+                    local delay = tonumber(commands[3]) or false
+
+                    if delay and delay > 0 and delay < 1000 then
+                        bp.helpers['songs'].delay = delay
+                        bp.helpers['popchat'].pop(string.format('SONGS RECAST DELAY NOW SET TO: %03d', delay))
+
+                    else
+                        bp.helpers['popchat'].pop(string.format('PLEASE ENTER A DELAY BETWEEN 1 AND 999!', delay))
+
+                    end
 
                 elseif (command == 'warn' or command == 'warning' or command == 'msg') then
                     bp.helpers['songs'].toggleWarning(bp)
@@ -27,11 +36,8 @@ function songs.new()
                 elseif command == 'clear' then
                     bp.helpers['songs'].clearJukebox()
 
-                elseif command == '1hr' then
-                    bp.helpers['songs'].toggle1HR(bp)
-
-                elseif (command == 'loop' or command == 'repeat') then
-                    bp.helpers['songs'].sing(bp, commands)
+                elseif command == 'pos' and commands[3] then
+                    bp.helpers['songs'].pos(bp, commands[3], commands[4] or false)
 
                 elseif #commands > 3 then
                     bp.helpers['songs'].sing(bp, commands)

@@ -82,6 +82,11 @@ function runes.new()
     end
     self.writeSettings()
 
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
     self.remove = function()
 
         if self.active:length() > 0 then

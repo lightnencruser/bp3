@@ -121,6 +121,19 @@ function rolls.new()
         self.display:stroke_alpha(self.layout.colors.stroke.alpha)
         self.display:update()
 
+        do -- Handle job sepcifics.
+            local player = windower.ffxi.get_player()
+
+            if player.main_job == 'COR' then
+                self.display:show()
+
+            else
+                self.display:hide()
+
+            end
+
+        end
+
     end
     resetDisplay()
 
@@ -136,6 +149,18 @@ function rolls.new()
 
     end
     self.writeSettings()
+
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
+    self.jobChange = function()
+        self.writeSettings()
+        persist()
+        resetDisplay()
+
+    end
 
     self.render = function()
         local render    = {}
@@ -466,14 +491,17 @@ function rolls.new()
 
     self.pos = function(bp, x, y)
         local bp    = bp or false
-        local x     = tonumber(x) or false
-        local y     = tonumber(y) or false
+        local x     = tonumber(x) or self.layout.pos.x
+        local y     = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
             self.layout.pos.x = x
             self.layout.pos.y = y
             self.writeSettings()
+        
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
         end
 

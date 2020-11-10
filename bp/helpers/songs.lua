@@ -23,11 +23,9 @@ function songs.new()
     -- Public Variables.
     self.position   = self.settings.position or 1
     self.dummies    = self.settings.dummies or {}
-    self.nitro      = self.settings.nitro or false
     self.warning    = self.settings.warning or false
     self.delay      = self.settings.delay or 180
     self.piano      = false
-    self.special    = false
     self.jukebox    = Q{}
 
     -- Private Variables.
@@ -106,7 +104,6 @@ function songs.new()
         if self.settings then
             self.settings.position  = self.position
             self.settings.warning   = self.warning
-            self.settings.nitro     = self.nitro
             self.settings.dummy     = self.dummy
             self.settings.layout    = self.layout
 
@@ -127,19 +124,23 @@ function songs.new()
         self.display:stroke_width(self.layout.stroke_width)
         self.display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
         self.display:stroke_alpha(self.layout.colors.stroke.alpha)
-        --self.display:hide()
-        self.display:show() -- TESTING!!
+        self.display:hide()
         self.display:update()
 
         do -- Handle icon if one exists.
+            local player = windower.ffxi.get_player()
 
-            if self.icon then
+            if self.icon and player.main_job == 'BRD' then
                 self.icon:path(string.format("%sbp/resources/icons/songs/jukebox.png", windower.addon_path))
                 self.icon:size(36, 36)
                 self.icon:transparency(0)
                 self.icon:pos_x(self.layout.pos.x-40)
                 self.icon:pos_y(self.layout.pos.y-15)
                 self.icon:show()
+
+            else
+                self.icon:hide()
+                self.display:hide()
 
             end
 
@@ -163,6 +164,11 @@ function songs.new()
     end
     self.writeSettings()
 
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
     self.resetComplexCount = function()
 
         for i,v in pairs(complex) do
@@ -184,7 +190,7 @@ function songs.new()
 
                 if time <= 0 then
                     v.time = os.clock()
-                    windower.send_command(table.concat(v.commands, ' '))
+                    windower.send_command(string.format('bp %s', table.concat(v.commands, ' ')))
 
                 end
 
@@ -197,6 +203,14 @@ function songs.new()
     self.clearJukebox = function()
         self.jukebox:clear()
         self.jukebox = Q{}
+    end
+
+    self.jobChange = function()
+        self.clearJukebox()
+        self.writeSettings()
+        persist()
+        resetDisplay()
+
     end
 
     -- Public Functions.
@@ -254,28 +268,6 @@ function songs.new()
 
     end
 
-    self.toggleNitro = function(bp)
-        local bp = bp or false
-
-        if bp then
-
-            if self.nitro then
-                self.nitro = false
-                bp.helpers['popchat'].pop(string.format('NITRO IS NOW: %s', tostring(self.nitro)))
-                --bp.core.setSetting(bp, 'JA', self.nitro)
-
-            else
-                self.nitro = true
-                --bp.core.setSetting(bp, 'JA', self.nitro)
-                bp.helpers['popchat'].pop(string.format('NITRO IS NOW: %s', tostring(self.nitro)))
-
-            end
-            self.writeSettings()
-
-        end
-
-    end
-
     self.toggleWarning = function(bp)
         local bp = bp or false
 
@@ -288,26 +280,6 @@ function songs.new()
             else
                 self.warning = true
                 bp.helpers['popchat'].pop(string.format('JA WARNING MESSAGE IS NOW: %s', tostring(self.warning)))
-
-            end
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggle1HR = function(bp)
-        local bp = bp or false
-
-        if bp then
-
-            if self.special then
-                self.special = false
-                bp.helpers['popchat'].pop(string.format('SOUL VOICE & CLARION CALL NOW: %s', tostring(self.special)))
-
-            else
-                self.special = true
-                bp.helpers['popchat'].pop(string.format('SOUL VOICE & CLARION CALL NOW: %s', tostring(self.special)))
 
             end
             self.writeSettings()
@@ -339,9 +311,9 @@ function songs.new()
             
             if helpers['party'].getMember(bp, commands[#commands], false) then
                 target = helpers['party'].getMember(bp, commands[#commands], false)
-
+                
                 if target and player then
-
+                    
                     if target.name == player.name then
                         target = player
                     end
@@ -360,24 +332,24 @@ function songs.new()
             end
 
             -- Determine if NiTro should CAN used.
-            if self.nitro and helpers['actions'].isReady(bp, 'JA', 'Nightingale') and helpers['actions'].isReady(bp, 'JA', 'Troubadour') then
+            if bp.core.getSetting('JA') and helpers['actions'].isReady(bp, 'JA', 'Nightingale') and helpers['actions'].isReady(bp, 'JA', 'Troubadour') then
                 flags.ja = true
             end
 
             -- Adjust songs allowed if one-hour is enabled and available.
-            if self.special and flags.ja and helpers['actions'].isReady(bp, 'JA', 'Soul Voice') and helpers['actions'].isReady(bp, 'JA', 'Clarion Call') then
+            if bp.core.getSetting('1HR') and flags.ja and helpers['actions'].isReady(bp, 'JA', 'Soul Voice') and helpers['actions'].isReady(bp, 'JA', 'Clarion Call') then
                 count.allowed   = (count.allowed + 1)
                 flags.specials  = true
 
             -- If enabled but used and the buff is currently active.
-            elseif self.special and not flags.ja and self.specialIsActive(bp) then
+            elseif bp.core.getSetting('1HR') and not flags.ja and self.specialIsActive(bp) then
                 count.allowed   = (count.allowed + 1)
                 flags.specials  = true
 
             end
 
             -- Trigger a warning message if NiTro is down but one-hours are enabled and available.
-            if self.nitro and self.special and not flags.ja and not self.specialIsActive(bp) then
+            if bp.core.getSetting('JA') and bp.core.getSetting('1HR') and not flags.ja and not self.specialIsActive(bp) then
                 windower.send_command('p ***WARNING!*** NITRO IS UNAVAILABLE AND 1HR IS CURRENTLY ACTIVATED!')
             end
 
@@ -417,7 +389,14 @@ function songs.new()
                             end
 
                         end
-                        self.jukebox:push({target=target, commands=new_commands, time=os.clock()})
+
+                        if helpers['buffs'].buffActive(348) or helpers['queue'].inQueue(bp, bp.JA['Troubadour']) then
+                            self.jukebox:push({target=target, commands=new_commands, time=(os.clock()+self.delay)})
+
+                        else
+                            self.jukebox:push({target=target, commands=new_commands, time=os.clock()})
+
+                        end
 
                     end
 

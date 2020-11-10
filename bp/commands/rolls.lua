@@ -54,17 +54,8 @@ function rolls.new()
                 elseif command == 'crooked' then
                     bp.helpers['rolls'].toggleCrooked(bp)
 
-                elseif command == 'pos' and commands[3] and commands[4] then
-                    local x = tonumber(commands[3]) or false
-                    local y = tonumber(commands[4]) or false
-
-                    if x and y then
-                        bp.helpers['debuffs'].pos(bp, x, y)
-                    
-                    elseif bp and (not x or not y) then
-                        bp.helpers['popchat'].pop('PLEASE ENTER AN "X" AND "Y" COORDINATE!')
-
-                    end
+                elseif command == 'pos' and commands[3] then
+                    bp.helpers['rolls'].pos(bp, commands[3], commands[4] or false)
 
                 end
 

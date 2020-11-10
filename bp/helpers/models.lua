@@ -50,6 +50,11 @@ function models.new()
     end
     self.writeSettings()
 
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
     self.adjustModel = function(bp, data)
         local p = packets.parse('incoming', data)
 

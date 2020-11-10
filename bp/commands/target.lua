@@ -77,6 +77,9 @@ function target.new()
 
                     end
 
+                elseif command == 'pos' and commands[3] then
+                    bp.helpers['target'].pos(bp, commands[3], commands[4] or false)
+
                 end
 
             end

@@ -79,7 +79,7 @@ bootstrap.load = function()
 
                 if update and self.helpers ~= nil then
                     self.helpers['popchat'].pop(string.format('Core loaded for %s!', player.main_job_full))
-                    self.core.reload()
+                    --self.core.reload()
                 end
                 self.core = dofile(string.format('%s%s', windower.addon_path, dir))
 

@@ -27,13 +27,8 @@ function debuffs.new()
                 elseif command == 'hide' then
                     bp.helpers['debuffs'].hide()
 
-                elseif command == 'pos' then
-                    local x = tonumber(commands[3]) or false
-                    local y = tonumber(commands[4]) or false
-
-                    if x and y then
-                        bp.helpers['debuffs'].pos(bp, x, y)
-                    end
+                elseif command == 'pos' and commands[3] then
+                    bp.helpers['debuffs'].pos(bp, commands[3], commands[4] or false)
 
                 end
 

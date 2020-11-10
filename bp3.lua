@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201108'
+_addon.version  = '0.20201110'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -14,6 +14,9 @@ windower.register_event('addon command', function(...)
         if bp.commands[c] then
             bp.commands[c].capture(bp, a)
 
+        elseif c == 'mode' then
+            bp.helpers['maintenance'].toggle(bp)
+
         elseif c == 'follow' then
             local player = windower.ffxi.get_player()
 
@@ -26,9 +29,6 @@ windower.register_event('addon command', function(...)
 
         elseif c == 'request_stop' then
             windower.send_command('ord r* bp stop')
-
-        elseif c == 'rollo' then
-            local active = helpers['rolls'].getActive(bp)
 
         else
             bp.core.handleCommands(bp, a)
@@ -48,6 +48,7 @@ windower.register_event('prerender', function()
     bp.helpers['target'].render(bp)
     bp.helpers['rolls'].render(bp)
     bp.helpers['songs'].render(bp)
+    bp.helpers['bubbles'].render(bp)
 
     if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
         bp.helpers['cures'].buildParty()
@@ -363,10 +364,49 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
 end)
 
+windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)
+
+    if id == 0x01a then
+        local packed = bp.packets.parse('outgoing', original)
+
+        if packed and packed['Category'] == 3 then
+
+            if bp.helpers['bubbles'].isGeoSpell(bp, packed['Param']) then
+                local inject = bp.packets.build(bp.helpers['bubbles'].offsetBubble(bp, packed['Target'], packed['Param'], packed['Category']))
+
+                if inject then
+                    return inject
+                end
+
+            end
+            return original
+
+        end
+    
+    elseif id == 0x050 then
+        coroutine.schedule(bp.helpers['equipment'].update, 1)
+
+    end
+
+end)
+
 windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
 
     if id == 0x00e then
         return bp.helpers['models'].adjustModel(bp, original)
+
+    elseif id == 0x037 then
+        local packed = bp.packets.parse('incoming', original)
+
+        if packed then
+            local player = windower.ffxi.get_player()
+            
+            -- Update saved packet data for injection.
+            if player and player.id == packed['Player'] then
+                bp.helpers['maintenance'].updateData(bp, original)
+            end
+
+        end
     
     elseif id == 0x063 then
         local check = original:unpack('H', 0x04+1)
@@ -468,8 +508,30 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
 end)
 
+windower.register_event('zone change', function(new, old)
+
+    -- Handle all helpers zone change function.
+    for _,helper in pairs(bp.helpers) do
+
+        if helper.zoneChange then
+            helper.zoneChange()        
+        end
+
+    end
+
+end)
+
 windower.register_event('job change', function(...)
     bp.buildCore(true)
+
+    -- Handle all helpers job change function.
+    for _,helper in pairs(bp.helpers) do
+
+        if helper.jobChange then
+            helper.jobChange()        
+        end
+
+    end
 
 end)
 

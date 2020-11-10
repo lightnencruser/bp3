@@ -88,6 +88,13 @@ function queue.new()
 
     end
 
+    self.zoneChange = function()
+        self.clear()
+        self.writeSettings()
+        self.ready = (self.ready + 15)
+
+    end
+
     -- Public Functions.
     self.checkReady = function(bp)
         local player      = windower.ffxi.get_player() or false
@@ -125,7 +132,7 @@ function queue.new()
 
                         -- Add string to update table.
                         if i == 1 then
-                            table.insert(update, string.format((' %s **[ ACTION QUEUE ]** %s\n<\\cs(%s)%s\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
+                            table.insert(update, string.format((' %s **[ ACTION QUEUE ]** %s\n<\\cs(%s)%02d\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
                                 (''):lpad(' ', 20), (''):rpad(' ', 20),
                                 (colors.attempts),
                                 (attempts),
@@ -142,7 +149,7 @@ function queue.new()
                             ))
 
                         else
-                            table.insert(update, string.format(('<\\cs(%s)%s\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
+                            table.insert(update, string.format(('<\\cs(%s)%02d\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
                                 (colors.attempts),
                                 (attempts),
                                 (' '):rpad(' ', 2-tostring(attempts):len()),
@@ -178,6 +185,7 @@ function queue.new()
     self.addToFront = function(bp, action, target)
         local bp            = bp or false
         local player        = windower.ffxi.get_player() or false
+        local me            = windower.ffxi.get_mob_by_target('me') or false
         local levels        = {main=player.main_job_level, sub=player.sub_job_level}
         local helpers       = bp.helpers or false
         local target        = target or false
@@ -224,7 +232,7 @@ function queue.new()
                     required = {main=0, sub=0}
                 end
 
-                if target then
+                if target and me then
                     local ranges    = helpers['actions'].getRanges(bp)
                     local distance  = (target.distance):sqrt()
                     
@@ -262,7 +270,7 @@ function queue.new()
                                 if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
                                     
                                     if helpers['actions'].isReady(bp, 'JA', 'Pianissimo') and helpers['songs'].piano then
-                                        self.queue:insert(1, {action=bp.JA['Pianissimo'], target=target, priority=priority, attempts=0})
+                                        self.queue:insert(1, {action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=0})
                                         self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 
                                     else
@@ -287,7 +295,7 @@ function queue.new()
 
                     elseif action_type == 'WeaponSkill' then
 
-                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and not self.wsInQueue(bp, action) and helpers['actions'].isReady(bp, 'WS', action.en) and player['vitals'].tp > 1000 then
+                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'WS', action.en) and player['vitals'].tp > 1000 then
 
                             if distance < (ranges[action.range]+target.model_size) then
                                 self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
@@ -313,11 +321,22 @@ function queue.new()
                     elseif action_type == 'Ranged' then
                         helpers['equipment'].update()
                         
-                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, helpers['actions'].unique.ranged, target) and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
-                            helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
+                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, helpers['actions'].unique.ranged, target) then
+
+                            if helpers['equipment'].ranged and helpers['equipment'].ranged.en ~= 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                                helpers['actions'].unique.ranged.en = helpers['equipment'].ranged.en
                             
-                            if distance < (ranges[action.range]+target.model_size) then
-                                self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                if distance < (ranges[action.range]+target.model_size) then
+                                    self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                end
+
+                            elseif helpers['equipment'].ranged and helpers['equipment'].ranged.en == 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                                helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
+                            
+                                if distance < (ranges[action.range]+target.model_size) then
+                                    self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                end
+
                             end
 
                         end
@@ -335,6 +354,7 @@ function queue.new()
     self.add = function(bp, action, target)
         local bp            = bp or false
         local player        = windower.ffxi.get_player() or false
+        local me            = windower.ffxi.get_mob_by_target('me') or false
         local levels        = {main=player.main_job_level, sub=player.sub_job_level}
         local helpers       = bp.helpers or false
         local target        = target or false
@@ -381,10 +401,10 @@ function queue.new()
                     required = {main=0, sub=0}
                 end
 
-                if target then
+                if target and me then
                     local ranges    = helpers['actions'].getRanges(bp)
                     local distance  = (target.distance):sqrt()
-
+                    
                     if helpers['target'].onlySelf(bp, action) and target.id ~= player.id then
                         target = windower.ffxi.get_mob_by_target('me')
                     end
@@ -419,7 +439,7 @@ function queue.new()
                                 if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
                                     
                                     if helpers['actions'].isReady(bp, 'JA', 'Pianissimo') and helpers['songs'].piano then
-                                        self.queue:push({action=bp.JA['Pianissimo'], target=target, priority=priority, attempts=0})
+                                        self.queue:push({action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=0})
                                         self.queue:push({action=action, target=target, priority=priority, attempts=0})
 
                                     else
@@ -444,7 +464,7 @@ function queue.new()
 
                     elseif action_type == 'WeaponSkill' then
 
-                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and not self.wsInQueue(bp, action) and helpers['actions'].isReady(bp, 'WS', action.en) and player['vitals'].tp > 1000 then
+                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'WS', action.en) and player['vitals'].tp > 1000 then
 
                             if distance < (ranges[action.range]+target.model_size) then
                                 self.queue:push({action=action, target=target, priority=priority, attempts=0})
@@ -468,11 +488,24 @@ function queue.new()
                         end
 
                     elseif action_type == 'Ranged' then
-
+                        helpers['equipment'].update()
+                        
                         if helpers['actions'].canAct(bp) and not self.inQueue(bp, helpers['actions'].unique.ranged, target) then
 
-                            if distance < (ranges[action.range]+target.model_size) then
-                                self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                            if helpers['equipment'].ranged and helpers['equipment'].ranged.en ~= 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                                helpers['actions'].unique.ranged.en = helpers['equipment'].ranged.en
+                            
+                                if distance < (ranges[action.range]+target.model_size) then
+                                    self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                end
+
+                            elseif helpers['equipment'].ranged and helpers['equipment'].ranged.en == 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                                helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
+                            
+                                if distance < (ranges[action.range]+target.model_size) then
+                                    self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                end
+
                             end
 
                         end

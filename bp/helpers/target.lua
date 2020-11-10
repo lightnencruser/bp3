@@ -13,16 +13,16 @@ function target.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/target_settings.lua', windower.addon_path))
-    self.layout     = self.settings.layout or {pos={x=420, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=450, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
-
-    -- Private Variables.
-    local debug     = false
 
     -- Public Variables.
     self.targets    = {player=false, party=false, luopan=false, entrust=false}
     self.mode       = self.settings.mode or 1
+
+    -- Private Variables.
+    local debug     = false
 
     -- Private Functions.
     local persist = function()
@@ -535,11 +535,11 @@ function target.new()
     self.render = function(bp)
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
-        local update    = {[1]='',[2]='',[3]='',[4]=''}
+        local update    = {[1]='',[2]=''}
 
         -- Handle Player Target.
         if self.targets.player then
-            update[1] = string.format('Player Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.player.name)
+            update[1] = string.format('Player:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.player.name)
 
         elseif not self.targets.player then
             update[1] = ''
@@ -548,32 +548,14 @@ function target.new()
 
         -- Handle Party Target.
         if self.targets.party then
-            update[2] = string.format(' +  Party Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.party.name)
+            update[2] = string.format(' +  Party:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.party.name)
 
         elseif not self.targets.party then
             update[2] = ''
 
         end
 
-        -- Handle Entrust Target.
-        if self.targets.entrust then
-            update[3] = string.format(' +  Entrust Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.entrust.name)
-
-        elseif not self.targets.entrust then
-            update[3] = ''
-
-        end
-
-        -- Handle Luopan Target.
-        if self.targets.luopan then
-            update[4] = string.format(' +  Luopan Target:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.luopan.name)
-
-        elseif not self.targets.luopan then
-            update[4] = ''
-
-        end
-
-        if (update[1] ~= '' or update[2] ~= '' or update[3] ~= '' or update[4] ~= '') then
+        if (update[1] ~= '' or update[2] ~= '') then
             self.display:text(table.concat(update, ''))
             self.display:update()
 
@@ -598,9 +580,25 @@ function target.new()
 
         if self.mode == 1 then
             self.mode = 2
-
         else
             self.mode = 1
+        end
+
+    end
+
+    self.pos = function(bp, x, y)
+        local bp    = bp or false
+        local x     = tonumber(x) or self.layout.pos.x
+        local y     = tonumber(y) or self.layout.pos.y
+
+        if bp and x and y then
+            self.display:pos(x, y)
+            self.layout.pos.x = x
+            self.layout.pos.y = y
+            self.writeSettings()
+        
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
         end
 

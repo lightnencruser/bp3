@@ -172,6 +172,28 @@ commands.new = function()
 
                 end
 
+            elseif command == 'myrkr' then
+                local mpp = tonumber(commands[2])
+
+                if hpp and hpp > 0 and hpp <= 100 then
+                    core.setSetting(bp, 'MYRKR MPP', mpp)
+
+                else
+                    msg = ('MYRKR MP% MUST BE BETWEEN 1-100!')
+
+                end
+
+            elseif command == 'moonlight' then
+                local mpp = tonumber(commands[2])
+
+                if hpp and hpp > 0 and hpp <= 100 then
+                    core.setSetting(bp, 'MOONLIGHT MPP', mpp)
+
+                else
+                    msg = ('MOONLIGHT MP% MUST BE BETWEEN 1-100!')
+
+                end
+
             elseif command == 'vpulsehp' then
                 local hpp = tonumber(commands[2])
 

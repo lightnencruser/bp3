@@ -68,6 +68,11 @@ function cures.new()
     end
     self.writeSettings()
 
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
     self.buildParty = function()
         self.party      = {}
         self.alliance   = {}

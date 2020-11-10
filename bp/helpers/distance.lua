@@ -13,7 +13,7 @@ function distance.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/distance/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=420, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Mulish', size=9}, padding=4, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=350, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
@@ -80,15 +80,7 @@ function distance.new()
                 self.display:text(string.format('{  \\cs(%s)%s\\cr  }', self.important, update))
 
                 if not self.display:visible() then
-                    local x = bp.helpers['target'].display:pos_x()
-                    local y = bp.helpers['target'].display:pos_y()
-
-                    if x and y then
-                        self.display:pos(x-70, y)
-                        self.display:show()
-
-                    end
-
+                    self.display:show()
                 end
                 self.display:update()
 
@@ -100,6 +92,24 @@ function distance.new()
 
         elseif self.display:visible() then
             self.display:hide()
+
+        end
+
+    end
+
+    self.pos = function(bp, x, y)
+        local bp    = bp or false
+        local x     = tonumber(x) or self.layout.pos.x
+        local y     = tonumber(y) or self.layout.pos.y
+
+        if bp and x and y then
+            self.display:pos(x, y)
+            self.layout.pos.x = x
+            self.layout.pos.y = y
+            self.writeSettings()
+        
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
         end
 

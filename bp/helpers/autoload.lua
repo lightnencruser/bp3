@@ -17,6 +17,7 @@ function autoload.new()
 
         'superwarp',
         'orders',
+        'enter',
         'interactbruh',
 
     }

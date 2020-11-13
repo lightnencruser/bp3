@@ -52,7 +52,7 @@ function core.get()
     self["SAMBAS"]              = self.settings["SAMBAS"] or {{"Drain Samba II","Haste Samba"}, "Haste Samba"}
     self["STEPS"]               = self.settings["STEPS"] or {{"Quickstep","Box Step","Stutter Step"}, "Quickstep"}
     self["SKILLUP"]             = self.settings["SKILLUP"] or {{false,true}, false}
-    self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing"}, "Enhancing"}
+    self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing","Divine","Enfeebling","Elemental","Dark","Singing","Summoning","Blue","Geomancy"}, "Enhancing"}
     self["COMPOSURE"]           = self.settings["COMPOSURE"] or {{true,false}, true}
     self["CONVERT"]             = self.settings["CONVERT"] or {{true,false}, false}
     self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater"}, "Enfire"}
@@ -164,6 +164,8 @@ function core.get()
             self.settings["FOOTWORK WS"]        = self["FOOTWORK WS"]
             self.settings["DEFAULT WS"]         = self["DEFAULT WS"]
             self.settings["SANGUINE HPP"]       = self["SANGUINE HPP"]
+            self.settings["MOONLIGHT MPP"]      = self["MOONLIGHT MPP"]
+            self.settings["MYRKR MPP"]          = self["MYRKR MPP"]
             self.settings["VPULSE HPP"]         = self["VPULSE HPP"]
             self.settings["VPULSE MPP"]         = self["VPULSE MPP"]
             self.settings["HATE DELAY"]         = self["HATE DELAY"]
@@ -242,6 +244,8 @@ function core.get()
 
             else
                 bp.helpers['commands'].captureCore(bp, commands)
+                persist()
+                bp.core.writeSettings()
 
             end
 
@@ -259,17 +263,17 @@ function core.get()
 
                 if helpers['buffs'].buffActive(15) then
 
-                    if helpers['inventory'].findItemByName("Holy Water") and not helpers['queue'].inQueue(bp, bp.IT["Holy Water"], 'me') then
+                    if helpers['inventory'].findItemByName("Holy Water") and not helpers['queue'].inQueue(bp, bp.IT["Holy Water"]) then
                         helpers['queue'].add(bp, bp.IT["Holy Water"], 'me')
 
-                    elseif helpers['inventory'].findItemByName("Hallowed Water") and not helpers["queue"].inQueue(bp, bp.IT["Hallowed Water"], 'me') then
+                    elseif helpers['inventory'].findItemByName("Hallowed Water") and not helpers["queue"].inQueue(bp, bp.IT["Hallowed Water"]) then
                         helpers['queue'].add(bp, bp.IT["Hallowed Water"], 'me')
 
                     end
 
                 elseif helpers['buffs'].buffActive(6) then
 
-                    if helpers['inventory'].findItemByName("Echo Drops") and not helpers['queue'].inQueue(bp, bp.IT["Echo Drops"], 'me') then
+                    if helpers['inventory'].findItemByName("Echo Drops") and not helpers['queue'].inQueue(bp, bp.IT["Echo Drops"]) then
                         helpers['queue'].add(bp, bp.IT["Echo Drops"], 'me')
                     end
 
@@ -291,6 +295,10 @@ function core.get()
             if helpers['queue'].ready and not helpers['actions'].moving and bp.settings['Enabled'] then
                 self.handleItems(bp)
 
+                if self.getSetting('STATUS') then
+                    bp.helpers['status'].fixStatus(bp)
+                end
+
                 -- PLAYER IS ENGAGED.
                 if player.status == 1 then
                     local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target("t") or false
@@ -309,7 +317,15 @@ function core.get()
                                 for _,v in pairs(skills.list) do
                                     
                                     if helpers['actions'].isReady(bp, "MA", v) then
-                                        helpers['queue'].add(bp, bp.MA[v], bp.skillup[self.getSetting('SKILLS')].target)
+
+                                        if bp.skillup[self.getSetting('SKILLS')].target == 't' and target then
+                                            helpers['queue'].add(bp, bp.MA[v], target)
+
+                                        elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' and target then
+                                            helpers['queue'].add(bp, bp.MA[v], player)
+
+                                        end
+
                                     end
                                 
                                 end
@@ -331,16 +347,16 @@ function core.get()
                             if self.getSetting('SANGUINE') and current.hpp < self.getSetting('SANGUINE HPP') and helpers['actions'].isReady(bp, 'WS', "Sanguine Blade") then
                                 helpers["queue"].addToFront(bp, bp.WS["Sanguine Blade"], target)
 
-                            elseif not helpers['buffs'].buffActive(bp, aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
+                            elseif not helpers['buffs'].buffActive(aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
                                 helpers["queue"].addToFront(bp, bp.WS[weaponskill], target)
 
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
                                 helpers["queue"].addToFront(bp, bp.WS["Moonlight"], 'me')
 
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(bp, aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
                                 
                             end
@@ -367,16 +383,16 @@ function core.get()
                             local weaponskill = helpers["aftermath"].getWeaponskill(bp, current.ranged)
                             local aftermath   = helpers["aftermath"].getBuffByLevel(bp, self.getSetting('AM LEVEL'))
 
-                            if not helpers['buffs'].buffActive(bp, aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
+                            if not helpers['buffs'].buffActive(aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
                                 helpers["queue"].addToFront(bp, bp.WS[weaponskill], target)
 
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
                                 helpers["queue"].addToFront(bp, bp.WS["Moonlight"], 'me')
     
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(bp, aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -468,44 +484,8 @@ function core.get()
                     -- HATE LOGIC.
                     if self.getSetting('HATE') and target then
                         
-                        -- RUN/.
-                        if player.main_job == "RUN" then
-                            
-                            -- FLASH.
-                            if helpers['actions'].canCast() and helpers["actions"].isReady(bp, "MA", "Flash") then
-                                helpers["queue"].addToFront(bp, bp.MA["Foil"], target)
-                            
-                            -- FOIL.
-                            elseif helpers['actions'].canCast() and helpers["actions"].isReady(bp, "JA", "Foil") then
-                                helpers["queue"].addToFront(bp, bp.MA["Foil"], player)
-                                
-                            end
-                            
-                            if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
-                            
-                                -- VALLATION.
-                                if target and helpers["actions"].isReady(bp, "JA", "Vallation") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Vallation"], player)
-                                    timers.hate = os.clock()
-                                
-                                -- VALIANCE.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Valiance") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Valiance"], player)
-                                    timers.hate = os.clock()
-                                    
-                                -- LIEMENT.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Liement") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Liement"], player)
-                                    timers.hate = os.clock()
-                                    
-                                -- PFLUG.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Pflug") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Pflug"], player)
-                                    timers.hate = os.clock()
-                                    
-                                end
-                                
-                            end
+                        -- COR/.
+                        if player.main_job == "COR" then
                         
                         end
                         
@@ -522,7 +502,8 @@ function core.get()
                         
                         -- /RUN.
                         elseif player.sub_job == "RUN" then
-                            
+                            local active = helpers["runes"].getActive(bp)
+
                             -- FLASH.
                             if target and helpers['actions'].canCast() and helpers["actions"].isReady(bp, "MA", "Flash") then
                                 helpers["queue"].addToFront(bp, bp.MA["Flash"], target)                            
@@ -531,12 +512,12 @@ function core.get()
                             if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
                             
                                 -- VALLATION.
-                                if target and helpers["actions"].isReady(bp, "JA", "Vallation") and helpers["runes"].active:length() > 0 then
+                                if target and helpers["actions"].isReady(bp, "JA", "Vallation") and active > 0 then
                                     helpers["queue"].addToFront(bp, bp.JA["Vallation"], player)
                                     timers.hate = os.clock()
                                     
                                 -- PFLUG.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Pflug") and helpers["runes"].active:length() > 0 then
+                                elseif target and helpers["actions"].isReady(bp, "JA", "Pflug") and active > 0 then
                                     helpers["queue"].addToFront(bp, bp.JA["Pflug"], player)
                                     timers.hate = os.clock()
                                     
@@ -674,14 +655,14 @@ function core.get()
                             
                             -- LIGHT ARTS.
                             if helpers['actions'].canAct() and helpers['actions'].isReady(bp, "JA", self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[settings["ARTS"]:current()], player)
+                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
                             
                             -- DARK ARTS.
                             elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, "JA", self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[settings["ARTS"]:current()], player)
+                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
                                 
                             -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", settings["WHITE"]:current()) and helpers["stratagems"].getStratagems().current > 0 then
+                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", self.getSetting('ADDENDUM')) and helpers["stratagems"].getStratagems().current > 0 then
                                             
                                 if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
@@ -724,10 +705,6 @@ function core.get()
                             elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, "MA", "Klimaform") and not helpers['buffs'].buffActive(407) then
                                 helpers['queue'].add(bp, bp.MA["Klimaform"], player)
                                 
-                            -- STONESKIN.
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Light Arts' and helpers['actions'].isReady(bp, "MA", "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
-                                
                             end
                         
                         -- /RDM.
@@ -751,10 +728,6 @@ function core.get()
                             -- REFRESH.
                             elseif not settings["SUBLIMATION"]:current() and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
                                 helpers["queue"].addToFront(MA["Refresh"], player)
-                                
-                            -- STONESKIN.
-                            elseif helpers['actions'].isReady(bp, "MA", "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
                                 
                             -- SPIKES.
                             elseif helpers['actions'].isReady(bp, "MA", self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
@@ -796,7 +769,7 @@ function core.get()
                             
                             -- MEDITATE.
                             elseif helpers['actions'].isReady(bp, "JA", "Meditate") then
-                                helpers["queue"].addToFront(JA["Meditate"], player)
+                                helpers['queue'].addToFront(bp, bp.JA["Meditate"], player)
                             
                             -- THIRD EYE.
                             elseif not helpers['buffs'].buffActive(67) and helpers['actions'].isReady(bp, "JA", "Third Eye") then
@@ -823,38 +796,11 @@ function core.get()
 
                         -- RUN/.
                         elseif player.sub_job == "RUN" then
-                            local runes  = helpers['runes'].runes
-                            local active = helpers["runes"].active
+                            local active = helpers["runes"].getActive(bp)
                             
                             -- RUNE ENCHANMENTS.
-                            if helpers['actions'].canAct() and active:length() > 0 and active:length() < 3 then
-                                
-                                if runes[active:length()] == 1 then
-                                    
-                                    if helpers['actions'].isReady(bp, "JA", runes[2].en) and not helpers['queue'].inQueue(bp, runes[2], player) then
-                                        helpers['queue'].add(bp, runes[2] "me")
-                                    end
-                                    
-                                elseif runes[active:length()] == 2 then
-                                    
-                                    if helpers['actions'].isReady(bp, "JA", runes[3].en) and not helpers['queue'].inQueue(bp, runes[3], player) then
-                                        helpers['queue'].add(bp, runes[3], "me")
-                                    end
-                                    
-                                elseif runes[active:length()] == 3 then
-                                    
-                                    if helpers['actions'].isReady(bp, "JA", runes[1].en) and not helpers['queue'].inQueue(bp, runes[1], player) then
-                                        helpers['queue'].add(bp, runes[1], "me")
-                                    end
-                                    
-                                end
-                                
-                            elseif active:length() == 0 then
-                                
-                                if helpers['actions'].isReady(bp, "JA", runes[1].en) and not helpers['queue'].inQueue(bp, runes[1], player) then
-                                    helpers['queue'].add(bp, runes[1], "me")
-                                end
-                                
+                            if helpers['actions'].canAct() and active >= 0 and active < 3 then
+                                helpers['runes'].handleRunes(bp)
                             end
                             
                         -- /BLU.
@@ -1033,7 +979,15 @@ function core.get()
                                 for _,v in pairs(skills.list) do
                                     
                                     if helpers['actions'].isReady(bp, "MA", v) then
-                                        helpers['queue'].add(bp, bp.MA[v], bp.skillup[self.getSetting('SKILLS')].target)
+
+                                        if bp.skillup[self.getSetting('SKILLS')].target == 't' and target then
+                                            helpers['queue'].add(bp, bp.MA[v], target)
+
+                                        elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' and target then
+                                            helpers['queue'].add(bp, bp.MA[v], player)
+
+                                        end
+
                                     end
                                 
                                 end
@@ -1055,16 +1009,16 @@ function core.get()
                             if self.getSetting('SANGUINE') and current.hpp < self.getSetting('SANGUINE HPP') and helpers['actions'].isReady(bp, 'WS', "Sanguine Blade") then
                                 helpers["queue"].addToFront(bp, bp.WS["Sanguine Blade"], target)
 
-                            elseif not helpers['buffs'].buffActive(bp, aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
+                            elseif not helpers['buffs'].buffActive(aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
                                 helpers["queue"].addToFront(bp, bp.WS[weaponskill], target)
 
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
                                 helpers["queue"].addToFront(bp, bp.WS["Moonlight"], 'me')
 
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(bp, aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
                                 
                             end
@@ -1091,16 +1045,16 @@ function core.get()
                             local weaponskill = helpers["aftermath"].getWeaponskill(bp, current.ranged)
                             local aftermath   = helpers["aftermath"].getBuffByLevel(bp, self.getSetting('AM LEVEL'))
 
-                            if not helpers['buffs'].buffActive(bp, aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
+                            if not helpers['buffs'].buffActive(aftermath) and current.tp > (self.getSetting('AM LEVEL')*1000) and weaponskill and helpers['actions'].isReady(bp, 'WS', weaponskill) then
                                 helpers["queue"].addToFront(bp, bp.WS[weaponskill], target)
 
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
                                 helpers["queue"].addToFront(bp, bp.WS["Moonlight"], 'me')
     
-                            elseif helpers['buffs'].buffActive(bp, aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
+                            elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(bp, aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -1192,44 +1146,8 @@ function core.get()
                     -- HATE LOGIC.
                     if self.getSetting('HATE') and target then
                         
-                        -- RUN/.
-                        if player.main_job == "RUN" then
-                            
-                            -- FLASH.
-                            if helpers['actions'].canCast() and helpers["actions"].isReady(bp, "MA", "Flash") then
-                                helpers["queue"].addToFront(bp, bp.MA["Foil"], target)
-                            
-                            -- FOIL.
-                            elseif helpers['actions'].canCast() and helpers["actions"].isReady(bp, "JA", "Foil") then
-                                helpers["queue"].addToFront(bp, bp.MA["Foil"], player)
-                                
-                            end
-                            
-                            if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
-                            
-                                -- VALLATION.
-                                if target and helpers["actions"].isReady(bp, "JA", "Vallation") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Vallation"], player)
-                                    timers.hate = os.clock()
-                                
-                                -- VALIANCE.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Valiance") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Valiance"], player)
-                                    timers.hate = os.clock()
-                                    
-                                -- LIEMENT.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Liement") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Liement"], player)
-                                    timers.hate = os.clock()
-                                    
-                                -- PFLUG.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Pflug") and helpers['runes'].active:length() > 0 then
-                                    helpers["queue"].addToFront(bp, bp.JA["Pflug"], player)
-                                    timers.hate = os.clock()
-                                    
-                                end
-                                
-                            end
+                        -- COR/.
+                        if player.main_job == "COR" then
                         
                         end
                         
@@ -1246,6 +1164,7 @@ function core.get()
                         
                         -- /RUN.
                         elseif player.sub_job == "RUN" then
+                            local active = helpers["runes"].getActive(bp)
                             
                             -- FLASH.
                             if target and helpers['actions'].canCast() and helpers["actions"].isReady(bp, "MA", "Flash") then
@@ -1255,12 +1174,12 @@ function core.get()
                             if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
                             
                                 -- VALLATION.
-                                if target and helpers["actions"].isReady(bp, "JA", "Vallation") and helpers["runes"].active:length() > 0 then
+                                if target and helpers["actions"].isReady(bp, "JA", "Vallation") and active > 0 then
                                     helpers["queue"].addToFront(bp, bp.JA["Vallation"], player)
                                     timers.hate = os.clock()
                                     
                                 -- PFLUG.
-                                elseif target and helpers["actions"].isReady(bp, "JA", "Pflug") and helpers["runes"].active:length() > 0 then
+                                elseif target and helpers["actions"].isReady(bp, "JA", "Pflug") and active > 0 then
                                     helpers["queue"].addToFront(bp, bp.JA["Pflug"], player)
                                     timers.hate = os.clock()
                                     
@@ -1398,14 +1317,14 @@ function core.get()
                             
                             -- LIGHT ARTS.
                             if helpers['actions'].canAct() and helpers['actions'].isReady(bp, "JA", self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[settings["ARTS"]:current()], player)
+                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
                             
                             -- DARK ARTS.
                             elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, "JA", self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[settings["ARTS"]:current()], player)
+                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
                                 
                             -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", settings["WHITE"]:current()) and helpers["stratagems"].getStratagems().current > 0 then
+                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", self.getSetting('ADDENDUM')) and helpers["stratagems"].getStratagems().current > 0 then
                                             
                                 if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
@@ -1448,10 +1367,6 @@ function core.get()
                             elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, "MA", "Klimaform") and not helpers['buffs'].buffActive(407) then
                                 helpers['queue'].add(bp, bp.MA["Klimaform"], player)
                                 
-                            -- STONESKIN.
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Light Arts' and helpers['actions'].isReady(bp, "MA", "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
-                                
                             end
                         
                         -- /RDM.
@@ -1475,10 +1390,6 @@ function core.get()
                             -- REFRESH.
                             elseif not settings["SUBLIMATION"]:current() and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
                                 helpers["queue"].addToFront(MA["Refresh"], player)
-                                
-                            -- STONESKIN.
-                            elseif helpers['actions'].isReady(bp, "MA", "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
                                 
                             -- SPIKES.
                             elseif helpers['actions'].isReady(bp, "MA", self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
@@ -1520,7 +1431,7 @@ function core.get()
                             
                             -- MEDITATE.
                             elseif helpers['actions'].isReady(bp, "JA", "Meditate") then
-                                helpers["queue"].addToFront(JA["Meditate"], player)
+                                helpers['queue'].addToFront(bp, bp.JA["Meditate"], player)
                             
                             -- THIRD EYE.
                             elseif not helpers['buffs'].buffActive(67) and helpers['actions'].isReady(bp, "JA", "Third Eye") then
@@ -1547,38 +1458,11 @@ function core.get()
 
                         -- RUN/.
                         elseif player.sub_job == "RUN" then
-                            local runes  = helpers['runes'].runes
-                            local active = helpers["runes"].active
+                            local active = helpers["runes"].getActive(bp)
                             
                             -- RUNE ENCHANMENTS.
-                            if helpers['actions'].canAct() and active:length() > 0 and active:length() < 3 then
-                                
-                                if runes[active:length()] == 1 then
-                                    
-                                    if helpers['actions'].isReady(bp, "JA", runes[2].en) and not helpers['queue'].inQueue(bp, runes[2], player) then
-                                        helpers['queue'].add(bp, runes[2] "me")
-                                    end
-                                    
-                                elseif runes[active:length()] == 2 then
-                                    
-                                    if helpers['actions'].isReady(bp, "JA", runes[3].en) and not helpers['queue'].inQueue(bp, runes[3], player) then
-                                        helpers['queue'].add(bp, runes[3], "me")
-                                    end
-                                    
-                                elseif runes[active:length()] == 3 then
-                                    
-                                    if helpers['actions'].isReady(bp, "JA", runes[1].en) and not helpers['queue'].inQueue(bp, runes[1], player) then
-                                        helpers['queue'].add(bp, runes[1], "me")
-                                    end
-                                    
-                                end
-                                
-                            elseif active:length() == 0 then
-                                
-                                if helpers['actions'].isReady(bp, "JA", runes[1].en) and not helpers['queue'].inQueue(bp, runes[1], player) then
-                                    helpers['queue'].add(bp, runes[1], "me")
-                                end
-                                
+                            if helpers['actions'].canAct() and active >= 0 and active < 3 then
+                                helpers['runes'].handleRunes(bp)
                             end
                             
                         -- /BLU.

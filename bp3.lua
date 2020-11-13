@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201110'
+_addon.version  = '0.20201112 ALPHA'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -30,6 +30,19 @@ windower.register_event('addon command', function(...)
         elseif c == 'request_stop' then
             windower.send_command('ord r* bp stop')
 
+        elseif c =='layout' then
+            bp.helpers['layout'].toggle(bp)
+
+        elseif c == 'info' then
+            local target = windower.ffxi.get_mob_by_target('t') or false
+
+            if target then
+                table.print(target)
+            end
+
+        elseif (c == 'r' or c == 'reload') then
+            windower.send_command('lua r bp3')
+
         else
             bp.core.handleCommands(bp, a)
 
@@ -41,33 +54,39 @@ end)
 
 ActionPacket.open_listener(bp.helpers['noknock'].block)
 windower.register_event('prerender', function()
-    bp.helpers['actions'].setMoving(bp)
-    bp.helpers['distance'].render(bp)
-    bp.helpers['popchat'].render(bp)
-    bp.helpers['debuffs'].render(bp)
-    bp.helpers['target'].render(bp)
-    bp.helpers['rolls'].render(bp)
-    bp.helpers['songs'].render(bp)
-    bp.helpers['bubbles'].render(bp)
 
-    if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
-        bp.helpers['cures'].buildParty()
-        bp.helpers['queue'].render(bp)
-        bp.helpers['cures'].handleCuring(bp)
-        bp.core.handleAutomation(bp)
+    if windower.ffxi.get_player() then
+        bp.helpers['actions'].setMoving(bp)
+        bp.helpers['distance'].render(bp)
+        bp.helpers['popchat'].render(bp)
+        bp.helpers['debuffs'].render(bp)
+        bp.helpers['target'].render(bp)
+        bp.helpers['runes'].render(bp)
+        bp.helpers['rolls'].render(bp)
+        bp.helpers['songs'].render(bp)
+        bp.helpers['bubbles'].render(bp)
+        bp.helpers['speed'].render(bp)
+        bp.helpers['stratagems'].render(bp)
+        bp.helpers['status'].render(bp)
 
-        -- Update the system pinger.
-        bp.pinger = os.clock()
+        if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
+            bp.helpers['cures'].buildParty()
+            bp.helpers['queue'].render(bp)
+            bp.core.handleAutomation(bp)
 
-    elseif bp.settings['Enabled'] and bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
-        bp.helpers['cures'].buildParty()
-        bp.helpers['queue'].render(bp)
+            -- Update the system pinger.
+            bp.pinger = os.clock()
 
-        -- Update the system pinger.
-        bp.pinger = os.clock()
+        elseif bp.settings['Enabled'] and bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
+            bp.helpers['queue'].render(bp)
+
+            -- Update the system pinger.
+            bp.pinger = os.clock()
+
+        end
+        bp.helpers['target'].updateTargets(bp)
 
     end
-    bp.helpers['target'].updateTargets(bp)
 
 end)
 
@@ -81,8 +100,6 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
         local count     = pack['Target Count']
         local category  = pack['Category']
         local param     = pack['Param']
-
-        --bp.helpers['status'].actions(original)
         
         if actor and target then
 
@@ -172,9 +189,6 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                         elseif param == 123 then
                             bp.helpers['rolls'].diceTotal(bp, pack['Target 1 Action 1 Param'])
-
-                        elseif action.type == 'Rune' and runes[param] and bp.helpers['runes'].getBuff(bp, runes[param].en) and bp.helpers['runes'].validBuff(bp, bp.helpers['runes'].getBuff(bp, runes[param].en).id) then
-                            bp.helpers['runes'].add(bp, bp.helpers['runes'].getRune(bp, runes[param].en))
 
                         end
 
@@ -358,6 +372,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
             end
 
+            -- Handle Status Debuffing.
+            bp.helpers['status'].catchStatus(bp, original)
+
         end
 
     end
@@ -395,6 +412,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
     if id == 0x00e then
         return bp.helpers['models'].adjustModel(bp, original)
 
+    elseif id == 0x029 then
+        --bp.helpers['status'].messages(bp, original)
+
     elseif id == 0x037 then
         local packed = bp.packets.parse('incoming', original)
 
@@ -402,11 +422,12 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             local player = windower.ffxi.get_player()
             
             -- Update saved packet data for injection.
-            if player and player.id == packed['Player'] then
+            if player and player.id == packed['Player'] and packed['Status'] ~= 31 then
                 bp.helpers['maintenance'].updateData(bp, original)
             end
 
         end
+        return bp.helpers['speed'].adjustSpeed(bp, original)
     
     elseif id == 0x063 then
         local check = original:unpack('H', 0x04+1)
@@ -416,7 +437,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             
             if player then
                 local buffs = { list={original:unpack('H32', 0x08+1)}, count=0 }
-                
+
                 -- Track buff count.
                 for i=1, 32 do
 
@@ -437,10 +458,8 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                                 if bp.res.buffs[buffs.list[i]] then
                                     local gain = bp.res.buffs[buffs.list[i]]
-                                
-                                    if (player.main_job == 'RUN' or player.sub_job == 'RUN') then
-
-                                    elseif (player.main_job == 'COR' or player.sub_job == 'COR') then
+                                    
+                                    if (player.main_job == 'COR' or player.sub_job == 'COR') then
 
                                         if gain.id == 308 then
                                             bp.helpers['rolls'].rolling = true
@@ -468,14 +487,8 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                                 if bp.res.buffs[bp.helpers['buffs'].buffs[i]] then
                                     local lost = bp.res.buffs[bp.helpers['buffs'].buffs[i]]
-                                
-                                    if (player.main_job == 'RUN' or player.sub_job == 'RUN') then
-
-                                        if bp.helpers['runes'].validBuff(bp, lost.id)  then
-                                            bp.helpers['runes'].remove()
-                                        end
                                         
-                                    elseif (player.main_job == 'COR' or player.sub_job == 'COR') then
+                                    if (player.main_job == 'COR' or player.sub_job == 'COR') then
                                         
                                         if lost.id == 308 then
                                             bp.helpers['rolls'].rolling = false
@@ -508,7 +521,26 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
 end)
 
+windower.register_event('status change', function(new, old)
+    
+    if new == 1 then
+        local target = windower.ffxi.get_mob_by_target('t') or false
+
+        if target then
+            bp.helpers['target'].setTarget(bp, target)
+        end
+
+    elseif new == 0 then
+        bp.helpers['target'].clear()
+
+    end
+
+end)
+
 windower.register_event('zone change', function(new, old)
+
+    -- Delay pinger to prevent spam.
+    bp.pinger = (os.clock() + 15)
 
     -- Handle all helpers zone change function.
     for _,helper in pairs(bp.helpers) do
@@ -545,8 +577,14 @@ windower.register_event('party invite', function(sender, id)
 end)
 
 windower.register_event('unload', function()
+    bp.helpers['alias'].unbind()
     bp.helpers['keybinds'].unbind()
     bp.helpers['autoload'].unload()
+
+end)
+
+windower.register_event('chat message', function(message, sender, mode, gm)
+    bp.helpers['commands'].captureChat(bp, message, sender, mode, gm)
 
 end)
 
@@ -578,6 +616,20 @@ windower.register_event('mouse', function(param, x, y, delta, blocked)
                 bp.helpers['songs'].updatePosition()
                 display:hide()
 
+            end
+        
+        elseif (player.main_job == 'SCH' or player.sub_job == 'SCH') and param == 0 then
+            local display = bp.helpers['stratagems'].display
+
+            if display:visible() and display:hover(x, y) and drag == 2 then
+                bp.helpers['stratagems'].updatePosition(x, y)
+            end
+
+        elseif (player.main_job == 'SCH' or player.sub_job == 'SCH') and param == 2 then
+            local display = bp.helpers['stratagems'].display
+
+            if display:visible() and display:hover(x, y) then
+                bp.helpers['stratagems'].writeSettings()
             end
 
         end

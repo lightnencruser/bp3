@@ -124,7 +124,7 @@ function rolls.new()
         do -- Handle job sepcifics.
             local player = windower.ffxi.get_player()
 
-            if player.main_job == 'COR' then
+            if (player.main_job == 'COR' or player.sub_job == 'COR') then
                 self.display:show()
 
             else
@@ -325,7 +325,7 @@ function rolls.new()
     
         if bp and player then
             local helpers   = bp.helpers
-            local buffs     = player.buffs
+            local buffs     = windower.ffxi.get_player().buffs
             local count     = 0
             
             for _,v in ipairs(buffs) do

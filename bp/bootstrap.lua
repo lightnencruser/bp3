@@ -28,7 +28,7 @@ bootstrap.load = function()
                     require('logger')
                     require('pack')
 
-    self.pinger     = os.clock()
+    self.pinger     = os.clock()+15
     self.pos        = {x=windower.ffxi.get_mob_by_target('me').x, y=windower.ffxi.get_mob_by_target('me').y, x=windower.ffxi.get_mob_by_target('me').z}
     self.shutdown   = {[131]=131}
     self.blocked    = {

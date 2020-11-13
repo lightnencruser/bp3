@@ -4,6 +4,7 @@ function maintenance.new()
 
     -- Public Variables.
     self.data       = false
+    self.status     = 0
     self.enabled    = false
 
     -- Public Functions.
@@ -11,7 +12,12 @@ function maintenance.new()
         local original = original or false
 
         if original then
-            self.data = original
+            self.data = bp.packets.parse('incoming', original)
+
+            if self.data['Status'] ~= 31 then
+                self.status = self.data['Status']            
+            end
+
         end
 
     end
@@ -21,11 +27,11 @@ function maintenance.new()
 
         if bp then
 
-            if self.data then
-                local packed = bp.packets.parse('incoming', self.data)
+            if self.data and self.status then
+                local packed = self.data
 
                 if self.enabled then
-                    self.enabled, packed['Status'] = true, 0
+                    self.enabled, packed['Status'] = false, self.status
 
                 elseif not self.enabled then
                     self.enabled, packed['Status'] = true, 31

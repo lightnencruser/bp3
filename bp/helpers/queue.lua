@@ -84,21 +84,25 @@ function queue.new()
     self.clear = function()
         self.queue:clear()
         self.queue = Q{}
-        --self.update(self.display)
+        self.display:text('')
+        self.display:update()
+        self.display:hide()
 
     end
 
     self.zoneChange = function()
         self.clear()
         self.writeSettings()
-        self.ready = (self.ready + 15)
+        self.display:text('')
+        self.display:update()
+        self.display:hide()
 
     end
 
     -- Public Functions.
     self.checkReady = function(bp)
         local player      = windower.ffxi.get_player() or false
-        local ready       = {[0]=0,[1]=1,[10]=10,[11]=11,[85]=85}
+        local ready       = {[0]=0,[1]=1,[4]=4,[10]=10,[11]=11,[85]=85}
 
         if os.clock() > self.ready and player and ready[player.status] then
             return true
@@ -411,7 +415,7 @@ function queue.new()
 
                     if action_type == 'JobAbility' then
 
-                        if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'JA', action.en) then
+                        if helpers['actions'].canAct(bp) and (not self.inQueue(bp, action, target) or action.type == 'Rune') and helpers['actions'].isReady(bp, 'JA', action.en) then
 
                             if action.prefix == '/pet' then
                                 local pet = windower.ffxi.get_mob_by_target('pet') or false
@@ -545,7 +549,7 @@ function queue.new()
                         if attempts == 15 then
                             helpers['queue'].remove(bp, res.job_abilities[action.id], target)
 
-                        elseif not helpers['actions'].canAct(bp) or not helpers['actions'].isReady(bp, 'JA', action.en) and action.en ~= 'Pianissimo' then
+                        elseif not helpers['actions'].canAct(bp) or not helpers['actions'].isReady(bp, 'JA', action.en) and action.en ~= 'Pianissimo' and action.type ~= 'Rune' then
                             helpers['queue'].remove(bp, res.job_abilities[action.id], target)
 
                         elseif action.prefix == '/pet' then
@@ -584,9 +588,20 @@ function queue.new()
 
                         else
 
-                            if distance < (ranges[action.range]+target.model_size) then
+                            if distance < (ranges[action.range]+target.model_size) and action.type ~= 'Rune' then
                                 windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                 helpers['queue'].attempt(bp)
+
+                            elseif distance < (ranges[action.range]+target.model_size) and action.type == 'Rune' then
+
+                                if helpers['actions'].isReady(bp, 'JA', action.en) then
+                                    windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
+                                    helpers['queue'].attempt(bp)
+                                
+                                else
+                                    helpers['queue'].attempt(bp)
+
+                                end
 
                             elseif distance > (ranges[action.range]+target.model_size) then
                                 helpers['queue'].remove(bp, res.job_abilities[action.id], target)
@@ -668,7 +683,7 @@ function queue.new()
                             helpers['queue'].remove(bp, res.items[action.id], target)
 
                         else
-                            windower.send_command(string.format("input /item '%s' %s", action.en, target.id))
+                            windower.send_command(string.format("input /item '%s' <me>", action.en))
                             helpers['queue'].attempt(bp)
 
                         end
@@ -961,14 +976,17 @@ function queue.new()
                             if v.target.id == target.id and ((action.en):match('Cure') or (name):match('Cura')) then
                                 helpers['queue'].remove(bp, bp.MA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                break
 
                             elseif v.target.id == target.id and (action.en):match('Waltz') then
                                 helpers['queue'].remove(bp, bp.JA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                break
 
                             elseif v.target.id == target.id and (action.en):match(v.action.en) then
                                 helpers['queue'].remove(bp, bp.MA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                break
 
                             end
 

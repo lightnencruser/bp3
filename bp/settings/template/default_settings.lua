@@ -47,6 +47,12 @@ return {
         {name='romans',         status=true},
         {name='maintenance',    status=true},
         {name='aftermath',      status=true},
+        {name='layout',         status=true},
+        {name='speed',          status=true},
+        {name='stratagems',     status=true},
+        {name='status',         status=true},
+        {name='burst',          status=true},
+        {name='alias',          status=true},
 
     },
 

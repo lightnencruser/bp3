@@ -21,6 +21,7 @@ function cures.new()
     local spells    = {1,2,3,4,5,6,7,8,9,10,11,578,593,658,581,690}
     local abilities = {190,191,192,193,311,195,262}
     local modes     = {'OFF','PARTY','ALLIANCE'}
+    local store     = 100
     local math      = math
     local needed    = {}
     local allowed   = {
@@ -426,7 +427,7 @@ function cures.new()
                                 table.insert(weights[player.main_job_id][cure.id], info.min)                            
                             end
 
-                            if #weights[player.main_job_id][cure.id] > 100 then
+                            if #weights[player.main_job_id][cure.id] > store then
                                 table.remove(weights[player.main_job_id][id], 1)
                             end
 
@@ -439,7 +440,7 @@ function cures.new()
                                 table.insert(weights[player.main_job_id][cure.id], info.min)                            
                             end
 
-                            if #weights[player.main_job_id][cure.id] > 100 then
+                            if #weights[player.main_job_id][cure.id] > store then
                                 table.remove(weights[player.main_job_id][id], 1)
                             end
 
@@ -474,7 +475,7 @@ function cures.new()
                                 table.insert(self.weights[player.main_job_id][cure.id], info.min)                            
                             end
 
-                            if #self.weights[player.main_job_id][cure.id] > 100 then
+                            if #self.weights[player.main_job_id][cure.id] > store then
                                 table.remove(weights[player.main_job_id][id], 1)
                             end
 
@@ -487,7 +488,7 @@ function cures.new()
                                 table.insert(self.weights[player.main_job_id][cure.id], info.min)                            
                             end
 
-                            if #self.weights[player.main_job_id][cure.id] > 100 then
+                            if #self.weights[player.main_job_id][cure.id] > store then
                                 table.remove(weights[player.main_job_id][id], 1)
                             end
 
@@ -518,12 +519,12 @@ function cures.new()
         if self.party and self.alliance and self.mode ~= 1 then
             local count     = self.curesNeeded()
             local player    = windower.ffxi.get_player() or false
-            local helpers   = bp.helpers
+            local helpers   = bp.helpers            
             
             if self.mode == 2 and count > 0 then
                 local party     = T(self.party)
                 local id        = false
-                
+
                 if count < 3 and (player.main_job == "WHM" or player.main_job == "RDM" or player.main_job == "SCH" or player.main_job == "PLD" or player.sub_job == "WHM" or player.sub_job == "RDM" or player.sub_job == "SCH" or player.sub_job == "PLD") and player.main_job ~= "DNC" and player.main_job ~= "BLU" then
                     
                     for _,v in ipairs(party) do
@@ -646,7 +647,7 @@ function cures.new()
                     end
                     
                 end
-                
+            
             elseif mode == 3 and count > 0 then
                 local alliance = T(T(party):extend(T(alliance)))
                 local missing = 0
@@ -776,9 +777,9 @@ function cures.new()
                         end
                         
                     end
-                    
-                end
                 
+                end
+            
             end
             
         end

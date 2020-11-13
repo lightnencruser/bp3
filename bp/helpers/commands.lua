@@ -15,10 +15,12 @@ commands.new = function()
                 
                 if bp.settings['Enabled'] then
                     bp.settings['Enabled'] = false
+                    bp.helpers['queue'].clear()
                     msg = ('BUDDYPAL AUTOMATION NOW DISABLED!')
 
                 else
                     bp.settings['Enabled'] = true
+                    bp.helpers['queue'].clear()
                     msg = ('BUDDYPAL AUTOMATION NOW ENABLED!')
 
                 end
@@ -453,6 +455,965 @@ commands.new = function()
 
         end
 
+    end
+
+    self.captureChat = function(bp, message, sender, mode, gm)
+        local bp        = bp or false
+        local message   = message or false
+        local sender    = sender or false
+        local allowed   = false
+
+        if gm then
+            return
+        end
+
+        for _,v in pairs(bp.settings.Controllers) do
+            if v == sender then
+                allowed = true
+            end
+        end
+        
+        if bp and message and sender and allowed then
+            local player  = windower.ffxi.get_player()
+            
+            do -- Run Jobs based chat commands.
+                bp.helpers['commands'][player.main_job:lower()](bp, message, sender)
+            end
+            
+        end
+        
+    end
+        
+    self.war = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+    
+        if message and sender then
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+            
+        end
+        
+    end
+    
+    self.mnk = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            
+        end
+        
+    end
+        
+    self.whm = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if bp and message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "haste" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                    
+                elseif command == "protect" and bp.helpers["target"].castable(bp, target, bp.MA["Protect"]) then
+                    helpers["queue"].add(bp, bp.MA["Protect V"], target)
+                    
+                elseif command == "protectra" and bp.helpers["target"].castable(bp, player, bp.MA["Protectra"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                
+                elseif command == "shell" and bp.helpers["target"].castable(bp, target, bp.MA["Shell"]) then
+                    helpers["queue"].add(bp, bp.MA["Shell V"], target)
+                    
+                elseif command == "shellra" and bp.helpers["target"].castable(bp, player, bp.MA["Shellra"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    
+                elseif command == "auspice" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                    
+                elseif command == "regen" and bp.helpers["target"].castable(bp, target, bp.MA["Regen"]) then
+                    helpers["queue"].add(bp, bp.MA["Regen IV"], target)
+                    
+                elseif command == "erase" and bp.helpers["target"].castable(bp, target, bp.MA["Erase"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Erase"], target)
+                    
+                elseif command == "para" and bp.helpers["target"].castable(bp, target, bp.MA["Paralyna"]) then
+                    helpers["queue"].add(bp, bp.MA["Paralyna"], target)
+                    
+                elseif (command == "stoned" or command == "stona") and bp.helpers["target"].castable(bp, target, bp.MA["Stona"]) then
+                    helpers["queue"].add(bp, bp.MA["Stona"], target)
+                    
+                elseif (command == "curse" or command == "doom") and bp.helpers["target"].castable(bp, target, bp.MA["Cursna"]) then
+                    helpers["queue"].add(bp, bp.MA["Cursna"], target)
+                        
+                elseif command == "zzz" then
+                    
+                    if bp.helpers["target"].castable(bp, target, bp.MA["Curaga"]) and bpcore:isInParty(target, false) then
+                        helpers["queue"].add(bp, bp.MA["Curaga"], target)
+                        
+                    elseif bp.helpers["target"].castable(bp, target, bp.MA["Cure"]) and bpcore:isInParty(target, true) then
+                        helpers["queue"].add(bp, bp.MA["Cure"], target)
+                    
+                    end
+                    
+                elseif command == "firebuff" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Boost-STR"], player)
+                    helpers["queue"].add(bp, bp.MA["Barfira"], player)
+                    helpers["queue"].add(bp, bp.MA["Baramnesra"], player)
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                    
+                elseif command == "waterbuff" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Boost-DEX"], player)
+                    helpers["queue"].add(bp, bp.MA["Barwatera"], player)
+                    helpers["queue"].add(bp, bp.MA["Barpoisonra"], player)
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                    
+                elseif command == "icebuff" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Boost-DEX"], player)
+                    helpers["queue"].add(bp, bp.MA["Barblizzara"], player)
+                    helpers["queue"].add(bp, bp.MA["Barparalyzra"], player)
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                    
+                elseif command == "windbuff" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Boost-DEX"], player)
+                    helpers["queue"].add(bp, bp.MA["Baraera"], player)
+                    helpers["queue"].add(bp, bp.MA["Barsilencera"], player)
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                    
+                elseif command == "stonebuff" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Boost-DEX"], player)
+                    helpers["queue"].add(bp, bp.MA["Barstonera"], player)
+                    helpers["queue"].add(bp, bp.MA["Barpetra"], player)
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                    
+                elseif command == "thunderbuff" and bp.helpers["target"].castable(bp, player, bp.MA["Auspice"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    helpers["queue"].add(bp, bp.MA["Protectra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Shellra V"], player)
+                    helpers["queue"].add(bp, bp.MA["Boost-DEX"], player)
+                    helpers["queue"].add(bp, bp.MA["Barthundra"], player)
+                    helpers["queue"].add(bp, bp.MA["Barsilencera"], player)
+                    helpers["queue"].add(bp, bp.MA["Auspice"], player)
+                        
+                elseif (command == "raise" or command == "arise") and bp.helpers["target"].castable(bp, player, bp.MA["Raise"]) and helpers["target"].isDead(target) then
+                        
+                    if helpers["actions"].isReady("MA", "Arise") then
+                        helpers["queue"].add(bp, bp.MA["Arise"], player)
+                        
+                    elseif helpers["actions"].isReady("MA", "Raise III") then
+                        helpers["queue"].add(bp, bp.MA["Raise III"], player)
+                        
+                    elseif helpers["actions"].isReady("MA", "Raise II") then
+                        helpers["queue"].add(bp, bp.MA["Raise II"], player)
+                        
+                    elseif helpers["actions"].isReady("MA", "Raise") then
+                        helpers["queue"].add(bp, bp.MA["Raise"], player)
+                        
+                    end
+                    
+                elseif command == "aoeregen" and bp.helpers["target"].castable(bp, target, bp.MA["Regen"]) and bp.helpers['party'].isInParty(bp, target, false) then
+                    
+                    if helpers["actions"].isReady("MA", "Regen IV") and helpers["actions"].isReady("JA", "Accession") and player.sub_job == "SCH" then
+                        helpers["queue"].add(bp, bp.JA["Accession"], "me")
+                        helpers["queue"].add(bp, bp.MA["Regen IV"], player)
+                        
+                    end
+                
+                elseif command == "holla" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Teleport-Holla"], player)
+                    
+                elseif command == "dem" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Teleport-Dem"], player)
+                    
+                elseif command == "mea" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Teleport-Mea"], player)
+                    
+                elseif command == "yhoat" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Teleport-Yhoat"], player)
+                    
+                elseif command == "altepa" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Teleport-Altepa"], player)
+                    
+                elseif command == "vazhl" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Teleport-Vahzl"], player)
+                    
+                elseif command == "jugner" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Recall-Jugner"], player)
+                    
+                elseif command == "pash" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Recall-Pashh"], player)
+                    
+                elseif command == "meriph" and helpers["party"].isInParty(target) then
+                    helpers["queue"].add(bp, bp.MA["Recall-Meriph"], player)
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.blm = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.rdm = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "haste" and bp.helpers["target"].castable(bp, target, bp.MA["Haste II"]) and bp.helpers['actions'].isReady(bp, 'MA', 'Haste II') then
+                    helpers["queue"].add(bp, bp.MA["Haste II"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.thf = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.pld = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "cover" and bp.helpers["target"].castable(bp, target, bp.JA["Cover"]) then
+                    helpers["queue"].add(bp, bp.JA["Cover"], target)                            
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "cover" and bp.helpers["target"].castable(bp, target, bp.JA["Cover"]) then
+                            helpers["queue"].add(bp, bp.JA["Cover"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.drk = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "stun" and bp.helpers["target"].castable(bp, target, bp.MA["Stun"]) then
+                    helpers["queue"].add(bp, bp.MA["Stun"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "stun" and bp.helpers["target"].castable(bp, target, bp.MA["Stun"]) then
+                            helpers["queue"].add(bp, bp.MA["Stun"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.bst = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.brd = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.rng = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nnnnnnnnnn" and bp.helpers["target"].castable(bp, target, bp.JA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.smn = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.sam = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.nin = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.drg = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.blu = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        local job     = windower.ffxi.get_player().main_job
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.cor = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.pup = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.dnc = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                        if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                            helpers["queue"].add(bp, bp.MA["Haste"], target)                            
+                        end
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.sch = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "nopeeee" and bp.helpers["target"].castable(bp, target, bp.MA["Haste"]) then
+                    helpers["queue"].add(bp, bp.MA["Haste"], target)
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+        
+    self.geo = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "circle" and bp.helpers["target"].castable(bp, target, bp.JA["Full Circle"]) then
+                    helpers["queue"].add(bp, bp.JA["Full Circle"], target)                            
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+
+    self.run = function(bp, message, sender)
+        local message = message or false
+        local sender  = sender or false
+        
+        if message and sender then
+            local target  = windower.ffxi.get_mob_by_name(sender)
+            local player  = windower.ffxi.get_player()
+            local count   = #message:split(" ")
+            local message = message:split(" ")
+                
+            -- Only one command was detected.
+            if count == 1 and message[1] then
+                local command = message[1]:lower()
+                
+                if command == "circle" and bp.helpers["target"].castable(bp, target, bp.JA["Full Circle"]) then
+                    --helpers["queue"].add(bp, bp.JA["Full Circle"], target)                            
+                end
+            
+            -- Multiple Commands were sent.
+            elseif count > 1 then
+                
+                for i=1, count do
+                    
+                    if message[1] and message[i+1] and (message[1]):sub(1, #message[1]):lower() == (player.name):sub(1, #message[1]):lower() then
+                        local command = message[i+1]:lower()
+                        
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
     end
 
     return self

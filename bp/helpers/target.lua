@@ -13,7 +13,7 @@ function target.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/target_settings.lua', windower.addon_path))
-    self.layout     = self.settings.layout or {pos={x=450, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=495, y=865}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
@@ -75,10 +75,10 @@ function target.new()
     end
 
     self.clear = function()
-        self.targets.targets.player     = false
-        self.targets.targets.party      = false
-        self.targets.targets.entrust    = false
-        self.targets.targets.luopan     = false
+        self.targets.player     = false
+        self.targets.party      = false
+        self.targets.entrust    = false
+        self.targets.luopan     = false
 
     end
 
@@ -87,37 +87,41 @@ function target.new()
         local bp        = bp or false
         local target    = target or false
 
-        if bp and target then
+        if bp then
             local helpers = bp.helpers
 
-            if type(target) == 'table' and self.isEnemy(bp, target) then
-                target = windower.ffxi.get_mob_by_id(target.id) or false
+            if target then
 
-            elseif type(target) == 'number' and self.isEnemy(bp, target) then
-                target = windower.ffxi.get_mob_by_id(target) or false
+                if type(target) == 'table' and self.isEnemy(bp, target) then
+                    target = windower.ffxi.get_mob_by_id(target.id) or false
 
-            elseif windower.ffxi.get_mob_by_target('t') and self.isEnemy(bp, windower.ffxi.get_mob_by_target('t')) then
-                target = windower.ffxi.get_mob_by_target('t')
+                elseif type(target) == 'number' and self.isEnemy(bp, target) then
+                    target = windower.ffxi.get_mob_by_id(target) or false
 
-            else
-                target = false
+                elseif windower.ffxi.get_mob_by_target('t') and self.isEnemy(bp, windower.ffxi.get_mob_by_target('t')) then
+                    target = windower.ffxi.get_mob_by_target('t')
+
+                else
+                    target = false
+
+                end
 
             end
 
-        end
+            if self.mode == 1 and target and self.canEngage(bp, target) then
 
-        if self.mode == 1 and target and self.canEngage(bp, target) then
+                if target.distance:sqrt() < 35 then
+                    self.targets.player = target
+                    helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
+                end
 
-            if target.distance:sqrt() < 35 then
-                self.targets.player = target
-                helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
-            end
+            elseif self.mode == 2 and target and self.canEngage(target) then
 
-        elseif self.mode == 2 and target and self.canEngage(target) then
+                if target.distance:sqrt() < 35 then
+                    self.targets.party = target
+                    helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
+                end
 
-            if target.distance:sqrt() < 35 then
-                self.targets.party = target
-                helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
             end
 
         end

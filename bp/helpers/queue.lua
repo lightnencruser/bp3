@@ -16,6 +16,7 @@ function queue.new()
     self.settings   = dofile(string.format('%sbp/helpers/settings/queue_settings.lua', windower.addon_path))
     self.layout     = self.settings.layout or {pos={x=500, y=75}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=8}, padding=5, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Public Variables.
     self.queue      = Q{}
@@ -23,7 +24,8 @@ function queue.new()
     self.max        = self.settings.max or 20
 
     -- Private Variables.
-    local protection = os.clock()
+    local protection    = os.clock()
+    local loaded        = false
 
     -- Private Functions.
     local persist = function()
@@ -102,10 +104,15 @@ function queue.new()
     -- Public Functions.
     self.checkReady = function(bp)
         local player      = windower.ffxi.get_player() or false
-        local ready       = {[0]=0,[1]=1,[4]=4,[10]=10,[11]=11,[85]=85}
+        local ready       = {[0]=0,[1]=1}
 
-        if os.clock() > self.ready and player and ready[player.status] then
+        if (os.clock()-self.ready) > 0 and player and ready[player.status] then
+
+            if not loaded then
+                bp.helpers['equipment'].update()
+            end
             return true
+
         end
         return false
 
@@ -114,7 +121,7 @@ function queue.new()
     self.render = function(bp)
         local bp        = bp or false
         local contents  = {}
-        local text      = ((' '):lpad(' ', 20) .. ('[-[ Action Queue ]-]') .. (' '):rpad(' ', 20))
+        local text      = ((' '):lpad(' ', 20) .. ('[ ACTION QUEUE ]') .. (' '):rpad(' ', 20))
 
         if self.queue:length() == 0 and self.display:visible() == true then
             self.display:text('')
@@ -129,15 +136,15 @@ function queue.new()
 
                     if v.action and v.target and v.priority then
                         local colors    = {name='0,153,204', attempts='255,255,255', target='102,225,051', cost='50,180,120'}
-                        local name      = (v.action.en):sub(1,20) or ('None')
+                        local name      = (v.action.en):sub(1,20) or ('NONE')
                         local attempts  = (v.attempts)
-                        local target    = (v.target.name):sub(1,15) or ('None')
+                        local target    = (v.target.name):sub(1,15) or ('NONE')
                         local cost      = v.action.mp_cost or ('0')
 
                         -- Add string to update table.
                         if i == 1 then
-                            table.insert(update, string.format((' %s **[ ACTION QUEUE ]** %s\n<\\cs(%s)%02d\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
-                                (''):lpad(' ', 20), (''):rpad(' ', 20),
+                            table.insert(update, string.format((' %s **[ ACTION QUEUE: (\\cs(%s)%2.2f\\cr) ]** %s\n<\\cs(%s)%02d\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
+                                (''):lpad(' ', 20), self.important, (self.ready-os.clock()), (''):rpad(' ', 20),
                                 (colors.attempts),
                                 (attempts),
                                 (' '):rpad(' ', 2-tostring(attempts):len()),
@@ -536,11 +543,10 @@ function queue.new()
             local attempts  = self.queue[1].attempts
             local type      = self.getType(bp, action)
             local ranges    = helpers['actions'].getRanges(bp)
-            local midaction = helpers['actions'].midaction
 
             if player and action and target and priority and attempts and type and ranges then
 
-                if type == 'JobAbility' and not midaction then
+                if type == 'JobAbility' then
 
                     if helpers['target'].allowed(bp, target) then
                         local mob      = windower.ffxi.get_mob_by_id(target.id)
@@ -615,7 +621,7 @@ function queue.new()
 
                     end
 
-                elseif type == 'Magic' and not midaction then
+                elseif type == 'Magic' then
 
                     if helpers['target'].allowed(bp, target) then
                         local mob      = windower.ffxi.get_mob_by_id(target.id) or 999
@@ -644,7 +650,7 @@ function queue.new()
 
                     end
 
-                elseif type == 'WeaponSkill' and not midaction then
+                elseif type == 'WeaponSkill' then
 
                     if helpers['target'].allowed(bp, target) then
                         local mob      = windower.ffxi.get_mob_by_id(target.id)
@@ -670,7 +676,7 @@ function queue.new()
 
                     end
 
-                elseif type == 'Item' and not midaction then
+                elseif type == 'Item' then
 
                     if helpers['target'].allowed(bp, target) then
                         local mob      = windower.ffxi.get_mob_by_id(target.id)
@@ -693,7 +699,7 @@ function queue.new()
 
                     end
 
-                elseif type == 'Ranged' and not midaction then
+                elseif type == 'Ranged' then
                     helpers['equipment'].update()
 
                     if helpers['actions'].canAct(bp) and helpers['target'].allowed(bp, target) then
@@ -718,13 +724,7 @@ function queue.new()
 
                     end
 
-                else
-                    print('Failed: Midaction Check.')
-
                 end
-
-            elseif midaction then
-                print('Failed: Invalid Action Check.')
 
             end
 
@@ -964,29 +964,21 @@ function queue.new()
             local target        = target or false
             local data          = self.queue.data
 
-            if action and target and data then
+            if action and target and data and helpers['cures'].curesNeeded() > 0 then
                 
                 if #data > 0 then
 
                     for i,v in ipairs(data) do
-
-                        if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target then
-                            local player = windower.ffxi.get_player() or false
+                        
+                        if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target and (v.action.type == 'WhiteMagic' or v.action.type == 'Waltz') then
                             
-                            if v.target.id == target.id and ((action.en):match('Cure') or (name):match('Cura')) then
-                                helpers['queue'].remove(bp, bp.MA[v.action.en], target)
+                            if v.target.id == target.id and v.action.en ~= action.en and ((action.en):match('Cure') or (action.en):match('Cura')) then
+                                self.remove(bp, bp.MA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
-                                break
 
-                            elseif v.target.id == target.id and (action.en):match('Waltz') then
-                                helpers['queue'].remove(bp, bp.JA[v.action.en], target)
+                            elseif v.target.id == target.id and v.action.en ~= action.en and (action.en):match('Waltz') then
+                                self.remove(bp, bp.JA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
-                                break
-
-                            elseif v.target.id == target.id and (action.en):match(v.action.en) then
-                                helpers['queue'].remove(bp, bp.MA[v.action.en], target)
-                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
-                                break
 
                             end
 

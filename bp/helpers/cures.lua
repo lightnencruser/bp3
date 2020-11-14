@@ -15,13 +15,18 @@ function cures.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/cures/%s_settings.lua', windower.addon_path, player.name))
+    self.layout     = self.settings.layout or {pos={x=1000, y=500}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Impact', size=8}, padding=2, stroke_width=1, draggable=false}
+    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
     local weights   = self.settings.weights or {}
     local spells    = {1,2,3,4,5,6,7,8,9,10,11,578,593,658,581,690}
     local abilities = {190,191,192,193,311,195,262}
+    local jobs      = {3,4,5,7,10,15,19,20,21}
     local modes     = {'OFF','PARTY','ALLIANCE'}
-    local store     = 100
+    local timers    = {last=0, delay=3600}
+    local store     = 50
     local math      = math
     local needed    = {}
     local allowed   = {
@@ -48,11 +53,33 @@ function cures.new()
         if self.settings then
             self.settings.mode      = self.mode
             self.settings.weights   = weights
+            self.settings.layout    = self.layout
 
         end
 
     end
     persist()
+
+    local resetDisplay = function()
+        self.display:pos(self.layout.pos.x, self.layout.pos.y)
+        self.display:font(self.layout.font.name)
+        self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
+        self.display:alpha(self.layout.colors.text.alpha)
+        self.display:size(self.layout.font.size)
+        self.display:pad(self.layout.padding)
+        self.display:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
+        self.display:bg_alpha(self.layout.colors.bg.alpha)
+        self.display:stroke_width(self.layout.stroke_width)
+        self.display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
+        self.display:stroke_alpha(self.layout.colors.stroke.alpha)
+        self.display:update()
+
+        if T(jobs):contains(windower.ffxi.get_player().main_job_id) and weights[windower.ffxi.get_player().main_job_id] then
+            self.display:show()
+        end
+
+    end
+    resetDisplay()
 
     -- Static Functions.
     self.writeSettings = function()
@@ -70,6 +97,7 @@ function cures.new()
     self.writeSettings()
 
     self.zoneChange = function()
+        persist()
         self.writeSettings()
 
     end
@@ -120,6 +148,48 @@ function cures.new()
     end
     
     -- Public Functions.
+    self.render = function(bp)
+        local bp = bp or false
+
+        if bp and (os.clock()-timers.last) > 15 then
+            
+            if self.display:visible() then
+                local update = {}
+                
+                for i,v in pairs(weights) do
+                    local job   = bp.res.jobs[i]
+
+                    if job.en == 'White Mage' then
+                        table.insert(update, "[ Avg. Cure Weights ]\n")
+
+                        for id,spells in pairs(weights[job.id]) do
+                            local avg = 0
+
+                            if type(spells) == 'table' then
+                                
+                                for _,weight in ipairs(spells) do
+                                    avg = (avg + weight)
+                                    
+                                end
+                                table.insert(update, string.format('%s\\cs(%s)%s%04d\\cr', bp.res.spells[id].en, self.important, (''):lpad(' ',15-bp.res.spells[id].en:len()), (avg / #spells)))
+
+                            end
+
+                        end
+
+                    end
+
+                end
+                self.display:text(table.concat(update, '\n'))
+                self.display:update()
+                timers.last = os.clock()
+
+            end
+
+        end
+
+    end
+
     self.changeMode = function(bp)
         local bp = bp or false
 
@@ -130,6 +200,7 @@ function cures.new()
                 self.mode = 1
             end
             bp.helpers['popchat'].pop(string.format('CURE MODE: %s', modes[self.mode]))
+            self.writeSettings()
 
         end
 
@@ -214,7 +285,11 @@ function cures.new()
             return math.floor(weight/#weights[player.main_job_id][id])
             
         else
-            return self.getCure(bp, id).min
+            local spell = self.getCure(bp, id)
+
+            if spell and spell.min then
+                return spell.min
+            end
             
         end
         
@@ -239,6 +314,7 @@ function cures.new()
                 end
                 
                 if cure and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
+                    print(string.format('%s: %d', cure.en, weight))
                     spell = cure
                 end
                 
@@ -465,42 +541,42 @@ function cures.new()
 
                 if cure and info then
 
-                    if self.weights[player.main_job_id] then
+                    if weights[player.main_job_id] then
 
-                        if self.weights[player.main_job_id][cure.id] and #self.weights[player.main_job_id][cure.id] > 0 then
+                        if weights[player.main_job_id][cure.id] and #weights[player.main_job_id][cure.id] > 0 then
 
                             if amount >= info.min then
-                                table.insert(self.weights[player.main_job_id][cure.id], amount)
+                                table.insert(weights[player.main_job_id][cure.id], amount)
                             else
-                                table.insert(self.weights[player.main_job_id][cure.id], info.min)                            
+                                table.insert(weights[player.main_job_id][cure.id], info.min)                            
                             end
 
-                            if #self.weights[player.main_job_id][cure.id] > store then
+                            if #weights[player.main_job_id][cure.id] > store then
                                 table.remove(weights[player.main_job_id][id], 1)
                             end
 
-                        elseif not self.weights[player.main_job_id][cure.id] then
-                            self.weights[player.main_job_id][cure.id] = {}
+                        elseif not weights[player.main_job_id][cure.id] then
+                            weights[player.main_job_id][cure.id] = {}
 
                             if amount >= info.min then
-                                table.insert(self.weights[player.main_job_id][cure.id], amount)
+                                table.insert(weights[player.main_job_id][cure.id], amount)
                             else
-                                table.insert(self.weights[player.main_job_id][cure.id], info.min)                            
+                                table.insert(weights[player.main_job_id][cure.id], info.min)                            
                             end
 
-                            if #self.weights[player.main_job_id][cure.id] > store then
+                            if #weights[player.main_job_id][cure.id] > store then
                                 table.remove(weights[player.main_job_id][id], 1)
                             end
 
                         end
 
-                    elseif not self.weights[player.main_job_id] then
-                        self.weights[player.main_job_id] = {[cure.id] = {}}
+                    elseif not weights[player.main_job_id] then
+                        weights[player.main_job_id] = {[cure.id] = {}}
 
                         if amount >= info.min then
-                            table.insert(self.weights[player.main_job_id][cure.id], amount)
+                            table.insert(weights[player.main_job_id][cure.id], amount)
                         else
-                            table.insert(self.weights[player.main_job_id][cure.id], info.min)                            
+                            table.insert(weights[player.main_job_id][cure.id], info.min)                            
                         end
 
                     end
@@ -519,7 +595,8 @@ function cures.new()
         if self.party and self.alliance and self.mode ~= 1 then
             local count     = self.curesNeeded()
             local player    = windower.ffxi.get_player() or false
-            local helpers   = bp.helpers            
+            local helpers   = bp.helpers
+            local missing   = 0         
             
             if self.mode == 2 and count > 0 then
                 local party     = T(self.party)
@@ -531,7 +608,7 @@ function cures.new()
                         local cure   = self.estimateCure(bp, v.missing) or false
                         local target = windower.ffxi.get_mob_by_id(v.id) or false
                         
-                        if cure and target then
+                        if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                             helpers['queue'].updateCure(bp, cure, target)
                         end
                         
@@ -545,7 +622,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -561,7 +638,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -572,7 +649,7 @@ function cures.new()
                 end
                 
                 if count > 2 and (player.main_job == "WHM" or player.sub_job == "WHM") and player.main_job ~= "DNC" then
-                
+                    
                     for _,v in ipairs(party) do
                         missing = (missing + v.missing)
                         
@@ -588,7 +665,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -613,7 +690,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -638,7 +715,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -661,7 +738,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -677,7 +754,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -693,7 +770,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -720,7 +797,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -745,7 +822,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             
@@ -770,7 +847,7 @@ function cures.new()
                         
                         if cure and target then
                             
-                            if cure and target then
+                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 helpers['queue'].updateCure(bp, cure, target)
                             end
                             

@@ -1,0 +1,37 @@
+return {
+    ["mode"]=1, 
+    ["layout"]={
+        ["draggable"]=false, 
+        ["padding"]=4, 
+        ["font"]={
+            ["name"]="Lucida Console", 
+            ["size"]=9
+        }, 
+        ["colors"]={
+            ["text"]={
+                ["r"]=245, 
+                ["alpha"]=255, 
+                ["g"]=200, 
+                ["b"]=20
+            }, 
+            ["bg"]={
+                ["r"]=0, 
+                ["alpha"]=200, 
+                ["g"]=0, 
+                ["b"]=0
+            }, 
+            ["stroke"]={
+                ["r"]=0, 
+                ["alpha"]=255, 
+                ["g"]=0, 
+                ["b"]=0
+            }
+        }, 
+        ["stroke_width"]=1, 
+        ["pos"]={
+            ["y"]=865, 
+            ["x"]=495
+        }
+    }, 
+    ["important"]="25,165,200"
+}

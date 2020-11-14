@@ -57,27 +57,29 @@ windower.register_event('prerender', function()
 
     if windower.ffxi.get_player() then
         bp.helpers['actions'].setMoving(bp)
+        bp.helpers['stratagems'].render(bp)
         bp.helpers['distance'].render(bp)
         bp.helpers['popchat'].render(bp)
+        bp.helpers['bubbles'].render(bp)
         bp.helpers['debuffs'].render(bp)
         bp.helpers['target'].render(bp)
+        bp.helpers['status'].render(bp)
+        bp.helpers['queue'].render(bp)
         bp.helpers['runes'].render(bp)
         bp.helpers['rolls'].render(bp)
         bp.helpers['songs'].render(bp)
-        bp.helpers['bubbles'].render(bp)
         bp.helpers['speed'].render(bp)
-        bp.helpers['stratagems'].render(bp)
-        bp.helpers['status'].render(bp)
+        bp.helpers['cures'].render(bp)
 
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
             bp.helpers['cures'].buildParty()
-            bp.helpers['queue'].render(bp)
             bp.core.handleAutomation(bp)
 
             -- Update the system pinger.
             bp.pinger = os.clock()
 
         elseif bp.settings['Enabled'] and bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
+            bp.helpers['cures'].buildParty()
             bp.helpers['queue'].render(bp)
 
             -- Update the system pinger.
@@ -110,8 +112,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             elseif pack['Category'] == 2 then
 
                 if actor.name == player.name then
-                    bp.helpers['actions'].midaction = false
-                    bp.helpers['queue'].ready       = (os.clock() + bp.helpers['actions'].getDelays(bp)['Ranged'])
+                    bp.helpers['queue'].ready = (os.clock() + bp.helpers['actions'].getDelays(bp)['Ranged'])
                     
                     -- Remove from action from queue.
                     bp.helpers['queue'].remove(bp, helpers['actions'].unique.ranged, actor)
@@ -122,8 +123,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             elseif pack['Category'] == 3 then
 
                 if actor.name == player.name then
-                    bp.helpers['actions'].midaction = false
-                    bp.helpers['queue'].ready       = (os.clock() + bp.helpers['actions'].getDelays(bp)['WeaponSkill'])
+                    bp.helpers['queue'].ready = (os.clock() + bp.helpers['actions'].getDelays(bp)['WeaponSkill'])
                     
                     -- Remove from action from queue.
                     bp.helpers['queue'].remove(bp.res.weapon_skills[param], actor)
@@ -137,8 +137,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                     local spell  = bp.res.spells[param] or false
 
                     if spell and type(spell) == 'table' and spell.type then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + bp.helpers['actions'].getDelays(bp)[spell.type] or 1)
+                        bp.helpers['queue'].ready = (os.clock() + bp.helpers['actions'].getDelays(bp)[spell.type] or 1)
 
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, spell, actor)
@@ -147,8 +146,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         bp.helpers['cures'].updateWeight(bp, original)
                     
                     else
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     end
 
@@ -158,8 +156,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             elseif pack['Category'] == 5 then
 
                 if actor.name == player.name then
-                    bp.helpers['actions'].midaction = false
-                    bp.helpers['queue'].ready       = (os.clock() + bp.helpers['actions'].getDelays(bp)['Item'] or 1)
+                    bp.helpers['queue'].ready = (os.clock() + bp.helpers['actions'].getDelays(bp)['Item'] or 1)
 
                     -- Remove from action from queue.
                     bp.helpers['queue'].remove(bp, bp.res.items[param], actor)
@@ -176,8 +173,8 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                     local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
 
                     if action then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + delay)
+                        --bp.helpers['actions'].midaction = false
+                        bp.helpers['queue'].ready = (os.clock() + delay)
 
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, bp.res.job_abilities[param], actor)
@@ -193,8 +190,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         end
 
                     else
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     end
 
@@ -221,7 +217,6 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         bp.helpers['queue'].ready = (os.clock() + 1)
 
                     else
-                        bp.helpers['actions'].midaction = false
                         bp.helpers['queue'].ready = (os.clock() + 1)
 
                     end
@@ -239,16 +234,15 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         local action = bp.helpers['actions'].buildAction(bp, category, param)
                         local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
 
-                        bp.helpers['actions'].midaction = true
-                        bp.helpers['queue'].ready       = (os.clock() + delay)
+                        do  -- Update ready status.
+                            bp.helpers['queue'].ready = (os.clock() + delay)
+                        end
 
                     elseif param == 28787 then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     else
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     end
 
@@ -265,16 +259,15 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         local action = bp.helpers['actions'].buildAction(bp, category, param)
                         local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
 
-                        bp.helpers['actions'].midaction = true
-                        bp.helpers['queue'].ready       = (os.clock() + delay)
+                        do  -- Update ready status.
+                            bp.helpers['queue'].ready = (os.clock() + delay)
+                        end
 
                     elseif param == 28787 then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     else
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     end
 
@@ -293,16 +286,15 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         local action = bp.helpers['actions'].buildAction(bp, category, param)
                         local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
                         
-                        bp.helpers['actions'].midaction = true
-                        bp.helpers['queue'].ready       = (os.clock() + delay)
+                        do  -- Update ready status.
+                            bp.helpers['queue'].ready = (os.clock() + delay)
+                        end
 
                     elseif param == 28787 then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     else
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + 1)
+                        bp.helpers['queue'].ready = (os.clock() + 1)
 
                     end
 
@@ -317,8 +309,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                     local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
 
                     if action then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = (os.clock() + delay)
+                        bp.helpers['queue'].ready = (os.clock() + delay)
 
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, res.job_abilities[param], actor)
@@ -335,8 +326,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                     local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
 
                     if action then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = os.clock() + delay
+                        bp.helpers['queue'].ready = os.clock() + delay
 
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, res.job_abilities[param], actor)
@@ -356,8 +346,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                     local delay  = bp.helpers['actions'].getActionDelay(bp, action) or 1
 
                     if action then
-                        bp.helpers['actions'].midaction = false
-                        bp.helpers['queue'].ready       = os.clock() + delay
+                        bp.helpers['queue'].ready = os.clock() + delay
 
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, res.job_abilities[param], actor)
@@ -367,8 +356,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                 end
             
             else
-                bp.helpers['actions'].midaction = false
-                bp.helpers['queue'].ready       = (os.clock() + 1)
+                bp.helpers['queue'].ready = (os.clock() + 1)
 
             end
 
@@ -535,12 +523,17 @@ windower.register_event('status change', function(new, old)
 
     end
 
+    -- Handle ping delay if you were previously dead.
+    if new == 0 and (old == 2 or old == 3) then
+        bp.pinger = (os.clock() + 60)
+    end
+
 end)
 
 windower.register_event('zone change', function(new, old)
 
     -- Delay pinger to prevent spam.
-    bp.pinger = (os.clock() + 15)
+    bp.pinger = (os.clock() + 10)
 
     -- Handle all helpers zone change function.
     for _,helper in pairs(bp.helpers) do

@@ -11,9 +11,8 @@ end
 function keybinds.new()
     local self = {}
 
-    -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/keybinds/%s_settings.lua', windower.addon_path, player.name))
-    self.binds      = self.settings.binds or {
+    -- Private Variables.
+    local default_binds = {
 
         ['@b']      = "@b bp on",
         ['@f']      = "@f bp follow",
@@ -33,6 +32,10 @@ function keybinds.new()
 
     }
 
+    -- Static Variables.
+    self.settings   = dofile(string.format('%sbp/helpers/settings/keybinds/%s_settings.lua', windower.addon_path, player.name))
+    self.binds      = self.settings.binds or default_binds
+
     -- Private Functions
     local persist = function()
 
@@ -42,6 +45,28 @@ function keybinds.new()
 
     end
     persist()
+
+    local update = function()
+
+        for _,v in pairs(default_binds) do
+            local found = false
+            
+            for _,vv in pairs(self.binds) do
+                
+                if v[1] == vv[1] and v[2] == vv[2] then
+                    found = true
+                end
+
+            end
+
+            if not found then
+                table.insert(self.binds, {v[1], v[2]})
+            end
+    
+        end
+        self.writeSettings()
+    
+    end
 
     -- Static Functions.
     self.writeSettings = function()
@@ -56,7 +81,7 @@ function keybinds.new()
         end
 
     end
-    self.writeSettings()
+    update()
 
     self.bind = function()
         

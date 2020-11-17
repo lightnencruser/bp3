@@ -87,19 +87,20 @@ function target.new()
         local bp        = bp or false
         local target    = target or false
 
-        if bp then
+        if bp and target then
             local helpers = bp.helpers
 
             if target then
+                local default_engaged = windower.ffxi.get_mob_by_target('t')
 
                 if type(target) == 'table' and self.isEnemy(bp, target) then
                     target = windower.ffxi.get_mob_by_id(target.id) or false
 
-                elseif type(target) == 'number' and self.isEnemy(bp, target) then
+                elseif (type(target) == 'number' or tonumber(target) ~= nil) and self.isEnemy(bp, target) then
                     target = windower.ffxi.get_mob_by_id(target) or false
 
-                elseif windower.ffxi.get_mob_by_target('t') and self.isEnemy(bp, windower.ffxi.get_mob_by_target('t')) then
-                    target = windower.ffxi.get_mob_by_target('t')
+                elseif default_engaged and self.isEnemy(bp, default_engaged) then
+                    target = default_engaged
 
                 else
                     target = false
@@ -115,7 +116,7 @@ function target.new()
                     helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
                 end
 
-            elseif self.mode == 2 and target and self.canEngage(target) then
+            elseif self.mode == 2 and target and self.canEngage(bp, target) then
 
                 if target.distance:sqrt() < 35 then
                     self.targets.party = target

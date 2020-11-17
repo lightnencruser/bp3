@@ -11,14 +11,31 @@ end
 function alias.new()
     local self = {}
 
-    -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/alias/%s_settings.lua', windower.addon_path, player.name))
-    self.aliases    = self.settings.aliases or {
+    -- Private Variables.
+    local default_aliases = {
 
+        -- BP Shortcuts.
+        {'bpon',        "ord pp bp enable"},
+        {'bpoff',       "ord pp bp disable"},
+
+        -- HTBF Commands.
+        {'lilith',      "ord rr pg maiden"},
+
+        -- Homepoints.
+        {'portb',       "ord rr hp Port Bastok 2"},
+        {'selbina',     "ord rr hp Selbina"},
+        {'mha',         "ord rr hp Mhaura"},
+
+        -- Item commands.
         {'prisms',      "ord rr input /item 'Prism Powder' <me>"},
         {'oils',        "ord rr input /item 'Silent Oil' <me>"},
+        {'vshard',      "ord rr input /item 'V. Con. Shard' <me>"},
 
     }
+
+    -- Static Variables.
+    self.settings   = dofile(string.format('%sbp/helpers/settings/alias/%s_settings.lua', windower.addon_path, player.name))
+    self.aliases    = self.settings.aliases or default_aliases
 
     -- Private Functions
     local persist = function()
@@ -29,6 +46,28 @@ function alias.new()
 
     end
     persist()
+
+    local update = function()
+
+        for _,v in ipairs(default_aliases) do
+            local found = false
+            
+            for _,vv in ipairs(self.aliases) do
+                
+                if v[1] == vv[1] and v[2] == vv[2] then
+                    found = true
+                end
+
+            end
+
+            if not found then
+                table.insert(self.aliases, {v[1], v[2]})
+            end
+    
+        end
+        self.writeSettings()
+    
+    end
 
     -- Static Functions.
     self.writeSettings = function()
@@ -43,7 +82,7 @@ function alias.new()
         end
 
     end
-    self.writeSettings()
+    update()
 
     self.bind = function()
         

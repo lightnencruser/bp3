@@ -285,11 +285,7 @@ function cures.new()
             return math.floor(weight/#weights[player.main_job_id][id])
             
         else
-            local spell = self.getCure(bp, id)
-
-            if spell and spell.min then
-                return spell.min
-            end
+            return self.getCure(bp, id).min or 0
             
         end
         
@@ -313,8 +309,7 @@ function cures.new()
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
                 
-                if cure and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
-                    print(string.format('%s: %d', cure.en, weight))
+                if cure and weight and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
                 
@@ -343,7 +338,7 @@ function cures.new()
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
                 
-                if cure and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
+                if cure and weight and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
                 
@@ -372,7 +367,7 @@ function cures.new()
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
                 
-                if cure and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
+                if cure and weight and weight <= missing and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
                 
@@ -403,7 +398,7 @@ function cures.new()
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
                 
-                if cure and weight <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
+                if cure and weight and weight and weight <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
                 
@@ -434,7 +429,7 @@ function cures.new()
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
                 
-                if cure and weight <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
+                if cure and weight and weight <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
                 
@@ -465,7 +460,7 @@ function cures.new()
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
                 
-                if cure and weight <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
+                if cure and weight and weight <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
                 

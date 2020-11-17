@@ -25,6 +25,16 @@ commands.new = function()
 
                 end
             
+            elseif command == 'enable' then
+                bp.settings['Enabled'] = true
+                bp.helpers['queue'].clear()
+                msg = ('BUDDYPAL AUTOMATION NOW ENABLED!')
+
+            elseif command == 'disable' then
+                bp.settings['Enabled'] = false
+                bp.helpers['queue'].clear()
+                msg = ('BUDDYPAL AUTOMATION NOW DISABLED!')
+
             elseif command == 'am' then
                 core.nextSetting(bp, 'AM')
 

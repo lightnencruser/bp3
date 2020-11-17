@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201112 ALPHA'
+_addon.version  = '0.20201116 ALPHA'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -54,8 +54,9 @@ end)
 
 ActionPacket.open_listener(bp.helpers['noknock'].block)
 windower.register_event('prerender', function()
+    local player = windower.ffxi.get_player() or false
 
-    if windower.ffxi.get_player() then
+    if player and player.status ~= 4 then
         bp.helpers['actions'].setMoving(bp)
         bp.helpers['stratagems'].render(bp)
         bp.helpers['distance'].render(bp)
@@ -71,8 +72,13 @@ windower.register_event('prerender', function()
         bp.helpers['speed'].render(bp)
         bp.helpers['cures'].render(bp)
 
+        if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
+            bp.helpers['target'].clear()
+        end
+
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
             bp.helpers['cures'].buildParty()
+            bp.helpers['target'].updateTargets(bp)
             bp.core.handleAutomation(bp)
 
             -- Update the system pinger.
@@ -403,6 +409,13 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
     elseif id == 0x029 then
         --bp.helpers['status'].messages(bp, original)
 
+    elseif id == 0x058 then
+        local packed = bp.packets.parse('incoming', original)
+
+        if packed and packed['Target'] then
+            bp.helpers['target'].setTarget(bp, packed['Target'])
+        end
+
     elseif id == 0x037 then
         local packed = bp.packets.parse('incoming', original)
 
@@ -515,7 +528,7 @@ windower.register_event('status change', function(new, old)
         local target = windower.ffxi.get_mob_by_target('t') or false
 
         if target then
-            bp.helpers['target'].setTarget(bp, target)
+            --bp.helpers['target'].setTarget(bp, target)
         end
 
     elseif new == 0 then

@@ -972,11 +972,11 @@ function queue.new()
                         
                         if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target and (v.action.type == 'WhiteMagic' or v.action.type == 'Waltz') then
                             
-                            if v.target.id == target.id and v.action.en ~= action.en and ((action.en):match('Cure') or (action.en):match('Cura')) then
+                            if v.target.id == target.id and v.action.en ~= action.en and ((v.action.en):match('Cure') or (v.action.en):match('Cura')) and not self.inQueue(bp, bp.MA[action.en], target) then
                                 self.remove(bp, bp.MA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
 
-                            elseif v.target.id == target.id and v.action.en ~= action.en and (action.en):match('Waltz') then
+                            elseif v.target.id == target.id and v.action.en ~= action.en and (v.action.en):match('Waltz') and not self.inQueue(bp, bp.MA[action.en], target) then
                                 self.remove(bp, bp.JA[v.action.en], target)
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
 

@@ -2,6 +2,9 @@ local bootstrap = {}
 bootstrap.load = function()
     local self = {}
 
+    -- Private Settings.
+    local helpers_update = {}
+
     self.debug      = false
     self.core       = false
     self.settings   = {}
@@ -79,7 +82,6 @@ bootstrap.load = function()
 
                 if update and self.helpers ~= nil then
                     self.helpers['popchat'].pop(string.format('Core loaded for %s!', player.main_job_full))
-                    --self.core.reload()
                 end
                 self.core = dofile(string.format('%s%s', windower.addon_path, dir))
 
@@ -147,6 +149,11 @@ bootstrap.load = function()
 
     end
     buildHelpers()
+
+    local updateHelpers = function()
+
+    end
+    updateHelpers()
 
     local registerEvents = function()
         local dir = ('bp/events/global/')

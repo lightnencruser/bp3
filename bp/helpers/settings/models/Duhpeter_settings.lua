@@ -1,4 +1,0 @@
-return {
-    ["models"]={}, 
-    ["enabled"]=true
-}

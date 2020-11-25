@@ -29,6 +29,7 @@ function keybinds.new()
         ['@escape'] = "@escape ord p bp controls escape",
         ['@enter']  = "@enter ord p bp controls enter",
         ['^!@f6']   = "^!@f6 ibruh bigpoke",
+        ['@w']      = "@w ord rr bp wring",
 
     }
 

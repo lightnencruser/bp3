@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201116 ALPHA'
+_addon.version  = '0.20201125 ALPHA'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -71,6 +71,7 @@ windower.register_event('prerender', function()
         bp.helpers['songs'].render(bp)
         bp.helpers['speed'].render(bp)
         bp.helpers['cures'].render(bp)
+        bp.helpers['controls'].face(bp)
 
         if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
             bp.helpers['target'].clear()
@@ -78,8 +79,11 @@ windower.register_event('prerender', function()
 
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
             bp.helpers['cures'].buildParty()
-            bp.helpers['target'].updateTargets(bp)
+            bp.helpers['target'].updateTargets(bp, player)
             bp.core.handleAutomation(bp)
+
+            -- Handle using bagged goods.
+            bp.helpers['items'].queueItems(bp)
 
             -- Update the system pinger.
             bp.pinger = os.clock()
@@ -88,11 +92,13 @@ windower.register_event('prerender', function()
             bp.helpers['cures'].buildParty()
             bp.helpers['queue'].render(bp)
 
+            -- Handle using bagged goods.
+            bp.helpers['items'].queueItems(bp)
+
             -- Update the system pinger.
             bp.pinger = os.clock()
 
         end
-        bp.helpers['target'].updateTargets(bp)
 
     end
 
@@ -407,14 +413,18 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
         return bp.helpers['models'].adjustModel(bp, original)
 
     elseif id == 0x029 then
-        --bp.helpers['status'].messages(bp, original)
+        bp.helpers['status'].lostStatus(bp, original)
+
+    elseif id == 0x0dd then
+        bp.helpers['party'].updateJobs(bp, original)
+
+    elseif id == 0x034 then
+
+        if bp.helpers['sparks'].busy then
+            bp.helpers['sparks'].purchase(bp, original)
+        end
 
     elseif id == 0x058 then
-        local packed = bp.packets.parse('incoming', original)
-
-        if packed and packed['Target'] then
-            bp.helpers['target'].setTarget(bp, packed['Target'])
-        end
 
     elseif id == 0x037 then
         local packed = bp.packets.parse('incoming', original)
@@ -428,7 +438,19 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             end
 
         end
-        return bp.helpers['speed'].adjustSpeed(bp, original)
+        return bp.helpers['speed'].adjustSpeed(bp, id, original)
+
+    elseif id == 0x00d then
+        local packed = bp.packets.parse('incoming', original)
+
+        if packed then
+            local player = windower.ffxi.get_player()
+
+            if player and player.id == packed['Player'] then
+                return bp.helpers['speed'].adjustSpeed(bp, id, original)
+            end
+
+        end
     
     elseif id == 0x063 then
         local check = original:unpack('H', 0x04+1)
@@ -523,22 +545,10 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 end)
 
 windower.register_event('status change', function(new, old)
-    
-    if new == 1 then
-        local target = windower.ffxi.get_mob_by_target('t') or false
-
-        if target then
-            --bp.helpers['target'].setTarget(bp, target)
-        end
-
-    elseif new == 0 then
-        bp.helpers['target'].clear()
-
-    end
 
     -- Handle ping delay if you were previously dead.
     if new == 0 and (old == 2 or old == 3) then
-        bp.pinger = (os.clock() + 60)
+        bp.pinger = (os.clock() + 30)
     end
 
 end)

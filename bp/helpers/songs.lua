@@ -309,8 +309,8 @@ function songs.new()
                 helpers['queue'].clear()
             end
             
-            if helpers['party'].getMember(bp, commands[#commands], false) then
-                target = helpers['party'].getMember(bp, commands[#commands], false)
+            if commands[#commands]:sub(1, 1) == '*' and helpers['party'].getMember(bp, commands[#commands]:sub(2, #commands[#commands]), false) then
+                target = helpers['party'].getMember(bp, commands[#commands]:sub(2, #commands[#commands]), false)
                 
                 if target and player then
                     

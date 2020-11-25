@@ -1582,6 +1582,11 @@ function core.get()
 
                 end
 
+                -- HANDLE STATUS EFFECTS
+                if self.getSetting('STATUS') then
+                    bp.helpers['status'].fixStatus(bp)
+                end
+
                 -- HANDLE EVERYTHING INSIDE THE QUEUE.
                 bp.helpers['cures'].handleCuring(bp)
                 helpers['queue'].handle(bp)

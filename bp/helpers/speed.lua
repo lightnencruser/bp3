@@ -22,9 +22,6 @@ function speed.new()
     self.speed      = self.settings.speed or 50
     self.enabled    = self.settings.enabled or false
 
-    --Private Variables.
-    local name      = "Movement Speed/2"
-
     -- Private Functions.
     local persist = function()
         local next = next
@@ -104,19 +101,33 @@ function speed.new()
     end
 
     -- Public Functions.
-    self.adjustSpeed = function(bp, data)
+    self.adjustSpeed = function(bp, packet_id, data)
         local bp    = bp or false
         local data  = data or false
-
-        if bp and data then
+        
+        if bp and packet_id and data then
             local packed = bp.packets.parse('incoming', data)
             
-            if packed and packed[name] and self.enabled then
-                packed[name] = self.speed
+            if packet_id == 0x037 then
+            
+                if packed and packed['Movement Speed/2'] and self.enabled then
+                    packed['Movement Speed/2'] = self.speed
 
-            elseif packed and packed[name] and not self.enabled and packed[name] < 50 then
-                packed[name] = 50
+                elseif packed and packed['Movement Speed/2'] and not self.enabled and packed['Movement Speed/2'] < 50 then
+                    packed['Movement Speed/2'] = 50
 
+                end
+
+            elseif packet_id == 0x00d then
+                
+                if packed and packed['Movement Speed'] and self.enabled then
+                    packed['Movement Speed'] = self.speed
+
+                elseif packed and packed['Movement Speed'] and not self.enabled and packed['Movement Speed'] < 50 then
+                    packed['Movement Speed'] = 50
+
+                end
+            
             end
             return bp.packets.build(packed)
 

@@ -110,18 +110,12 @@ function target.new()
             end
 
             if self.mode == 1 and target and self.canEngage(bp, target) then
-
-                if target.distance:sqrt() < 35 then
-                    self.targets.player = target
-                    helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
-                end
+                self.targets.player = target
+                helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
 
             elseif self.mode == 2 and target and self.canEngage(bp, target) then
-
-                if target.distance:sqrt() < 35 then
-                    self.targets.party = target
-                    helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
-                end
+                self.targets.party = target
+                helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
 
             end
 
@@ -504,10 +498,10 @@ function target.new()
                     return false
                 end
 
-                if target.charmed then
-                    if debug then print('Charmed target failure!') end
-                    return false
-                end
+                --if target.charmed then
+                    --if debug then print('Charmed target failure!') end
+                    --return false
+                --end
                 return true
 
             end
@@ -517,7 +511,15 @@ function target.new()
 
     end
 
-    self.updateTargets = function(bp)
+    self.updateTargets = function(bp, player)
+        
+        if player and player.status == 1 and not self.getTarget() and windower.ffxi.get_mob_by_target('t') then
+            self.setTarget(bp, windower.ffxi.get_mob_by_target('t'))
+
+        elseif player and player.status == 1 and self.getTarget() and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
+            self.setTarget(bp, windower.ffxi.get_mob_by_target('t'))
+
+        end
 
         if self.targets.player and not self.allowed(bp, self.targets.player) then
             self.targets.player = false

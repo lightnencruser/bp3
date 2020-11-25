@@ -1,9 +1,12 @@
 local bootstrap = {}
+local player    = windower.ffxi.get_player() or false
+
 bootstrap.load = function()
     local self = {}
 
     -- Private Settings.
-    local helpers_update = {}
+    local helpers_update    = dofile(string.format('%sbp/settings/template/default_settings.lua', windower.addon_path)).helpers
+    local directory         = string.format('bp/settings/%s', player.name)
 
     self.debug      = false
     self.core       = false
@@ -62,7 +65,7 @@ bootstrap.load = function()
         
     }
 
-    self.writeSetting = function(dir, settings)
+    self.writeSettings = function(dir, settings)
         local dir, settings = dir or false, settings or {}
 
         if dir and settings and type(settings) == 'table' then
@@ -93,7 +96,6 @@ bootstrap.load = function()
     self.buildCore(false)
 
     local buildSettings = function()
-        local player = windower.ffxi.get_player() or false
 
         if player then
             local dir = string.format('bp/settings/%s.lua', player.name)
@@ -109,7 +111,7 @@ bootstrap.load = function()
                     local settings = dofile(string.format('%sbp/settings/template/default_settings.lua', windower.addon_path))
 
                     if settings then
-                        self.writeSetting(string.format('bp/settings/%s', player.name), settings)
+                        self.writeSettings(string.format('bp/settings/%s', player.name), settings)
                         return settings
 
                     end
@@ -122,6 +124,32 @@ bootstrap.load = function()
 
     end
     self.settings = buildSettings()
+
+    local flag_update = false
+    local updateHelpers = function()
+
+        for _,v in ipairs(helpers_update) do
+            local found = false
+            
+            for _,vv in ipairs(self.settings.helpers) do
+
+                if v.name == vv.name then
+                    found = true
+                end
+
+            end
+
+            if not found then
+                flag_update = true
+                table.insert(self.settings.helpers, v)
+
+            end
+
+        end
+        self.writeSettings(directory, self.settings)
+
+    end
+    updateHelpers()
 
     local buildHelpers = function()
         local dir = {helpers=('bp/helpers/'), commands=('bp/commands/')}
@@ -150,10 +178,9 @@ bootstrap.load = function()
     end
     buildHelpers()
 
-    local updateHelpers = function()
-
+    if flag_update then
+        self.helpers['popchat'].pop('NEW HELPERS HAVE BEEN INSTALLED!')
     end
-    updateHelpers()
 
     local registerEvents = function()
         local dir = ('bp/events/global/')

@@ -140,11 +140,12 @@ function queue.new()
                         local attempts  = (v.attempts)
                         local target    = (v.target.name):sub(1,15) or ('NONE')
                         local cost      = v.action.mp_cost or ('0')
+                        local ready     = (self.ready-os.clock()) > 0 and (self.ready-os.clock()) or 0
 
                         -- Add string to update table.
                         if i == 1 then
                             table.insert(update, string.format((' %s **[ ACTION QUEUE: (\\cs(%s)%2.2f\\cr) ]** %s\n<\\cs(%s)%02d\\cr>%s[ \\cs(%s)%s\\cr ]%s\\cs(%s)%s\\cr%s►%s\\cs(%s)%s\\cr'),
-                                (''):lpad(' ', 20), self.important, (self.ready-os.clock()), (''):rpad(' ', 20),
+                                (''):lpad(' ', 20), self.important, ready, (''):rpad(' ', 20),
                                 (colors.attempts),
                                 (attempts),
                                 (' '):rpad(' ', 2-tostring(attempts):len()),
@@ -209,7 +210,7 @@ function queue.new()
             if (player.status == 0 or player.status == 1) and not helpers['actions'].moving then
 
                 if type(target) == 'string' then
-                    local types = T{'t','bt','st','me','ft','ht'}
+                    local types = T{'t','bt','st','me','ft','ht','pet'}
 
                     if types:contains(target) and windower.ffxi.get_mob_by_target(target) then
                         target = windower.ffxi.get_mob_by_target(target)
@@ -274,7 +275,7 @@ function queue.new()
 
                     elseif action_type == 'Magic' and (levels.main >= required.main or levels.sub >= required.sub) then
                         
-                        if helpers['actions'].canCast() and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'MA', action.en) and player['vitals'].mp > action.mp_cost then
+                        if helpers['actions'].canCast() and (helpers['actions'].isReady(bp, 'MA', action.en) or action.prefix == '/song') and player['vitals'].mp > action.mp_cost then
                             
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
                                 
@@ -295,7 +296,7 @@ function queue.new()
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(bp, target) and player['vitals'].mp >= action.mp_cost then
                                     self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 
-                                elseif not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
+                                elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
                                     self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 
                                 end
@@ -442,8 +443,8 @@ function queue.new()
                         end
 
                     elseif action_type == 'Magic' and (levels.main >= required.main or levels.sub >= required.sub) then
-
-                        if helpers['actions'].canCast(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'MA', action.en) and player['vitals'].mp > action.mp_cost then
+                        
+                        if helpers['actions'].canCast(bp) and (helpers['actions'].isReady(bp, 'MA', action.en) or action.prefix == '/song') and player['vitals'].mp > action.mp_cost then
 
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
 
@@ -464,7 +465,7 @@ function queue.new()
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(bp, target) and player['vitals'].mp >= action.mp_cost then
                                     self.queue:push({action=action, target=target, priority=priority, attempts=0})
 
-                                elseif not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
+                                elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
                                     self.queue:push({action=action, target=target, priority=priority, attempts=0})
 
                                 end
@@ -630,10 +631,10 @@ function queue.new()
                         if attempts == 15 then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
 
-                        elseif action.en ~= 'Honor March' and (not helpers['actions'].canCast() or not helpers['actions'].isReady(bp, 'MA', action.en) or player['vitals'].mp < action.mp_cost) then
+                        elseif action.prefix ~= '/song' and (not helpers['actions'].canCast() or not helpers['actions'].isReady(bp, 'MA', action.en) or player['vitals'].mp < action.mp_cost) then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
 
-                        elseif action.en == 'Honor March' and self.queue[1].attempts == 3 and (not helpers['actions'].canCast() or not helpers['actions'].isReady(bp, 'MA', action.en)) then
+                        elseif action.prefix == '/song' and self.queue[1].attempts == 3 and (not helpers['actions'].canCast() or not helpers['actions'].isReady(bp, 'MA', action.en)) then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
 
                         elseif distance < (ranges[action.range]+target.model_size) then

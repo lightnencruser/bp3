@@ -33,7 +33,7 @@ function core.get()
     self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
     self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
     self["DEBUFFS"]             = self.settings["DEBUFFS"] or {{false,true}, false}
-    self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
+    self["STATUS"]              = self.settings["STATUS"] or {{false,true}, true}
     self["WS"]                  = self.settings["WS"] or {{false,true}, false}
     self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
     self["RANGED WS"]           = self.settings["RANGED WS"] or "Leaden Salute"
@@ -1605,6 +1605,11 @@ function core.get()
                         helpers['queue'].addToFront(bp, helpers['actions'].unique.ranged, target)
                     end
 
+                end
+
+                -- HANDLE STATUS EFFECTS
+                if self.getSetting('STATUS') then
+                    bp.helpers['status'].fixStatus(bp)
                 end
 
                 -- HANDLE EVERYTHING INSIDE THE QUEUE.

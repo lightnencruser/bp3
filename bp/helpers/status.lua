@@ -19,11 +19,13 @@ function status.new()
     self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=7}, padding=2, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
+    self.priority   = string.format('%s,%s,%s', 215, 0, 255)
 
     -- Public Variables.
     self.statuses   = {}    
 
     -- Private Variables.
+    local timer     = {last=0, delay=2}
     local icons     = Q{}
     local map       = {'Gained','Lost','Failed'}
     local na        = {3,4,5,6,7,8,9,15,20,566}
@@ -112,22 +114,31 @@ function status.new()
 
     -- Public Functions.
     self.render = function(bp)
-        local bp = bp or false
-
-        if bp and #self.statuses > 0 then
+        local bp        = bp or false
+        local player    = windower.ffxi.get_player()
+        
+        if bp and player and T(self.statuses):length() > 0 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
             local update = {}
 
-            for i,v in ipairs(self.statuses) do
+            for i,v in pairs(self.statuses) do
                 local s = {}
 
-                for _,vv in ipairs(v.statuses) do
+                if v.statuses then
 
-                    if bp.res.buffs[vv] then
-                        table.insert(s, string.format('%s', bp.res.buffs[vv].en))
+                    for _,vv in ipairs(v.statuses) do
+
+                        if bp.res.buffs[vv] and bp.res.buffs[vv].en ~= 'Doom' then
+                            table.insert(s, string.format('%s', bp.res.buffs[vv].en:sub(1,5)))
+
+                        elseif bp.res.buffs[vv] and bp.res.buffs[vv].en == 'Doom' then
+                            table.insert(s, string.format(' \\cs(%s)%s\\cr', self.priority, bp.res.buffs[vv].en:sub(1,5)))
+
+                        end
+
                     end
+                    table.insert(update, string.format(' %s:%s[ \\cs(%s)%s\\cr ]', v.name:upper(), (''):rpad(' ', (15-v.name:len())), self.important, table.concat(s, ', '):upper()))
 
                 end
-                table.insert(update, string.format(' %s - { \\cs(%s)%s\\cr }', v.target.name, self.important, table.concat(s, ', '):upper()))
 
             end
             self.display:text(table.concat(update, '\n'))            
@@ -137,7 +148,7 @@ function status.new()
                 self.display:show()
             end
 
-        elseif bp and #self.statuses <= 0 then
+        elseif bp and T(self.statuses):length() <= 0 then
 
             if self.display:visible() then
                 self.display:hide()
@@ -166,7 +177,7 @@ function status.new()
                     
                     -- Melee Attacks.
                     if category == 1 then
-                        local spell = prama
+                        local spell = param
                         
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -193,7 +204,7 @@ function status.new()
 
                     -- Ranged Attacks.
                     elseif category == 2 then
-                        local spell = prama
+                        local spell = param
                         
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -220,7 +231,7 @@ function status.new()
 
                     -- Finish Weaponskill.
                     elseif category == 3 then
-                        local spell = prama
+                        local spell = param
                         
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -274,7 +285,7 @@ function status.new()
 
                     -- Use a Job Ability.
                     elseif category == 6 then
-                        local spell = prama
+                        local spell = param
                         
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -301,7 +312,7 @@ function status.new()
 
                     -- Use a Weaponskill.
                     elseif category == 7 then
-                        local spell = prama
+                        local spell = param
                             
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -328,7 +339,7 @@ function status.new()
 
                     -- NPC TP Move.
                     elseif category == 11 then
-                        local spell = prama
+                        local spell = param
                             
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -355,7 +366,7 @@ function status.new()
 
                     -- Finish a Pet Move.
                     elseif category == 13 then
-                        local spell = prama
+                        local spell = param
                             
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -382,7 +393,7 @@ function status.new()
 
                     -- DNC Abilities.
                     elseif category == 14 then
-                        local spell = prama
+                        local spell = param
                             
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -409,7 +420,7 @@ function status.new()
 
                     -- RUN Abilities.
                     elseif category == 15 then
-                        local spell = prama
+                        local spell = param
                             
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
@@ -454,12 +465,13 @@ function status.new()
         local lost      = lost or false
 
         if bp and actor and target and category and buff then
+            local player = windower.ffxi.get_player()
             
             if not lost and buff and removal[category] and buff ~= 255 then
                 local remove = removal[category]
                 local target = windower.ffxi.get_mob_by_id(target.id) or false
                 
-                if target and math.ceil(target.distance):sqrt() < 35 and (target.distance):sqrt() > 0 and (target.status ~= 2 or target.status ~= 3) then
+                if target and target.status ~= 2 and target.status ~= 3 and ((target.distance):sqrt() < 35 or (target.distance):sqrt() == 0 and target.id == player.id) then
 
                     -- Na.
                     if category == 1 then
@@ -528,79 +540,109 @@ function status.new()
             end
 
         elseif bp and actor and target and not category and buff and spell then
-            self.removeSpell(bp, target, spell)
+            local buff = self.getBuffBySpell(bp, spell)
+
+            if buff then
+                self.remove(bp, target, buff)
+            end
+
+        end
+
+    end
+
+    self.lostStatus = function(bp, data)
+        local bp    = bp or false
+        local data  = data or false
+
+        if bp and data then
+            local packed    = bp.packets.parse('incoming', data)
+            local actor     = windower.ffxi.get_mob_by_id(packed['Actor'])
+            local target    = windower.ffxi.get_mob_by_id(packed['Target'])
+
+            if packed and actor and target and actor.id == target.id then
+                local buff      = packed['Param 1']
+                local message   = packed['Message']
+                
+                if buff and message then
+                    local event = self.getEvent(bp, message)
+
+                    if map[event] == 'Lost' then
+                        self.handleStatus(bp, actor, target, buff, false, self.getCategory(bp, buff), true)
+
+                    elseif map[event] == 'Failed' then
+                        self.handleStatus(bp, actor, target, buff, false, self.getCategory(bp, buff), true)
+                            
+                    end
+
+                end
+
+            end
 
         end
 
     end
 
     self.fixStatus = function(bp)
-        local bp = bp or false
+        local bp    = bp or false
+        local s     = T(self.statuses)
 
-        if bp then
+        if bp and s and s:length() > 0 then
 
-            if #self.statuses > 0 then
-
-                for _,v in ipairs(self.statuses) do
-
-                    if #v.statuses > 0 then
-
-                        for _,buff in ipairs(v.statuses) do
-                            local category  = self.getCategory(bp, buff)
-                            local remove    = removal[category]
+            for _,v in pairs(s) do
+                
+                for _,buff in ipairs(v.statuses) do
+                    local category  = self.getCategory(bp, buff)
+                    local remove    = removal[category]
+                    
+                    if category and remove then
+                        
+                        if remove[buff] then
+                            local player    = windower.ffxi.get_player()
+                            local target    = windower.ffxi.get_mob_by_id(v.id)
+                            local spell     = bp.res.spells[remove[buff]]
+                            local priority  = T{'Cursna'}
                             
-                            if category and remove then
-                                
-                                if remove[buff] then
-                                    local player    = windower.ffxi.get_player()
-                                    local spell     = bp.res.spells[remove[buff]]
-                                    local priority  = T{'Cursna'}
+                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                bp.helpers['queue'].add(bp, spell, target)
 
-                                    if spell and not bp.helpers['queue'].inQueue(bp, spell, v.target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                        bp.helpers['queue'].add(bp, spell, v.target)
+                            elseif spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                bp.helpers['queue'].addToFront(bp, spell, target)
 
-                                    elseif spell and not bp.helpers['queue'].inQueue(bp, spell, v.target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                        bp.helpers['queue'].addToFront(bp, spell, v.target)
+                            elseif category and not remove[buff] and category == 2 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                local spell = bp.res.spells[remove[1]]
 
-                                    end
+                                if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                    bp.helpers['queue'].add(bp, spell, target)
+                                end
 
-                                elseif category and not remove[buff] and category == 2 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    local spell = bp.res.spells[remove[1]]
+                            elseif category and not remove[buff] and category == 3 and (player.main_job == 'DNC' or player.sub_job == 'DNC') then
+                                local spell = bp.res.job_abilities[remove[1]]
 
-                                    if spell and not bp.helpers['queue'].inQueue(bp, spell, v.target) then
-                                        bp.helpers['queue'].add(bp, spell, v.target)
-                                    end
+                                if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                    bp.helpers['queue'].add(bp, spell, target)
+                                end
 
-                                elseif category and not remove[buff] and category == 3 and (player.main_job == 'DNC' or player.sub_job == 'DNC') then
-                                    local spell = bp.res.job_abilities[remove[1]]
+                            elseif category and not remove[buff] and category == 4 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                local spell = bp.res.spells[remove[1]]
 
-                                    if spell and not bp.helpers['queue'].inQueue(bp, spell, v.target) then
-                                        bp.helpers['queue'].add(bp, spell, v.target)
-                                    end
+                                if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                    bp.helpers['queue'].add(bp, spell, target)
+                                end
 
-                                elseif category and not remove[buff] and category == 4 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    local spell = bp.res.spells[remove[1]]
-
-                                    if spell and not bp.helpers['queue'].inQueue(bp, spell, v.target) then
-                                        bp.helpers['queue'].add(bp, spell, v.target)
-                                    end
-
-                                elseif category and not remove[buff] and category == 5 then
+                            elseif category and not remove[buff] and category == 5 then
                                     
-                                    for _,spell in ipairs(remove) do
+                                for _,spell in ipairs(remove) do
 
-                                        if bp.res.spells[spell] then
-                                            local spell = bp.res.spells[spell]
+                                    if bp.res.spells[spell] then
+                                        local spell = bp.res.spells[spell]
 
-                                            if spell and not bp.helpers['queue'].inQueue(bp, spell, v.target) then
-                                                bp.helpers['queue'].addToFront(bp, spell, v.target)
-                                                break
-                                            end
-
+                                        if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                            bp.helpers['queue'].addToFront(bp, spell, target)
+                                            break
                                         end
-                                        
-                                    end
 
+                                    end
+                                        
                                 end
 
                             end
@@ -608,6 +650,32 @@ function status.new()
                         end
 
                     end
+
+                end
+
+            end
+
+        end
+
+    end
+
+    self.build = function(bp, data)
+        local bp    = bp or false
+        local data  = data or false
+
+        if bp and data then
+            local packed = bp.packets.parse('incoming', data)
+
+            if packed and packed['ID'] then
+
+                if (os.clock()-timer.last) >= timer.delay then
+                    self.statuses = {}
+                    coroutine.sleep(1)
+                end
+
+                if bp.helpers['party'].findByName(bp, packed['Name'], true) and packed['Index'] ~= 0 then
+                    self.statuses[packed['ID']] = {name=packed['Name'], id=packed['ID'], statuses={}}
+                    timer.last = os.clock()
 
                 end
 
@@ -623,34 +691,16 @@ function status.new()
         local buff      = buff or false
         
         if bp and target and buff then
+            local s = T(self.statuses) 
             
-            if #self.statuses > 0 then
-
-                for _,v in ipairs(self.statuses) do
-
-                    if v.target.id == target.id and not self.hasStatus(bp, target, buff) then
-                        table.insert(v.statuses, buff)
-                        break
-
-                    end
-
-                end
+            if s and s:length() > 0 and not self.hasStatus(bp, target, buff) and s[target.id] and s[target.id].statuses then
+                table.insert(s[target.id].statuses, buff)
             
-            else
-                table.insert(self.statuses, {target=target, statuses={}})
+            elseif s and s:length() == 0 and target and target.name and target.id then
+                s[target.id] = {}
 
-                do -- Add status after creating the table.
-
-                    for _,v in ipairs(self.statuses) do
-
-                        if v.target.id == target.id then
-                            table.insert(v.statuses, buff)
-                            break
-    
-                        end
-    
-                    end
-
+                do  -- Insert new table for player.
+                    s[target.id] = {name=target.name, id=target.id, statuses={buff}}
                 end
 
             end
@@ -665,104 +715,21 @@ function status.new()
         local buff      = buff or false
         
         if bp and target and buff then
+            local t = T(self.statuses)
 
-            if #self.statuses > 0 then
+            if t:length() > 0 and t[target.id] then
+                local s = T(t[target.id].statuses)
 
-                for i,v in ipairs(self.statuses) do
-
-                    if v.target.id == target.id then
-
-                        if T(v.statuses):contains(buff) then
+                if s and (s):contains(buff) then
                         
-                            for index, status in ipairs(v.statuses) do
+                    for i, status in ipairs(s) do
                                 
-                                if status == buff then
-                                    table.remove(v.statuses, index)
-                                    
-                                    do -- Be sure the table is not empty.
-
-                                        if #v.statuses == 0 then
-                                            table.remove(self.statuses, i)
-                                        end
-
-                                    end
-                                    break
-
-                                end
-
-                            end
+                        if status == buff then
+                            table.remove(s, i)
+                            break
 
                         end
 
-                    end
-
-                end
-
-            end
-            
-        end
-
-    end
-
-    self.removeSpell = function(bp, target, spell)
-        local bp        = bp or false
-        local target    = target or false
-        local spell     = spell or false
-        
-        if bp and target and spell then
-
-            if #self.statuses > 0 then
-
-                for i,v in ipairs(self.statuses) do
-
-                    if v.target.id == target.id then
-                        local statuses = v.statuses
-
-                        for _,status in ipairs(v.statuses) do
-                            
-                            for _,category in ipairs(removal) do
-
-                                if type(category) == 'table' then
-
-                                    for buff,spell_id in pairs(category) do
-
-                                        if spell == spell_id then
-                                            table.remove(v.statuses, i)
-                                            break
-                                        end
-
-                                    end
-
-                                end
-
-                            end
-
-                        end
-
-
-                    end
-
-                end
-
-            end
-            
-        end
-
-    end
-
-    self.removeAll = function(bp, target)
-        local bp        = bp or false
-        local target    = target or false
-        
-        if bp and target then
-
-            if #self.statuses > 0 then
-
-                for i,v in ipairs(self.statuses) do
-
-                    if v.target.id == target.id then
-                        table.remove(self.statuses, i)
-                        break
                     end
 
                 end
@@ -779,19 +746,13 @@ function status.new()
         local buff      = buff or false
 
         if bp and target and buff then
+            local t = T(self.statuses)
 
-            if #self.statuses > 0 then
+            if t:length() > 0 and t[target.id] then
+                local s = T(t[target.id].statuses)
 
-                for _,v in ipairs(self.statuses) do
-
-                    if v.target.id == target.id then
-
-                        if T(v.statuses):contains(buff) then
-                            return true
-                        end
-
-                    end
-
+                if s and (s):contains(buff) then
+                    return true
                 end
 
             end
@@ -802,11 +763,11 @@ function status.new()
     end
 
 
-    self.getEvent = function(bp, msg_id)
+    self.getEvent = function(bp, message)
         local bp        = bp or false
-        local msg_id    = msg_id or false
+        local message   = message or false
 
-        if bp and msg_id then
+        if bp and message then
 
             for event,list in ipairs(messages) do
                 
@@ -814,7 +775,7 @@ function status.new()
 
                     for _,id in ipairs(list) do
                         
-                        if msg_id == id then
+                        if message == id then
                             return event
                         end
 
@@ -887,6 +848,73 @@ function status.new()
                 
                 if v == id then
                     return 7
+                end
+                
+            end
+            
+        end
+        return false
+        
+    end
+
+    self.getBuffBySpell = function(bp, spell)
+        local bp    = bp or false
+        local spell = spell or false
+        
+        if spell then
+            
+            for i,v in pairs(removal[1]) do
+                
+                if v == spell then
+                    return i
+                end
+                
+            end
+            
+            for _,v in ipairs(removal[2]) do
+                
+                if v == spell then
+                    return v
+                end
+                
+            end
+            
+            for _,v in ipairs(removal[3]) do
+                
+                if v == spell then
+                    return v
+                end
+                
+            end
+            
+            for _,v in ipairs(removal[4]) do
+                
+                if v == spell then
+                    return v
+                end
+                
+            end
+            
+            for _,v in ipairs(removal[5]) do
+                
+                if v == spell then
+                    return v
+                end
+                
+            end
+            
+            for _,v in ipairs(removal[6]) do
+                
+                if v == spell then
+                    return v
+                end
+                
+            end
+            
+            for _,v in ipairs(removal[7]) do
+                
+                if v == spell then
+                    return v
                 end
                 
             end

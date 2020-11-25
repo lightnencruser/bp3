@@ -20,20 +20,34 @@ commands.new = function()
 
                 else
                     bp.settings['Enabled'] = true
-                    bp.helpers['queue'].clear()
                     msg = ('BUDDYPAL AUTOMATION NOW ENABLED!')
 
                 end
             
             elseif command == 'enable' then
                 bp.settings['Enabled'] = true
-                bp.helpers['queue'].clear()
                 msg = ('BUDDYPAL AUTOMATION NOW ENABLED!')
 
             elseif command == 'disable' then
                 bp.settings['Enabled'] = false
                 bp.helpers['queue'].clear()
                 msg = ('BUDDYPAL AUTOMATION NOW DISABLED!')
+
+            elseif command == 'wring' then
+                bp.pinger = os.clock() + 15
+
+                do -- Equip Warp Ring then delay the command for 12 seconds.
+                    windower.send_command("equip L.Ring 'Warp Ring'; wait 12; input /item 'Warp Ring' <me>")
+                    msg = ('ATTEMPTING TO USE WARP RING...')
+                end
+
+            elseif command == 'demring' then
+                bp.pinger = os.clock() + 15
+
+                do -- Equip Dem Ring then delay the command for 12 seconds.
+                    windower.send_command("equip L.Ring 'Dimensional Ring (Dem)'; wait 12; input /item 'Dimensional Ring (Dem)' <me>")
+                    msg = ('ATTEMPTING TO USE WARP RING...')
+                end
 
             elseif command == 'am' then
                 core.nextSetting(bp, 'AM')

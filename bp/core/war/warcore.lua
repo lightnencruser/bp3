@@ -339,7 +339,7 @@ function core.get()
                     -- WEAPON SKILL LOGIC.
                     if self.getSetting('WS') and helpers['actions'].canAct() and target and (target.distance):sqrt() < 6 then
                         local current = {tp=player["vitals"].tp, hpp=player["vitals"].hpp, mpp=player["vitals"].mpp, main=helpers['equipment'].main.en, ranged=helpers['equipment'].ranged.en}
-
+                        
                         if self.getSetting('AM') then
                             local weaponskill = helpers["aftermath"].getWeaponskill(bp, current.main)
                             local aftermath   = helpers["aftermath"].getBuffByLevel(bp, self.getSetting('AM LEVEL'))
@@ -375,7 +375,7 @@ function core.get()
                                 
                             end
                             
-                        elseif not self.getSetting('AM') and target then
+                        elseif not self.getSetting('AM') then
                             
                             if current.mpp < self.getSetting('MOONLIGHT MPP') and helpers['actions'].isReady(bp, 'WS', "Moonlight") then
                                 helpers["queue"].addToFront(bp, bp.WS["Moonlight"], 'me')
@@ -406,7 +406,7 @@ function core.get()
 
                     elseif self.getSetting('RA') and self.getSetting('WS') and helpers['actions'].canAct() and target and (target.distance):sqrt() > 6 and (target.distance):sqrt() < 21 then
                         local current = {tp=player["vitals"].tp, hpp=player["vitals"].hpp, mpp=player["vitals"].mpp, main=helpers['equipment'].main.en, ranged=helpers['equipment'].ranged.en}
-
+                        
                         if self.getSetting('AM') and weaponskill and aftermath then
                             local weaponskill = helpers["aftermath"].getWeaponskill(bp, current.ranged)
                             local aftermath   = helpers["aftermath"].getBuffByLevel(bp, self.getSetting('AM LEVEL'))
@@ -1723,6 +1723,11 @@ function core.get()
                         helpers['queue'].addToFront(bp, helpers['actions'].unique.ranged, target)
                     end
 
+                end
+
+                -- HANDLE STATUS EFFECTS
+                if self.getSetting('STATUS') then
+                    bp.helpers['status'].fixStatus(bp)
                 end
 
                 -- HANDLE EVERYTHING INSIDE THE QUEUE.

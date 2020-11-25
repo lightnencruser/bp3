@@ -87,7 +87,6 @@ function models.new()
         if bp and target and model then
 
             if self.models[target.name] then
-                helpers['popchat'].pop(string.format('New Model for %s is: %s!', target.name, model))
                 self.models[target.name] = model
                 self.writeSettings()
 
@@ -95,13 +94,13 @@ function models.new()
                 self.models[target.name] = {}
 
                 if self.models[target.name] then
-                    helpers['popchat'].pop(string.format('New Model for %s is: %s!', target.name, model))
                     self.models[target.name] = model
                     self.writeSettings()
 
                 end
 
             end
+            bp.helpers['popchat'].pop(string.format('New Model for %s is: %s!', target.name, model))
 
         end
 

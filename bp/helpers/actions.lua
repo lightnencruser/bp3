@@ -446,6 +446,24 @@ function actions.new()
 
     end
 
+    self.doMenu = function(bp, id, index, zone, option, menuid, automated, u1, u2)
+        local u1 = u1 or false
+        local u2 = u2 or false
+
+        if id and index and option and zone and menuid and (automated or not automated) then
+            windower.packets.inject_outgoing(0x05b, ("iIHHHBCHH"):pack(0x05b, id, option, u1, index, automated, u2, zone, menuid))
+        end
+
+    end
+
+    self.exitMenu = function(bp, packets, target)
+        
+        if packets and target then
+            windower.packets.inject_outgoing(0x05b, ("iIHHHBCHH"):pack(0x05b, target.id, 0, 16384, target.index, false, 0, packets["Zone"], packets["Menu ID"]))
+        end
+
+    end
+
     return self
 
 end

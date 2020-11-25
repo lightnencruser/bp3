@@ -2,6 +2,43 @@ local party = {}
 function party.new()
     local self = {}
 
+    -- Public Variables.
+    self.jobs = {}
+
+    -- Private Variables.
+    local timer = {last=0, delay=2}
+
+    -- Public Functions.
+    self.updateJobs = function(bp, data)
+        local bp    = bp or false
+        local data  = data or false
+
+        do -- Build Status removal tables.
+            bp.helpers['status'].build(bp, data)
+        end
+
+        if bp and data then
+            local packed = bp.packets.parse('incoming', data)
+
+            if packed and packed['ID'] then
+
+                if (os.clock()-timer.last) >= timer.delay then
+                    self.jobs = {}
+                    coroutine.sleep(1)
+                end
+
+                if bp.helpers['party'].findByName(bp, packed['Name'], true) and packed['Index'] ~= 0 then
+                    self.jobs[packed['ID']] = {name=packed['Name'], id=packed['ID'], job=packed['Main job'], sub=packed['Sub job']}
+                    timer.last = os.clock()
+
+                end
+
+            end
+
+        end
+
+    end
+
     self.getMembers = function(bp, alliance)
         local party     = windower.ffxi.get_party() or false
         local alliance  = alliance or false

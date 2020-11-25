@@ -30,6 +30,7 @@ function alias.new()
         {'prisms',      "ord rr input /item 'Prism Powder' <me>"},
         {'oils',        "ord rr input /item 'Silent Oil' <me>"},
         {'vshard',      "ord rr input /item 'V. Con. Shard' <me>"},
+        {'demring',     "ord rr bp demring"},
 
     }
 

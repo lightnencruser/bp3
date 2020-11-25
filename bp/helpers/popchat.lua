@@ -12,9 +12,9 @@ function popchat.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/popchat_settings.lua', windower.addon_path))
-    self.layout     = self.settings.layout or {pos={x=300, y=220}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Impact', size=12}, padding=2, stroke_width=2, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=300, y=450}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Impact', size=20}, padding=2, stroke_width=2, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.delay      = 5
+    self.delay      = 7
     self.fade       = 255
     self.fader      = (255/(self.delay*16))
 

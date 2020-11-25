@@ -56,14 +56,13 @@ function controls.new()
     self.assist = function(bp)
         local bp = bp or false
 
-        if bp then
+        if bp and self.assist then
             local player = windower.ffxi.get_mob_by_target('me') or false
             local target = helpers['target'].getTarget() or false
-            local toggle = toggle:current() or false
         
             if (os.clock()-times.assist) > delays.assist then
             
-                if player and self.assist then
+                if player then
                     local distance = (player.distance):sqrt()
                     
                     if (distance-target.model_size) < assist_range and player.status == 0 then
@@ -82,40 +81,35 @@ function controls.new()
     self.distance = function(bp)
         local bp = bp or false
 
-        if bp then
+        if bp and self.distance then
             local helpers   = bp.helpers
-            local midaction = helpers['actions'].midaction
             local target    = helpers['target'].getTarget() or false
         
-            if (os.clock()-times.distance) > delays.distance and not midaction then
-            
-                if self.distance and target then
-                    local player = windower.ffxi.get_mob_by_target('me') or false
+            if target and (os.clock()-times.distance) > delays.distance then
+                local player = windower.ffxi.get_mob_by_target('me') or false
                     
-                    if player and target and player.status == 1 then
-                        local pSize     = player.model_size
-                        local variation = (0.75)
-                        local maximum   = (3-pSize)
-                        local distance  = target.distance:sqrt()
+                if player and target and player.status == 1 then
+                    local pSize     = player.model_size
+                    local variation = (0.75)
+                    local maximum   = (3-pSize)
+                    local distance  = target.distance:sqrt()
                         
-                        if distance > maximum then
-                            helpers['actions'].move(target.x, target.y)
-                            times.distance = os.clock()
+                    if distance > maximum then
+                        helpers['actions'].move(target.x, target.y)
+                        times.distance = os.clock()
                             
-                        elseif distance < maximum and distance > (maximum-variation) then
-                            helpers['actions'].stopMovement()
-                            times.distance = os.clock()
+                    elseif distance < maximum and distance > (maximum-variation) then
+                        helpers['actions'].stopMovement()
+                        times.distance = os.clock()
                             
-                        elseif distance < (maximum-variation) then
-                            helpers['actions'].stepBackwards()
-                            times.distance = os.clock()
+                    elseif distance < (maximum-variation) then
+                        helpers['actions'].stepBackwards()
+                        times.distance = os.clock()
                             
-                        end
-                        
                     end
-                    
+                        
                 end
-            
+                    
             end
 
         end
@@ -125,22 +119,63 @@ function controls.new()
     self.face = function(bp)
         local bp = bp or false
 
-        if bp then
-            local midaction = helpers['actions'].midaction
+        if bp and self.facing then
+            local helpers   = bp.helpers
             local target    = helpers['target'].getTarget() or false
         
             if (os.clock()-times.facing) > delays.facing then
-        
-                if self.face then
-                    helpers['actions'].face(target)
-                    times.facing = os.clock()
-
-                end
+                helpers['actions'].face(bp, target)
+                times.facing = os.clock()
                 
             end
             
         end
         
+    end
+
+    self.toggle = function(bp, command)
+        local bp = bp or false
+        local command = command or ''
+
+        if bp and command ~= '' then
+
+            if command == 'face' then
+
+                if self.facing then
+                    self.facing = false
+
+                else
+                    self.facing = true
+
+                end
+                bp.helpers['popchat'].pop(string.format('AUTO-FACING TARGETS: %s', tostring(self.facing)))
+
+            elseif command == 'distance' then
+
+                if self.distance then
+                    self.distance = false
+
+                else
+                    self.distance = true
+
+                end
+                bp.helpers['popchat'].pop(string.format('AUTO-DISTANCING TARGETS: %s', tostring(self.distance)))
+
+            elseif command == 'assist' then
+
+                if self.assist then
+                    self.assist = false
+
+                else
+                    self.assist = true
+
+                end
+                bp.helpers['popchat'].pop(string.format('AUTO-ASSIST PARTY: %s', tostring(self.facing)))
+
+            end
+
+        end
+
     end
 
     self.up = function(bp)

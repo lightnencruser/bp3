@@ -53,6 +53,8 @@ return {
         {name='status',         status=true},
         {name='burst',          status=true},
         {name='alias',          status=true},
+        {name='sparks',         status=true},
+        {name='items',          status=true},
 
     },
 

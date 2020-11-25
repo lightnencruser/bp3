@@ -4,15 +4,15 @@ return {
     ['Ping Delay']                = 0.6,
     ['Main Character']            = 'Eliidyr',
     ['Characters']                = {
-        'Eliidyr','Turtle','Ninjar','Mutant','Duhpeter','Lordpotato','Stunzeed'
+        'Character Name'
     },
 
     ['Controllers'] = {
-        'Eliidyr','Turtle','Ninjar','Mutant','Duhpeter','Uwu','Doomvtwo','Zutangdupes','Wutangdupes','Minimimi','Gianni','Stunzeed','Mingway','Pawjobs'
+        'Character Name'
     },
 
     ['Auto Join'] = {
-        'Eliidyr','Turtle','Ninjar','Mutant','Duhpeter','Uwu','Doomvtwo','Zutangdupes','Wutangdupes','Gianni','Minimimi','Mingway','Pawjobs','Xcalibur','Stunzeed'
+        'Character Name'
     },
 
     ['Addons'] = {

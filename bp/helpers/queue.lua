@@ -290,10 +290,17 @@ function queue.new()
 
                                     end
 
-                                elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Self') and target.id == player.id and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                elseif action.type == 'Geomancy' and not self.inQueue(bp, action) and (action.en):match('Geo-') and T(action.targets):contains('Party') and player['vitals'].mp >= action.mp_cost then
+                                    print(target.name, action.targets)
+                                    if helpers['party'].isInParty(bp, target.id, false) then
+                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 
-                                elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(bp, target) and player['vitals'].mp >= action.mp_cost then
+                                    else
+                                        self.queue:insert(1, {action=action, target=player, priority=priority, attempts=0})
+
+                                    end
+
+                                elseif action.type == 'Geomancy' and not self.inQueue(bp, action) and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(bp, target) and player['vitals'].mp >= action.mp_cost then
                                     self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 
                                 elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
@@ -623,10 +630,11 @@ function queue.new()
                     end
 
                 elseif type == 'Magic' then
-
+                    
                     if helpers['target'].allowed(bp, target) then
-                        local mob      = windower.ffxi.get_mob_by_id(target.id) or 999
-                        local distance = mob.distance:sqrt()
+                        local mob       = windower.ffxi.get_mob_by_id(target.id) or 999
+                        local distance  = mob.distance:sqrt()
+                        local size      = target.model_size or 1
 
                         if attempts == 15 then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
@@ -637,11 +645,11 @@ function queue.new()
                         elseif action.prefix == '/song' and self.queue[1].attempts == 3 and (not helpers['actions'].canCast() or not helpers['actions'].isReady(bp, 'MA', action.en)) then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
 
-                        elseif distance < (ranges[action.range]+target.model_size) then
+                        elseif distance < (ranges[action.range]+size) then
                             windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                             helpers['queue'].attempt(bp)
 
-                        elseif distance > (ranges[action.range]+target.model_size) then
+                        elseif distance > (ranges[action.range]+size) then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
 
                         end

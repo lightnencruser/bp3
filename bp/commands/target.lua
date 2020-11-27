@@ -36,6 +36,10 @@ function target.new()
                     else
                         bp.helpers['target'].targets.player = false
 
+                        do -- Reset GEO Target also if pressed twice in succession.
+                            bp.helpers['target'].resetLuopanTarget()
+                        end
+
                     end
 
                 elseif command == 'pt' and windower.ffxi.get_mob_by_target('t') then

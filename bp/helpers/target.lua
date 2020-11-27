@@ -22,7 +22,8 @@ function target.new()
     self.mode       = self.settings.mode or 1
 
     -- Private Variables.
-    local debug     = false
+    local debug     = true
+    local reset     = {last=0, delay=0.5}
 
     -- Private Functions.
     local persist = function()
@@ -71,14 +72,22 @@ function target.new()
     self.writeSettings()
 
     self.getTarget = function()
-        return self.targets.player or self.targets.party or false
+        return self.targets.player or self.targets.party
     end
 
     self.clear = function()
         self.targets.player     = false
         self.targets.party      = false
-        self.targets.entrust    = false
         self.targets.luopan     = false
+
+    end
+
+    self.resetLuopanTarget = function()
+
+        if (os.clock()-reset.last) < reset.delay then
+            self.targets.luopan = false
+        end
+        reset.last = os.clock()
 
     end
 
@@ -189,7 +198,7 @@ function target.new()
 
         else
 
-            if (target.distance):sqrt() < 22 and target.name ~= player.name and helpers['party'].isInParty(bp, target, false) then
+            if (target.distance):sqrt() < 22 and target.name ~= player.name and bp.helpers['party'].isInParty(bp, target, false) then
                 self.targets.entrust = target
             end
 
@@ -493,7 +502,7 @@ function target.new()
                     return false
                 end
 
-                if not self.isEnemy(bp, target) and not helpers['party'].isInParty(bp, target) then
+                if not self.isEnemy(bp, target) and not helpers['party'].isInParty(bp, target, true) then
                     if debug then print('Is enemy failure!') end
                     return false
                 end
@@ -521,19 +530,19 @@ function target.new()
 
         end
 
-        if self.targets.player and not self.allowed(bp, self.targets.player) then
+        if self.targets.player and (not self.allowed(bp, self.targets.player) or (self.targets.player.distance):sqrt() > 35) then
             self.targets.player = false
         end
 
-        if self.targets.party and not self.allowed(bp, self.targets.party) then
+        if self.targets.party and (not self.allowed(bp, self.targets.party) or (self.targets.party.distance):sqrt() > 35) then
             self.targets.party = false
         end
 
-        if self.targets.entrust and not self.allowed(bp, self.targets.entrust) then
+        if self.targets.entrust and (not self.allowed(bp, self.targets.entrust) or (self.targets.entrust.distance):sqrt() > 35) then
             self.targets.entrust = false
         end
 
-        if self.targets.luopan and not self.allowed(bp, self.targets.luopan) then
+        if self.targets.luopan and (not self.allowed(bp, self.targets.luopan) or (self.targets.luopan.distance):sqrt() > 35) then
             self.targets.luopan = false
         end
 

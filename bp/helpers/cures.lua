@@ -127,7 +127,7 @@ function cures.new()
                     table.insert(self.party, {id=v.mob.id, distance=v.mob.distance, hp=hp, hpp=hpp, max=max, missing=(max-hp)})
                 end
                     
-            elseif i:sub(1,1) == "a" and type(v) == "table" then
+            elseif (i:sub(1,1) == "a" or i:sub(1,1) == "p") and type(v) == "table" then
                 local hp    = v.hp 
                 local hpp   = v.hpp
                 local max   = math.floor(v.hp/( v.hpp/100) )
@@ -143,17 +143,35 @@ function cures.new()
     end
 
     self.curesNeeded = function()
-        local count = 0
+        local party     = T(self.party)
+        local alliance  = T(self.alliance)
+        local count     = 0
         
-        for _,v in ipairs(self.party) do
-            local max = v.max
+        if self.mode == 2 then
 
-            if v.hpp < 90 and v.hpp ~= 0 then
-                count = (count + 1)
+            for _,v in ipairs(party) do
+                local max = v.max
+
+                if v.hpp < 90 and v.hpp ~= 0 then
+                    count = (count + 1)
+                end
+                
             end
-            
+            return count
+
+        elseif self.mode == 3 then
+
+            for _,v in ipairs(party:extend(alliance)) do
+                local max = v.max
+
+                if v.hpp < 90 and v.hpp ~= 0 then
+                    count = (count + 1)
+                end
+                
+            end
+            return count
+
         end
-        return count
         
     end
     
@@ -534,12 +552,13 @@ function cures.new()
         if self.party and self.alliance and self.mode ~= 1 then
             local count     = self.curesNeeded()
             local player    = windower.ffxi.get_player() or false
+            local party     = T(self.party)
+            local alliance  = T(self.alliance)
             local helpers   = bp.helpers
             local missing   = 0         
             
             if self.mode == 2 and count > 0 then
-                local party     = T(self.party)
-                local id        = false
+                local id = false
 
                 if count < 3 and (player.main_job == "WHM" or player.main_job == "RDM" or player.main_job == "SCH" or player.main_job == "PLD" or player.sub_job == "WHM" or player.sub_job == "RDM" or player.sub_job == "SCH" or player.sub_job == "PLD") and player.main_job ~= "DNC" then
                     
@@ -687,12 +706,11 @@ function cures.new()
                     
                 end
             
-            elseif mode == 3 and count > 0 then
-                local alliance = T(T(party):extend(T(alliance)))
-                local missing = 0
-                local id = false
+            elseif self.mode == 3 and count > 0 then
+                local missing   = 0
+                local id        = false
                 
-                if count < 3 and (player.main_job == "WHM" or player.main_job == "RDM" or player.main_job == "SCH" or player.main_job == "PLD" or player.sub_job == "WHM" or player.sub_job == "RDM" or player.sub_job == "SCH" or player.sub_job == "PLD") and player.main_job ~= "DNC" and player.main_job ~= "BLU" then
+                if count < 3 then
                     
                     for _,v in ipairs(alliance) do
                         local cure   = self.estimateCure(bp, v.missing) or false

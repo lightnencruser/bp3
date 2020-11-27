@@ -419,7 +419,7 @@ function core.get()
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
 
@@ -482,7 +482,7 @@ function core.get()
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -605,7 +605,12 @@ function core.get()
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet       = windower.ffxi.get_mob_by_target('pet') or false
+                            local gtarget   = helpers['target'].targets.luopan or target or false
+
+                            do -- HANDLE ALL GEOMANCY BUFFS.
+                                helpers['bubbles'].handle(bp, gtarget)
+                            end
                            
                         end
                         
@@ -1044,7 +1049,7 @@ function core.get()
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
 
@@ -1107,7 +1112,7 @@ function core.get()
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -1230,7 +1235,12 @@ function core.get()
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet       = windower.ffxi.get_mob_by_target('pet') or false
+                            local gtarget   = helpers['target'].targets.luopan or target or false
+
+                            do -- HANDLE ALL GEOMANCY BUFFS.
+                                helpers['bubbles'].handle(bp, gtarget)
+                            end
                            
                         end
                         

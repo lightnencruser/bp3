@@ -20,7 +20,8 @@ function bubbles.new()
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Public Variables.
-    self.bubbles    = self.settings.debuffs or {self.allowed[772], self.allowed[780], self.allowed[818]}
+    self.bubbles        = self.settings.bubbles or {self.allowed[772], self.allowed[818], self.allowed[780]}
+    self.flags          = self.settings.flags or {indi=true, geo=true, entrust=true, ecliptic=true, dematerialize=true, circle=true, glory=true, lifecycle=true, distance=22}
 
     -- Private Variables.
     local short = {
@@ -68,6 +69,8 @@ function bubbles.new()
     }
 
     -- Private Variables.
+    local buffs     = {'Ecliptic Attrition', 'Lasting Emanation'}
+    local buff      = 2
     local math      = math
     local placement = 1
     local map       = {
@@ -82,8 +85,9 @@ function bubbles.new()
         local next = next
 
         if self.settings then
-            self.settings.bubbles = self.bubbles
-            self.settings.layout  = self.layout
+            self.settings.bubbles       = self.bubbles
+            self.settings.flags         = self.flags
+            self.settings.layout        = self.layout
 
         end
 
@@ -129,6 +133,7 @@ function bubbles.new()
 
         elseif not f:exists() then
             f:write(string.format('return %s', T({}):tovstring()))
+
         end
 
     end
@@ -167,7 +172,9 @@ function bubbles.new()
         local bp = bp or false
 
         if bp and self.display:visible() then
-            local targets   = bp.helpers['target'].targets
+            local luopan    = bp.helpers['target'].targets.luopan
+            local entrust   = bp.helpers['target'].targets.entrust
+            local target    = bp.helpers['target'].getTarget()
             local update    = {}
 
             for i,v in ipairs(self.bubbles) do
@@ -177,8 +184,11 @@ function bubbles.new()
                 
                 elseif i == 2 then
 
-                    if targets.luopan then
-                        table.insert(update, string.format('[G]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring(targets.luopan.name)))
+                    if luopan then
+                        table.insert(update, string.format('[G]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring(luopan.name)))
+
+                    elseif target then
+                        table.insert(update, string.format('[G]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring(target.name)))
 
                     else
                         table.insert(update, string.format('[G]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring('NONE')))
@@ -187,8 +197,8 @@ function bubbles.new()
 
                 elseif i == 3 then
 
-                    if targets.entrust then
-                        table.insert(update, string.format('[E]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring(targets.entrust.name)))
+                    if entrust then
+                        table.insert(update, string.format('[E]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring(entrust.name)))
                         
                     else
                         table.insert(update, string.format('[E]: \\cs(%s)%s\\cr%s► %s', self.important, self.bubbles[i].en, (''):lpad(' ', (15-self.bubbles[i].en:len())), tostring('NONE')))
@@ -280,8 +290,8 @@ function bubbles.new()
                 elseif type(b2) == 'string' and bp.MA[b2] then
                     self.bubbles[2] = bp.MA[b2]
 
-                elseif type(b2) == 'string' and short.self[b2] then
-                    self.bubbles[2] = bp.MA[short.self[b2]]
+                elseif type(b2) == 'string' and short.target[b2] then
+                    self.bubbles[2] = bp.MA[short.target[b2]]
 
                 end
 
@@ -349,7 +359,7 @@ function bubbles.new()
                     offset = self.buildSideOffset(bp, direction, mob.model_size, mob.model_scale)
 
                 end
-                print(mob.facing, map.directions[direction] , direction)
+                
                 do -- Update the positions.
                     action["Target"]        = mob.id
 			        action["Target Index"]  = mob.index
@@ -359,7 +369,7 @@ function bubbles.new()
                     action['Y Offset']      = offset.y
 
                 end
-                bp.helpers['popchat'].pop('PLACING BUBBLE AT %s: [ %2.2f, %2.2f ]', (map.placement[placement]):upper(), offset.x, offset.y)
+                bp.helpers['popchat'].pop(string.format('PLACING BUBBLE AT %s: %05.2f, %05.2f', (map.placement[placement]):upper(), offset.x, offset.y))
                 return action
 
             end
@@ -486,6 +496,66 @@ function bubbles.new()
 
     end
 
+    self.handle = function(bp, target)
+        local bp        = bp or false
+        local target    = target or false
+        local pet       = windower.ffxi.get_mob_by_target('pet') or false
+
+        if bp then
+            local bubbles = self.bubbles
+            
+            -- HANDLE GEO-SPELLS.
+            if not pet and target then
+                
+                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady(bp, "MA", bubbles[2].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[2].en]) then
+                    
+                    if self.flags.glory and bp.helpers['actions'].isReady(bp, "JA", "Blaze of Glory") then
+                        bp.helpers['queue'].add(bp, bp.JA['Blaze of Glory'], 'me')
+                        bp.helpers['queue'].add(bp, bp.MA[bubbles[2].en], target)
+
+                    else
+                        bp.helpers['queue'].add(bp, bp.MA[bubbles[2].en], target)
+
+                    end
+
+                end
+            
+            elseif pet and (pet.distance):sqrt() > (self.flags.distance+5) and self.flags.circle and bp.helpers['actions'].isReady(bp, "JA", "Full Circle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Full Circle'], 'me') then
+                bp.helpers['queue'].clear()
+                bp.helpers['queue'].addToFront(bp, bp.JA['Full Circle'], 'me')
+
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 75 and self.flags.ecliptic and bp.helpers['actions'].isReady(bp, "JA", "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp, bp.JA['Ecliptic Attrition'], 'me') then
+                bp.helpers['queue'].addToFront(bp, bp.JA['Ecliptic Attrition'], 'me')
+
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady(bp, "JA", "Life Cycle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Life Cycle'], 'me') then
+                bp.helpers['queue'].addToFront(bp, bp.JA['Life Cycle'], 'me')
+
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady(bp, "JA", "Dematerialize") and not bp.helpers['queue'].inQueue(bp, bp.JA['Dematerialize'], 'me') then
+                bp.helpers['queue'].addToFront(bp, bp.JA['Dematerialize'], 'me')
+
+            end
+
+            -- HANDLE INDI-SPELLS.
+            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady(bp, "MA", bubbles[1].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[1].en]) then
+                bp.helpers['queue'].add(bp, bp.MA[bubbles[1].en], 'me')
+            end
+
+            -- HANDLE ENTRUST SPELLS.
+            if self.flags.entrust and bp.helpers['actions'].isReady(bp, "JA", "Entrust") and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[3].en]) then
+                local target = bp.helpers['target'].targets.entrust
+
+                if target and bp.helpers['target'].getTarget() then
+                    bp.helpers['queue'].add(bp, bp.JA['Entrust'], 'me')
+                    bp.helpers['queue'].add(bp, bp.MA[bubbles[3].en], target)
+
+                end
+
+            end
+
+        end
+
+    end
+
     self.pos = function(bp, x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
@@ -499,6 +569,190 @@ function bubbles.new()
         
         elseif bp and (not x or not y) then
             bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
+
+        end
+
+    end
+
+    self.toggleBOG = function(bp)
+        local bp = bp or false
+
+        if bp then
+        
+            if self.flags.glory then
+                self.flags.glory = false
+
+            else
+                self.flags.glory = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('BLAZE OF GLORY: %s', tostring(self.flags.glory)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleEnhancements = function(bp)
+        local bp = bp or false
+
+        if bp then
+        
+            if self.flags.ecliptic then
+                self.flags.ecliptic = false
+
+            else
+                self.flags.ecliptic = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('%s: %s', buffs[buff], tostring(self.flags.ecliptic)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleBuff = function(bp)
+        local n = #buffs
+
+        if buff < n then
+            buff = (buff + 1)
+
+        elseif buff >= n then
+            buff = 1
+
+        end
+        bp.helpers['popchat'].pop(string.format('ENHANCEMENTS NOW SET TO: %s', tostring(buffs[buff])))
+        self.writeSettings()
+
+    end
+
+    self.toggleIndi = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.flags.indi then
+                self.flags.indi = false
+
+            else
+                self.flags.indi = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('INDI-SPELLS: %s', tostring(self.flags.indi)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleGeo = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.flags.geo then
+                self.flags.geo = false
+
+            else
+                self.flags.geo = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('GEO-SPELLS: %s', tostring(self.flags.geo)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleEntrust = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.flags.entrust then
+                self.flags.entrust = false
+
+            else
+                self.flags.entrust = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('ENTRUST-SPELLS: %s', tostring(self.flags.entrust)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleDematerialize = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.flags.dematerialize then
+                self.flags.dematerialize = false
+
+            else
+                self.flags.dematerialize = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('DEMATERIALIZE: %s', tostring(self.flags.dematerialize)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleLifeCycle = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.flags.lifecycle then
+                self.flags.lifecycle = false
+
+            else
+                self.flags.lifecycle = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('LIFE CYCLE: %s', tostring(self.flags.lifecycle)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.toggleFullCircle = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.flags.circle then
+                self.flags.circle = false
+
+            else
+                self.flags.circle = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('FULL CIRCLE: %s', tostring(self.flags.circle)))
+            self.writeSettings()
+
+        end
+
+    end
+
+    self.setDistance = function(bp, distance)
+        local bp        = bp or false
+        local distance  = distance or false
+
+        if bp and distance and tonumber(distance) ~= nil then
+            self.flags.distance = tonumber(distance)
+
+            do -- Display message and save current settings.
+                bp.helpers['popchat'].pop(string.format('FULL CIRCLE DISTANCE SET TO: %02d', self.flags.distance))
+                self.writeSettings()
+                
+            end
 
         end
 

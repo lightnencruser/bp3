@@ -85,9 +85,6 @@ commands.new = function()
             elseif command == 'status' then
                 core.nextSetting(bp, 'STATUS')
 
-            elseif command == 'cures' then
-                core.nextSetting(bp, 'CURES')
-
             elseif command == 'burst' then
                 core.nextSetting(bp, 'BURST')
 

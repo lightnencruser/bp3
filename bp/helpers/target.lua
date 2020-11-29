@@ -22,7 +22,7 @@ function target.new()
     self.mode       = self.settings.mode or 1
 
     -- Private Variables.
-    local debug     = true
+    local debug     = false
     local reset     = {last=0, delay=0.5}
 
     -- Private Functions.
@@ -71,6 +71,12 @@ function target.new()
     end
     self.writeSettings()
 
+    self.zoneChange = function()
+        self.clear()
+        self.writeSettings()
+
+    end
+
     self.getTarget = function()
         return self.targets.player or self.targets.party
     end
@@ -82,10 +88,13 @@ function target.new()
 
     end
 
-    self.resetLuopanTarget = function()
+    self.resetTargets = function()
 
         if (os.clock()-reset.last) < reset.delay then
-            self.targets.luopan = false
+            self.targets.player     = false
+            self.targets.party      = false
+            self.targets.entrust    = false
+            self.targets.luopan     = false
         end
         reset.last = os.clock()
 

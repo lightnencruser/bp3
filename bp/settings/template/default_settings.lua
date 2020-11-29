@@ -4,15 +4,15 @@ return {
     ['Ping Delay']                = 0.6,
     ['Main Character']            = 'Eliidyr',
     ['Characters']                = {
-        'Character Name'
+        ''
     },
 
     ['Controllers'] = {
-        'Character Name'
+        ''
     },
 
     ['Auto Join'] = {
-        'Character Name'
+        ''
     },
 
     ['Addons'] = {

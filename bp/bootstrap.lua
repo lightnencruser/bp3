@@ -52,15 +52,15 @@ bootstrap.load = function()
 
     self.skillup    = {
         
-        ["Divine"]     = {list={"Banish","Flash","Banish II","Enlight","Repose"}, target='t'},
-        ["Enhancing"]  = {list={"Barfire","Barblizzard","Baraero","Barstone","Barthunder","Barwater"}, target='me'},
-        ["Enfeebling"] = {list={"Bind","Blind","Dia","Poison","Gravity","Slow","Silence"}, target='t'},
-        ["Elemental"]  = {list={"Stone"}, target='t'},
-        ["Dark"]       = {list={"Aspir","Aspir II","Bio","Bio II","Drain","Drain II"}, target='t'},
-        ["Singing"]    = {list={"Mage's Ballad","Mage's Ballad II","Mage's Ballad III"}, target='me'},
-        ["Summoning"]  = {list={"Carbuncle"}, target='me'},
-        ["Blue"]       = {list={"Cocoon","Pollen"}, target='me'},
-        ["Geomancy"]   = {list={"Indi-Refresh"}, target='me'},
+        ['Divine']     = {list={'Banish','Flash','Banish II','Enlight','Repose'}, target='t'},
+        ['Enhancing']  = {list={'Barfire','Barfira','Barblizzard','Barblizzara','Baraero','Baraera','Barstone','Barstonra','Barthunder','Barthundra','Barwater','Barwatera'}, target='me'},
+        ['Enfeebling'] = {list={'Bind','Blind','Dia','Poison','Gravity','Slow','Silence'}, target='t'},
+        ['Elemental']  = {list={'Stone'}, target='t'},
+        ['Dark']       = {list={'Aspir','Aspir II','Bio','Bio II','Drain','Drain II'}, target='t'},
+        ['Singing']    = {list={"Mage's Ballad","Mage's Ballad II","Mage's Ballad III"}, target='me'},
+        ['Summoning']  = {list={'Carbuncle'}, target='me'},
+        ['Blue']       = {list={'Cocoon','Pollen'}, target='me'},
+        ['Geomancy']   = {list={'Indi-Refresh'}, target='me'},
         
         
     }

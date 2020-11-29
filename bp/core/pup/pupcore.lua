@@ -293,8 +293,10 @@ function core.get()
             local player = windower.ffxi.get_player()
             
             if helpers['queue'].ready and not helpers['actions'].moving and bp.settings['Enabled'] then
+                bp.helpers['cures'].handleCuring(bp)
                 self.handleItems(bp)
 
+                -- HANDLES ALL STATUS DEBUFFS.
                 if self.getSetting('STATUS') then
                     bp.helpers['status'].fixStatus(bp)
                 end
@@ -306,8 +308,8 @@ function core.get()
                     -- SKILLUP LOGIC.
                     if self.getSetting('SKILLUP') then
                         
-                        if helpers['inventory'].findItemByName("B.E.W. Pitaru") and not helpers['queue'].inQueue(IT["B.E.W. Pitaru"], player) and not helpers['buffs'].buffActive(251) then
-                            helpers['queue'].add(bp.IT["B.E.W. Pitaru"], 'me')
+                        if helpers['inventory'].findItemByName("B.E.W. Pitaru") and not helpers['queue'].inQueue(bp, bp.IT["B.E.W. Pitaru"]) and not helpers['buffs'].buffActive(251) then
+                            helpers['queue'].add(bp, bp.IT["B.E.W. Pitaru"], 'me')
                             
                         else
                             local skills = bp.skillup[self.getSetting('SKILLS')]
@@ -316,12 +318,12 @@ function core.get()
 
                                 for _,v in pairs(skills.list) do
                                     
-                                    if helpers['actions'].isReady(bp, "MA", v) then
+                                    if helpers['actions'].isReady(bp, "MA", v) and not helpers['queue'].inQueue(bp, bp.MA[v]) then
 
                                         if bp.skillup[self.getSetting('SKILLS')].target == 't' and target then
                                             helpers['queue'].add(bp, bp.MA[v], target)
 
-                                        elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' and target then
+                                        elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' then
                                             helpers['queue'].add(bp, bp.MA[v], player)
 
                                         end
@@ -671,22 +673,22 @@ function core.get()
                             
                             -- HASTE.
                             if helpers['actions'].isReady(bp, "MA", "Haste") and not helpers['buffs'].buffActive(33) then
-                                helpers["queue"].addToFront(MA["Haste"], player)
+                                helpers["queue"].addToFront(bp, bp.MA["Haste"], player)
                             
                             -- ENSPELLS.
-                            elseif (not helpers['buffs'].buffActive(94) or not helpers['buffs'].buffActive(95) or not helpers['buffs'].buffActive(96) or not helpers['buffs'].buffActive(97) or not helpers['buffs'].buffActive(98) or not helpers['buffs'].buffActive(99)) then
+                            elseif (not helpers['buffs'].buffActive(94) and not helpers['buffs'].buffActive(95) and not helpers['buffs'].buffActive(96) and not helpers['buffs'].buffActive(97) and not helpers['buffs'].buffActive(98) and not helpers['buffs'].buffActive(99)) then
                                 
                                 if helpers['actions'].isReady(bp, "MA", self.getSetting('ENSPELL')) then
-                                    helpers["queue"].addToFront(MA[self.getSetting('ENSPELL')], player)
+                                    helpers["queue"].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
                                 end
                             
                             -- PHALANX.
                             elseif helpers['actions'].isReady(bp, "MA", "Phalanx") and not helpers['buffs'].buffActive(116) then
-                                helpers["queue"].addToFront(MA["Phalanx"], player)
+                                helpers["queue"].addToFront(bp, bp.MA["Phalanx"], player)
                                 
                             -- REFRESH.
-                            elseif not settings["SUBLIMATION"]:current() and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
-                                helpers["queue"].addToFront(MA["Refresh"], player)
+                            elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
+                                helpers["queue"].addToFront(bp, bp.MA["Refresh"], player)
                                 
                             -- STONESKIN.
                             elseif helpers['actions'].isReady(bp, "MA", "Stoneskin") and not helpers['buffs'].buffActive(37) then
@@ -721,13 +723,14 @@ function core.get()
                         
                         -- /SAM.
                         elseif player.sub_job == "SAM" and helpers['actions'].canAct() then
+                            local slots = bp.helpers['equipment'].main.slots
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.
@@ -931,8 +934,8 @@ function core.get()
                     -- SKILLUP LOGIC.
                     if self.getSetting('SKILLUP') then
                         
-                        if helpers['inventory'].findItemByName("B.E.W. Pitaru") and not helpers['queue'].inQueue(IT["B.E.W. Pitaru"], player) and not helpers['buffs'].buffActive(251) then
-                            helpers['queue'].add(bp.IT["B.E.W. Pitaru"], 'me')
+                        if helpers['inventory'].findItemByName("B.E.W. Pitaru") and not helpers['queue'].inQueue(bp, bp.IT["B.E.W. Pitaru"]) and not helpers['buffs'].buffActive(251) then
+                            helpers['queue'].add(bp, bp.IT["B.E.W. Pitaru"], 'me')
                             
                         else
                             local skills = bp.skillup[self.getSetting('SKILLS')]
@@ -941,12 +944,12 @@ function core.get()
 
                                 for _,v in pairs(skills.list) do
                                     
-                                    if helpers['actions'].isReady(bp, "MA", v) then
+                                    if helpers['actions'].isReady(bp, "MA", v) and not helpers['queue'].inQueue(bp, bp.MA[v]) then
 
                                         if bp.skillup[self.getSetting('SKILLS')].target == 't' and target then
                                             helpers['queue'].add(bp, bp.MA[v], target)
 
-                                        elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' and target then
+                                        elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' then
                                             helpers['queue'].add(bp, bp.MA[v], player)
 
                                         end
@@ -1296,22 +1299,22 @@ function core.get()
                             
                             -- HASTE.
                             if helpers['actions'].isReady(bp, "MA", "Haste") and not helpers['buffs'].buffActive(33) then
-                                helpers["queue"].addToFront(MA["Haste"], player)
+                                helpers["queue"].addToFront(bp, bp.MA["Haste"], player)
                             
                             -- ENSPELLS.
-                            elseif (not helpers['buffs'].buffActive(94) or not helpers['buffs'].buffActive(95) or not helpers['buffs'].buffActive(96) or not helpers['buffs'].buffActive(97) or not helpers['buffs'].buffActive(98) or not helpers['buffs'].buffActive(99)) then
+                            elseif (not helpers['buffs'].buffActive(94) and not helpers['buffs'].buffActive(95) and not helpers['buffs'].buffActive(96) and not helpers['buffs'].buffActive(97) and not helpers['buffs'].buffActive(98) and not helpers['buffs'].buffActive(99)) then
                                 
                                 if helpers['actions'].isReady(bp, "MA", self.getSetting('ENSPELL')) then
-                                    helpers["queue"].addToFront(MA[self.getSetting('ENSPELL')], player)
+                                    helpers["queue"].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
                                 end
                             
                             -- PHALANX.
                             elseif helpers['actions'].isReady(bp, "MA", "Phalanx") and not helpers['buffs'].buffActive(116) then
-                                helpers["queue"].addToFront(MA["Phalanx"], player)
+                                helpers["queue"].addToFront(bp, bp.MA["Phalanx"], player)
                                 
                             -- REFRESH.
-                            elseif not settings["SUBLIMATION"]:current() and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
-                                helpers["queue"].addToFront(MA["Refresh"], player)
+                            elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
+                                helpers["queue"].addToFront(bp, bp.MA["Refresh"], player)
                                 
                             -- SPIKES.
                             elseif helpers['actions'].isReady(bp, "MA", self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
@@ -1342,13 +1345,14 @@ function core.get()
                         
                         -- /SAM.
                         elseif player.sub_job == "SAM" and helpers['actions'].canAct() then
+                            local slots = bp.helpers['equipment'].main.slots
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.
@@ -1547,13 +1551,7 @@ function core.get()
 
                 end
 
-                -- HANDLE STATUS EFFECTS
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
-                end
-
                 -- HANDLE EVERYTHING INSIDE THE QUEUE.
-                bp.helpers['cures'].handleCuring(bp)
                 helpers['queue'].handle(bp)
 
             end

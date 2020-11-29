@@ -18,7 +18,8 @@ function autoload.new()
         'enter',
         'interactbruh',
         'phantomgem',
-        'gearswap'
+        'gearswap',
+        'equipviewer'
 
     }
 

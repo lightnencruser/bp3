@@ -306,7 +306,7 @@ function songs.new()
 
             -- Clear the queue for incoming songs if it was not to loop.
             if not T(commands):contains('loop') then
-                helpers['queue'].clear()
+                --helpers['queue'].clear()
             end
             
             if commands[#commands]:sub(1, 1) == '*' and helpers['party'].getMember(bp, commands[#commands]:sub(2, #commands[#commands]), false) then
@@ -401,8 +401,8 @@ function songs.new()
                     end
 
                 elseif complex[param] and count.songs <= count.allowed and complex[param].songs[complex[param].count] then
-
-                    if complex[param].songs[complex[param].count] == 'Honor March' and self.hasHonorMarch() then
+                    
+                    if complex[param].songs[complex[param].count] == 'Honor March' and self.hasHonorMarch(bp) then
 
                         if count.songs == 3 and not flags.specials then
                             helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
@@ -421,8 +421,8 @@ function songs.new()
                         complex[param].count = (complex[param].count + 1)
                         count.songs = (count.songs + 1)
 
-                    elseif complex[param].songs[complex[param].count] == 'Honor March' and not self.hasHonorMarch() then
-
+                    elseif complex[param].songs[complex[param].count] == 'Honor March' and not self.hasHonorMarch(bp) then
+                        
                         if count.songs == 3 and not flags.specials then
                             helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
     

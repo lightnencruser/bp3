@@ -1379,8 +1379,8 @@ commands.new = function()
             if count == 1 and message[1] then
                 local command = message[1]:lower()
                 
-                if command == "circle" and bp.helpers["target"].castable(bp, target, bp.JA["Full Circle"]) then
-                    bp.helpers['queue'].add(bp, bp.JA["Full Circle"], target)                            
+                if command == "circle" and bp.helpers['actions'].isReady(bp, 'JA', 'Full Circle') then
+                    bp.helpers['queue'].add(bp, bp.JA["Full Circle"], 'me')                            
                 end
             
             -- Multiple Commands were sent.

@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201126 GOBBLE GOBBLE'
+_addon.version  = '0.20201128'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -94,6 +94,7 @@ windower.register_event('prerender', function()
 
             -- Handle using bagged goods.
             bp.helpers['items'].queueItems(bp)
+            bp.helpers['queue'].handle(bp)
 
             -- Update the system pinger.
             bp.pinger = os.clock()
@@ -341,7 +342,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         bp.helpers['queue'].ready = os.clock() + delay
 
                         -- Remove from action from queue.
-                        bp.helpers['queue'].remove(bp, res.job_abilities[param], actor)
+                        bp.helpers['queue'].remove(bp, bp.res.job_abilities[param], actor)
 
                         -- Update Cure weights.
                         bp.helpers['cures'].updateWeight(bp, original)
@@ -361,7 +362,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         bp.helpers['queue'].ready = os.clock() + delay
 
                         -- Remove from action from queue.
-                        bp.helpers['queue'].remove(bp, res.job_abilities[param], actor)
+                        bp.helpers['queue'].remove(bp, bp.res.job_abilities[param], actor)
 
                     end
 

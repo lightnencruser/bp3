@@ -972,38 +972,50 @@ function queue.new()
             local action        = action or false
             local target        = target or false
             local data          = self.queue.data
+            local priority      = T{'Cure IV','Cure V','Cure VI','Curaga III','Curaga IV','Curaga V','Curing Waltz IV','Curing Waltz V','Divine Waltz II'}
 
-            if action and target and data and helpers['cures'].curesNeeded() > 0 then
-                
-                if #data > 0 then
+            if action and target and data then
+                local update = false
 
-                    for i,v in ipairs(data) do
+                for i,v in ipairs(data) do
                         
-                        if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target and (v.action.type == 'WhiteMagic' or v.action.type == 'Waltz') then
+                    if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target and (v.action.type == 'WhiteMagic' or v.action.type == 'Waltz') then
                             
-                            if v.target.id == target.id and v.action.en ~= action.en and ((v.action.en):match('Cure') or (v.action.en):match('Cura')) and not self.inQueue(bp, bp.MA[action.en], target) then
-                                self.remove(bp, bp.MA[v.action.en], target)
-                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                        if v.target.id == target.id and v.action.en ~= action.en and ((v.action.en):match('Cure') or (v.action.en):match('Cura')) and not self.inQueue(bp, bp.MA[action.en], target) then
+                            self.remove(bp, bp.MA[v.action.en], target)
+                            update = true
 
-                            elseif v.target.id == target.id and v.action.en ~= action.en and (v.action.en):match('Waltz') and not self.inQueue(bp, bp.MA[action.en], target) then
-                                self.remove(bp, bp.JA[v.action.en], target)
+                            if priority:contains(action.en) then
+                                self.queue:insert(1, {action=action, target=target, priority=0, attempts=0})
+                            
+                            else
                                 self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                            
+                            end
 
+                        elseif v.target.id == target.id and v.action.en ~= action.en and (v.action.en):match('Waltz') and not self.inQueue(bp, bp.MA[action.en], target) then
+                            self.remove(bp, bp.JA[v.action.en], target)
+                            update = true
+                            
+                            if priority:contains(action.en) then
+                                self.queue:insert(1, {action=action, target=target, priority=0, attempts=0})
+                            
+                            else
+                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                            
                             end
 
                         end
 
                     end
-                
-                elseif #data == 0 then
 
-                    if priority then
-                        helpers['queue'].addToFront(bp, action, target)
+                end
 
-                    elseif not priority then
-                        helpers['queue'].add(bp, action, target)
+                if not update and priority:contains(action.en) then
+                    helpers['queue'].addToFront(bp, action, target)
 
-                    end
+                elseif not update then
+                    helpers['queue'].add(bp, action, target)
 
                 end
 

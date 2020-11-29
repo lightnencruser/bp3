@@ -27,29 +27,41 @@ function target.new()
 
                     end
 
-                elseif command == 't' and windower.ffxi.get_mob_by_target('t') then
-                    local target = windower.ffxi.get_mob_by_target('t')
+                elseif command == 't' then
+                
+                    do -- Reset Targets if pressed twice in succession.
+                        bp.helpers['target'].resetTargets()
+                    end
+                    
+                    if windower.ffxi.get_mob_by_target('t') then
+                        local target = windower.ffxi.get_mob_by_target('t')
 
-                    if type(target) == 'table' and helpers['target'].isEnemy(bp, target) then
-                        bp.helpers['target'].targets.player = target
+                        if type(target) == 'table' and helpers['target'].isEnemy(bp, target) then
+                            bp.helpers['target'].targets.player = target
 
-                    else
-                        bp.helpers['target'].targets.player = false
+                        else
+                            bp.helpers['target'].targets.player = false
 
-                        do -- Reset GEO Target also if pressed twice in succession.
-                            bp.helpers['target'].resetLuopanTarget()
                         end
 
                     end
 
-                elseif command == 'pt' and windower.ffxi.get_mob_by_target('t') then
-                    local target = windower.ffxi.get_mob_by_target('t')
+                elseif command == 'pt' then
 
-                    if type(target) == 'table' and helpers['target'].isEnemy(bp, target) then
-                        bp.helpers['target'].targets.party = target
+                    do -- Reset Targets if pressed twice in succession.
+                        bp.helpers['target'].resetTargets()
+                    end
+                    
+                    if windower.ffxi.get_mob_by_target('t') then
+                        local target = windower.ffxi.get_mob_by_target('t')
 
-                    else
-                        bp.helpers['target'].targets.party = false
+                        if type(target) == 'table' and helpers['target'].isEnemy(bp, target) then
+                            bp.helpers['target'].targets.party = target
+
+                        else
+                            bp.helpers['target'].targets.party = false
+
+                        end
 
                     end
 

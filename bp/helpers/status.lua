@@ -267,7 +267,7 @@ function status.new()
                             
                             if packed[message] and packed[param] then
                                 local event = self.getEvent(bp, packed[message])
-
+                                
                                 if map[event] == 'Gained' then
                                     self.handleStatus(bp, actor, target, packed[param], spell, self.getCategory(bp, packed[param]), false)
 
@@ -275,6 +275,7 @@ function status.new()
                                     self.handleStatus(bp, actor, target, packed[param], spell, self.getCategory(bp, packed[param]), true)
 
                                 elseif map[event] == 'Failed' then
+                                    
                                     self.handleStatus(bp, actor, target, packed[param], spell, self.getCategory(bp, packed[param]), true)
                                         
                                 end
@@ -463,23 +464,23 @@ function status.new()
         local spell     = spell or false
         local category  = category or false
         local lost      = lost or false
-
+        
         if bp and actor and target and category and buff then
             local player = windower.ffxi.get_player()
             
             if not lost and buff and removal[category] and buff ~= 255 then
                 local remove = removal[category]
                 local target = windower.ffxi.get_mob_by_id(target.id) or false
-                
+
                 if target and target.status ~= 2 and target.status ~= 3 and ((target.distance):sqrt() < 35 or (target.distance):sqrt() == 0 and target.id == player.id) then
 
                     -- Na.
                     if category == 1 then
                         self.add(bp, target, buff)
-                    
+
                     -- Erase.
                     elseif category == 2 then
-
+                        
                         if bp.helpers['party'].isInParty(bp, target, false) then
                             self.add(bp, target, buff)
                         end
@@ -541,9 +542,81 @@ function status.new()
 
         elseif bp and actor and target and not category and buff and spell then
             local buff = self.getBuffBySpell(bp, spell)
+            
+            if buff and buff ~= spell then
+                
+                for _,v in ipairs(self.statuses[target.id].statuses) do
 
-            if buff then
-                self.remove(bp, target, buff)
+                    if T(na):contains(v) then
+                        self.remove(bp, target, v)
+                    end
+
+                end
+
+            elseif buff and buff == spell then
+                
+                if T(removal[2]):contains(spell) then
+
+                    for _,v in ipairs(self.statuses[target.id].statuses) do
+
+                        if T(erase):contains(v) then
+                            self.remove(bp, target, v)
+                        end
+
+                    end
+
+                elseif T(removal[3]):contains(spell) then
+
+                    for _,v in ipairs(self.statuses[target.id].statuses) do
+
+                        if T(waltz):contains(v) then
+                            self.remove(bp, target, v)
+                        end
+
+                    end
+
+                elseif T(removal[4]):contains(spell) then
+
+                    for _,v in ipairs(self.statuses[target.id].statuses) do
+
+                        if T(wake):contains(v) then
+                            self.remove(bp, target, v)
+                        end
+
+                    end
+
+                elseif T(removal[5]):contains(spell) then
+
+                    for _,v in ipairs(self.statuses[target.id].statuses) do
+
+                        if T(sleep):contains(v) then
+                            self.remove(bp, target, v)
+                        end
+
+                    end
+
+                elseif T(removal[6]):contains(spell) then
+
+                    for _,v in ipairs(self.statuses[target.id].statuses) do
+
+                        if T(misery):contains(v) then
+                            self.remove(bp, target, v)
+                        end
+
+                    end
+
+                elseif T(removal[7]):contains(spell) then
+
+                    for _,v in ipairs(self.statuses[target.id].statuses) do
+
+                        if T(kill):contains(v) then
+                            self.remove(bp, target, v)
+                        end
+
+                    end
+
+                end
+
             end
 
         end
@@ -715,11 +788,11 @@ function status.new()
 
             if t:length() > 0 and t[target.id] then
                 local s = T(t[target.id].statuses)
-
+                
                 if s and (s):contains(buff) then
-                        
+                    
                     for i, status in ipairs(s) do
-                                
+                        
                         if status == buff then
                             table.remove(s, i)
                             break

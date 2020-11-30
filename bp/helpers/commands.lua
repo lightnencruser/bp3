@@ -46,7 +46,7 @@ commands.new = function()
 
                 do -- Equip Dem Ring then delay the command for 12 seconds.
                     windower.send_command("equip L.Ring 'Dimensional Ring (Dem)'; wait 12; input /item 'Dimensional Ring (Dem)' <me>")
-                    msg = ('ATTEMPTING TO USE WARP RING...')
+                    msg = ('ATTEMPTING TO USE DIMENSIONAL RING...')
                 end
 
             elseif command == 'am' then

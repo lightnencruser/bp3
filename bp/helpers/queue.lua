@@ -291,7 +291,7 @@ function queue.new()
                                     end
 
                                 elseif action.type == 'Geomancy' and not self.inQueue(bp, action) and (action.en):match('Geo-') and T(action.targets):contains('Party') and player['vitals'].mp >= action.mp_cost then
-                                    print(target.name, action.targets)
+                                    
                                     if helpers['party'].isInParty(bp, target.id, false) then
                                         self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
 

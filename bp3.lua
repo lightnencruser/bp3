@@ -33,6 +33,10 @@ windower.register_event('addon command', function(...)
         elseif c =='layout' then
             bp.helpers['layout'].toggle(bp)
 
+        elseif c == 'test' then
+            bp.helpers['queue'].add(bp, bp.JA['Entrust'], 'me')
+            bp.helpers['queue'].add(bp, bp.MA['Indi-Fend'], bp.helpers['target'].targets.entrust)
+
         elseif c == 'info' then
             local target = windower.ffxi.get_mob_by_target('t') or false
 
@@ -79,7 +83,6 @@ windower.register_event('prerender', function()
 
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
             bp.helpers['cures'].buildParty()
-            bp.helpers['target'].updateTargets(bp, player)
             bp.core.handleAutomation(bp)
 
             -- Handle using bagged goods.
@@ -100,7 +103,8 @@ windower.register_event('prerender', function()
             bp.pinger = os.clock()
 
         end
-
+        bp.helpers['target'].updateTargets(bp, player)
+        
     end
 
 end)

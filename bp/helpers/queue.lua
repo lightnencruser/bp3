@@ -248,7 +248,7 @@ function queue.new()
                     local ranges    = helpers['actions'].getRanges(bp)
                     local distance  = (target.distance):sqrt()
                     
-                    if helpers['target'].onlySelf(bp, action) and target.id ~= player.id then
+                    if helpers['target'].onlySelf(bp, action) and target.id ~= player.id and not helpers['buffs'].buffActive(584) and not self.inQueue(bp, bp.JA['Entrust']) then
                         target = windower.ffxi.get_mob_by_target('me')
                     end
                     
@@ -424,7 +424,7 @@ function queue.new()
                     local ranges    = helpers['actions'].getRanges(bp)
                     local distance  = (target.distance):sqrt()
                     
-                    if helpers['target'].onlySelf(bp, action) and target.id ~= player.id then
+                    if helpers['target'].onlySelf(bp, action) and target.id ~= player.id and not helpers['buffs'].buffActive(584) and not self.inQueue(bp, bp.JA['Entrust']) then
                         target = windower.ffxi.get_mob_by_target('me')
                     end
 

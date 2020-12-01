@@ -633,7 +633,7 @@ function cures.new()
 
                     end
     
-                    if missing > 0 then
+                    if missing > 0 and target and target.id then
                         local target    = windower.ffxi.get_mob_by_id(target.id) or false
                         local cure      = self.estimateCuraga(bp, missing, count) or false
                         

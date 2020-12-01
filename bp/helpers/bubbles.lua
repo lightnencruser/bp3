@@ -524,7 +524,7 @@ function bubbles.new()
                 bp.helpers['queue'].clear()
                 bp.helpers['queue'].addToFront(bp, bp.JA['Full Circle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 75 and self.flags.ecliptic and bp.helpers['actions'].isReady(bp, "JA", "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp, bp.JA['Ecliptic Attrition'], 'me') then
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady(bp, "JA", "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp, bp.JA['Ecliptic Attrition'], 'me') then
                 bp.helpers['queue'].addToFront(bp, bp.JA['Ecliptic Attrition'], 'me')
 
             elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady(bp, "JA", "Life Cycle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Life Cycle'], 'me') then
@@ -542,11 +542,10 @@ function bubbles.new()
 
             -- HANDLE ENTRUST SPELLS.
             if self.flags.entrust and bp.helpers['actions'].isReady(bp, "JA", "Entrust") and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[3].en]) then
-                local target = bp.helpers['target'].targets.entrust
 
-                if target and bp.helpers['target'].getTarget() then
+                if bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
                     bp.helpers['queue'].add(bp, bp.JA['Entrust'], 'me')
-                    bp.helpers['queue'].add(bp, bp.MA[bubbles[3].en], target)
+                    bp.helpers['queue'].add(bp, bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
 
                 end
 

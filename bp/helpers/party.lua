@@ -280,8 +280,9 @@ function party.new()
     end
 
     self.getPartyCount = function(bp, alliance)
-        local alliance, party = alliance or false, windower.ffxi.get_party() or false
-        local count = 0
+        local alliance  = alliance or false
+        local party     = windower.ffxi.get_party() or false
+        local count     = 0
 
         if party then
 

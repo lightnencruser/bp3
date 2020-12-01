@@ -39,7 +39,7 @@ function songs.new()
                 elseif command == 'pos' and commands[3] then
                     bp.helpers['songs'].pos(bp, commands[3], commands[4] or false)
 
-                elseif #commands > 3 then
+                else
                     bp.helpers['songs'].sing(bp, commands)
 
                 end

@@ -300,7 +300,7 @@ function songs.new()
             local target    = false
             local count     = {songs=1, allowed=self.getSongsAllowed(bp)}
             local flags     = {specials=false, ja=false}
-
+            
             -- Reset Pianissimo.
             self.piano = false
 

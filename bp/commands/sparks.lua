@@ -6,12 +6,19 @@ function sparks.new()
         local bp        = bp or false
         local commands  = commands or false
         
-        if bp and commands and commands[2] and commands[3] then
-            local item  = windower.convert_auto_trans(table.concat(commands, ' ')):sub(8, (#(table.concat(commands, ' '))-#commands[#commands]-1))
-            local count = windower.convert_auto_trans(table.concat(commands, ' ')):sub((#(table.concat(commands, ' '))-#commands[#commands]), #(table.concat(commands, ' ')))
+        if bp and commands and commands[2] then
+            local item, count = {}, commands[3] or false
 
-            do -- Attempt to purchase sparks items.
-                bp.helpers['sparks'].poke(bp, item, count)
+            for i=2, #commands do
+                
+                if tonumber(commands[i]) == nil then
+                    table.insert(item, commands[i])
+                end
+
+            end
+            
+            if item and item ~= '' then
+                bp.helpers['sparks'].poke(bp, table.concat(item, ' '), count)
             end
 
         end

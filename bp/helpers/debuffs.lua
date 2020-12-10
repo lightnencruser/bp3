@@ -95,11 +95,38 @@ function debuffs.new()
     end
 
     -- Public Functions.
+    self.cast = function(bp)
+        local bp = bp or false
+
+        if bp then
+            local player = windower.ffxi.get_player()
+
+            if self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
+                
+                for _,v in pairs(self.debuffs[player.main_job_id]) do
+                    local spell     = v
+                    local timer     = (spell.delay-(os.clock()-spell.last)) > 0 and (spell.delay-(os.clock()-spell.last)) or 0
+                    local target    = bp.helpers['target'].getTarget()
+
+                    if target and timer <= 0 and not bp.helpers['queue'].inQueue(bp, spell) and bp.helpers['actions'].isReady(bp, 'MA', spell.name) and bp.helpers['target'].castable(bp, target, bp.MA[spell.name]) then
+                        bp.helpers['queue'].add(bp, bp.MA[spell.name], target)
+                        spell.last = os.clock()
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
     self.add = function(bp, spell, delay)
         local bp      = bp or false
         local spell   = spell or false
         local delay   = delay or 180
-
+        
         if bp and spell and type(spell) == 'table' and tonumber(delay) ~= nil then
             local player  = windower.ffxi.get_player()
             local helpers = bp.helpers
@@ -107,12 +134,12 @@ function debuffs.new()
             if player and helpers then
 
                 if spell and self.debuffs[player.main_job_id] and not self.exists(bp, spell) then
-                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=os.clock()})
+                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
                 elseif spell and not self.exists(bp, spell) then
                     self.debuffs[player.main_job_id] = {}
-                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=os.clock()})
+                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
                 end
@@ -127,12 +154,12 @@ function debuffs.new()
                 local spell = res.spells[tonumber(spell)]
 
                 if spell and self.debuffs[player.main_job_id] and not self.exists(bp, spell) then
-                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=os.clock()})
+                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
                 elseif spell and not self.exists(bp, spell) then
                     self.debuffs[player.main_job_id] = {}
-                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=os.clock()})
+                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
                 end
@@ -147,12 +174,12 @@ function debuffs.new()
                 local spell = bp.MA[spell]
 
                 if spell and self.debuffs[player.main_job_id] and not self.exists(bp, spell) then
-                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=os.clock()})
+                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
                 elseif spell and not self.exists(bp, spell) then
                     self.debuffs[player.main_job_id] = {}
-                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=os.clock()})
+                    table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
                 end
@@ -250,24 +277,20 @@ function debuffs.new()
     self.render = function(bp)
         local bp = bp or false
 
-        if bp and bp.helpers['target'].getTarget() and os.clock()-self.update.last > self.update.delay then
+        if bp and bp.helpers['target'].getTarget() and (os.clock()-self.update.last) > self.update.delay then
             local player    = windower.ffxi.get_player()
             local helpers   = bp.helpers
             local next      = next
             local math      = math
-
-            if next(self.debuffs) ~= nil then
+            
+            if self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
                 local update = {}
 
                 for _,v in pairs(self.debuffs[player.main_job_id]) do
                     local spell     = v
-                    local timer     = (spell.delay-(os.clock()-spell.last))
+                    local timer     = (spell.delay-(os.clock()-spell.last)) > 0 and (spell.delay-(os.clock()-spell.last)) or 0
                     local color     = string.format('%s,%s,%s', math.abs(self.layout.colors.text.r/0.2), math.abs(self.layout.colors.text.g/0.2), math.abs(self.layout.colors.text.b/0.2))
-
-                    if timer < 0 then
-                        timer = 0
-                    end
-
+                    
                     if color and timer and spell then
                         table.insert(update, string.format(' \\cs(%s)[%.1f]\\cr: %s', color, timer, spell.name))
                     end
@@ -282,6 +305,14 @@ function debuffs.new()
                         self.display:show()
                     end
 
+                end
+
+            elseif self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] == nil then
+                self.display:text('')
+                self.display:update()
+
+                if self.display:visible() then
+                    self.display:hide()
                 end
 
             end
@@ -469,22 +500,6 @@ function debuffs.new()
 
         end
         return false
-
-    end
-
-    self.hide = function()
-
-        if self.display and self.display:visible() then
-            self.display:hide()
-        end
-
-    end
-
-    self.show = function()
-
-        if self.display[i] and not self.display:visible() then
-            self.display:show()
-        end
 
     end
 

@@ -15,7 +15,7 @@ function cures.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/cures/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=1400, y=900}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=2, draggable=true}
+    self.layout     = self.settings.layout or {pos={x=1400, y=900}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=8}, padding=3, stroke_width=1, draggable=true}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
@@ -568,7 +568,7 @@ function cures.new()
                         
                         if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
 
-                            if player.main_job_level == 99 and cure.id ~= 1 and cure.id ~= 2 then
+                            if player.main_job_level == 99 and cure.id ~= 1 then
                                 helpers['queue'].updateCure(bp, cure, target)
 
                             elseif player.main_job_level < 99 then
@@ -720,7 +720,7 @@ function cures.new()
                             
                             if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 
-                                if player.main_job_level == 99 and cure.id ~= 1 and cure.id ~= 2 then
+                                if player.main_job_level == 99 and cure.id ~= 1 then
                                     helpers['queue'].updateCure(bp, cure, target)
     
                                 elseif player.main_job_level < 99 then

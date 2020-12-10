@@ -24,6 +24,7 @@ function target.new()
     -- Private Variables.
     local debug     = false
     local reset     = {last=0, delay=0.5}
+    local modes     = {'PLAYER TARGETING','PARTY TARGETING'}
 
     -- Private Functions.
     local persist = function()
@@ -78,7 +79,17 @@ function target.new()
     end
 
     self.getTarget = function()
-        return self.targets.player or self.targets.party
+
+        if self.targets.player and type(self.targets.player) == 'table' and windower.ffxi.get_mob_by_id(self.targets.player.id) then
+            return windower.ffxi.get_mob_by_id(self.targets.player.id)
+
+        elseif self.targets.party and type(self.targets.party) == 'table' and windower.ffxi.get_mob_by_id(self.targets.party.id) then
+            return windower.ffxi.get_mob_by_id(self.targets.party.id)
+
+        end
+        return false
+
+
     end
 
     self.clear = function()
@@ -133,6 +144,7 @@ function target.new()
 
             elseif self.mode == 2 and target and self.canEngage(bp, target) then
                 self.targets.party = target
+                windower.send_command(string.format('ord r* bp target share %s', target.id))
                 helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
 
             end
@@ -273,7 +285,7 @@ function target.new()
         local target    = target or false
         local targets   = spell.targets
 
-        if bp and target then
+        if bp and target and targets then
             local helpers = bp.helpers
 
             for i,v in pairs(targets) do
@@ -601,13 +613,21 @@ function target.new()
 
     end
 
-    self.changeMode = function()
+    self.changeMode = function(bp)
+        local bp = bp or false
 
-        if self.mode == 1 then
-            self.mode = 2
-        else
-            self.mode = 1
+        if bp then
+
+            if self.mode == 1 then
+                self.mode = 2
+
+            else
+                self.mode = 1
+
+            end
+        
         end
+        bp.helpers['popchat'].pop(string.format('TARGETING MODE NOW SET TO: %s', modes[self.mode]))
 
     end
 

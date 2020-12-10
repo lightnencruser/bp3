@@ -32,7 +32,7 @@ function core.get()
     self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
     self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
     self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
-    self["DEBUFFS"]             = self.settings["DEBUFFS"] or {{false,true}, false}
+    self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
     self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
     self["WS"]                  = self.settings["WS"] or {{false,true}, false}
     self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
@@ -116,7 +116,7 @@ function core.get()
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
             self.settings["BUFFS"]              = self["BUFFS"]
-            self.settings["DEBUFFS"]            = self["DEBUFFS"]
+            self.settings["DEBUFF"]            = self["DEBUFF"]
             self.settings["STATUS"]             = self["STATUS"]
             self.settings["WS"]                 = self["WS"]
             self.settings["WSNAME"]             = self["WSNAME"]
@@ -727,11 +727,11 @@ function core.get()
                             local slots = bp.helpers['equipment'].main.slots
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") and slots:contains(0) and not slots:contains(1) then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") and slots and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") and slots:contains(0) and not slots:contains(1) then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") and slots and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.
@@ -873,7 +873,8 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFFS') and target then
+                    if self.getSetting('DEBUFF') and target then
+                        bp.helpers['debuffs'].cast(bp)
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
@@ -1350,11 +1351,11 @@ function core.get()
                             local slots = bp.helpers['equipment'].main.slots
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") and slots:contains(0) and not slots:contains(1) then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, "JA", "Hasso") and slots and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") and slots:contains(0) and not slots:contains(1) then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, "JA", "Seigan") and slots and slots:contains(0) and not slots:contains(1) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.
@@ -1496,7 +1497,8 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFFS') and target then
+                    if self.getSetting('DEBUFF') and target then
+                        bp.helpers['debuffs'].cast(bp)
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then

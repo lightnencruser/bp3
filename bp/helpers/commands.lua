@@ -64,8 +64,8 @@ commands.new = function()
             elseif command == 'buffs' then
                 core.nextSetting(bp, 'BUFFS')
 
-            elseif command == 'debuffs' then
-                core.nextSetting(bp, 'DEBUFFS')
+            elseif command == 'debuff' then
+                core.nextSetting(bp, 'DEBUFF')
 
             elseif command == 'hate' then
                 core.nextSetting(bp, 'HATE')
@@ -82,8 +82,11 @@ commands.new = function()
             elseif command == 'sc' then
                 core.nextSetting(bp, 'SC')
 
-            elseif command == 'status' then
+            elseif command == 'status' and not commands[2] then
                 core.nextSetting(bp, 'STATUS')
+
+            elseif command == 'status' and commands[2] and commands[2] == 'pos' and commands[3] then
+                bp.helpers['status'].pos(bp, commands[3], commands[4] or false)
 
             elseif command == 'burst' then
                 core.nextSetting(bp, 'BURST')
@@ -577,10 +580,10 @@ commands.new = function()
                         
                 elseif command == "zzz" then
                     
-                    if bp.helpers["target"].castable(bp, target, bp.MA["Curaga"]) and bpcore:isInParty(target, false) then
+                    if bp.helpers["target"].castable(bp, target, bp.MA["Curaga"]) and bp.helpers['party'].isInParty(target, false) then
                         bp.helpers['queue'].add(bp, bp.MA["Curaga"], target)
                         
-                    elseif bp.helpers["target"].castable(bp, target, bp.MA["Cure"]) and bpcore:isInParty(target, true) then
+                    elseif bp.helpers["target"].castable(bp, target, bp.MA["Cure"]) and bp.helpers['party'].isInParty(target, true) then
                         bp.helpers['queue'].add(bp, bp.MA["Cure"], target)
                     
                     end

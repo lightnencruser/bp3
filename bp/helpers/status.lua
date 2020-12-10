@@ -49,7 +49,7 @@ function status.new()
     local messages  = {
         
         {82,127,128,141,166,186,194,203,205,230,236,237,242,243,266,267,268,269,270,271,272,277,278,279,280,319,320,321,412,453,645,754,755,804},
-        {64,83,123,159,168,204,206,322,341,342,343,344,350,378,531,647,805,806},
+        {7,64,83,123,159,168,204,206,322,341,342,343,344,350,378,531,647,805,806},
         {75,48},
 
     }
@@ -275,7 +275,6 @@ function status.new()
                                     self.handleStatus(bp, actor, target, packed[param], spell, self.getCategory(bp, packed[param]), true)
 
                                 elseif map[event] == 'Failed' then
-                                    
                                     self.handleStatus(bp, actor, target, packed[param], spell, self.getCategory(bp, packed[param]), true)
                                         
                                 end
@@ -543,7 +542,7 @@ function status.new()
         elseif bp and actor and target and not category and buff and spell then
             local buff = self.getBuffBySpell(bp, spell)
             
-            if buff and buff ~= spell then
+            if buff and buff ~= spell and self.statuses[target.id] then
                 
                 for _,v in ipairs(self.statuses[target.id].statuses) do
 
@@ -555,7 +554,7 @@ function status.new()
 
             elseif buff and buff == spell then
                 
-                if T(removal[2]):contains(spell) then
+                if T(removal[2]):contains(spell) and self.statuses[target.id] then
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
 
@@ -565,7 +564,7 @@ function status.new()
 
                     end
 
-                elseif T(removal[3]):contains(spell) then
+                elseif T(removal[3]):contains(spell) and self.statuses[target.id] then
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
 
@@ -575,7 +574,7 @@ function status.new()
 
                     end
 
-                elseif T(removal[4]):contains(spell) then
+                elseif T(removal[4]):contains(spell) and self.statuses[target.id] then
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
 
@@ -585,7 +584,7 @@ function status.new()
 
                     end
 
-                elseif T(removal[5]):contains(spell) then
+                elseif T(removal[5]):contains(spell) and self.statuses[target.id] then
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
 
@@ -595,7 +594,7 @@ function status.new()
 
                     end
 
-                elseif T(removal[6]):contains(spell) then
+                elseif T(removal[6]):contains(spell) and self.statuses[target.id] then
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
 
@@ -605,7 +604,7 @@ function status.new()
 
                     end
 
-                elseif T(removal[7]):contains(spell) then
+                elseif T(removal[7]):contains(spell) and self.statuses[target.id] then
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
 

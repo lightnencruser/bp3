@@ -7,35 +7,46 @@ function sparks.new()
     local name      = false
     local purchase  = false
     local quantity  = 0
+    local targets   = {'Isakoth'}
 
     -- Static Variables.
     self.busy       = false
-    self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Public Functions.
     self.poke = function(bp, item, count)
         local bp        = bp or false
         local item      = item or false
         local count     = tonumber(count) or 1
-        local target    = windower.ffxi.get_mob_by_target('t') or false
+        local target    = false
 
-        if not target then
-            bp.helpers['popchat'].pop("YOU DIDN'T SELECT A TARGET!")
+        for _,v in ipairs(targets) do
+            target = windower.ffxi.get_mob_by_name(v) or false
+        end
+
+        if not target or (target and (target.distance):sqrt() > 6) then
+            bp.helpers['popchat'].pop("COULD NOT FIND A SPARKS NPC NEARBY!!")
             return false
         
         end
 
-        if bp and item and target and items[item] and bp.helpers['inventory'].hasSpace() and count ~= nil then
+        if bp and item and target and bp.helpers['inventory'].hasSpace(0) and count ~= nil then
             local space = bp.helpers['inventory'].getSpace()
+            
+            if items[item] then
+            
+                do -- Correct our count if we dont have enough room.
+                    quantity    = count <= space and count or space
+                    purchase    = items[item]
+                    name        = item
+                    self.busy   = true
 
-            do -- Correct our count if we dont have enough room.
-                quantity    = count <= space and count or space
-                purchase    = items[item]
-                name        = item
-                self.busy   = true
+                end
+                bp.helpers['actions'].doAction(target, 0, 'interact')
+
+            else
+                bp.helpers['popchat'].pop("THAT ISN'T A VALID SPARKS ITEM!")
 
             end
-            bp.helpers['actions'].doAction(target, 0, 'interact')
         
         else
             bp.helpers['popchat'].pop("NOT ENOUGH INVENTORY SPACE!")
@@ -49,11 +60,11 @@ function sparks.new()
         local data = data or false
 
         if bp and data and self.busy then
-            local packed = bp.packets.parse('incoming', data) or false
-            local target = windower.ffxi.get_mob_by_id(packed['NPC']) or false
+            local packed    = bp.packets.parse('incoming', data) or false
+            local target    = windower.ffxi.get_mob_by_id(packed['NPC']) or false
         
             if packed and target and purchase and quantity ~= 0 then
-                bp.helpers['popchat'].pop(string.format('NOR PURCHASING \\cs(%s)(%d)%s\\cr.', self.important, quantity, name))
+                bp.helpers['popchat'].pop(string.format('NOW PURCHASING %s %s.', quantity, name))
                 
                 for i=1, quantity do
                     bp.helpers['actions'].doMenu(bp, target.id, target.index, packed['Zone'], purchase.option, packed['Menu ID'], true, purchase._u1, purchase._u2)

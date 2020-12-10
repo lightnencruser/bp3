@@ -13,7 +13,17 @@ function debuffs.new()
                 command = command:lower()
 
                 if command == '+' and commands[3] then
-                    bp.helpers['debuffs'].add(bp, table.concat(commands, ' '):sub(11))
+                    local spell = {}
+                    local delay = tonumber(commands[#commands]) or 180
+                    
+                    for i=3, #commands do
+
+                        if commands[i] and tonumber(commands[i]) == nil then
+                            table.insert(spell, commands[i])
+                        end
+
+                    end
+                    bp.helpers['debuffs'].add(bp, table.concat(spell, ' '), delay)
 
                 elseif command == '-' and commands[3] then
                     bp.helpers['debuffs'].remove(bp, table.concat(commands, ' '):sub(11))
@@ -22,10 +32,10 @@ function debuffs.new()
                     bp.helpers['debuffs'].clear()
 
                 elseif command == 'show' then
-                    bp.helpers['debuffs'].show()
+                    bp.helpers['debuffs'].display:show()
 
                 elseif command == 'hide' then
-                    bp.helpers['debuffs'].hide()
+                    bp.helpers['debuffs'].display:hide()
 
                 elseif command == 'pos' and commands[3] then
                     bp.helpers['debuffs'].pos(bp, commands[3], commands[4] or false)

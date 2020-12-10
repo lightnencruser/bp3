@@ -28,10 +28,6 @@ function target.new()
                     end
 
                 elseif command == 't' then
-                
-                    do -- Reset Targets if pressed twice in succession.
-                        bp.helpers['target'].resetTargets()
-                    end
                     
                     if windower.ffxi.get_mob_by_target('t') then
                         local target = windower.ffxi.get_mob_by_target('t')
@@ -45,18 +41,16 @@ function target.new()
                         end
 
                     end
+                    bp.helpers['target'].resetTargets()
 
                 elseif command == 'pt' then
-
-                    do -- Reset Targets if pressed twice in succession.
-                        bp.helpers['target'].resetTargets()
-                    end
                     
                     if windower.ffxi.get_mob_by_target('t') then
                         local target = windower.ffxi.get_mob_by_target('t')
 
                         if type(target) == 'table' and helpers['target'].isEnemy(bp, target) then
                             bp.helpers['target'].targets.party = target
+                            windower.send_command(string.format('ord r* bp target share %s', target.id))
 
                         else
                             bp.helpers['target'].targets.party = false
@@ -64,6 +58,7 @@ function target.new()
                         end
 
                     end
+                    bp.helpers['target'].resetTargets()
 
                 elseif command == 'et' and (commands[3] or windower.ffxi.get_mob_by_target('t')) then
                     local target = commands[3] or windower.ffxi.get_mob_by_target('t')
@@ -78,6 +73,7 @@ function target.new()
                         bp.helpers['target'].setEntrust(bp, target)
 
                     end
+                    bp.helpers['target'].resetTargets()
 
                 elseif command == 'lt' and (commands[3] or windower.ffxi.get_mob_by_target('t')) then
                     local target = commands[3] or windower.ffxi.get_mob_by_target('t')
@@ -92,6 +88,17 @@ function target.new()
                         bp.helpers['target'].setLuopan(bp, target)
 
                     end
+                    bp.helpers['target'].resetTargets()
+
+                elseif command == 'share' and commands[3] and tonumber(commands[3]) ~= nil then
+                    local target = windower.ffxi.get_mob_by_id(tonumber(commands[3])) or false
+
+                    if type(target) == 'table' and helpers['target'].isEnemy(bp, target) then
+                        bp.helpers['target'].targets.party = target
+                    end
+
+                elseif command == 'mode' then
+                    bp.helpers['target'].changeMode(bp)
 
                 elseif command == 'pos' and commands[3] then
                     bp.helpers['target'].pos(bp, commands[3], commands[4] or false)

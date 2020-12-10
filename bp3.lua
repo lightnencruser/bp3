@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201130'
+_addon.version  = '0.20201209'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -31,18 +31,7 @@ windower.register_event('addon command', function(...)
             windower.send_command('ord r* bp stop')
 
         elseif c =='layout' then
-            bp.helpers['layout'].toggle(bp)
-
-        elseif c == 'test' then
-            bp.helpers['queue'].add(bp, bp.JA['Entrust'], 'me')
-            bp.helpers['queue'].add(bp, bp.MA['Indi-Fend'], bp.helpers['target'].targets.entrust)
-
-        elseif c == 'info' then
-            local target = windower.ffxi.get_mob_by_target('t') or false
-
-            if target then
-                table.print(target)
-            end
+            bp.helpers['layout'].toggle(bp)            
 
         elseif (c == 'r' or c == 'reload') then
             windower.send_command('lua r bp3')
@@ -75,7 +64,9 @@ windower.register_event('prerender', function()
         bp.helpers['songs'].render(bp)
         bp.helpers['speed'].render(bp)
         bp.helpers['cures'].render(bp)
-        bp.helpers['controls'].face(bp)
+        bp.helpers['controls'].checkFacing(bp)
+        bp.helpers['controls'].checkDistance(bp)
+        bp.helpers['controls'].checkAssisting(bp)
 
         if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
             bp.helpers['target'].clear()

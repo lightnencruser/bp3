@@ -358,7 +358,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -390,7 +390,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -432,7 +432,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -464,7 +464,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -1077,7 +1077,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -1109,7 +1109,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -1151,7 +1151,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then
@@ -1183,7 +1183,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
 
                                 -- SEKKANOKI.
                                 if helpers['buffs'].buffActive(408) and helpers["actions"].isReady(bp, "WS", bp.JA['Sekkanoki']) and not helpers['queue'].inQueue(bp, bp.JA['Sekkanoki']) then

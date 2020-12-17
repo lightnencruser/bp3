@@ -18,8 +18,14 @@ function alias.new()
         {'bpon',        "ord pp bp enable"},
         {'bpoff',       "ord pp bp disable"},
 
+        -- Mounts
+        {'rap',         "ord rr raptor"},
+
         -- HTBF Commands.
         {'lilith',      "ord rr pg maiden"},
+
+        -- Escha Commands.
+        {'rads',        "ord rr temps buy radialens"},
 
         -- Homepoints.
         {'portb',       "ord rr hp Port Bastok 2"},
@@ -30,6 +36,7 @@ function alias.new()
         {'prisms',      "ord rr input /item 'Prism Powder' <me>"},
         {'oils',        "ord rr input /item 'Silent Oil' <me>"},
         {'vshard',      "ord rr input /item 'V. Con. Shard' <me>"},
+        {'ontic',       "ord rr input /item 'Ontic Extermity' <me>"},
         {'demring',     "ord rr bp demring"},
 
     }

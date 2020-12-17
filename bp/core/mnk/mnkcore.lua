@@ -358,7 +358,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
                                 
                             end
@@ -371,7 +371,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
 
                             end
@@ -394,7 +394,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -407,7 +407,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -609,7 +609,7 @@ function core.get()
                     if self.getSetting('BUFFS') then
                         
                         -- MNK/.
-                        if player.main_job == 'MNK' and helpers['actions'].canCast() then
+                        if player.main_job == 'MNK' and helpers['actions'].canCast() and target then
 
                             -- FOCUS.
                             if not helpers['buffs'].buffActive(59) and helpers["actions"].isReady(bp, "JA", "Focus") then
@@ -1004,7 +1004,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
                                 
                             end
@@ -1017,7 +1017,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
 
                             end
@@ -1040,7 +1040,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -1053,7 +1053,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
 
                             end
@@ -1066,7 +1066,7 @@ function core.get()
                     if self.getSetting('JA') and helpers['actions'].canAct() then
                         
                         -- MNK/.
-                        if player.main_job == 'MNK' and helpers['actions'].canCast() then
+                        if player.main_job == 'MNK' then
                            
                         end
 
@@ -1250,7 +1250,7 @@ function core.get()
                     if self.getSetting('BUFFS') then
                         
                         -- MNK/.
-                        if player.main_job == 'MNK' and helpers['actions'].canCast() then
+                        if player.main_job == 'MNK' and helpers['actions'].canCast() and target then
 
                             -- FOCUS.
                             if not helpers['buffs'].buffActive(59) and helpers["actions"].isReady(bp, "JA", "Focus") then

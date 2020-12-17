@@ -182,43 +182,6 @@ bootstrap.load = function()
         self.helpers['popchat'].pop('NEW HELPERS HAVE BEEN INSTALLED!')
     end
 
-    local registerEvents = function()
-        local dir = ('bp/events/global/')
-        local events = {
-
-            {name='incoming',       type='incoming chunk'},
-            {name='outgoing',       type='outgoing chunk'},
-            {name='incomingtext',   type='incoming text'},
-            {name='partyinvite',    type='party invite'},
-            {name='statuschange',   type='status change'},
-            {name='timechange',     type='time change'},
-            {name='zonechange',     type='zone change'},
-            {name='daychange',      type='day change'},
-            {name='jobchange',      type='job change'},
-            {name='gainbuff',       type='gain buff'},
-            {name='losebuff',       type='lose buff'},
-            {name='prerender',      type='prerender'},
-            {name='ipcmessage',     type='ipc message'},
-
-        }
-
-        for _,v in ipairs(events) do
-            local f = self.files.new(string.format('%s%s.lua', dir, v.name))
-
-            if f:exists() then
-                local event = dofile(string.format('%s%s%s.lua', windower.addon_path, dir, v.name))
-
-                for i=1, #event do
-                    windower.register_event(v.type, event[i])
-                end
-
-            end
-
-        end
-
-    end
-    --registerEvents()
-
     local buildResources = function()
 
         for _,v in pairs(self.res.job_abilities) do

@@ -393,7 +393,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
                                 
                             end
@@ -406,7 +406,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
 
                             end
@@ -429,7 +429,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -442,7 +442,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -1019,7 +1019,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
                                 
                             end
@@ -1032,7 +1032,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('WSNAME')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('WSNAME')], target)
 
                             end
@@ -1055,7 +1055,7 @@ function core.get()
                             elseif helpers['buffs'].buffActive(aftermath) and current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
                                 
-                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp > self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
+                            elseif (helpers['buffs'].buffActive(aftermath) or not weaponskill) and current.tp >= self.getSetting('TP THRESHOLD') and helpers['actions'].isReady(bp, 'WS', self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
                                 
                             end
@@ -1068,7 +1068,7 @@ function core.get()
                             elseif current.mpp < self.getSetting('MYRKR MPP') and helpers['actions'].isReady(bp, 'WS', "Myrkr") then
                                 helpers["queue"].addToFront(bp, bp.WS["Myrkr"], 'me')
 
-                            elseif current.tp > self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
+                            elseif current.tp >= self.getSetting('TP THRESHOLD') and helpers["actions"].isReady(bp, "WS", self.getSetting('RANGED WS')) then
                                 helpers["queue"].addToFront(bp, bp.WS[self.getSetting('RANGED WS')], target)
 
                             end

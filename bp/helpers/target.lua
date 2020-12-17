@@ -119,33 +119,35 @@ function target.new()
         if bp and target then
             local helpers = bp.helpers
 
-            if target then
-                local default_engaged = windower.ffxi.get_mob_by_target('t')
+            if type(target) == 'table' and target.id and windower.ffxi.get_mob_by_id(target.id) then
+                target = windower.ffxi.get_mob_by_id(target.id)
 
-                if type(target) == 'table' and self.isEnemy(bp, target) then
-                    target = windower.ffxi.get_mob_by_id(target.id) or false
+            elseif (type(target) == 'number' or type(target) == 'string') and tonumber(target) ~= nil and windower.ffxi.get_mob_by_id(target) then
+                target = windower.ffxi.get_mob_by_id(target)
 
-                elseif (type(target) == 'number' or tonumber(target) ~= nil) and self.isEnemy(bp, target) then
-                    target = windower.ffxi.get_mob_by_id(target) or false
+            elseif type(target) == 'string' and tonumber(target) == nil and windower.ffxi.get_mob_by_name(target) then
+                target = windower.ffxi.get_mob_by_name(target)
 
-                elseif default_engaged and self.isEnemy(bp, default_engaged) then
-                    target = default_engaged
+            elseif windower.ffxi.get_mob_by_target('t') then
+                target = windower.ffxi.get_mob_by_target('t')
 
-                else
-                    target = false
-
-                end
+            else
+                target = false
 
             end
 
-            if self.mode == 1 and target and self.canEngage(bp, target) then
-                self.targets.player = target
-                helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
+            if target then
 
-            elseif self.mode == 2 and target and self.canEngage(bp, target) then
-                self.targets.party = target
-                windower.send_command(string.format('ord r* bp target share %s', target.id))
-                helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
+                if self.mode == 1 and self.allowed(bp, target) and self.canEngage(bp, target) then
+                    self.targets.player = target
+                    helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
+
+                elseif self.mode == 2 and self.allowed(bp, target) and self.canEngage(bp, target) then
+                    self.targets.party = target
+                    windower.send_command(string.format('ord r* bp target share %s', target.id))
+                    helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
+
+                end
 
             end
 
@@ -333,7 +335,7 @@ function target.new()
 
     end
 
-    self.validTarget = function(bp, id, target)
+    self.validSpellTarget = function(bp, id, target)
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
         local target    = target or false
@@ -344,7 +346,7 @@ function target.new()
             local spell     = res.spells[id]
 
             if type(target) == 'table' then
-                local target = windower.ffxi.get_mob_by_id(target) or false
+                local target = windower.ffxi.get_mob_by_id(target.id) or false
 
                 if target then
 

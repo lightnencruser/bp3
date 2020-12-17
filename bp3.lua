@@ -31,7 +31,14 @@ windower.register_event('addon command', function(...)
             windower.send_command('ord r* bp stop')
 
         elseif c =='layout' then
-            bp.helpers['layout'].toggle(bp)            
+            bp.helpers['layout'].toggle(bp)
+
+        elseif c == 'info' then
+            local target = windower.ffxi.get_mob_by_target('t') or false
+
+            if target then
+                table.print(target)
+            end
 
         elseif (c == 'r' or c == 'reload') then
             windower.send_command('lua r bp3')
@@ -64,9 +71,6 @@ windower.register_event('prerender', function()
         bp.helpers['songs'].render(bp)
         bp.helpers['speed'].render(bp)
         bp.helpers['cures'].render(bp)
-        bp.helpers['controls'].checkFacing(bp)
-        bp.helpers['controls'].checkDistance(bp)
-        bp.helpers['controls'].checkAssisting(bp)
 
         if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
             bp.helpers['target'].clear()
@@ -74,6 +78,9 @@ windower.register_event('prerender', function()
 
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
             bp.helpers['cures'].buildParty()
+            bp.helpers['controls'].checkFacing(bp)
+            bp.helpers['controls'].checkDistance(bp)
+            bp.helpers['controls'].checkAssisting(bp)
             bp.core.handleAutomation(bp)
 
             -- Handle using bagged goods.
@@ -583,7 +590,7 @@ windower.register_event('party invite', function(sender, id)
     local whitelist = T(bp.settings['Auto Join'])
     
     if whitelist and whitelist:contains(sender) then
-        windower.send_command('input /join')
+        windower.send_command('wait 0.5; input /join')
     end
 
 end)

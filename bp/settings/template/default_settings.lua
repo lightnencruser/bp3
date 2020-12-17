@@ -4,15 +4,17 @@ return {
     ['Ping Delay']                = 0.6,
     ['Main Character']            = 'Eliidyr',
     ['Characters']                = {
-        ''
+        'Eliidyr','Stunzeed','Duhpeter','Lordpotato','Mutant','Ninjar','Turtle'
     },
 
     ['Controllers'] = {
-        '',
+        'Eliidyr','Stunzeed','Duhpeter','Lordpotato','Mutant','Ninjar','Turtle',
+        'Uwu','Doomvtwo','Mingway','Mierin','Pawjobs','Lordtako','Khyal','Ohayo'
     },
 
     ['Auto Join'] = {
-        '',
+        'Eliidyr','Stunzeed','Duhpeter','Lordpotato','Mutant','Ninjar','Turtle',
+        'Uwu','Doomvtwo','Mingway','Sombermabari','Mierin','Pawjobs','Lordtako','Khyal','Emos','Ohayo','Fivestarplayer','Deathsoul','Minimimi','Gianni','Xcalibur','Zyxx','Insphiger','Queenrmt','Rellik','Ishnia'
     },
 
     ['helpers'] = {
@@ -24,6 +26,9 @@ return {
         {name='actions',        status=true},
         {name='inventory',      status=true},
         {name='target',         status=true},
+        {name='buffs',          status=true},
+        {name='burst',          status=true},
+        {name='buffer',         status=true},
         {name='buffs',          status=true},
         {name='party',          status=true},
         {name='equipment',      status=true},

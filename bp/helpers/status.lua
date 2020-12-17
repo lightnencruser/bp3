@@ -575,13 +575,14 @@ function status.new()
                     end
 
                 elseif T(removal[4]):contains(spell) and self.statuses[target.id] then
+                    local party = bp.helpers['party'].getMembers(bp, false)
 
                     for _,v in ipairs(self.statuses[target.id].statuses) do
-
+                        
                         if T(wake):contains(v) then
                             self.remove(bp, target, v)
                         end
-
+                        
                     end
 
                 elseif T(removal[5]):contains(spell) and self.statuses[target.id] then

@@ -22,6 +22,9 @@ function debuffs.new()
     self.debuffs  = self.settings.debuffs or {}
     self.active   = {}
 
+    -- Reset last.
+    self.update.last = 0
+
     -- Private Functions
     local persist = function()
         local next = next
@@ -276,7 +279,7 @@ function debuffs.new()
 
     self.render = function(bp)
         local bp = bp or false
-
+        
         if bp and bp.helpers['target'].getTarget() and (os.clock()-self.update.last) > self.update.delay then
             local player    = windower.ffxi.get_player()
             local helpers   = bp.helpers

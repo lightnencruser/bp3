@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201209'
+_addon.version  = '0.20201227'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -425,6 +425,10 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
         if bp.helpers['sparks'].busy then
             bp.helpers['sparks'].purchase(bp, original)
+
+        elseif bp.helpers['accolades'].busy then
+            bp.helpers['accolades'].purchase(bp, original)
+
         end
 
     elseif id == 0x058 then

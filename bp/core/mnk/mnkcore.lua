@@ -620,12 +620,18 @@ function core.get()
                                 helpers["queue"].add(bp, bp.JA["Dodge"], player)
 
                             -- IMPETUS.
-                            elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers["actions"].isReady(bp, "JA", "Impetus") and not helpers['queue'].inQueue(bp, bp.JA['Impetus']) then
-                                helpers["queue"].add(bp, bp.JA["Impetus"], player)
+                            elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers["actions"].isReady(bp, "JA", "Impetus") then
+
+                                if not helpers['queue'].inQueue(bp, bp.JA['Footwork']) and not helpers['queue'].inQueue(bp, bp.JA['Impetus']) then
+                                    helpers["queue"].add(bp, bp.JA["Impetus"], player)
+                                end
 
                             -- FOOTWORK.
-                            elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers["actions"].isReady(bp, "JA", "Footwork") and not helpers['queue'].inQueue(bp, bp.JA['Footwork']) then
-                                helpers["queue"].add(bp, bp.JA["Footwork"], player)
+                            elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers["actions"].isReady(bp, "JA", "Footwork") then
+
+                                if not helpers['queue'].inQueue(bp, bp.JA['Footwork']) and not helpers['queue'].inQueue(bp, bp.JA['Impetus']) then
+                                    helpers["queue"].add(bp, bp.JA["Footwork"], player)
+                                end
 
                             end
                            

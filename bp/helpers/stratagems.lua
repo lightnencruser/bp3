@@ -119,7 +119,7 @@ function stratagems.new()
         if self.display:visible() then
             local timer = windower.ffxi.get_ability_recasts()[231] or 0
 
-            do
+            do  
                 self.gems.current = ((self.gems.max-math.ceil(timer/recharge)))
                 self.display:text(tostring(self.gems.current))
                 self.display:update()
@@ -134,12 +134,31 @@ function stratagems.new()
         local player = windower.ffxi.get_player()
             
         if player.main_job == "SCH" then
-                
-            if (player.main_job_level >= 90 and player.main_job_level < 99) then
+            
+            if (player.main_job_level >= 10 and player.main_job_level <= 29) then
+                self.gems.max, recharge = 1, 240
+
+            elseif (player.main_job_level >= 30 and player.main_job_level <= 49) then
+                self.gems.max, recharge = 2, 120
+
+            elseif (player.main_job_level >= 50 and player.main_job_level <= 69) then
+                self.gems.max, recharge = 3, 80
+
+            elseif (player.main_job_level >= 70 and player.main_job_level <= 89) then
+                self.gems.max, recharge = 4, 60
+
+            elseif (player.main_job_level >= 90 and player.main_job_level < 99) then
                 self.gems.max, recharge = 5, 48
                     
-            elseif player.main_job_level == 99 and windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent >= 550 then
-                self.gems.max, recharge = 5, 33
+            elseif player.main_job_level == 99 then
+
+                if windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent >= 550 then
+                    self.gems.max, recharge = 5, 33
+
+                else
+                    self.gems.max, recharge = 5, 48
+
+                end
                     
             end
                 

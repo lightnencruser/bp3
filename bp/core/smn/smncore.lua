@@ -345,6 +345,7 @@ function core.get()
                         
                         if helpers['inventory'].findItemByName("B.E.W. Pitaru") and not helpers['queue'].inQueue(bp, bp.IT["B.E.W. Pitaru"]) and not helpers['buffs'].buffActive(251) then
                             helpers['queue'].add(bp, bp.IT["B.E.W. Pitaru"], 'me')
+                            coroutine.sleep(1)
                             
                         else
                             local skills = bp.skillup[self.getSetting('SKILLS')]
@@ -359,7 +360,15 @@ function core.get()
                                             helpers['queue'].add(bp, bp.MA[v], target)
 
                                         elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' then
-                                            helpers['queue'].add(bp, bp.MA[v], player)
+                                            local pet = windower.ffxi.get_mob_by_target('pet')
+
+                                            if pet then
+                                                helpers['queue'].add(bp, bp.JA['Release'], 'me')
+                                            
+                                            else
+                                                helpers['queue'].add(bp, bp.MA[v], player)
+
+                                            end
 
                                         end
 
@@ -985,7 +994,15 @@ function core.get()
                                             helpers['queue'].add(bp, bp.MA[v], target)
 
                                         elseif bp.skillup[self.getSetting('SKILLS')].target == 'me' then
-                                            helpers['queue'].add(bp, bp.MA[v], player)
+                                            local pet = windower.ffxi.get_mob_by_target('pet')
+
+                                            if pet then
+                                                helpers['queue'].add(bp, bp.JA['Release'], 'me')
+                                            
+                                            else
+                                                helpers['queue'].add(bp, bp.MA[v], player)
+
+                                            end
 
                                         end
 

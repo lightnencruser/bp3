@@ -691,7 +691,7 @@ function core.get()
                                 helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
                                 
                             -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", self.getSetting('ADDENDUM')) and helpers["stratagems"].getStratagems().current > 0 then
+                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
                                             
                                 if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
@@ -1385,7 +1385,7 @@ function core.get()
                                 helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
                                 
                             -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", self.getSetting('ADDENDUM')) and helpers["stratagems"].getStratagems().current > 0 then
+                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, "JA", self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
                                             
                                 if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)

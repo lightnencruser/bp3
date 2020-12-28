@@ -1,5 +1,5 @@
-local sparks = {}
-function sparks.new()
+local accolades = {}
+function accolades.new()
     local self = {}
 
     self.capture = function(bp, commands)
@@ -18,7 +18,7 @@ function sparks.new()
             end
             
             if item and item ~= '' then
-                bp.helpers['sparks'].poke(bp, table.concat(item, ' '), count)
+                bp.helpers['accolades'].poke(bp, table.concat(item, ' '), count)
             end
 
         end
@@ -28,4 +28,4 @@ function sparks.new()
     return self
 
 end
-return sparks.new()
+return accolades.new()

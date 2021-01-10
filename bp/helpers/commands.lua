@@ -145,9 +145,6 @@ commands.new = function()
             elseif command == 'pet' then
                 core.nextSetting(bp, 'PET')
 
-            elseif (command == 'sic' or command == 'assault') then
-                core.nextSetting(bp, 'AUTO SIC')
-
             elseif command == 'rage' then
                 core.nextSetting(bp, 'BPRAGE')
 
@@ -155,7 +152,7 @@ commands.new = function()
                 core.nextSetting(bp, 'BPWARD')
 
             elseif command == 'rotate' then
-                core.nextSetting(bp, 'ROTATE')
+                core.nextSetting(bp, 'ROTATE WARDS')
 
             elseif command == 'summon' then
                 core.nextSetting(bp, 'SUMMON')

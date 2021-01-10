@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20201227'
+_addon.version  = '0.20210110'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')

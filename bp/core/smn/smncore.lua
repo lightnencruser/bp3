@@ -27,31 +27,31 @@ function core.get()
         ['RAGE'] = {
 
             ['Carbuncle']   = {'Poison Nails','Meteorite','Holy Mist'},
-            ['Cait Sith']   = {},
+            ['Cait Sith']   = {'Regal Scratch','Level ? Holy', 'Regal Gash'},
             ['Ifrit']       = {'Flaming Crush','Meteor Strike','Conflag Strike'},
-            ['Shiva']       = {},
-            ['Garuda']      = {},
-            ['Titan']       = {},
+            ['Shiva']       = {'Double Slap','Rush','Heavenly Strike'},
+            ['Garuda']      = {'Claw','Predator Claws','Wind Blade'},
+            ['Titan']       = {'Mountain Buster','Geocrush','Crag Throw'},
             ['Ramuh']       = {'Thunderspark','Thunderstorm','Volt Strike'},
-            ['Leviathan']   = {},
-            ['Fenrir']      = {},
-            ['Diabolos']    = {},
-            ['Siren']       = {},
+            ['Leviathan']   = {'Spinning Dive','Grand Fall'},
+            ['Fenrir']      = {'Eclipse Bite','Lunar Bay','Impact'},
+            ['Diabolos']    = {'Nether Blast','Night Terror'},
+            ['Siren']       = {'Sonic Buffet','Hysteric Assault'},
 
         },
         ['WARD'] = {
 
             ['Carbuncle']   = {'Shining Ruby','Glittering Ruby','Healing Ruby II','Soothing Ruby'},
-            ['Cait Sith']   = {},
+            ['Cait Sith']   = {'Mewing Lullaby'},
             ['Ifrit']       = {'Crimson Howl','Inferno Howl'},
-            ['Shiva']       = {},
-            ['Garuda']      = {},
-            ['Titan']       = {},
+            ['Shiva']       = {'Crystal Blessing'},
+            ['Garuda']      = {'Whispering Wind','Hastega II'},
+            ['Titan']       = {'Earthen Armor'},
             ['Ramuh']       = {'Rolling Thunder','Shock Squall'},
-            ['Leviathan']   = {},
-            ['Fenrir']      = {},
-            ['Diabolos']    = {},
-            ['Siren']       = {},
+            ['Leviathan']   = {'Spring Water'},
+            ['Fenrir']      = {'Ecliptic Growl','Ecliptic Howl'},
+            ['Diabolos']    = {'Dream Shroud'},
+            ['Siren']       = {'Bitter Elegy','Wind\'s Blessing'},
 
         },
 
@@ -67,7 +67,7 @@ function core.get()
     self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
     self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
     self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
-    self["DEBUFF"]             = self.settings["DEBUFF"] or {{false,true}, false}
+    self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
     self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
     self["WS"]                  = self.settings["WS"] or {{false,true}, false}
     self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
@@ -83,19 +83,19 @@ function core.get()
     self["TANK MODE"]           = self.settings["TANK MODE"] or {{false,true}, false}
     self["SEKKA"]               = self.settings["SEKKA"] or "Evisceration"
     self["SHADOWS"]             = self.settings["SHADOWS"] or {{false,true}, false}
-    self["FOOD"]                = self.settings["FOOD"] or {{"Sublime Sushi","Sublime Sushi +1"}, "Sublime Sushi"}
+    self["FOOD"]                = self.settings["FOOD"] or {{"Sublime Sushi","Sublime Sushi +1","None"}, "Sublime Sushi"}
     self["SAMBAS"]              = self.settings["SAMBAS"] or {{"Drain Samba II","Haste Samba"}, "Haste Samba"}
     self["STEPS"]               = self.settings["STEPS"] or {{"Quickstep","Box Step","Stutter Step"}, "Quickstep"}
     self["SKILLUP"]             = self.settings["SKILLUP"] or {{false,true}, false}
     self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing","Divine","Enfeebling","Elemental","Dark","Singing","Summoning","Blue","Geomancy"}, "Enhancing"}
     self["COMPOSURE"]           = self.settings["COMPOSURE"] or {{true,false}, true}
     self["CONVERT"]             = self.settings["CONVERT"] or {{true,false}, false}
-    self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater"}, "Enfire"}
-    self["GAINS"]               = self.settings["GAINS"] or {{"Gain-DEX","Gain-STR","Gain-MND","Gain-INT","Gain-AGI","Gain-VIT","Gain-CHR"}, "Gain-DEX"}
-    self["SPIKES"]              = self.settings["SPIKES"] or {{"None","Blaze Spikes","Ice Spikes","Shock Spikes"}, "None"}
+    self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater","None"}, "Enfire"}
+    self["GAINS"]               = self.settings["GAINS"] or {{"Gain-DEX","Gain-STR","Gain-MND","Gain-INT","Gain-AGI","Gain-VIT","Gain-CHR","None"}, "Gain-DEX"}
+    self["SPIKES"]              = self.settings["SPIKES"] or {{"None","Blaze Spikes","Ice Spikes","Shock Spikes","None"}, "None"}
     self["DIA"]                 = self.settings["DIA"] or {{"Dia","Bio"}, "Dia"}
     self["SANGUINE"]            = self.settings["SANGUINE"] or {{false,true}, false}
-    self["COR SHOTS"]           = self.settings["SHOTS"] or {{"Fire Shot","Ice Shot","Wind Shot","Earth Shot","Thunder Shot","Water Shot","Light Shot","Dark Shot"}, "Fire Shot"}
+    self["COR SHOTS"]           = self.settings["SHOTS"] or {{"Fire Shot","Ice Shot","Wind Shot","Earth Shot","Thunder Shot","Water Shot","Light Shot","Dark Shot","None"}, "Fire Shot"}
     self["BOOST"]               = self.settings["BOOST"] or {{false,true}, false}
     self["PET"]                 = self.settings["PET"] or {{false,true}, false}
     self["SUMMON"]              = self.settings["SUMMON"] or {{"Carbuncle","Cait Sith","Ifrit","Shiva","Garuda","Titan","Ramuh","Leviathan","Fenrir","Diabolos","Siren"}, "Ifrit"}
@@ -106,9 +106,9 @@ function core.get()
     self["BLU MODE"]            = self.settings["BLU MODE"] or {{"DPS","NUKE"}, "DPS"}
     self["MIGHTY GUARD"]        = self.settings["MIGHTY GUARD"] or {{true,false}, true}
     self["CHIVALRY"]            = self.settings["CHIVALRY"] or {{1000,1500,2000,2500,3000}, 2000}
-    self["WEATHER"]             = self.settings["WEATHER"] or {{"Firestorm","Hailstorm","Windstorm","Sandstorm","Thunderstorm","Rainstorm","Voidstorm","Aurorastorm"}, "Aurorastorm"}
+    self["WEATHER"]             = self.settings["WEATHER"] or {{"Firestorm","Hailstorm","Windstorm","Sandstorm","Thunderstorm","Rainstorm","Voidstorm","Aurorastorm","None"}, "Aurorastorm"}
     self["ARTS"]                = self.settings["ARTS"] or {{"Light Arts","Dark Arts"}, "Light Arts"}
-    self["ADDENDUM"]            = self.settings["ADDENDUM"] or {{"Addendum: White","Addendum: Black"}, "Addendum: White"}
+    self["ADDENDUM"]            = self.settings["ADDENDUM"] or {{"Addendum: White","Addendum: Black","None"}, "Addendum: White"}
     self["MISERY"]              = self.settings["MISERY"] or {{false,true}, false}
     self["IMPETUS WS"]          = self.settings["IMPETUS WS"] or "Raging Fists"
     self["FOOTWORK WS"]         = self.settings["FOOTWORK WS"] or "Tornado Kick"
@@ -122,6 +122,9 @@ function core.get()
     self["STEPS DELAY"]         = self.settings["HATE DELAY"] or 20
     self["CONVERT HPP"]         = self.settings["CONVERT HPP"] or 40
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
+    self["RAGE"]                = self.settings["RAGE"] or 1
+    self["WARD"]                = self.settings["WARD"] or 1
+    self["ROTATE WARDS"]        = self.settings["ROTATE WARDS"] or {{false,true}, false}
 
     -- MAGIC BURST SPELLS.
     self.settings["MAGIC BURST"]={
@@ -207,6 +210,9 @@ function core.get()
             self.settings["STEPS DELAY"]        = self["HATE DELAY"]
             self.settings["CONVERT HPP"]        = self["CONVERT HPP"]
             self.settings["CONVERT MPP"]        = self["CONVERT MPP"]
+            self.settings["RAGE"]               = self["RAGE"] or 1
+            self.settings["WARD"]               = self["WARD"] or 1
+            self.settings["ROTATE WARDS"]       = self["ROTATE WARDS"] or false
 
         end
 
@@ -276,6 +282,32 @@ function core.get()
 
             if command == 'config' then
                 self.renderConfig()
+
+            elseif command == 'bpr' then
+                local max = #pacts['RAGE'][self.getSetting('SUMMON')]
+
+                if self.getSetting('RAGE') < max then
+                    self.setSetting(bp, 'RAGE', self.getSetting('RAGE')+1)
+                    bp.helpers['popchat'].pop(string.format('RAGE NOW SET TO: %s', pacts['RAGE'][self.getSetting('SUMMON')][self.getSetting('RAGE')]))
+
+                elseif self.getSetting('RAGE') == max then
+                    self.setSetting(bp, 'RAGE', 1)
+                    bp.helpers['popchat'].pop(string.format('RAGE NOW SET TO: %s', pacts['RAGE'][self.getSetting('SUMMON')][self.getSetting('RAGE')]))
+
+                end
+
+            elseif command == 'bpw' then
+                local max = #pacts['WARD'][self.getSetting('SUMMON')]
+
+                if self.getSetting('WARD') < max then
+                    self.setSetting(bp, 'WARD', self.getSetting('WARD')+1)
+                    bp.helpers['popchat'].pop(string.format('WARD NOW SET TO: %s', pacts['WARD'][self.getSetting('SUMMON')][self.getSetting('WARD')]))
+
+                elseif self.getSetting('WARD') == max then
+                    self.setSetting(bp, 'WARD', 1)
+                    bp.helpers['popchat'].pop(string.format('WARD NOW SET TO: %s', pacts['WARD'][self.getSetting('SUMMON')][self.getSetting('WARD')]))
+
+                end
 
             else
                 bp.helpers['commands'].captureCore(bp, commands)
@@ -460,12 +492,85 @@ function core.get()
                         
                     end
 
+                    -- SUMMONING LOGIC.
+                    if self.getSetting('PET') and helpers['actions'].canCast() then
+                        local pet = windower.ffxi.get_mob_by_target('pet') or false
+                        
+                        if not pet then
+                            
+                            if helpers["actions"].isReady(bp, 'MA', self.getSetting('SUMMON')) and helpers['actions'].canCast() then
+                                helpers["queue"].add(bp, bp.MA[self.getSetting('SUMMON')], player)
+                            end
+
+                        elseif pet and target then
+                            local rage      = pacts['RAGE'][self.getSetting('SUMMON')][self.getSetting('RAGE')] or pacts['RAGE'][self.getSetting('SUMMON')][1]
+                            local ward      = pacts['WARD'][self.getSetting('SUMMON')][self.getSetting('WARD')] or pacts['WARD'][self.getSetting('SUMMON')][1]
+                            local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
+
+                            if pet.status == 1 and helpers['actions'].canAct() and helpers["actions"].isReady(bp, 'JA', 'Blood Pact: Rage') then
+
+                                if self.getSetting('1HR') and helpers["actions"].isReady(bp, 'JA', 'Astral Flow') and helpers["actions"].isReady(bp, 'JA', 'Astral Conduit') then
+
+                                    if not helpers['buffs'].buffActive(55) and not helpers['buffs'].buffActive(504) and not helpers['queue'].inQueue(bp, bp.JA['Astral Flow']) and not helpers['queue'].inQueue(bp, bp.JA['Astral Conduit']) then
+                                        helpers["queue"].addToFront(bp, bp.JA['Astral Conduit'], player)
+                                        helpers["queue"].addToFront(bp, bp.JA['Astral Flow'], player)
+
+                                    end
+
+                                else
+                                    
+                                    if helpers["actions"].isReady(bp, 'JA', 'Mana Cede') then
+                                        helpers["queue"].addToFront(bp, bp.JA['Mana Cede'], player)
+                                    end
+
+                                    if helpers["actions"].isReady(bp, 'JA', 'Apogee') and not helpers['buffs'].buffActive(55) and not helpers['buffs'].buffActive(504) and not helpers['queue'].inQueue(bp, bp.JA['Astral Flow']) and not helpers['queue'].inQueue(bp, bp.JA['Astral Conduit']) then
+                                        helpers["queue"].addToFront(bp, bp.JA['Apogee'], player)
+                                    end
+
+                                end
+                                helpers['queue'].add(bp, bp.JA[rage], target)
+
+                            elseif pet.status == 1 and helpers['actions'].canAct() and helpers["actions"].isReady(bp, 'JA', 'Blood Pact: Ward') then
+                                helpers["queue"].add(bp, bp.JA[ward], target)
+
+                                if self.getSetting('ROTATE WARDS') then
+                                    local max = #pacts['WARD'][self.getSetting('SUMMON')]
+
+                                    if self.getSetting('WARD') < max then
+                                        self.setSetting(bp, 'WARD', self.getSetting('WARD')+1)
+                                    
+                                    elseif self.getSetting('WARD') == max then
+                                        self.setSetting(bp, 'WARD', 1)
+                                    
+                                    end
+
+                                end
+
+                            elseif pet.status == 0 then
+                                helpers["queue"].add(bp, bp.JA['Assault'], target)
+
+                            end
+
+                        end
+
+                    end
+
                     -- ABILITY LOGIC.
                     if self.getSetting('JA') and helpers['actions'].canAct() then
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
+
+                            if pet then
+
+                                if not helpers['buffs'].buffActive(431) and helpers["actions"].isReady(bp, "JA", 'Avatar\'s Favor') then
+                                    helpers["queue"].add(bp, bp.JA['Avatar\'s Favor'], player)
+                                end
+
+                            elseif not pet then
+
+                            end
                            
                         end
 
@@ -476,8 +581,8 @@ function core.get()
                             if self.getSetting('CONVERT') and player["vitals"].hpp > self.getSetting('CONVERT HPP') and player["vitals"].mpp < self.getSetting('CONVERT MPP') then
                                 
                                 if helpers["actions"].isReady(bp, "JA", "Convert") then
-                                    helpers["queue"].add(bp, bp.JA["Convert"], player)
-                                    helpers["queue"].add(bp, bp.MA["Cure IV"], player)
+                                    helpers["queue"].addToFront(bp, bp.MA["Cure IV"], player)
+                                    helpers["queue"].addToFront(bp, bp.JA["Convert"], player)
                                     
                                 end
                                 
@@ -528,7 +633,7 @@ function core.get()
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -651,7 +756,7 @@ function core.get()
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -1094,12 +1199,86 @@ function core.get()
                         
                     end
 
+                    -- SUMMONING LOGIC.
+                    if self.getSetting('PET') and helpers['actions'].canCast() then
+                        local pet = windower.ffxi.get_mob_by_target('pet') or false
+                        
+                        if not pet then
+                            
+                            if helpers["actions"].isReady(bp, 'MA', self.getSetting('SUMMON')) and helpers['actions'].canCast() then
+                                helpers["queue"].add(bp, bp.MA[self.getSetting('SUMMON')], player)
+                            end
+
+                        elseif pet and target then
+                            local rage      = pacts['RAGE'][self.getSetting('SUMMON')][self.getSetting('RAGE')] or pacts['RAGE'][self.getSetting('SUMMON')][1]
+                            local ward      = pacts['WARD'][self.getSetting('SUMMON')][self.getSetting('WARD')] or pacts['WARD'][self.getSetting('SUMMON')][1]
+                            local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
+
+                            if self.getSetting('BPRAGE') and pet.status == 1 and helpers['actions'].canAct() and helpers["actions"].isReady(bp, 'JA', 'Blood Pact: Rage') then
+
+                                if self.getSetting('1HR') and helpers["actions"].isReady(bp, 'JA', 'Astral Flow') and helpers["actions"].isReady(bp, 'JA', 'Astral Conduit') then
+
+                                    if not helpers['buffs'].buffActive(55) and not helpers['buffs'].buffActive(504) and not helpers['queue'].inQueue(bp, bp.JA['Astral Flow']) and not helpers['queue'].inQueue(bp, bp.JA['Astral Conduit']) then
+                                        helpers["queue"].addToFront(bp, bp.JA['Astral Conduit'], player)
+                                        helpers["queue"].addToFront(bp, bp.JA['Astral Flow'], player)
+
+                                    end
+
+                                else
+                                    
+                                    if helpers["actions"].isReady(bp, 'JA', 'Mana Cede') then
+                                        helpers["queue"].addToFront(bp, bp.JA['Mana Cede'], player)
+                                    end
+
+                                    if helpers["actions"].isReady(bp, 'JA', 'Apogee') and not helpers['buffs'].buffActive(55) and not helpers['buffs'].buffActive(504) and not helpers['queue'].inQueue(bp, bp.JA['Astral Flow']) and not helpers['queue'].inQueue(bp, bp.JA['Astral Conduit']) then
+                                        helpers["queue"].addToFront(bp, bp.JA['Apogee'], player)
+                                    end
+
+                                end
+                                print(rage)
+                                helpers['queue'].add(bp, bp.JA[rage], target)
+
+                            elseif self.getSetting('BPWARD') and pet.status == 1 and helpers['actions'].canAct() and helpers["actions"].isReady(bp, 'JA', 'Blood Pact: Ward') then
+                                helpers["queue"].add(bp, bp.JA[ward], target)
+
+                                if self.getSetting('ROTATE WARDS') then
+                                    local max = #pacts['WARD'][self.getSetting('SUMMON')]
+
+                                    if self.getSetting('WARD') < max then
+                                        self.setSetting(bp, 'WARD', self.getSetting('WARD')+1)
+                                    
+                                    elseif self.getSetting('WARD') == max then
+                                        self.setSetting(bp, 'WARD', 1)
+                                    
+                                    end
+
+                                end
+
+                            elseif pet.status == 0 then
+                                helpers["queue"].add(bp, bp.JA['Assault'], target)
+
+                            end
+
+                        end
+
+                    end
+
                     -- ABILITY LOGIC.
                     if self.getSetting('JA') and helpers['actions'].canAct() then
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
+
+                            if pet then
+
+                                if not helpers['buffs'].buffActive(431) and helpers["actions"].isReady(bp, "JA", 'Avatar\'s Favor') then
+                                    helpers["queue"].add(bp, bp.JA['Avatar\'s Favor'], player)
+                                end
+
+                            elseif not pet then
+
+                            end
                            
                         end
 
@@ -1162,7 +1341,7 @@ function core.get()
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -1285,7 +1464,7 @@ function core.get()
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -1351,22 +1530,15 @@ function core.get()
                             
                             -- HASTE.
                             if helpers['actions'].isReady(bp, "MA", "Haste") and not helpers['buffs'].buffActive(33) then
-                                helpers["queue"].addToFront(bp, bp.MA["Haste"], player)
-                            
-                            -- ENSPELLS.
-                            elseif (not helpers['buffs'].buffActive(94) and not helpers['buffs'].buffActive(95) and not helpers['buffs'].buffActive(96) and not helpers['buffs'].buffActive(97) and not helpers['buffs'].buffActive(98) and not helpers['buffs'].buffActive(99)) then
-                                
-                                if helpers['actions'].isReady(bp, "MA", self.getSetting('ENSPELL')) then
-                                    helpers["queue"].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
-                                end
+                                helpers["queue"].add(bp, bp.MA["Haste"], player)
                             
                             -- PHALANX.
                             elseif helpers['actions'].isReady(bp, "MA", "Phalanx") and not helpers['buffs'].buffActive(116) then
-                                helpers["queue"].addToFront(bp, bp.MA["Phalanx"], player)
+                                helpers["queue"].add(bp, bp.MA["Phalanx"], player)
                                 
                             -- REFRESH.
                             elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, "MA", "Refresh") and not helpers['buffs'].buffActive(43) then
-                                helpers["queue"].addToFront(bp, bp.MA["Refresh"], player)
+                                helpers["queue"].add(bp, bp.MA["Refresh"], player)
                                 
                             -- SPIKES.
                             elseif helpers['actions'].isReady(bp, "MA", self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then

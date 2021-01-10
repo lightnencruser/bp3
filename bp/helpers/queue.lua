@@ -257,9 +257,10 @@ function queue.new()
                         if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'JA', action.en) then
 
                             if action.prefix == '/pet' then
-                                local pet = windower.ffxi.get_mob_by_target('pet') or false
+                                local pet       = windower.ffxi.get_mob_by_target('pet') or false
+                                local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
-                                if pet and distance < (ranges[action.range]+target.model_size) and not self.inQueue(bp, action) and player['vitals'].mp >= action.mp_cost then
+                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(bp, action) and player['vitals'].mp >= action.mp_cost then
                                     self.queue:push({action=action, target=target, priority=priority, attempts=0})
                                 end
 
@@ -434,8 +435,9 @@ function queue.new()
 
                             if action.prefix == '/pet' then
                                 local pet = windower.ffxi.get_mob_by_target('pet') or false
-
-                                if pet and distance < (ranges[action.range]+target.model_size) and not self.inQueue(bp, action) and player['vitals'].mp >= action.mp_cost then
+                                local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
+                                
+                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(bp, action) and player['vitals'].mp >= action.mp_cost then
                                     self.queue:push({action=action, target=target, priority=priority, attempts=0})
                                 end
 
@@ -569,14 +571,14 @@ function queue.new()
                         elseif action.prefix == '/pet' then
                             local pet = windower.ffxi.get_mob_by_target('pet') or false
 
-                            if action.type == 'BloodPactRage' then
-                                local distance = ((pet.distance):sqrt()-distance)
+                            if (action.type == 'BloodPactRage' or action.type == 'BloodPactWard') then
+                                local distance = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
-                                if pet and distance < (ranges[action.range]+target.model_size) then
+                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                     helpers['queue'].attempt(bp)
 
-                                elseif pet and distance > (ranges[action.range]+target.model_size) then
+                                elseif pet and distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
                                     helpers['queue'].remove(bp, res.job_abilities[action.id], target)
 
                                 elseif not pet then
@@ -585,12 +587,13 @@ function queue.new()
                                 end
 
                             else
+                                local distance = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
-                                if pet and distance < (ranges[action.range]+target.model_size) then
+                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                     helpers['queue'].attempt(bp)
 
-                                elseif pet and distance > (ranges[action.range]+target.model_size) then
+                                elseif pet and distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
                                     helpers['queue'].remove(bp, res.job_abilities[action.id], target)
 
                                 elseif not pet then

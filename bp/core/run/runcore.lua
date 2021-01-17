@@ -89,16 +89,16 @@ function core.get()
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
 
     -- MAGIC BURST SPELLS.
-    self.settings["MAGIC BURST"]={
+    self["MAGIC BURST"]={
 
-        ["Transfixion"]   = {},
-        ["Compression"]   = {},
-        ["Liquefaction"]  = {},
-        ["Scission"]      = {},
-        ["Reverberation"] = {},
-        ["Detonation"]    = {},
-        ["Induration"]    = {},
-        ["Impaction"]     = {},
+        ["Transfixion"]   = {{}, {}},
+        ["Compression"]   = {{}, {}},
+        ["Liquefaction"]  = {{}, {}},
+        ["Scission"]      = {{}, {}},
+        ["Reverberation"] = {{}, {}},
+        ["Detonation"]    = {{}, {}},
+        ["Induration"]    = {{}, {}},
+        ["Impaction"]     = {{}, {}},
 
     }
 
@@ -125,7 +125,7 @@ function core.get()
             self.settings["SC"]                 = self["SC"]
             self.settings["BURST"]              = self["BURST"]
             self.settings["ELEMENT"]            = self["ELEMENT"]
-            self.settings["TIER"]               = self["TIER"]
+            self.settings["NUKE TIER"]          = self["NUKE TIER"]
             self.settings["ALLOW AOE"]          = self["ALLOW AOE"]
             self.settings["DRAINS"]             = self["DRAINS"]
             self.settings["STUNS"]              = self["STUNS"]

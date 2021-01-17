@@ -17,9 +17,12 @@ return {
 
     ['helpers'] = {
 
+        {name='assist',         status=true},
+        {name='coms',           status=true},
         {name='rolls',          status=true},
         {name='runes',          status=true},
         {name='songs',          status=true},
+        {name='dax',            status=true},
         {name='queue',          status=true},
         {name='actions',        status=true},
         {name='inventory',      status=true},
@@ -55,6 +58,7 @@ return {
         {name='sparks',         status=true},
         {name='accolades',      status=true},
         {name='items',          status=true},
+        {name='roe',            status=true},
 
     },
 

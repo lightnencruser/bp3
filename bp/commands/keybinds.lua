@@ -1,5 +1,5 @@
-local alias = {}
-function alias.new()
+local keybinds = {}
+function keybinds.new()
     local self = {}
 
     self.capture = function(bp, commands)
@@ -12,8 +12,8 @@ function alias.new()
             if command then
                 command = command:lower()
 
-                if command == 'add' and commands[3] then
-                    bp.helpers['alias'].add(bp, table.concat(commands, ' '))
+                if command == 'add' then
+                    bp.helpers['keybinds'].add(bp, table.concat(commands, ' '))
                 end
 
             end
@@ -25,4 +25,4 @@ function alias.new()
     return self
 
 end
-return alias.new()
+return keybinds.new()

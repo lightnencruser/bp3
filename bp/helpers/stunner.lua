@@ -26,11 +26,7 @@ function stunner.new()
     local persist = function()
         local next = next
 
-        if self.settings and next(self.settings) == nil then
-            self.settings.stuns     = self.stuns
-            self.settings.layout    = self.layout
-
-        elseif self.settings and next(self.settings) ~= nil then
+        if self.settings then
             self.settings.stuns     = self.stuns
             self.settings.layout    = self.layout
 
@@ -66,7 +62,7 @@ function stunner.new()
 
         if bp and action then
             local helpers = bp.helpers
-
+            
             if type(action) == 'table' then
 
                 for _,v in pairs(self.actions) do
@@ -107,7 +103,7 @@ function stunner.new()
 
                 for _,v in pairs(self.actions) do
 
-                    if v.en == action then
+                    if v.en:lower() == action:lower() then
 
                         if self.stuns and not self.stuns[v.id] then
                             self.stuns[v.id] = v
@@ -134,7 +130,7 @@ function stunner.new()
 
         if bp and action then
             local helpers = bp.helpers
-
+            
             if type(action) == 'table' then
 
                 for _,v in pairs(self.stuns) do
@@ -169,10 +165,10 @@ function stunner.new()
 
                 for _,v in pairs(self.stuns) do
 
-                    if v.en ~= action then
+                    if v.en:lower() ~= action:lower() then
                         temp[v.id] = v
 
-                    elseif v.en == action then
+                    elseif v.en:lower() == action:lower() then
                         bp.helpers['popchat'].pop(string.format('%s has been removed to stuns list.', v.en))
 
                     end
@@ -207,6 +203,7 @@ function stunner.new()
             local helpers = bp.helpers
 
             if self.stuns[id] then
+                bp.helpers['queue'].clear()
                 bp.helpers['queue'].addToFront(bp, bp.MA['Stun'], target.id)
             end
 

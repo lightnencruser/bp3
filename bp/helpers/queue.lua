@@ -261,13 +261,13 @@ function queue.new()
                                 local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
                                 if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(bp, action) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             else
 
                                 if distance < (ranges[action.range]+target.model_size) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             end
@@ -283,29 +283,29 @@ function queue.new()
                                 if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
                                     
                                     if helpers['actions'].isReady(bp, 'JA', 'Pianissimo') and helpers['songs'].piano then
-                                        self.queue:insert(1, {action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=0})
-                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                        self.queue:insert(1, {action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=1})
+                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                     else
-                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                     end
 
                                 elseif action.type == 'Geomancy' and not self.inQueue(bp, action) and (action.en):match('Geo-') and T(action.targets):contains('Party') and player['vitals'].mp >= action.mp_cost then
                                     
                                     if helpers['party'].isInParty(bp, target.id, false) then
-                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                     else
-                                        self.queue:insert(1, {action=action, target=player, priority=priority, attempts=0})
+                                        self.queue:insert(1, {action=action, target=player, priority=priority, attempts=1})
 
                                     end
 
                                 elseif action.type == 'Geomancy' and not self.inQueue(bp, action) and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(bp, target) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                 elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                 end
 
@@ -318,7 +318,7 @@ function queue.new()
                         if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'WS', action.en) and player['vitals'].tp > 1000 then
 
                             if distance < (ranges[action.range]+target.model_size) then
-                                self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
                             end
 
                         end
@@ -331,7 +331,7 @@ function queue.new()
                             for _,v in ipairs(allowed) do
 
                                 if (helpers['inventory'].findItemByName(action.en, v)) then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             end
@@ -347,14 +347,14 @@ function queue.new()
                                 helpers['actions'].unique.ranged.en = helpers['equipment'].ranged.en
                             
                                 if distance < (ranges[action.range]+target.model_size) then
-                                    self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                    self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=1})
                                 end
 
                             elseif helpers['equipment'].ranged and helpers['equipment'].ranged.en == 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                                 helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
                             
                                 if distance < (ranges[action.range]+target.model_size) then
-                                    self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                    self.queue:insert(1, {action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=1})
                                 end
 
                             end
@@ -438,13 +438,13 @@ function queue.new()
                                 local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
                                 
                                 if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(bp, action) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             else
 
                                 if distance < (ranges[action.range]+target.model_size) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             end
@@ -460,22 +460,22 @@ function queue.new()
                                 if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
                                     
                                     if helpers['actions'].isReady(bp, 'JA', 'Pianissimo') and helpers['songs'].piano then
-                                        self.queue:push({action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=0})
-                                        self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                        self.queue:push({action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=1})
+                                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                     else
-                                        self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                     end
 
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Self') and target.id == player.id and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(bp, target) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                 elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                 end
 
@@ -488,7 +488,7 @@ function queue.new()
                         if helpers['actions'].canAct(bp) and not self.inQueue(bp, action, target) and helpers['actions'].isReady(bp, 'WS', action.en) and player['vitals'].tp > 1000 then
 
                             if distance < (ranges[action.range]+target.model_size) then
-                                self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                self.queue:push({action=action, target=target, priority=priority, attempts=1})
                             end
 
                         end
@@ -501,7 +501,7 @@ function queue.new()
                             for _,v in ipairs(allowed) do
 
                                 if (helpers['inventory'].findItemByName(action.en, v)) then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             end
@@ -517,14 +517,14 @@ function queue.new()
                                 helpers['actions'].unique.ranged.en = helpers['equipment'].ranged.en
                             
                                 if distance < (ranges[action.range]+target.model_size) then
-                                    self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=1})
                                 end
 
                             elseif helpers['equipment'].ranged and helpers['equipment'].ranged.en == 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                                 helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
                             
                                 if distance < (ranges[action.range]+target.model_size) then
-                                    self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=0})
+                                    self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=1})
                                 end
 
                             end
@@ -571,12 +571,26 @@ function queue.new()
                         elseif action.prefix == '/pet' then
                             local pet = windower.ffxi.get_mob_by_target('pet') or false
 
-                            if (action.type == 'BloodPactRage' or action.type == 'BloodPactWard') then
+                            if pet and (action.type == 'BloodPactRage' or action.type == 'BloodPactWard') then
+                                local distance = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
+
+                                if distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
+                                    windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
+                                    helpers['queue'].attempt(bp)
+                                    helpers['coms'].send(bp, action, player.name, attempts)
+
+                                elseif distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
+                                    helpers['queue'].remove(bp, res.job_abilities[action.id], target)
+
+                                end
+
+                            elseif pet then
                                 local distance = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
                                 if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                     helpers['queue'].attempt(bp)
+                                    helpers['coms'].send(bp, action, player.name, attempts)
 
                                 elseif pet and distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
                                     helpers['queue'].remove(bp, res.job_abilities[action.id], target)
@@ -586,20 +600,8 @@ function queue.new()
 
                                 end
 
-                            else
-                                local distance = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
-
-                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
-                                    windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                                    helpers['queue'].attempt(bp)
-
-                                elseif pet and distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
-                                    helpers['queue'].remove(bp, res.job_abilities[action.id], target)
-
-                                elseif not pet then
-                                    helpers['queue'].remove(bp, res.job_abilities[action.id], target)
-
-                                end
+                            elseif not pet then
+                                helpers['queue'].remove(bp, res.job_abilities[action.id], target)
 
                             end
 
@@ -608,15 +610,18 @@ function queue.new()
                             if distance < (ranges[action.range]+target.model_size) and action.type ~= 'Rune' then
                                 windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                 helpers['queue'].attempt(bp)
+                                helpers['coms'].send(bp, action, player.name, attempts)
 
                             elseif distance < (ranges[action.range]+target.model_size) and action.type == 'Rune' then
 
                                 if helpers['actions'].isReady(bp, 'JA', action.en) then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                     helpers['queue'].attempt(bp)
+                                    helpers['coms'].send(bp, action, player.name, attempts)
                                 
                                 else
                                     helpers['queue'].attempt(bp)
+                                    helpers['coms'].send(bp, action, player.name, attempts)
 
                                 end
 
@@ -651,6 +656,7 @@ function queue.new()
                         elseif distance < (ranges[action.range]+size) then
                             windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                             helpers['queue'].attempt(bp)
+                            helpers['coms'].send(bp, action, player.name, attempts)
 
                         elseif distance > (ranges[action.range]+size) then
                             helpers['queue'].remove(bp, res.spells[action.id], target)
@@ -677,6 +683,7 @@ function queue.new()
                         elseif distance < (ranges[action.range]+target.model_size) then
                             windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                             helpers['queue'].attempt(bp)
+                            helpers['coms'].send(bp, action, player.name, attempts)
 
                         elseif distance > (ranges[action.range]+target.model_size) then
                             helpers['queue'].remove(bp, res.weapon_skills[action.id], target)
@@ -703,6 +710,7 @@ function queue.new()
                         else
                             windower.send_command(string.format("input /item '%s' <me>", action.en))
                             helpers['queue'].attempt(bp)
+                            helpers['coms'].send(bp, action, player.name, attempts)
 
                         end
 
@@ -724,6 +732,7 @@ function queue.new()
                         elseif distance < (ranges[action.range]+target.model_size) then
                             windower.send_command(string.format("input %s %s", action.prefix, target.id))
                             helpers['queue'].attempt(bp)
+                            helpers['coms'].send(bp, action, player.name, attempts)
                             helpers['equipment'].update()
 
                         elseif distance > (ranges[action.range]+target.model_size) then
@@ -918,17 +927,17 @@ function queue.new()
 
                                 if action_type == 'JobAbility' then
                                     helpers['queue'].remove(bp, bp.JA[v.action.en], target)
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                                     break
 
                                 elseif action_type == 'Magic' then
                                     helpers['queue'].remove(bp, bp.MA[v.action.en], target)
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                                     break
 
                                 elseif action_type == 'WeaponSkill' then
                                     helpers['queue'].remove(bp, bp.WS[v.action.en], target)
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                                     break
 
                                 end
@@ -989,10 +998,10 @@ function queue.new()
                             update = true
 
                             if priority:contains(action.en) then
-                                self.queue:insert(1, {action=action, target=target, priority=0, attempts=0})
+                                self.queue:insert(1, {action=action, target=target, priority=0, attempts=1})
                             
                             else
-                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                             
                             end
 
@@ -1001,10 +1010,10 @@ function queue.new()
                             update = true
                             
                             if priority:contains(action.en) then
-                                self.queue:insert(1, {action=action, target=target, priority=0, attempts=0})
+                                self.queue:insert(1, {action=action, target=target, priority=0, attempts=1})
                             
                             else
-                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=0})
+                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                             
                             end
 

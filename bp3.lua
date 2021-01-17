@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20210110'
+_addon.version  = '0.20210116'
 _addon.command  = 'bp'
 
 local bp = require('bp/bootstrap')
@@ -10,7 +10,7 @@ windower.register_event('addon command', function(...)
 
     if c then
         c = c:lower()
-        
+
         if bp.commands[c] then
             bp.commands[c].capture(bp, a)
 
@@ -71,6 +71,9 @@ windower.register_event('prerender', function()
         bp.helpers['songs'].render(bp)
         bp.helpers['speed'].render(bp)
         bp.helpers['cures'].render(bp)
+        bp.helpers['dax'].render(bp)
+        bp.helpers['coms'].render(bp)
+        bp.helpers['assist'].render(bp)
 
         if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
             bp.helpers['target'].clear()
@@ -374,9 +377,8 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                 bp.helpers['queue'].ready = (os.clock() + 1)
 
             end
-
-            -- Handle Status Debuffing.
             bp.helpers['status'].catchStatus(bp, original)
+            bp.helpers['burst'].registerSkillchain(bp, original)
 
         end
 
@@ -458,6 +460,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             end
 
         end
+
+    elseif id == 0x111 then
+        bp.helpers['roe'].update(bp, original)
     
     elseif id == 0x063 then
         local check = original:unpack('H', 0x04+1)
@@ -657,6 +662,28 @@ windower.register_event('mouse', function(param, x, y, delta, blocked)
 
         end
 
+    end
+
+end)
+
+windower.register_event('ipc message', function(message)
+    local message = message or false
+
+    if message then
+
+        if message:sub(1,4) == 'coms' then
+            bp.helpers['coms'].catch(message)
+
+        end
+
+    end
+
+end)
+
+windower.register_event('time change', function(new, old)
+    
+    if new then
+        bp.helpers['assist'].assist(bp)
     end
 
 end)

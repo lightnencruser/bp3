@@ -120,6 +120,37 @@ function accolades.new()
         end
     
     end
+
+    self.sellPowders = function(bp)
+        local n         = bp.helpers['inventory'].getSlotCount('Prize Powder', 0)
+        local item      = bp.helpers['inventory'].findItemByName('Prize Powder', 0)
+        local appraise  = bp.packets.new('outgoing', 0x084)
+        
+        if appraise then
+            self.busy = true
+            
+            bp.helpers['popchat'].pop(string.format('SELLING PRIZE POWDERS!', n, item.en))
+            for i=1, n do
+                local selling = bp.helpers['inventory'].findItemIndexByName('Prize Powder', 0) or false
+
+                if selling then
+                    bp.packets.inject(bp.packets.new('outgoing', 0x084, {['Count']=bp.helpers['inventory'].getCountByIndex(selling), ['Item']=item.id, ['Inventory Index']=selling}))
+                    coroutine.sleep(math.random())
+                    bp.packets.inject(bp.packets.new('outgoing', 0x085))
+                    coroutine.sleep(1+math.random())
+
+                end
+
+                if i == n then
+                    self.busy = false
+                end
+
+            end
+            bp.helpers['popchat'].pop('SELLING FINISHED!')
+
+        end
+
+    end
     
     return self
     

@@ -32,7 +32,7 @@ function core.get()
     self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
     self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
     self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
-    self["DEBUFF"]             = self.settings["DEBUFF"] or {{false,true}, false}
+    self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
     self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
     self["WS"]                  = self.settings["WS"] or {{false,true}, false}
     self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
@@ -42,6 +42,8 @@ function core.get()
     self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
     self["ELEMENT"]             = self.settings["ELEMENT"] or {{"Fire","Ice","Wind","Earth","Lightning","Water","Light","Dark","Random"}, "Fire"}
     self["NUKE TIER"]           = self.settings["NUKE TIER"] or {{"I","II","III","IV","V","Random"}, "I"}
+    self["NUKE ONLY"]           = self.settings["NUKE ONLY"] or {{true,false}, false}
+    self["MULTINUKE"]           = self.settings["MULTINUKE"] or {{1,2,3}, 1}
     self["ALLOW AOE"]           = self.settings["ALLOW AOE"] or {{false,true}, false}
     self["DRAINS"]              = self.settings["DRAINS"] or {{false,true}, false}
     self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
@@ -89,16 +91,40 @@ function core.get()
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
 
     -- MAGIC BURST SPELLS.
-    self.settings["MAGIC BURST"]={
+    self["MAGIC BURST"] = {
 
-        ["Transfixion"]   = {},
-        ["Compression"]   = {},
-        ["Liquefaction"]  = {},
-        ["Scission"]      = {},
-        ["Reverberation"] = {},
-        ["Detonation"]    = {},
-        ["Induration"]    = {},
-        ["Impaction"]     = {},
+        ["Transfixion"] = {
+            T{},
+            T{},
+        },
+        ["Compression"] = {
+            T{'Aspir','Aspir II','Aspir III','Drain'},
+            T{},
+        },
+        ["Liquefaction"] = {
+            T{'Fire','Fire II','Fire III','Fire IV','Fire V'},
+            T{'Fira','Fira II','Fira III'},
+        },
+        ["Scission"] = {
+            T{'Stone','Stone II','Stone III','Stone IV','Stone V'},
+            T{'Stonera','Stonera II','Stonera III'},
+        },
+        ["Reverberation"] = {
+            T{'Water','Water II','Water III','Water IV','Water V'},
+            T{'Watera','Watera II','Watera III'},
+        },
+        ["Detonation"] = {
+            T{'Aero','Aero II','Aero III','Aero IV','Aero V'},
+            T{'Aera','Aera II','Aera III'},
+        },
+        ["Induration"] = {
+            T{'Blizzard','Blizzard II','Blizzard III','Blizzard IV','Blizzard V'},
+            T{'Blizzara','Blizzara II','Blizzara III'},
+        },
+        ["Impaction"] = {
+            T{'Thunder','Thunder II','Thunder III','Thunder IV','Thunder V'},
+            T{'Thundara','Thundara II','Thundara III'},
+        },
 
     }
 
@@ -116,7 +142,7 @@ function core.get()
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
             self.settings["BUFFS"]              = self["BUFFS"]
-            self.settings["DEBUFF"]            = self["DEBUFF"]
+            self.settings["DEBUFF"]             = self["DEBUFF"]
             self.settings["STATUS"]             = self["STATUS"]
             self.settings["WS"]                 = self["WS"]
             self.settings["WSNAME"]             = self["WSNAME"]
@@ -125,7 +151,9 @@ function core.get()
             self.settings["SC"]                 = self["SC"]
             self.settings["BURST"]              = self["BURST"]
             self.settings["ELEMENT"]            = self["ELEMENT"]
-            self.settings["TIER"]               = self["TIER"]
+            self.settings["NUKE TIER"]          = self["NUKE TIER"]
+            self.settings["NUKE ONLY"]          = self["NUKE ONLY"]
+            self.settings["MULTINUKE"]          = self["MULTINUKE"]
             self.settings["ALLOW AOE"]          = self["ALLOW AOE"]
             self.settings["DRAINS"]             = self["DRAINS"]
             self.settings["STUNS"]              = self["STUNS"]
@@ -1678,7 +1706,7 @@ function core.get()
             if setting then
                 local options = setting[1]
                 local current = setting[2]
-
+                
                 for i,v in ipairs(options) do
                     
                     if v == current and i < #options then

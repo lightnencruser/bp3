@@ -42,6 +42,8 @@ function core.get()
     self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
     self["ELEMENT"]             = self.settings["ELEMENT"] or {{"Fire","Ice","Wind","Earth","Lightning","Water","Light","Dark","Random"}, "Fire"}
     self["NUKE TIER"]           = self.settings["NUKE TIER"] or {{"I","II","III","IV","V","Random"}, "I"}
+    self["NUKE ONLY"]           = self.settings["NUKE ONLY"] or {{true,false}, false}
+    self["MULTINUKE"]           = self.settings["MULTINUKE"] or {{1,2,3}, 1}
     self["ALLOW AOE"]           = self.settings["ALLOW AOE"] or {{false,true}, false}
     self["DRAINS"]              = self.settings["DRAINS"] or {{false,true}, false}
     self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
@@ -89,16 +91,16 @@ function core.get()
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
 
     -- MAGIC BURST SPELLS.
-    self.settings["MAGIC BURST"]={
+    self["MAGIC BURST"]={
 
-        ["Transfixion"]   = {},
-        ["Compression"]   = {},
-        ["Liquefaction"]  = {},
-        ["Scission"]      = {},
-        ["Reverberation"] = {},
-        ["Detonation"]    = {},
-        ["Induration"]    = {},
-        ["Impaction"]     = {},
+        ["Transfixion"]   = {{}, {}},
+        ["Compression"]   = {{}, {}},
+        ["Liquefaction"]  = {{}, {}},
+        ["Scission"]      = {{}, {}},
+        ["Reverberation"] = {{}, {}},
+        ["Detonation"]    = {{}, {}},
+        ["Induration"]    = {{}, {}},
+        ["Impaction"]     = {{}, {}},
 
     }
 
@@ -116,7 +118,7 @@ function core.get()
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
             self.settings["BUFFS"]              = self["BUFFS"]
-            self.settings["DEBUFF"]            = self["DEBUFF"]
+            self.settings["DEBUFF"]             = self["DEBUFF"]
             self.settings["STATUS"]             = self["STATUS"]
             self.settings["WS"]                 = self["WS"]
             self.settings["WSNAME"]             = self["WSNAME"]
@@ -125,7 +127,9 @@ function core.get()
             self.settings["SC"]                 = self["SC"]
             self.settings["BURST"]              = self["BURST"]
             self.settings["ELEMENT"]            = self["ELEMENT"]
-            self.settings["TIER"]               = self["TIER"]
+            self.settings["NUKE TIER"]          = self["NUKE TIER"]
+            self.settings["NUKE ONLY"]          = self["NUKE ONLY"]
+            self.settings["MULTINUKE"]          = self["MULTINUKE"]
             self.settings["ALLOW AOE"]          = self["ALLOW AOE"]
             self.settings["DRAINS"]             = self["DRAINS"]
             self.settings["STUNS"]              = self["STUNS"]

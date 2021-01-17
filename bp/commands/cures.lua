@@ -27,7 +27,6 @@ function cures.new()
                         bp.helpers['popchat'].pop('PLEASE ENTER A NUMBER BETWEEN 1 & 100!')
 
                     end
-
                 
                 elseif command == 'pos' and commands[3] then
                     bp.helpers['cures'].pos(bp, commands[3], commands[4] or false)

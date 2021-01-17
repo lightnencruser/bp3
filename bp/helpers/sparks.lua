@@ -95,6 +95,32 @@ function sparks.new()
         end
     
     end
+
+    self.sellShields = function(bp)
+        local n         = bp.helpers['inventory'].getSlotCount('Acheron Shield', 0)
+        local item      = bp.helpers['inventory'].findItemByName('Acheron Shield', 0)
+        local appraise  = bp.packets.new('outgoing', 0x084)
+        
+        if appraise then
+            self.busy = true
+            
+            bp.helpers['popchat'].pop(string.format('SELLING ACHERON SHIELDS!', n, item.en))
+            for i=1, n do
+                bp.packets.inject(bp.packets.new('outgoing', 0x084, {['Count']=1, ['Item']=item.id, ['Inventory Index']=bp.helpers['inventory'].findItemIndexByName('Acheron Shield', 0)}))
+                coroutine.sleep(math.random())
+                bp.packets.inject(bp.packets.new('outgoing', 0x085))
+                coroutine.sleep(1+math.random())
+
+                if i == n then
+                    self.busy = false
+                end
+
+            end
+            bp.helpers['popchat'].pop('SELLING FINISHED!')
+
+        end
+
+    end
     
     return self
     

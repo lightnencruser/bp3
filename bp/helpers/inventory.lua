@@ -1,5 +1,6 @@
 local inventory = {}
 local res = require('resources')
+
 function inventory.new()
     local self = {}
 
@@ -98,10 +99,51 @@ function inventory.new()
 
             for index, item in ipairs(items) do
 
-                if type(item) == "table" then
+                if item and type(item) == "table" then
+                    local new = self.findItemByName(name) or false
 
-                    if item.id == self.findItemByName(name).id then
+                    if new and new.id == item.id then
                         count = (count + item.count)
+                    end
+
+                end
+
+            end
+            return count
+
+        end
+
+    end
+
+    self.getCountByIndex = function(index, bag)
+        local bag = bag or 0
+        local items = windower.ffxi.get_items(bag)
+
+        for i, item in ipairs(items) do
+
+            if item and i == index and item.status == 0 then
+                return item.count
+            end
+
+        end
+        return false
+
+    end
+
+    self.getSlotCount = function(name, bag)
+        local count = 0
+        local bag   = bag or 0
+        local items = windower.ffxi.get_items(bag)
+
+        if name and items then
+
+            for index, item in ipairs(items) do
+
+                if item and type(item) == "table" then
+                    local new = self.findItemByName(name) or false
+
+                    if new and new.id == item.id then
+                        count = (count + 1)
                     end
 
                 end
@@ -140,6 +182,16 @@ function inventory.new()
 
         if bag.count < bag.max then
             return (bag.max - bag.count)
+        end
+        return 0
+
+    end
+
+    self.getCount = function(bag)
+        local bag = windower.ffxi.get_bag_info(bag or 0)
+
+        if bag then
+            return bag.count
         end
         return 0
 

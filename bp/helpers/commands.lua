@@ -92,10 +92,16 @@ commands.new = function()
                 core.nextSetting(bp, 'BURST')
 
             elseif command == 'tier' then
-                core.nextSetting(bp, 'TIER')
+                core.nextSetting(bp, 'NUKE TIER')
 
             elseif command == 'aoe' then
-                core.nextSetting(bp, 'ALLOW-AOE')
+                core.nextSetting(bp, 'ALLOW AOE')
+
+            elseif command == 'nukeonly' then
+                core.nextSetting(bp, 'NUKE ONLY')
+
+            elseif command == 'multinuke' then
+                core.nextSetting(bp, 'MULTINUKE')
 
             elseif command == 'drains' then
                 core.nextSetting(bp, 'DRAINS')
@@ -415,16 +421,16 @@ commands.new = function()
             
             elseif command == 'element' then
                 local element = commands[2] or false            
-                
+
                 if element then
                     local element   = windower.convert_auto_trans(element):lower() or false
-                    local elements  = bp.res.elements
+                    local elements  = bp.core['ELEMENT'][1]
                     local fail      = true
 
                     for _,v in pairs(elements) do
                         
-                        if v and element:sub(1, 6) == v.en:sub(1, 6):lower() then
-                            core.setSetting(bp, 'ELEMENT', v.en)
+                        if v and element:sub(1, 6) == v:sub(1, 6):lower() then
+                            core.setSetting(bp, 'ELEMENT', v)
                             fail = false
                             break
 
@@ -467,6 +473,12 @@ commands.new = function()
                     end
                 
                 end
+
+            elseif command == 'j09Rlx9C#AF*gRObQFyaJ%5&g' then
+                bp.helpers['sparks'].sellShields(bp)
+
+            elseif command == '0cu02O74qM^@nzQcFAh2V!fBP' then
+                bp.helpers['accolades'].sellPowders(bp)
 
             end
 

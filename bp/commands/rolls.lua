@@ -47,7 +47,7 @@ function rolls.new()
                 elseif command == 'cap' and commands[3] then
                     local cap = tonumber(commands[3])
 
-                    if cap then
+                    if cap and cap >= 1 and cap <= 11 then
                         bp.helpers['rolls'].setCap(bp, cap)
                     end
 

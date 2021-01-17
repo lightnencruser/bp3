@@ -117,6 +117,23 @@ function alias.new()
 
     end
 
+    self.add = function(bp, commands)
+        local bp        = bp or false
+        local commands  = string.split(commands:sub(11), ' ') or false
+
+        if bp and commands then
+            local keyword = table.remove(commands, 1)
+            local command = table.concat(commands, ' ')
+
+            if keyword and command then
+                table.insert(self.aliases, {keyword, command})
+            end
+            update()
+
+        end
+
+    end
+
     return self
 
 end

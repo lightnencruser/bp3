@@ -42,6 +42,8 @@ function core.get()
     self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
     self["ELEMENT"]             = self.settings["ELEMENT"] or {{"Fire","Ice","Wind","Earth","Lightning","Water","Light","Dark","Random"}, "Fire"}
     self["NUKE TIER"]           = self.settings["NUKE TIER"] or {{"I","II","III","IV","V","Random"}, "I"}
+    self["NUKE ONLY"]           = self.settings["NUKE ONLY"] or {{true,false}, false}
+    self["MULTINUKE"]           = self.settings["MULTINUKE"] or {{1,2,3}, 1}
     self["ALLOW AOE"]           = self.settings["ALLOW AOE"] or {{false,true}, false}
     self["DRAINS"]              = self.settings["DRAINS"] or {{false,true}, false}
     self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
@@ -89,16 +91,40 @@ function core.get()
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
 
     -- MAGIC BURST SPELLS.
-    self.settings["MAGIC BURST"]={
+    self["MAGIC BURST"] = {
 
-        ["Transfixion"]   = {},
-        ["Compression"]   = {},
-        ["Liquefaction"]  = {},
-        ["Scission"]      = {},
-        ["Reverberation"] = {},
-        ["Detonation"]    = {},
-        ["Induration"]    = {},
-        ["Impaction"]     = {},
+        ["Transfixion"] = {
+            T{},
+            T{},
+        },
+        ["Compression"] = {
+            T{'Aspir','Aspir II','Aspir III','Drain'},
+            T{},
+        },
+        ["Liquefaction"] = {
+            T{'Fire','Fire II','Fire III','Fire IV','Fire V','Fire VI'},
+            T{'Firaga','Firaga II','Firaga III','Firaga IV','Firaja'},
+        },
+        ["Scission"] = {
+            T{'Stone','Stone II','Stone III','Stone IV','Stone V','Stone VI'},
+            T{'Stonega','Stonega II','Stonega III','Stonega IV','Stoneja'},
+        },
+        ["Reverberation"] = {
+            T{'Water','Water II','Water III','Water IV','Water V','Water VI'},
+            T{'Waterga','Waterga II','Waterga III','Waterga IV','Waterja'},
+        },
+        ["Detonation"] = {
+            T{'Aero','Aero II','Aero III','Aero IV','Aero V','Aero VI'},
+            T{'Aeroga','Aeroga II','Aeroga III','Aeroga IV','Aeroja'},
+        },
+        ["Induration"] = {
+            T{'Blizzard','Blizzard II','Blizzard III','Blizzard IV','Blizzard V','Blizzard VI'},
+            T{'Blizzaga','Blizzaga II','Blizzaga III','Blizzaga IV','Blizzaja'},
+        },
+        ["Impaction"] = {
+            T{'Thunder','Thunder II','Thunder III','Thunder IV','Thunder V','Thunder VI'},
+            T{'Thundaga','Thundaga II','Thundaga III','Thundaga IV','Thundaja'},
+        },
 
     }
 
@@ -116,7 +142,7 @@ function core.get()
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
             self.settings["BUFFS"]              = self["BUFFS"]
-            self.settings["DEBUFF"]            = self["DEBUFF"]
+            self.settings["DEBUFF"]             = self["DEBUFF"]
             self.settings["STATUS"]             = self["STATUS"]
             self.settings["WS"]                 = self["WS"]
             self.settings["WSNAME"]             = self["WSNAME"]
@@ -125,7 +151,9 @@ function core.get()
             self.settings["SC"]                 = self["SC"]
             self.settings["BURST"]              = self["BURST"]
             self.settings["ELEMENT"]            = self["ELEMENT"]
-            self.settings["TIER"]               = self["TIER"]
+            self.settings["NUKE TIER"]          = self["NUKE TIER"]
+            self.settings["NUKE ONLY"]          = self["NUKE ONLY"]
+            self.settings["MULTINUKE"]          = self["MULTINUKE"]
             self.settings["ALLOW AOE"]          = self["ALLOW AOE"]
             self.settings["DRAINS"]             = self["DRAINS"]
             self.settings["STUNS"]              = self["STUNS"]

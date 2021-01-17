@@ -16,6 +16,7 @@ function keybinds.new()
 
         ['@b']      = "@b bp on",
         ['@f']      = "@f bp follow",
+        ['@a']      = "@a bp assist",
         ['@s']      = "@s bp request_stop",
         ['@i']      = "@i bp party invite",
         ['@t']      = "@t bp target t",
@@ -49,19 +50,19 @@ function keybinds.new()
 
     local update = function()
 
-        for _,v in pairs(default_binds) do
+        for i,v in pairs(default_binds) do
             local found = false
             
-            for _,vv in pairs(self.binds) do
+            for ii,vv in pairs(self.binds) do
                 
-                if v[1] == vv[1] and v[2] == vv[2] then
+                if i == ii then
                     found = true
                 end
 
             end
-
+            
             if not found then
-                table.insert(self.binds, {v[1], v[2]})
+                self.binds[i] = string.format('%s %s', i, v)
             end
     
         end
@@ -104,6 +105,24 @@ function keybinds.new()
             for i,_ in pairs(self.binds) do
                 windower.send_command(string.format('unbind %s', i))
             end
+
+        end
+
+    end
+
+    self.add = function(bp, commands)
+        local bp        = bp or false
+        local commands  = string.split(commands:sub(14), ' ') or false
+
+        if bp and commands then
+            local bind      = table.remove(commands, 1)
+            local command   = table.concat(commands, ' ')
+
+            if bind and command then
+                self.binds[bind] = string.format('%s %s', bind, command)
+                bp.helpers['popchat'].pop(string.format('ADDED: %s TO KEYBINDS!', command))
+            end
+            update()
 
         end
 

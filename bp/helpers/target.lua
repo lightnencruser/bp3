@@ -138,11 +138,15 @@ function target.new()
 
             if target then
 
-                if self.mode == 1 and self.allowed(bp, target) and self.canEngage(bp, target) then
+                if not self.targets.player and windower.ffxi.get_mob_by_target('t') and self.allowed(bp, windower.ffxi.get_mob_by_target('t')) and self.canEngage(bp, windower.ffxi.get_mob_by_target('t')) then
+                    self.targets.player = windower.ffxi.get_mob_by_target('t')
+                end              
+
+                if self.mode == 1 and self.allowed(bp, target) and self.canEngage(bp, target) and not self.targets.player then
                     self.targets.player = target
                     helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
 
-                elseif self.mode == 2 and self.allowed(bp, target) and self.canEngage(bp, target) then
+                elseif self.mode == 2 and self.allowed(bp, target) and self.canEngage(bp, target) and not self.targets.party then
                     self.targets.party = target
                     windower.send_command(string.format('ord r* bp target share %s', target.id))
                     helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))

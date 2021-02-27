@@ -69,7 +69,7 @@ function controls.new()
                     local distance = (target.distance):sqrt()
                     
                     if (distance-target.model_size) < self.range and player.status == 0 then
-                        helpers["actions"].doAction(target, 0, 'engage')
+                        helpers['actions'].doAction(target, 0, 'engage')
                         times.assist = os.clock()
                     end
                     

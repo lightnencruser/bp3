@@ -26,6 +26,7 @@ bootstrap.load = function()
     self.images     = require('images')
     self.queues     = require('queues')
     self.extdata    = require('extdata')
+    self.json       = require('/bp/resources/JSON')
                     require('actions')
                     require('strings')
                     require('lists')
@@ -38,7 +39,7 @@ bootstrap.load = function()
     self.pos        = {x=windower.ffxi.get_mob_by_target('me').x, y=windower.ffxi.get_mob_by_target('me').y, x=windower.ffxi.get_mob_by_target('me').z}
     self.shutdown   = {[131]=131}
     self.blocked    = {
-
+ 
     [026]=026,[048]=048,[050]=050,[053]=053,[070]=070,
     [071]=071,[080]=080,[087]=087,[094]=094,[230]=230,
     [231]=231,[232]=232,[233]=233,[234]=234,[235]=235,
@@ -46,7 +47,7 @@ bootstrap.load = function()
     [241]=241,[242]=242,[243]=243,[244]=244,[245]=245,
     [246]=246,[247]=247,[248]=248,[249]=249,[250]=250,
     [252]=252,[256]=256,[257]=257,[280]=280,[281]=281,
-    [284]=284,
+    [284]=284,[251]=251,
 
     }
 

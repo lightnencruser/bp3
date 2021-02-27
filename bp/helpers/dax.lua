@@ -142,17 +142,26 @@ function dax.new()
     self.add = function(bp, name)
         local bp    = bp or false
         local name  = name or ''
-
+        
         if bp then
             local core      = bp.core
             local player    = windower.ffxi.get_player()
 
             if core and core.settings then
 
-                if core.settings[name:upper()] and core.settings[name:upper()][2] ~= nil and isAllowed(name:upper()) then
-                    table.insert(allowed[player.main_job], name:upper())
-                    bp.helpers['popchat'].pop(string.format('%s ADDED TO SETTINGS WINDOW!', name:upper()))
-                    self.writeSettings()
+                if core.settings[name:upper()] and isAllowed(name:upper()) then
+
+                    if type(core.settings[name:upper()]) == 'table' and core.settings[name:upper()][2] then
+                        table.insert(allowed[player.main_job], name:upper())
+                        bp.helpers['popchat'].pop(string.format('%s ADDED TO SETTINGS WINDOW!', name:upper()))
+                        self.writeSettings()
+
+                    else
+                        table.insert(allowed[player.main_job], name:upper())
+                        bp.helpers['popchat'].pop(string.format('%s ADDED TO SETTINGS WINDOW!', name:upper()))
+                        self.writeSettings()
+
+                    end
 
                 else
                     bp.helpers['popchat'].pop(string.format('%s IS NOT A VALID SETTING!', name:upper()))
@@ -175,19 +184,37 @@ function dax.new()
 
             if core and core.settings then
 
-                if core.settings[name:upper()] and core.settings[name:upper()][2] ~= nil and not isAllowed(name:upper()) then
+                if core.settings[name:upper()] and not isAllowed(name:upper()) then
 
-                    for i,v in ipairs(allowed[player.main_job]) do
+                    if type(core.settings[name:upper()]) == 'table' and core.settings[name:upper()][2] then
 
-                        if v:upper() == name:upper() then
-                            table.remove(allowed[player.main_job], i)
-                            bp.helpers['popchat'].pop(string.format('%s REMOVED FROM SETTINGS WINDOW!', name:upper()))
-                            self.writeSettings()
-                            break
-                        
+                        for i,v in ipairs(allowed[player.main_job]) do
+
+                            if v:upper() == name:upper() then
+                                table.remove(allowed[player.main_job], i)
+                                bp.helpers['popchat'].pop(string.format('%s REMOVED FROM SETTINGS WINDOW!', name:upper()))
+                                self.writeSettings()
+                                break
+                            
+                            end
+
                         end
 
-                    end
+                    else
+                        
+                        for i,v in ipairs(allowed[player.main_job]) do
+
+                            if v:upper() == name:upper() then
+                                table.remove(allowed[player.main_job], i)
+                                bp.helpers['popchat'].pop(string.format('%s REMOVED FROM SETTINGS WINDOW!', name:upper()))
+                                self.writeSettings()
+                                break
+                            
+                            end
+    
+                        end
+
+                    end                    
 
                 else
                     bp.helpers['popchat'].pop(string.format('%s IS NOT A VALID SETTING!', name:upper()))

@@ -16,10 +16,20 @@ function dax.new()
                     bp.helpers['dax'].list(bp)
 
                 elseif command == '+' and commands[3] then
-                    bp.helpers['dax'].add(bp, commands[3])
+                    local name = {}
+
+                    for i=3, #commands do
+                        table.insert(name, string.format('%s', commands[i]))
+                    end
+                    bp.helpers['dax'].add(bp, table.concat(name, ' '))
                 
                 elseif command == '-' and commands[3] then
-                    bp.helpers['dax'].remove(bp, commands[3])
+                    local name = {}
+
+                    for i=3, #commands do
+                        table.insert(name, string.format('%s', commands[i]))
+                    end
+                    bp.helpers['dax'].remove(bp, table.concat(name, ' '))
 
                 elseif command == 'pos' and commands[3] then
                     bp.helpers['dax'].pos(bp, commands[3], commands[4] or false)

@@ -14,8 +14,8 @@ function maintenance.new()
         if original then
             self.data = bp.packets.parse('incoming', original)
 
-            if self.data['Status'] ~= 31 then
-                self.status = self.data['Status']            
+            if not self.enabled then
+                self.status = self.data['Status']
             end
 
         end

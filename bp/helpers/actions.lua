@@ -55,6 +55,144 @@ function actions.new()
 
     end
 
+    self.synthItem = function(bp, crystal, ingredients, materials)
+        local bp            = bp or false
+        local crystal       = bp.libraries['inventory'].findItemByName(crystal) or false
+        local materials     = T(materials) or false
+        local ingredients   = ingredients or 1
+        
+        if bp and crystal and materials then
+            local crystal   = {name=crystal.en, id=crystal.id, index=bp.libraries['inventory'].findItemIndexByName(crystal.en)}
+            local n         = 1
+            
+            -- Build Basic Packet.
+            local synth = bp.packets.new("outgoing", 0x096, {
+                
+                ['_unknown1']           = 0,
+                ['_unknown2']           = 0,
+                ['Crystal']             = crystal.id,
+                ['Crystal Index']       = crystal.index,
+                ['Ingredient count']    = ingredients,
+
+            })
+
+            -- Rebuild the packet based on material data.
+            for _,material in ipairs(materials) do
+
+                if material and material.count then
+                    local item  = bp.libraries['inventory'].findItemIndexByName(material.name, 0, material.count) or false
+                    local count = bp.libraries['inventory'].getCountByIndex(item)
+                    
+                    if count and count >= material.count then
+
+                        for ii=1, material.count do
+                            synth[string.format('Ingredient %s', n)] = bp.libraries['inventory'].findItemByIndex(item).id
+                            synth[string.format('Ingredient Index %s', n)] = item
+                            n = n + 1
+
+                        end
+
+                    else
+                        return false
+
+                    end
+
+                else
+                    synth[string.format('Ingredient %s', n)] = 0
+                    synth[string.format('Ingredient Index %s', n)] = 0
+
+                end
+
+            end
+
+            -- Build _unknown1 packet data.
+            local c  = ((crystal.id % 6506) % 4238) % 4096
+            local m  = (c + 1) * 6 + 77
+            local b  = (c + 1) * 42 + 31
+            local m2 = (8 * c + 26) + (synth['Ingredient 1'] - 1) * (c + 35)
+            synth['_unknown1'] = ((m * synth['Ingredient 1'] + b + m2 * (ingredients - 1)) % 127)
+            
+            if (n-1) == ingredients then
+                bp.packets.inject(synth)
+            end
+
+        end
+
+    end
+
+    self.buyItem = function(slot, quantity)
+        local slot      = slot or false
+        local quantity  = quantity or 1
+
+        if slot and quantity > 0 then
+            windower.packets.inject_outgoing(0x083, ('iIHCCI'):pack(0x00008308, quantity, 0, slot, 0, 0))
+        end
+
+    end
+
+    self.tradeItem = function(bp, npc, total, ...)
+        local bp    = bp or false
+        local npc   = npc or false
+        local items = T{...} or false
+        local total = total or false
+        
+        if bp and npc and items and total and npc.id and npc.index then
+            local inventory = windower.ffxi.get_items(0)
+            local blocked   = T{}
+            local update    = false
+
+            -- Build the trade packet.
+            local trade = bp.packets.new('outgoing', 0x036, {
+                
+                ['Target']          = npc.id,
+                ['Target Index']    = npc.index,
+                ['Number of Items'] = total,
+
+            })
+
+            for i=1, #items do
+                
+                if items[i].name and items[i].count then
+
+                    for index, item in ipairs(inventory) do
+                        
+                        if bp.res.items[item.id] and bp.res.items[item.id].en == items[i].name then
+                            
+                            if index and item and item.id and item.count and items[i].count <= item.count and not blocked:contains(index) then
+                                trade[string.format('Item Index %s', i)] = index
+                                trade[string.format('Item Count %s', i)] = items[i].count
+                                update = true
+
+                                -- Block this index from repeating!
+                                table.insert(blocked, index)
+                                break
+
+                            end
+
+                        end
+
+                    end
+
+                    if not update then
+                        trade[string.format('Item Index %s', i)] = 0
+                        trade[string.format('Item Count %s', i)] = 0
+
+                    end
+
+                else
+                    trade[string.format('Item Index %s', i)] = 0
+                    trade[string.format('Item Count %s', i)] = 0
+
+                end
+                bp.packets.inject(trade)
+
+            end
+
+        end
+        return false
+
+    end
+
     self.canCast = function()
         local player  = windower.ffxi.get_player() or false
         local ready   = {[0]=0,[1]=1}
@@ -324,22 +462,31 @@ function actions.new()
     end
 
     self.setMoving = function(bp)
-        local player  = windower.ffxi.get_mob_by_target('me') or false
-        local ready   = {[0]=0,[1]=1,[10]=10,[11]=11,[85]=85}
+        local bp        = bp or false
+        local player    = windower.ffxi.get_mob_by_target('me') or false
+        local ready     = {[0]=0,[1]=1,[10]=10,[11]=11,[85]=85}
 
-        if player then
+        if bp and  player then
 
-            if player.x ~= self.position.x or player.y ~= self.position.y then
+            if (player.x ~= self.position.x or player.y ~= self.position.y) then
                 self.position.x   = player.x
                 self.position.y   = player.y
                 self.position.z   = player.z
                 self.moving       = true
+
+                do -- Turn the player idle they have not been moving for longer than 30 minutes.
+                    bp.helpers['idle'].activate(bp)
+                end
 
             else
                 self.position.x   = player.x
                 self.position.y   = player.y
                 self.position.z   = player.z
                 self.moving       = false
+
+                do -- Turn the player idle they have not been moving for longer than 30 minutes.
+                    bp.helpers['idle'].isIdle(bp)
+                end
 
             end
 

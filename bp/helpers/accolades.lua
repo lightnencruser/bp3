@@ -126,7 +126,7 @@ function accolades.new()
         local item      = bp.helpers['inventory'].findItemByName('Prize Powder', 0)
         local appraise  = bp.packets.new('outgoing', 0x084)
         
-        if appraise then
+        if appraise and item and n then
             self.busy = true
             
             bp.helpers['popchat'].pop(string.format('SELLING PRIZE POWDERS!', n, item.en))

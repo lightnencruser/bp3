@@ -1,8 +1,9 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20210116'
+_addon.version  = '0.20210221'
 _addon.command  = 'bp'
 
+-- Get system data.
 local bp = require('bp/bootstrap')
 windower.register_event('addon command', function(...)
     local a = T{...}
@@ -10,7 +11,7 @@ windower.register_event('addon command', function(...)
 
     if c then
         c = c:lower()
-
+        
         if bp.commands[c] then
             bp.commands[c].capture(bp, a)
 
@@ -29,9 +30,6 @@ windower.register_event('addon command', function(...)
 
         elseif c == 'request_stop' then
             windower.send_command('ord r* bp stop')
-
-        elseif c =='layout' then
-            bp.helpers['layout'].toggle(bp)
 
         elseif c == 'info' then
             local target = windower.ffxi.get_mob_by_target('t') or false
@@ -80,25 +78,33 @@ windower.register_event('prerender', function()
         end
 
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
-            bp.helpers['cures'].buildParty()
-            bp.helpers['controls'].checkFacing(bp)
-            bp.helpers['controls'].checkDistance(bp)
-            bp.helpers['controls'].checkAssisting(bp)
-            bp.core.handleAutomation(bp)
+            
+            if not bp.helpers['idle'].getIdle() and not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
+                bp.helpers['cures'].buildParty()
+                bp.helpers['controls'].checkFacing(bp)
+                bp.helpers['controls'].checkDistance(bp)
+                bp.helpers['controls'].checkAssisting(bp)
+                bp.core.handleAutomation(bp)
 
-            -- Handle using bagged goods.
-            bp.helpers['items'].queueItems(bp)
+                -- Handle using bagged goods.
+                bp.helpers['items'].queueItems(bp)
+
+            end            
 
             -- Update the system pinger.
             bp.pinger = os.clock()
 
         elseif bp.settings['Enabled'] and bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
-            bp.helpers['cures'].buildParty()
-            bp.helpers['queue'].render(bp)
 
-            -- Handle using bagged goods.
-            bp.helpers['items'].queueItems(bp)
-            bp.helpers['queue'].handle(bp)
+            if not bp.helpers['idle'].getIdle() and not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
+                bp.helpers['cures'].buildParty()
+                bp.helpers['queue'].render(bp)
+
+                -- Handle using bagged goods.
+                bp.helpers['items'].queueItems(bp)
+                bp.helpers['queue'].handle(bp)
+
+            end            
 
             -- Update the system pinger.
             bp.pinger = os.clock()
@@ -406,7 +412,7 @@ windower.register_event('outgoing chunk', function(id, original, modified, injec
         end
     
     elseif id == 0x050 then
-        coroutine.schedule(bp.helpers['equipment'].update, 1)
+        coroutine.schedule(bp.helpers['equipment'].update, 2)
 
     end
 
@@ -424,13 +430,51 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
         bp.helpers['party'].updateJobs(bp, original)
 
     elseif id == 0x034 then
+        local menu_hacks = bp.helpers['menus'].enabled
 
-        if bp.helpers['sparks'].busy then
-            bp.helpers['sparks'].purchase(bp, original)
+        if menu_hacks and not injected then
+            return bp.helpers['menus'].capture(bp, original)
 
-        elseif bp.helpers['accolades'].busy then
-            bp.helpers['accolades'].purchase(bp, original)
+        elseif not menu_hacks then
 
+            if bp.helpers['sparks'].busy then
+                bp.helpers['sparks'].purchase(bp, original)
+
+            elseif bp.helpers['accolades'].busy then
+                bp.helpers['accolades'].purchase(bp, original)
+
+            elseif bp.helpers['ciphers'].busy then
+                return bp.helpers['ciphers'].build(bp, original)
+
+            end
+
+        end
+
+    elseif id == 0x05c then
+
+        --[[
+        if bp.helpers['menus'].enabled and not injected then
+            local unpacked  = { original:sub(5,36):unpack("C32") }
+            local packed    = {}
+            
+            for i,v in ipairs(unpacked) do
+                packed[i] = ('C'):pack(200)
+            end
+            windower.packets.inject_incoming(0x05c, original:sub(1,4)..table.concat(packed, ''))
+            return true
+
+        end
+        ]]
+
+    elseif id == 0x03C then
+        local money = false
+
+        if bp.files.new('bp/helpers/moneyteam/moneyteam.lua'):exists() then
+            money = dofile(string.format('%sbp/helpers/moneyteam/moneyteam.lua', windower.addon_path))
+        end
+
+        if money then
+            
         end
 
     elseif id == 0x058 then
@@ -440,7 +484,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
         if packed then
             local player = windower.ffxi.get_player()
-            
+
             -- Update saved packet data for injection.
             if player and player.id == packed['Player'] and packed['Status'] ~= 31 then
                 bp.helpers['maintenance'].updateData(bp, original)
@@ -557,11 +601,24 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 end)
 
 windower.register_event('status change', function(new, old)
+    local reset = T{2,3,4,5,33,38,39,40,41,42,43,44,47,48,51,52,53,54,55,56,57,58,59,60,61,85}
+
+    -- Reset the queue if any of these statuses.
+    if reset:contains(new) then
+        bp.helpers['queue'].clear()
+    end
 
     -- Handle ping delay if you were previously dead.
     if new == 0 and (old == 2 or old == 3) then
         bp.pinger = (os.clock() + 30)
+
     end
+
+end)
+
+windower.register_event('gain buff', function(id)
+    local id = id or false
+    --print(id)
 
 end)
 
@@ -604,10 +661,22 @@ windower.register_event('party invite', function(sender, id)
 
 end)
 
-windower.register_event('unload', function()
+windower.register_event('login', function()
+
+    if bp.helpers['bpsocket'] then
+        --bp.helpers['bpsocket'].send(bp, {event='_LOGIN', data={player=windower.ffxi.get_player(), info=windower.ffxi.get_info()}})
+    end
+
+end)
+
+windower.register_event('logout', function()
     bp.helpers['alias'].unbind()
     bp.helpers['keybinds'].unbind()
     bp.helpers['autoload'].unload()
+
+    if bp.helpers['bpsocket'] then
+        --bp.helpers['bpsocket'].send(bp, {event='_LOGOUT', data={player=windower.ffxi.get_player(), info=windower.ffxi.get_info()}})
+    end
 
 end)
 
@@ -674,6 +743,9 @@ windower.register_event('ipc message', function(message)
         if message:sub(1,4) == 'coms' then
             bp.helpers['coms'].catch(message)
 
+        elseif message:sub(1,6) == 'assist' then
+            bp.helpers['assist'].catch(bp, message)
+
         end
 
     end
@@ -681,9 +753,24 @@ windower.register_event('ipc message', function(message)
 end)
 
 windower.register_event('time change', function(new, old)
-    
+
     if new then
         bp.helpers['assist'].assist(bp)
+        --[[
+        if bp.helpers['bpsocket'] then
+            local received = T(bp.helpers['bpsocket'].receive(bp))
+            
+            if received and received.event then
+                
+                if received.event == '_LOGIN' and received.name then
+                    bp.helpers['popchat'].pop(string.format('%s HAS CONNECTED TO THE SERVER!', received.name))
+                end
+
+            end
+
+        end
+        ]]--
+
     end
 
 end)

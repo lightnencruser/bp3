@@ -89,7 +89,7 @@ function coms.new()
         local name      = name or false
         local attempts  = attempts or 1
 
-        if self.enabled and bp and action and name and attempts then
+        if bp and action and name and attempts then
             windower.send_ipc_message(string.format('coms:::%s:::%s:::%s', name, action.en, attempts))
         end
 

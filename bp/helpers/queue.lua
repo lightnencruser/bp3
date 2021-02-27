@@ -240,6 +240,11 @@ function queue.new()
 
                 if action and action.levels then
                     required = {main=(action.levels[player.main_job_id] or 255), sub=(action.levels[player.sub_job_id] or 255)}
+
+                    if levels.main == 99 then
+                        levels.main = 100
+                    end
+
                 else
                     required = {main=0, sub=0}
                 end
@@ -305,7 +310,17 @@ function queue.new()
                                     self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                 elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+
+                                    if action.type == 'SummonerPact' then
+
+                                        if not self.typeInQueue(bp, action) then
+                                            self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+                                        end
+                                    
+                                    else
+                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+
+                                    end
 
                                 end
 
@@ -417,18 +432,23 @@ function queue.new()
 
                 if action and action.levels then
                     required = {main=(action.levels[player.main_job_id] or 255), sub=(action.levels[player.sub_job_id] or 255)}
+
+                    if levels.main == 99 then
+                        levels.main = 100
+                    end
+
                 else
                     required = {main=0, sub=0}
                 end
-
+                
                 if target and me then
                     local ranges    = helpers['actions'].getRanges(bp)
                     local distance  = (target.distance):sqrt()
                     
                     if helpers['target'].onlySelf(bp, action) and target.id ~= player.id and not helpers['buffs'].buffActive(584) and not self.inQueue(bp, bp.JA['Entrust']) then
-                        target = windower.ffxi.get_mob_by_target('me')
+                        target = windower.ffxi.get_mob_by_target('me')                        
                     end
-
+                    
                     if action_type == 'JobAbility' then
 
                         if helpers['actions'].canAct(bp) and (not self.inQueue(bp, action, target) or action.type == 'Rune') and helpers['actions'].isReady(bp, 'JA', action.en) then
@@ -454,7 +474,7 @@ function queue.new()
                     elseif action_type == 'Magic' and (levels.main >= required.main or levels.sub >= required.sub) then
                         
                         if helpers['actions'].canCast(bp) and (helpers['actions'].isReady(bp, 'MA', action.en) or action.prefix == '/song') and player['vitals'].mp > action.mp_cost then
-
+                            
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
 
                                 if action.prefix == '/song' and helpers['party'].isInParty(bp, target.id, false) then
@@ -475,7 +495,17 @@ function queue.new()
                                     self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                 elseif not self.inQueue(bp, action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                                    if action.type == 'SummonerPact' then
+
+                                        if not self.typeInQueue(bp, action) then
+                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                        end
+                                    
+                                    else
+                                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                                    end
 
                                 end
 
@@ -641,6 +671,7 @@ function queue.new()
                     
                     if helpers['target'].allowed(bp, target) then
                         local mob       = windower.ffxi.get_mob_by_id(target.id) or 999
+                        local pet       = windower.ffxi.get_mob_by_target('pet') or false
                         local distance  = mob.distance:sqrt()
                         local size      = target.model_size or 1
 
@@ -654,9 +685,16 @@ function queue.new()
                             helpers['queue'].remove(bp, res.spells[action.id], target)
 
                         elseif distance < (ranges[action.range]+size) then
-                            windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                            helpers['queue'].attempt(bp)
-                            helpers['coms'].send(bp, action, player.name, attempts)
+
+                            if T{'Carbuncle','Ifrit','Ramuh','Shiva','Garuda','Cait Sith','Leviathan','Titan','Siren','Atomos','Odin','Alexander','Fenrir','Diabolos'}:contains(action.en) and pet then
+                                helpers['queue'].remove(bp, res.spells[action.id], target)
+                            
+                            else
+                                windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
+                                helpers['queue'].attempt(bp)
+                                helpers['coms'].send(bp, action, player.name, attempts)
+
+                            end
 
                         elseif distance > (ranges[action.range]+size) then
                             helpers['queue'].remove(bp, res.spells[action.id], target)

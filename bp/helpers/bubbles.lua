@@ -507,9 +507,9 @@ function bubbles.new()
             -- HANDLE GEO-SPELLS.
             if not pet and target then
                 
-                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady(bp, "MA", bubbles[2].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[2].en]) then
+                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady(bp, 'MA', bubbles[2].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[2].en]) then
                     
-                    if self.flags.glory and bp.helpers['actions'].isReady(bp, "JA", "Blaze of Glory") then
+                    if self.flags.glory and bp.helpers['actions'].isReady(bp, 'JA', "Blaze of Glory") then
                         bp.helpers['queue'].add(bp, bp.JA['Blaze of Glory'], 'me')
                         bp.helpers['queue'].add(bp, bp.MA[bubbles[2].en], target)
 
@@ -520,28 +520,28 @@ function bubbles.new()
 
                 end
             
-            elseif pet and (pet.distance):sqrt() > (self.flags.distance+5) and self.flags.circle and bp.helpers['actions'].isReady(bp, "JA", "Full Circle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Full Circle'], 'me') then
+            elseif pet and (pet.distance):sqrt() > (self.flags.distance+5) and self.flags.circle and bp.helpers['actions'].isReady(bp, 'JA', "Full Circle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Full Circle'], 'me') then
                 bp.helpers['queue'].clear()
                 bp.helpers['queue'].addToFront(bp, bp.JA['Full Circle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady(bp, "JA", "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp, bp.JA['Ecliptic Attrition'], 'me') then
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady(bp, 'JA', "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp, bp.JA['Ecliptic Attrition'], 'me') then
                 bp.helpers['queue'].addToFront(bp, bp.JA['Ecliptic Attrition'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady(bp, "JA", "Life Cycle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Life Cycle'], 'me') then
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady(bp, 'JA', "Life Cycle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Life Cycle'], 'me') then
                 bp.helpers['queue'].addToFront(bp, bp.JA['Life Cycle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady(bp, "JA", "Dematerialize") and not bp.helpers['queue'].inQueue(bp, bp.JA['Dematerialize'], 'me') then
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady(bp, 'JA', "Dematerialize") and not bp.helpers['queue'].inQueue(bp, bp.JA['Dematerialize'], 'me') then
                 bp.helpers['queue'].addToFront(bp, bp.JA['Dematerialize'], 'me')
 
             end
 
             -- HANDLE INDI-SPELLS.
-            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady(bp, "MA", bubbles[1].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[1].en]) then
+            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady(bp, 'MA', bubbles[1].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[1].en]) then
                 bp.helpers['queue'].add(bp, bp.MA[bubbles[1].en], 'me')
             end
 
             -- HANDLE ENTRUST SPELLS.
-            if self.flags.entrust and bp.helpers['actions'].isReady(bp, "JA", "Entrust") and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[3].en]) then
+            if self.flags.entrust and bp.helpers['actions'].isReady(bp, 'JA', "Entrust") and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[3].en]) then
 
                 if bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
                     bp.helpers['queue'].add(bp, bp.JA['Entrust'], 'me')

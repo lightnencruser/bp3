@@ -17,6 +17,7 @@ function keybinds.new()
         ['@b']      = "@b bp on",
         ['@f']      = "@f bp follow",
         ['@a']      = "@a bp assist",
+        ['@m']      = "@m ord r bp mount",
         ['@s']      = "@s bp request_stop",
         ['@i']      = "@i bp party invite",
         ['@t']      = "@t bp target t",

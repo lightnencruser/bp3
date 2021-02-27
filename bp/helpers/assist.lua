@@ -13,12 +13,13 @@ function assist.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/assist/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=8}, padding=3, stroke_width=1, draggable=true}
+    self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=true}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
-    local assistance = false
+    local assistance    = false
+    local timer         = {last=0, delay=0.75}
 
     -- Private Functions
     local persist = function()
@@ -68,10 +69,10 @@ function assist.new()
     self.assist = function(bp)
         local bp = bp or false
         
-        if assistance and player.status == 0 then
+        if assistance and player.status == 0 and assistance.status == 1 then
             local ally = windower.ffxi.get_mob_by_id(assistance.id) or false
 
-            if ally and not bp.helpers['target'].getTarget() and (ally.distance):sqrt() < 15 and (ally.distance):sqrt() ~= 0 then
+            if ally and not bp.helpers['target'].getTarget() and (ally.distance):sqrt() < 25 and (ally.distance):sqrt() ~= 0 then
 
                 if ally.target_index then
                     local mob = windower.ffxi.get_mob_by_index(ally.target_index)
@@ -94,14 +95,52 @@ function assist.new()
         local player    = windower.ffxi.get_player()
 
         if bp and player and player.status == 0 and target and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(bp, target, true) then
-            assistance = target
-            bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+            
+            if (os.clock()-timer.last) < timer.delay then
+                windower.send_ipc_message(string.format('assist:::%s', target.id))
+                bp.helpers['popchat'].pop(string.format('EVERYONE NOW ASSISTING: %s!', target.name))
+
+            
+            else
+                assistance = target
+                bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+
+            end
 
         elseif bp and target and target.id and target.id == player.id then
             assistance = false
 
         elseif bp and not target then
             assistance = false
+
+        end
+        timer.last = os.clock()
+
+    end
+
+    self.catch = function(bp, message)
+        local bp        = bp or false
+        local message   = string.split(message, ':::') or false
+        local player    = windower.ffxi.get_player()
+
+        if bp and message and player and message[1] and message[1] == 'assist' then
+            local target = windower.ffxi.get_mob_by_id(message[2])
+
+            if target then
+
+                if player.status == 0 and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(bp, target, true) and (target.distance):sqrt() < 15 then
+                    assistance = target
+                    bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+
+                elseif target.id and target.id == player.id then
+                    assistance = false
+
+                end
+
+            elseif not target then
+                assistance = false
+
+            end
 
         end
 

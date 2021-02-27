@@ -10,7 +10,13 @@ return {
     ['Controllers'] = {
         '',
     },
-
+    ['Models'] = {
+        ['head']    = 0,
+        ['body']    = 0,
+        ['hands']   = 0,
+        ['legs']    = 0,
+        ['feet']    = 0,
+    },
     ['Auto Join'] = {
         '',
     },
@@ -18,7 +24,10 @@ return {
     ['helpers'] = {
 
         {name='assist',         status=true},
+        {name='bpsocket',       status=true},
         {name='coms',           status=true},
+        {name='ciphers',        status=true},
+        {name='mount',          status=true},
         {name='rolls',          status=true},
         {name='runes',          status=true},
         {name='songs',          status=true},
@@ -26,6 +35,7 @@ return {
         {name='queue',          status=true},
         {name='actions',        status=true},
         {name='inventory',      status=true},
+        {name='idle',           status=true},
         {name='target',         status=true},
         {name='buffs',          status=true},
         {name='burst',          status=true},
@@ -59,6 +69,8 @@ return {
         {name='accolades',      status=true},
         {name='items',          status=true},
         {name='roe',            status=true},
+        {name='menus',          status=true},
+        {name='empyrean',       status=true},
 
     },
 

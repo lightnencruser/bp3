@@ -106,15 +106,24 @@ function speed.new()
         local data  = data or false
         
         if bp and packet_id and data then
-            local packed = bp.packets.parse('incoming', data)
+            local packed    = bp.packets.parse('incoming', data)
+            local maint     = bp.helpers['maintenance'].enabled
             
             if packet_id == 0x037 then
             
                 if packed and packed['Movement Speed/2'] and self.enabled then
                     packed['Movement Speed/2'] = self.speed
 
+                    if bp.helpers['maintenance'].enabled then
+                        packed['Status'] = 31
+                    end
+
                 elseif packed and packed['Movement Speed/2'] and not self.enabled and packed['Movement Speed/2'] < 50 then
                     packed['Movement Speed/2'] = 50
+
+                    if bp.helpers['maintenance'].enabled then
+                        packed['Status'] = 31
+                    end
 
                 end
 
@@ -123,8 +132,16 @@ function speed.new()
                 if packed and packed['Movement Speed'] and self.enabled then
                     packed['Movement Speed'] = self.speed
 
+                    if bp.helpers['maintenance'].enabled then
+                        packed['Status'] = 31
+                    end
+
                 elseif packed and packed['Movement Speed'] and not self.enabled and packed['Movement Speed'] < 50 then
                     packed['Movement Speed'] = 50
+
+                    if bp.helpers['maintenance'].enabled then
+                        packed['Status'] = 31
+                    end
 
                 end
             

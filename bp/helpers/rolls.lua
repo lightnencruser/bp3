@@ -163,49 +163,59 @@ function rolls.new()
     end
 
     self.render = function()
+        local player = windower.ffxi.get_player()
         local render    = {}
         local trigger   = false
 
-        for i=1, (self.active:length()) do
+        if (player.main_job == 'COR' or player.sub_job == 'COR') then
 
-            if self.active[i] then
+            for i=1, (self.active:length()) do
 
-                if blink and (self.active[i].dice == 11 or self.active[i].dice == lucky[self.active[i].roll.en]) then
-                    table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.blink, self.active[i].dice, self.active[i].roll.en))
-                    trigger = true
+                if self.active[i] then
 
-                elseif (self.active[i].dice == unlucky[self.active[i].roll.en] or self.active[i].dice == 0) then
-                    table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.unlucky, self.active[i].dice, self.active[i].roll.en))
+                    if blink and (self.active[i].dice == 11 or self.active[i].dice == lucky[self.active[i].roll.en]) then
+                        table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.blink, self.active[i].dice, self.active[i].roll.en))
+                        trigger = true
 
-                else
-                    table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.important, self.active[i].dice, self.active[i].roll.en))
+                    elseif (self.active[i].dice == unlucky[self.active[i].roll.en] or self.active[i].dice == 0) then
+                        table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.unlucky, self.active[i].dice, self.active[i].roll.en))
+
+                    else
+                        table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.important, self.active[i].dice, self.active[i].roll.en))
+
+                    end
 
                 end
 
             end
 
-        end
+            if render then
+                self.display:text(table.concat(render, '\n'))
+                self.display:update()
 
-        if render then
-            self.display:text(table.concat(render, '\n'))
-            self.display:update()
+                if not self.display:visible() and self.active:length() > 0 then
+                    self.display:show()
 
-            if not self.display:visible() and self.active:length() > 0 then
-                self.display:show()
+                elseif self.active:length() == 0 then
+                    self.display:hide()
 
-            elseif self.active:length() == 0 then
-                self.display:hide()
+                end
 
             end
 
-        end
+            if not trigger then
+                blink = true
 
-        if not trigger then
-            blink = true
+            else
+                blink = false
+            
+            end
 
-        else
-            blink = false
-        
+        elseif self.display:visible() then
+            self.display:text('')
+            self.display:update()
+            self.display:hide()
+
         end
 
     end

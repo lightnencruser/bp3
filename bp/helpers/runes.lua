@@ -124,6 +124,7 @@ function runes.new()
     end
 
     self.render = function()
+        local player = windower.ffxi.get_player()
         local update = {}
         
         if (player.main_job == 'RUN' or player.sub_job == 'RUN') then
@@ -138,6 +139,11 @@ function runes.new()
             self.display:text(string.format('{%s%s%s}', (''):lpad(' ', 3), table.concat(update, '  + '), (''):rpad(' ', 3)))
             self.display:update()
             self.display:show()
+
+        elseif self.display:visible() then
+            self.display:text('')
+            self.display:update()
+            self.display:hide()
 
         end
 

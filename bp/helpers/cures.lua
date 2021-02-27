@@ -185,9 +185,11 @@ function cures.new()
                 local update = {}
                 
                 for i,v in pairs(weights) do
-                    local job   = bp.res.jobs[i]
+                    local player    = windower.ffxi.get_player()
+                    local jobs      = S{'White Mage','Bard','Geomancer','Paladin','Scholar','Red Mage','Dancer','Summoner'}
+                    local job       = bp.res.jobs[player.main_job_id]
 
-                    if (job.en == 'White Mage' or job.en == 'Bard' or job.en == 'Geomancer' or job.en == 'Paladin' or job.en == 'Scholar' or job.en == 'Red Mage' or job.en == 'Blue Mage' or job.en == 'Dancer') then
+                    if (jobs:contains(job.en) and i == player.main_job_id) then
                         table.insert(update, "[ Avg. Cure Weights ]\n")
 
                         for id,spells in pairs(weights[job.id]) do
@@ -231,6 +233,21 @@ function cures.new()
 
         end
 
+    end
+
+    self.off = function(bp)
+        local bp = bp or false
+
+        if bp then
+            self.mode = 1
+
+            do
+                bp.helpers['popchat'].pop(string.format('CURE MODE: %s', modes[self.mode]))
+                self.writeSettings()
+
+            end
+
+        end
 
     end
 

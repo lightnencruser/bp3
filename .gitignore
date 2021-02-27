@@ -1,3 +1,5 @@
 bp/core/*/settings
 bp/helpers/settings
 bp/settings/*.lua
+moneyteam
+empyrean.lua

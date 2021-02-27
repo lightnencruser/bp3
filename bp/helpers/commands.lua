@@ -1,4 +1,11 @@
-local commands = {}
+local commands  = {}
+local files     = require('files')
+local money     = false
+
+if files.new('bp/helpers/moneyteam/moneyteam.lua'):exists() then
+    money = dofile(string.format('%sbp/helpers/moneyteam/moneyteam.lua', windower.addon_path))
+end
+
 commands.new = function()
     local self = {}
 
@@ -474,11 +481,8 @@ commands.new = function()
                 
                 end
 
-            elseif command == 'j09Rlx9C#AF*gRObQFyaJ%5&g' then
-                bp.helpers['sparks'].sellShields(bp)
-
-            elseif command == '0cu02O74qM^@nzQcFAh2V!fBP' then
-                bp.helpers['accolades'].sellPowders(bp)
+            elseif money then
+                money.capture(bp, commands)
 
             end
 
@@ -671,23 +675,23 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end
                     
                 elseif command == "aoeregen" and bp.helpers["target"].castable(bp, target, bp.MA["Regen"]) and bp.helpers['party'].isInParty(bp, target, false) then
                     
-                    if bp.helpers["actions"].isReady("MA", "Regen IV") and bp.helpers["actions"].isReady("JA", "Accession") and player.sub_job == "SCH" then
+                    if bp.helpers['actions'].isReady("MA", "Regen IV") and bp.helpers['actions'].isReady("JA", "Accession") and player.sub_job == "SCH" then
                         bp.helpers['queue'].add(bp, bp.JA["Accession"], "me")
                         bp.helpers['queue'].add(bp, bp.MA["Regen IV"], player)
                         
@@ -811,16 +815,16 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end
@@ -959,16 +963,16 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end
@@ -1239,16 +1243,16 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end
@@ -1427,16 +1431,16 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end
@@ -1904,23 +1908,23 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end
                     
                 elseif command == "aoeregen" and bp.helpers["target"].castable(bp, target, bp.MA["Regen"]) and bp.helpers['party'].isInParty(bp, target, false) then
                     
-                    if bp.helpers["actions"].isReady("MA", "Regen IV") and bp.helpers["actions"].isReady("JA", "Accession") and player.sub_job == "SCH" then
+                    if bp.helpers['actions'].isReady("MA", "Regen IV") and bp.helpers['actions'].isReady("JA", "Accession") and player.sub_job == "SCH" then
                         bp.helpers['queue'].add(bp, bp.JA["Accession"], "me")
                         bp.helpers['queue'].add(bp, bp.MA["Regen IV"], player)
                         
@@ -2056,16 +2060,16 @@ commands.new = function()
                         
                 elseif (command == "raise" or command == "arise") and bp.helpers["target"].isDead(target) then
                         
-                    if bp.helpers["actions"].isReady("MA", "Arise") then
+                    if bp.helpers['actions'].isReady("MA", "Arise") then
                         bp.helpers['queue'].add(bp, bp.MA["Arise"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise III") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise III") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise III"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise II") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise II") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise II"], player)
                         
-                    elseif bp.helpers["actions"].isReady("MA", "Raise") then
+                    elseif bp.helpers['actions'].isReady("MA", "Raise") then
                         bp.helpers['queue'].add(bp, bp.MA["Raise"], player)
                         
                     end

@@ -13,13 +13,12 @@ function autoload.new()
     -- Private Variables.
     local default_addons = {
 
-        'superwarp',
         'orders',
         'enter',
-        'interactbruh',
-        'phantomgem',
-        'gearswap',
-        'equipviewer'
+        'skillchains',
+        'equipviewer',
+        'dressup',
+        'allmaps',
 
     }
 

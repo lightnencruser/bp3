@@ -63,6 +63,7 @@ return {
         {name='speed',          status=true},
         {name='stratagems',     status=true},
         {name='status',         status=true},
+        {name='sounds',         status=true},
         {name='burst',          status=true},
         {name='alias',          status=true},
         {name='sparks',         status=true},

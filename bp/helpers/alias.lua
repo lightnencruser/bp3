@@ -32,6 +32,9 @@ function alias.new()
         {'selbina',     "ord rr hp Selbina"},
         {'mha',         "ord rr hp Mhaura"},
 
+        -- Mount.
+        {'mountup',     "ord r bp mount"},
+
         -- Item commands.
         {'prisms',      "ord rr input /item 'Prism Powder' <me>"},
         {'oils',        "ord rr input /item 'Silent Oil' <me>"},

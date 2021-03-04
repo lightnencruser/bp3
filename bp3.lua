@@ -32,9 +32,13 @@ windower.register_event('addon command', function(...)
             windower.send_command('ord r* bp stop')
 
         elseif c == 'info' then
-            local target = windower.ffxi.get_mob_by_target('t') or false
+            local target    = windower.ffxi.get_mob_by_target('t') or false
+            local zone      = windower.ffxi.get_info().zone
 
-            if target then
+            if target and zone then
+                print(string.format('Target ID: %s', target.id))
+                print(string.format('Target Index: %s', target.index))
+                print(string.format('Zone ID: %s', zone))
                 table.print(target)
             end
 
@@ -72,6 +76,7 @@ windower.register_event('prerender', function()
         bp.helpers['dax'].render(bp)
         bp.helpers['coms'].render(bp)
         bp.helpers['assist'].render(bp)
+        bp.helpers['empyrean'].render(bp)
 
         if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
             bp.helpers['target'].clear()
@@ -81,6 +86,7 @@ windower.register_event('prerender', function()
             
             if not bp.helpers['idle'].getIdle() and not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
                 bp.helpers['cures'].buildParty()
+                bp.helpers['empyrean'].scan(bp)
                 bp.helpers['controls'].checkFacing(bp)
                 bp.helpers['controls'].checkDistance(bp)
                 bp.helpers['controls'].checkAssisting(bp)
@@ -421,6 +427,7 @@ end)
 windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
 
     if id == 0x00e then
+        bp.helpers['empyrean'].find(bp, original)
         return bp.helpers['models'].adjustModel(bp, original)
 
     elseif id == 0x029 then

@@ -16,9 +16,10 @@ function autoload.new()
         'orders',
         'enter',
         'skillchains',
-        'equipviewer',
-        'dressup',
         'allmaps',
+        'phantomgem',
+        'superwarp',
+        'interactbruh',
 
     }
 
@@ -119,7 +120,7 @@ function autoload.new()
             if not found then
                 table.insert(self.addons, name)
                 windower.send_command(string.format('lua load %s', name))
-                bp.helpers['popchat'].pop(string.format('ADDING %s TO THE AUTOLOAD SEQUENCE!', name))
+                bp.helpers['popchat'].pop(string.format('ADDING %s TO THE AUTOLOAD SEQUENCE!', name))            
             end
             self.writeSettings()
             persist()

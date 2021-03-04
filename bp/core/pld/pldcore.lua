@@ -502,38 +502,34 @@ function core.get()
                         -- PLD/.
                         if player.main_job == 'PLD' then
 
-                            if helpers['buffs'].buffActive(116) and helpers['buffs'].buffActive(403) then
+                            -- CALCULATE HATE TIMER.
+                            if os.clock()-timers.hate > self.getSetting('HATE DELAY') then
 
-                                -- CALCULATE HATE TIMER.
-                                if os.clock()-timers.hate > self.getSetting('HATE DELAY') then
-
-                                    -- SHIELD BASH.
-                                    if helpers['actions'].isReady(bp, 'JA', "Shield Bash") and target then
-                                        helpers['queue'].add(bp, bp.JA["Shield Bash"], target)
-                                        timers.hate = os.clock()
-                                    
-                                    -- RAMPART.
-                                    elseif not helpers['buffs'].buffActive(623) and helpers['actions'].isReady(bp, 'JA', "Rampart") and target then
-                                        helpers['queue'].add(bp, bp.JA["Rampart"], player)
-                                        timers.hate = os.clock()
-                                    
-                                    -- SENTINEL.
-                                    elseif not helpers['buffs'].buffActive(62) and helpers['actions'].isReady(bp, 'JA', "Sentinel") and target then
-                                        helpers['queue'].add(bp, bp.JA["Sentinel"], player)
-                                        timers.hate = os.clock()
-
+                                -- SHIELD BASH.
+                                if helpers['actions'].isReady(bp, 'JA', "Shield Bash") and target then
+                                    helpers['queue'].addToFront(bp, bp.JA["Shield Bash"], target)
+                                    timers.hate = os.clock()
+                                
+                                -- RAMPART.
+                                elseif not helpers['buffs'].buffActive(623) and helpers['actions'].isReady(bp, 'JA', "Rampart") and target then
+                                    helpers['queue'].addToFront(bp, bp.JA["Rampart"], player)
+                                    timers.hate = os.clock()
+                                
+                                -- SENTINEL.
+                                elseif not helpers['buffs'].buffActive(62) and helpers['actions'].isReady(bp, 'JA', "Sentinel") and target then
+                                    helpers['queue'].addToFront(bp, bp.JA["Sentinel"], player)
+                                    timers.hate = os.clock()
+                                
                                     -- PALISADE.
-                                    elseif not helpers['buffs'].buffActive(478) and helpers['actions'].isReady(bp, 'JA', "Palisade") and target then
-                                        helpers['queue'].add(bp, bp.JA["Palisade"], player)
-                                        timers.hate = os.clock()
-
+                                elseif not helpers['buffs'].buffActive(478) and helpers['actions'].isReady(bp, 'JA', "Palisade") and target then
+                                    helpers['queue'].addToFront(bp, bp.JA["Palisade"], player)
+                                    timers.hate = os.clock()
+                                
                                     -- FEALTY.
-                                    elseif not helpers['buffs'].buffActive(344) and helpers['actions'].isReady(bp, 'JA', "Fealty") and target then
-                                        helpers['queue'].add(bp, bp.JA["Fealty"], player)
-                                        timers.hate = os.clock()
-
-                                    end
-
+                                elseif not helpers['buffs'].buffActive(344) and helpers['actions'].isReady(bp, 'JA', "Fealty") and target then
+                                    helpers['queue'].addToFront(bp, bp.JA["Fealty"], player)
+                                    timers.hate = os.clock()
+                                
                                 end
 
                             end
@@ -667,6 +663,7 @@ function core.get()
                                 if not helpers['buffs'].buffActive(116) and helpers['actions'].isReady(bp, 'MA', "Phalanx") and helpers['actions'].canCast() then
                                     helpers['queue'].add(bp, bp.MA["Phalanx"], player)
 
+                                -- REPRISAL
                                 elseif not helpers['buffs'].buffActive(403) and helpers['actions'].isReady(bp, 'MA', "Reprisal") and helpers['actions'].canCast() then
                                     helpers['queue'].add(bp, bp.MA["Reprisal"], player)
 
@@ -763,20 +760,15 @@ function core.get()
                         -- /RDM.
                         elseif player.sub_job == "RDM" and helpers['actions'].canCast() then
                             
-                            if helpers['actions'].isReady(bp, 'MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
-                                helpers['queue'].addToFront(bp, bp.MA["Phalanx"], player)
+                            if helpers['buffs'].buffActive(116) and helpers['buffs'].buffActive(403) and helpers['buffs'].buffActive(621) then
 
                                 -- HASTE.
                                 if helpers['actions'].isReady(bp, 'MA', "Haste") and not helpers['buffs'].buffActive(33) then
-                                    helpers['queue'].addToFront(bp, bp.MA["Haste"], player)
+                                    helpers['queue'].add(bp, bp.MA["Haste"], player)
                                     
                                 -- REFRESH.
                                 elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, 'MA', "Refresh") and not helpers['buffs'].buffActive(43) then
-                                    helpers['queue'].addToFront(bp, bp.MA["Refresh"], player)
-                                    
-                                -- SPIKES.
-                                elseif helpers['actions'].isReady(bp, 'MA', self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('SPIKES')], player)
+                                    helpers['queue'].add(bp, bp.MA["Refresh"], player)
                                     
                                 end
 
@@ -1216,27 +1208,27 @@ function core.get()
 
                                 -- SHIELD BASH.
                                 if helpers['actions'].isReady(bp, 'JA', "Shield Bash") and target then
-                                    helpers['queue'].add(bp, bp.JA["Shield Bash"], target)
+                                    helpers['queue'].addToFront(bp, bp.JA["Shield Bash"], target)
                                     timers.hate = os.clock()
                                 
                                 -- RAMPART.
                                 elseif not helpers['buffs'].buffActive(623) and helpers['actions'].isReady(bp, 'JA', "Rampart") and target then
-                                    helpers['queue'].add(bp, bp.JA["Rampart"], player)
+                                    helpers['queue'].addToFront(bp, bp.JA["Rampart"], player)
                                     timers.hate = os.clock()
                                 
                                 -- SENTINEL.
                                 elseif not helpers['buffs'].buffActive(62) and helpers['actions'].isReady(bp, 'JA', "Sentinel") and target then
-                                    helpers['queue'].add(bp, bp.JA["Sentinel"], player)
+                                    helpers['queue'].addToFront(bp, bp.JA["Sentinel"], player)
                                     timers.hate = os.clock()
 
                                 -- PALISADE.
                                 elseif not helpers['buffs'].buffActive(478) and helpers['actions'].isReady(bp, 'JA', "Palisade") and target then
-                                    helpers['queue'].add(bp, bp.JA["Palisade"], player)
+                                    helpers['queue'].addToFront(bp, bp.JA["Palisade"], player)
                                     timers.hate = os.clock()
 
                                 -- FEALTY.
                                 elseif not helpers['buffs'].buffActive(344) and helpers['actions'].isReady(bp, 'JA', "Fealty") and target then
-                                    helpers['queue'].add(bp, bp.JA["Fealty"], player)
+                                    helpers['queue'].addToFront(bp, bp.JA["Fealty"], player)
                                     timers.hate = os.clock()
 
                                 end
@@ -1318,11 +1310,11 @@ function core.get()
                             
                             -- JETTATURA.
                             if target and helpers['actions'].isReady(bp, 'MA', "Jettatura") then
-                                helpers['queue'].add(bp, bp.MA["Jettatura"], target)
+                                helpers['queue'].addToFront(bp, bp.MA["Jettatura"], target)
                                 
                             -- BLANK GAZE.
                             elseif target and helpers['actions'].isReady(bp, 'MA', "Blank Gaze") then
-                                helpers['queue'].add(bp, bp.MA["Blank Gaze"], target)
+                                helpers['queue'].addToFront(bp, bp.MA["Blank Gaze"], target)
                                 
                             end
                             
@@ -1330,17 +1322,17 @@ function core.get()
                                 
                                 -- SOPORIFIC.
                                 if target and helpers['actions'].isReady(bp, 'MA', "Soporific") then
-                                    helpers['queue'].add(bp, bp.MA["Soporific"], target)
+                                    helpers['queue'].addToFront(bp, bp.MA["Soporific"], target)
                                     timers.hate = os.clock()
                                 
                                 -- GEIST WALL.
                                 elseif target and helpers['actions'].isReady(bp, 'MA', "Geist Wall") then
-                                    helpers['queue'].add(bp, bp.MA["Geist Wall"], target)
+                                    helpers['queue'].addToFront(bp, bp.MA["Geist Wall"], target)
                                     timers.hate = os.clock()
                                 
                                 -- JETTATURA.
                                 elseif target and helpers['actions'].isReady(bp, 'MA', "Sheep Song") then
-                                    helpers['queue'].add(bp, bp.MA["Sheep Song"], target)
+                                    helpers['queue'].addToFront(bp, bp.MA["Sheep Song"], target)
                                     timers.hate = os.clock()
                                 
                                 end
@@ -1372,11 +1364,11 @@ function core.get()
                                 if not helpers['buffs'].buffActive(116) and helpers['actions'].isReady(bp, 'MA', "Phalanx") and helpers['actions'].canCast() then
                                     helpers['queue'].add(bp, bp.MA["Phalanx"], player)
 
-                                elseif not helpers['buffs'].buffActive(403) and helpers['actions'].isReady(bp, 'MA', "Reprisal") and helpers['actions'].canCast() then
+                                elseif not helpers['buffs'].buffActive(403) and helpers['actions'].isReady(bp, 'MA', "Reprisal") and helpers['actions'].canCast() and target then
                                     helpers['queue'].add(bp, bp.MA["Reprisal"], player)
 
                                 -- MAJESTY.
-                                elseif not helpers['buffs'].buffActive(621) and helpers['actions'].isReady(bp, 'JA', "Majesty") and helpers['actions'].canAct() then
+                                elseif not helpers['buffs'].buffActive(621) and helpers['actions'].isReady(bp, 'JA', "Majesty") and helpers['actions'].canAct() and target then
                                     helpers['queue'].add(bp, bp.JA["Majesty"], player)
 
                                 end
@@ -1388,7 +1380,7 @@ function core.get()
                                     helpers['queue'].add(bp, bp.MA["Crusade"], player)
 
                                 -- ENLIGHT.
-                                elseif not helpers['buffs'].buffActive(274) then
+                                elseif not helpers['buffs'].buffActive(274) and target then
 
                                     if self.getSetting('JOB POINTS') < 100 and helpers['actions'].isReady(bp, 'MA', "Enlight") then
                                         helpers['queue'].add(bp, bp.MA["Enlight"], player)
@@ -1464,22 +1456,18 @@ function core.get()
                         -- /RDM.
                         elseif player.sub_job == "RDM" and helpers['actions'].canCast() then
                             
-                            if helpers['buffs'].buffActive(116) and helpers['buffs'].buffActive(403) then
+                            if helpers['buffs'].buffActive(116) and helpers['buffs'].buffActive(403) and helpers['buffs'].buffActive(621) then
 
                                 -- HASTE.
                                 if helpers['actions'].isReady(bp, 'MA', "Haste") and not helpers['buffs'].buffActive(33) then
-                                    helpers['queue'].addToFront(bp, bp.MA["Haste"], player)
+                                    helpers['queue'].add(bp, bp.MA["Haste"], player)
                                     
                                 -- REFRESH.
                                 elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, 'MA', "Refresh") and not helpers['buffs'].buffActive(43) then
-                                    helpers['queue'].addToFront(bp, bp.MA["Refresh"], player)
-                                    
-                                -- SPIKES.
-                                elseif helpers['actions'].isReady(bp, 'MA', self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('SPIKES')], player)
+                                    helpers['queue'].add(bp, bp.MA["Refresh"], player)
                                     
                                 end
-                                
+
                             end
                                 
                         -- /WAR.

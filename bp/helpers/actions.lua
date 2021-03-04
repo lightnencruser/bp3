@@ -627,6 +627,53 @@ function actions.new()
 
     end
 
+    self.getDirection = function(bp, x, y)
+        local facing        = windower.ffxi.get_mob_by_target("me").facing
+        local directions    = {"E","NE","N","NW","W","SW","S","SE"}
+        --[[
+        if facing < 0 then
+            facing = bpcore:round((-facing), 1)
+        else
+            facing = bpcore:round(((2*pi)-facing), 1)
+        end
+
+        -- EAST.
+        if (facing <= 0.3 or facing >= 6) then
+            return directions[1]
+
+        -- NORTH-EAST.
+        elseif (facing > 0.3 and facing <= 1.4) then
+            return directions[2]
+
+        -- NORTH.
+        elseif (facing > 1.4 and facing <= 2.0) then
+            return directions[3]
+
+        -- NORTH-WEST.
+        elseif (facing > 2.0 and facing <= 2.8) then
+            return directions[4]
+
+        -- WEST.
+        elseif (facing > 2.8 and facing <= 3.5) then
+            return directions[5]
+
+        -- SOUTH-WEST.
+        elseif (facing > 3.5 and facing <= 4.3) then
+            return directions[6]
+
+        -- SOUTH.
+        elseif (facing > 4.3 and facing <= 5.1) then
+            return directions[7]
+
+        -- SOUTH-EAST.
+        elseif (facing > 5.1 and facing < 6.0) then
+            return directions[8]
+
+        end
+        ]]--
+
+    end
+
     return self
 
 end

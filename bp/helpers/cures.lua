@@ -575,7 +575,6 @@ function cures.new()
             local missing   = 0         
             
             if self.mode == 2 and count > 0 then
-                local id = false
 
                 if count < 3 and (player.main_job == "WHM" or player.main_job == "RDM" or player.main_job == "SCH" or player.main_job == "PLD" or player.sub_job == "WHM" or player.sub_job == "RDM" or player.sub_job == "SCH" or player.sub_job == "PLD") and player.main_job ~= "DNC" then
                     
@@ -699,9 +698,9 @@ function cures.new()
 
                     end
     
-                    if missing > 0 then
+                    if missing > 0 and target and target.id then
                         local cure   = self.estimateWaltzga(bp, missing, count) or false
-                        local target = windower.ffxi.get_mob_by_id(id) or false
+                        local target = windower.ffxi.get_mob_by_id(target.id) or false
                         
                         if cure and target then
                             
@@ -725,7 +724,6 @@ function cures.new()
             
             elseif self.mode == 3 and count > 0 then
                 local missing   = 0
-                local id        = false
                 
                 if count < 3 then
                     
@@ -804,9 +802,9 @@ function cures.new()
 
                     end
     
-                    if missing > 0 then
+                    if missing > 0 and target and target.id then
                         local cure   = self.estimateCuraga(bp, missing, count) or false
-                        local target = windower.ffxi.get_mob_by_id(id) or false
+                        local target = windower.ffxi.get_mob_by_id(target.id) or false
                         
                         if cure and target then
                             
@@ -853,9 +851,9 @@ function cures.new()
 
                     end
     
-                    if missing > 0 then
+                    if missing > 0 and target and target.id then
                         local cure   = self.estimateWaltzga(bp, missing, count) or false
-                        local target = windower.ffxi.get_mob_by_id(id) or false
+                        local target = windower.ffxi.get_mob_by_id(target.id) or false
                         
                         if cure and target then
                             

@@ -59,6 +59,9 @@ function rolls.new()
 
                 end
 
+            else
+                bp.helpers['rolls'].toggle(bp)
+
             end
 
         end

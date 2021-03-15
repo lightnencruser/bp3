@@ -502,6 +502,16 @@ function core.get()
                         -- PLD/.
                         if player.main_job == 'PLD' then
 
+                            -- FLASH.
+                            if target and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Flash") then
+                                helpers['queue'].addToFront(bp, bp.MA["Flash"], target)
+
+                                if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', "Divine Emblem") then
+                                    helpers['queue'].addToFront(bp, bp.JA["Divine Emblem"], player)
+                                end
+
+                            end
+
                             -- CALCULATE HATE TIMER.
                             if os.clock()-timers.hate > self.getSetting('HATE DELAY') then
 
@@ -553,7 +563,7 @@ function core.get()
 
                             -- FLASH.
                             if target and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Flash") then
-                                helpers['queue'].addToFront(bp, bp.MA["Flash"], target)                            
+                                helpers['queue'].addToFront(bp, bp.MA["Flash"], target)
                             end
                             
                             if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
@@ -881,7 +891,7 @@ function core.get()
                             end
                         
                         -- /COR.
-                        elseif player.sub_job == "COR" and helpers['actions'].canAct() then
+                        elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
                             local rolls     = helpers['rolls'].rolls
                             local active    = helpers['rolls'].active
                             local buffs     = helpers['rolls'].getActive(bp)
@@ -934,16 +944,20 @@ function core.get()
                         elseif player.sub_job == "NIN" then
                         
                             -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) then
+                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
                                 
                                 if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                     
-                                    if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                        
-                                    elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                        
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                            
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                            
+                                        end
+
                                     end
                                 
                                 end
@@ -1200,7 +1214,12 @@ function core.get()
 
                             -- FLASH.
                             if target and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Flash") then
-                                helpers['queue'].addToFront(bp, bp.MA["Flash"], target)                            
+                                helpers['queue'].addToFront(bp, bp.MA["Flash"], target)
+
+                                if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', "Divine Emblem") then
+                                    helpers['queue'].addToFront(bp, bp.JA["Divine Emblem"], player)
+                                end
+
                             end
 
                             -- CALCULATE HATE TIMER.
@@ -1577,7 +1596,7 @@ function core.get()
                             end
                         
                         -- /COR.
-                        elseif player.sub_job == "COR" and helpers['actions'].canAct() then
+                        elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
                             local rolls     = helpers['rolls'].rolls
                             local active    = helpers['rolls'].active
                             local buffs     = helpers['rolls'].getActive(bp)
@@ -1630,16 +1649,20 @@ function core.get()
                         elseif player.sub_job == "NIN" then
                         
                             -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) then
+                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
                                 
                                 if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                     
-                                    if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: Ni"]) and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: Ichi"]) and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: San"]) then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                        
-                                    elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                        
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                            
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                            
+                                        end
+
                                     end
                                 
                                 end

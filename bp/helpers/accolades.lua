@@ -97,7 +97,7 @@ function accolades.new()
 
                     else
                         purchase.quantity = math.floor((purchase.buy+((quantity-1) * 8192))%65536)
-                        purchase.unknown1 = math.floor((purchase.buy+(quantity * 8192))/65536)
+                        purchase.unknown1 = math.floor((purchase.buy+(quantity * 8192))/65536)-1
 
                     end
 

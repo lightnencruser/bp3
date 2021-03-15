@@ -42,6 +42,22 @@ windower.register_event('addon command', function(...)
                 table.print(target)
             end
 
+        elseif c == 'merit' then
+            bp.packets.inject(bp.packets.new('outgoing', 0x0BE, {['_unknown1']=0x03, ['Flag']=1, ['Merit Point']=0x22}))
+
+        elseif c == 'lofi' then
+            local setup = {'load config','load wincontrol','config AnimationFrameRate 3','config FrameRateDivisor 3','config AutoDisconnectTime 0','config FootstepEffects false','wincontrol move 0 0','wincontrol resize 640 540'}
+            
+            for i=1, #setup do
+                
+                if setup[i] then
+                    windower.send_command(setup[i])
+                    coroutine.sleep(0.25)
+
+                end
+            
+            end
+
         elseif (c == 'r' or c == 'reload') then
             windower.send_command('lua r bp3')
 
@@ -659,12 +675,17 @@ windower.register_event('job change', function(...)
 
 end)
 
+windower.register_event('incoming text', function(original, modified, o_mode, m_mode, blocked)
+    bp.helpers['empyrean'].parseText(bp, original, o_mode)
+
+end)
+
 windower.register_event('party invite', function(sender, id)
-    local whitelist = T(bp.settings['Auto Join'])
+    --local whitelist = T(bp.settings['Auto Join'])
     
-    if whitelist and whitelist:contains(sender) then
+    --if whitelist and whitelist:contains(sender) then
         windower.send_command('wait 0.5; input /join')
-    end
+    --end
 
 end)
 

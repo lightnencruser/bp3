@@ -828,7 +828,7 @@ function core.get()
                             end
                         
                         -- /COR.
-                        elseif player.sub_job == "COR" and helpers['actions'].canAct() then
+                        elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
                             local rolls     = helpers['rolls'].rolls
                             local active    = helpers['rolls'].active
                             local buffs     = helpers['rolls'].getActive(bp)
@@ -881,16 +881,20 @@ function core.get()
                         elseif player.sub_job == "NIN" then
                         
                             -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) then
+                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
                                 
                                 if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                     
-                                    if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: Ni"]) and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: Ichi"]) and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: San"]) then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                        
-                                    elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                        
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                            
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                            
+                                        end
+
                                     end
                                 
                                 end
@@ -1271,26 +1275,57 @@ function core.get()
                         -- WHM/.
                         if player.main_job == 'WHM' and helpers['actions'].canCast() then
 
-                            -- PROTECT.
-                            if not helpers['buffs'].buffActive(40) and helpers['actions'].isReady(bp, 'MA', "Protectra V") then
-                                helpers['queue'].add(bp, bp.MA["Protectra V"], player)
+                            if player.sub_job == 'SCH' then
 
-                            -- SHELL.
-                            elseif not helpers['buffs'].buffActive(41) and helpers['actions'].isReady(bp, 'MA', "Shellra V") then
-                                helpers['queue'].add(bp, bp.MA["Shellra V"], player)
+                                -- PROTECT.
+                                if not helpers['buffs'].buffActive(40) and helpers['actions'].isReady(bp, 'MA', "Protectra V") then
+                                    helpers['queue'].add(bp, bp.MA["Protectra V"], player)
 
-                            -- HASTE.
-                            elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady(bp, 'MA', "Haste") then
-                                helpers['queue'].add(bp, bp.MA["Haste"], player)
+                                -- SHELL.
+                                elseif not helpers['buffs'].buffActive(41) and helpers['actions'].isReady(bp, 'MA', "Shellra V") then
+                                    helpers['queue'].add(bp, bp.MA["Shellra V"], player)
 
-                            elseif not helpers['buffs'].buffActive(113) then
-                                
-                                if self.getSetting('JOB POINTS') > 99 and helpers['actions'].isReady(bp, 'MA', "Reraise IV") then
-                                    helpers['queue'].add(bp, bp.MA["Reraise IV"], player)
+                                -- HASTE.
+                                elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady(bp, 'MA', "Haste") then
+                                    helpers['queue'].add(bp, bp.MA["Haste"], player)
+
+                                elseif not helpers['buffs'].buffActive(113) then
                                     
+                                    if self.getSetting('JOB POINTS') > 99 and helpers['actions'].isReady(bp, 'MA', "Reraise IV") then
+                                        helpers['queue'].add(bp, bp.MA["Reraise IV"], player)
+                                        
 
-                                elseif self.getSetting('JOB POINTS') < 100 and helpers['actions'].isReady(bp, 'MA', "Reraise III") then
-                                    helpers['queue'].add(bp, bp.MA["Reraise III"], player)
+                                    elseif self.getSetting('JOB POINTS') < 100 and helpers['actions'].isReady(bp, 'MA', "Reraise III") then
+                                        helpers['queue'].add(bp, bp.MA["Reraise III"], player)
+
+                                    end
+
+                                end
+
+                            else
+
+                                -- PROTECT.
+                                if not helpers['buffs'].buffActive(40) and helpers['actions'].isReady(bp, 'MA', "Protectra V") then
+                                    helpers['queue'].add(bp, bp.MA["Protectra V"], player)
+
+                                -- SHELL.
+                                elseif not helpers['buffs'].buffActive(41) and helpers['actions'].isReady(bp, 'MA', "Shellra V") then
+                                    helpers['queue'].add(bp, bp.MA["Shellra V"], player)
+
+                                -- HASTE.
+                                elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady(bp, 'MA', "Haste") then
+                                    helpers['queue'].add(bp, bp.MA["Haste"], player)
+
+                                elseif not helpers['buffs'].buffActive(113) then
+                                    
+                                    if self.getSetting('JOB POINTS') > 99 and helpers['actions'].isReady(bp, 'MA', "Reraise IV") then
+                                        helpers['queue'].add(bp, bp.MA["Reraise IV"], player)
+                                        
+
+                                    elseif self.getSetting('JOB POINTS') < 100 and helpers['actions'].isReady(bp, 'MA', "Reraise III") then
+                                        helpers['queue'].add(bp, bp.MA["Reraise III"], player)
+
+                                    end
 
                                 end
 
@@ -1481,7 +1516,7 @@ function core.get()
                             end
                         
                         -- /COR.
-                        elseif player.sub_job == "COR" and helpers['actions'].canAct() then
+                        elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
                             local rolls     = helpers['rolls'].rolls
                             local active    = helpers['rolls'].active
                             local buffs     = helpers['rolls'].getActive(bp)
@@ -1534,16 +1569,20 @@ function core.get()
                         elseif player.sub_job == "NIN" then
                         
                             -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) then
+                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
                                 
                                 if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                     
-                                    if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: Ni"]) and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: Ichi"]) and not helpers['queue'].inQueue(bp, bp.MA["Utsusemi: San"]) then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                        
-                                    elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") then
-                                        helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                        
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                            
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                            
+                                        end
+
                                     end
                                 
                                 end

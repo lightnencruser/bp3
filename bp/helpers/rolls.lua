@@ -21,6 +21,7 @@ function rolls.new()
     self.unlucky    = string.format('%s,%s,%s', 235, 30, 60)
 
     -- Public Variables.
+    self.enabled    = false
     self.rolls      = self.settings.rolls or {self.allowed[109], self.allowed[105]}
     self.crooked    = self.settings.crooked or false
     self.cap        = self.settings.cap or 7
@@ -495,6 +496,24 @@ function rolls.new()
 
         if self.display[i] and not self.display:visible() then
             self.display:show()
+        end
+
+    end
+
+    self.toggle = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            if self.enabled then
+                self.enabled = false
+
+            else
+                self.enabled = true
+
+            end
+            bp.helpers['popchat'].pop(string.format('CORSAIR ROLLS: %s', tostring(self.enabled)))
+
         end
 
     end

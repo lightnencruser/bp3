@@ -42,9 +42,6 @@ windower.register_event('addon command', function(...)
                 table.print(target)
             end
 
-        elseif c == 'merit' then
-            bp.packets.inject(bp.packets.new('outgoing', 0x0BE, {['_unknown1']=0x03, ['Flag']=1, ['Merit Point']=0x22}))
-
         elseif c == 'lofi' then
             local setup = {'load config','load wincontrol','config AnimationFrameRate 3','config FrameRateDivisor 3','config AutoDisconnectTime 0','config FootstepEffects false','wincontrol move 0 0','wincontrol resize 640 540'}
             

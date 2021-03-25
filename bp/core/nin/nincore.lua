@@ -13,14 +13,14 @@ function core.get()
     local self = {}
 
     -- Static Variables
-    self.settings   = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job, player.name))
-    self.layout     = self.settings.layout or {pos={x=5, y=5}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=245, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=8, stroke_width=1, draggable=false}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.config     = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.important  = string.format('%s,%s,%s', 25, 200, 200)
+    self.settings       = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job, player.name))
+    self.layout         = self.settings.layout or {pos={x=5, y=5}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=245, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=8, stroke_width=1, draggable=false}
+    self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.config         = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important      = string.format('%s,%s,%s', 25, 200, 200)
 
     -- Private Variables.
-    local timers     = {hate=0, steps=0}
+    local timers        = {hate=0, steps=0}
 
     -- Public Variables
     self["JOB POINTS"]          = windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent
@@ -29,14 +29,14 @@ function core.get()
     self["1HR"]                 = self.settings["1HR"] or {{false,true}, false}
     self["JA"]                  = self.settings["JA"] or {{false,true}, true}
     self["RA"]                  = self.settings["RA"] or {{false,true}, false}
-    self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
+    self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, false}
     self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
     self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
     self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
     self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
     self["WS"]                  = self.settings["WS"] or {{false,true}, false}
-    self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
-    self["RANGED WS"]           = self.settings["RANGED WS"] or "Leaden Salute"
+    self["WSNAME"]              = self.settings["WSNAME"] or "Blade: Chi"
+    self["RANGED WS"]           = self.settings["RANGED WS"] or "Empyreal Arrow"
     self["TP THRESHOLD"]        = self.settings["TP THRESHOLD"] or 1000
     self["SC"]                  = self.settings["SC"] or {{false,true}, false}
     self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
@@ -46,7 +46,7 @@ function core.get()
     self["DRAINS"]              = self.settings["DRAINS"] or {{false,true}, false}
     self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
     self["TANK MODE"]           = self.settings["TANK MODE"] or {{false,true}, false}
-    self["SEKKA"]               = self.settings["SEKKA"] or "Evisceration"
+    self["SEKKA"]               = self.settings["SEKKA"] or "Blade: Ku"
     self["SHADOWS"]             = self.settings["SHADOWS"] or {{false,true}, false}
     self["FOOD"]                = self.settings["FOOD"] or {{"Sublime Sushi","Sublime Sushi +1","None"}, "Sublime Sushi"}
     self["SAMBAS"]              = self.settings["SAMBAS"] or {{"Drain Samba II","Haste Samba"}, "Haste Samba"}
@@ -55,7 +55,7 @@ function core.get()
     self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing","Divine","Enfeebling","Elemental","Dark","Singing","Summoning","Blue","Geomancy"}, "Enhancing"}
     self["COMPOSURE"]           = self.settings["COMPOSURE"] or {{true,false}, true}
     self["CONVERT"]             = self.settings["CONVERT"] or {{true,false}, false}
-    self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater","None"}, "Enfire"}
+    self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater","None"}, "None"}
     self["GAINS"]               = self.settings["GAINS"] or {{"Gain-DEX","Gain-STR","Gain-MND","Gain-INT","Gain-AGI","Gain-VIT","Gain-CHR","None"}, "Gain-DEX"}
     self["SPIKES"]              = self.settings["SPIKES"] or {{"None","Blaze Spikes","Ice Spikes","Shock Spikes","None"}, "None"}
     self["DIA"]                 = self.settings["DIA"] or {{"Dia","Bio"}, "Dia"}
@@ -69,11 +69,11 @@ function core.get()
     self["AOEHATE"]             = self.settings["AOEHATE"] or {{false,true}, false}
     self["EMBOLDEN"]            = self.settings["EMBOLDEN"] or {{"Palanx","Temper","Regen IV"}, "Phalanx"}
     self["BLU MODE"]            = self.settings["BLU MODE"] or {{"DPS","NUKE"}, "DPS"}
-    self["MIGHTY GUARD"]        = self.settings["MIGHTY GUARD"] or {{true,false}, true}
+    self["MIGHTY GUARD"]        = self.settings["MIGHTY GUARD"] or {{true,false}, false}
     self["CHIVALRY"]            = self.settings["CHIVALRY"] or {{1000,1500,2000,2500,3000}, 2000}
-    self["WEATHER"]             = self.settings["WEATHER"] or {{"Firestorm","Hailstorm","Windstorm","Sandstorm","Thunderstorm","Rainstorm","Voidstorm","Aurorastorm","None"}, "Aurorastorm"}
+    self["WEATHER"]             = self.settings["WEATHER"] or {{"Firestorm","Hailstorm","Windstorm","Sandstorm","Thunderstorm","Rainstorm","Voidstorm","Aurorastorm","None"}, "None"}
     self["ARTS"]                = self.settings["ARTS"] or {{"Light Arts","Dark Arts"}, "Light Arts"}
-    self["ADDENDUM"]            = self.settings["ADDENDUM"] or {{"Addendum: White","Addendum: Black","None"}, "Addendum: White"}
+    self["ADDENDUM"]            = self.settings["ADDENDUM"] or {{"Addendum: White","Addendum: Black","None"}, "None"}
     self["MISERY"]              = self.settings["MISERY"] or {{false,true}, false}
     self["IMPETUS WS"]          = self.settings["IMPETUS WS"] or "Raging Fists"
     self["FOOTWORK WS"]         = self.settings["FOOTWORK WS"] or "Tornado Kick"
@@ -87,6 +87,9 @@ function core.get()
     self["STEPS DELAY"]         = self.settings["HATE DELAY"] or 20
     self["CONVERT HPP"]         = self.settings["CONVERT HPP"] or 40
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
+    self["NIN TOOLS"]           = self.settings["NIN TOOLS"] or {{false,true}, false}
+    self["STONESKIN"]           = self.settings["STONESKIN"] or {{false,true}, false}
+    self["UTSU BLOCK"]          = {last=0, delay=3}
 
     -- MAGIC BURST SPELLS.
     self["MAGIC BURST"]={
@@ -111,8 +114,7 @@ function core.get()
             self.settings["AM LEVEL"]           = self["AM LEVEL"]
             self.settings["1HR"]                = self["1HR"]
             self.settings["JA"]                 = self["JA"]
-            self.settings["RA"]                 = self["RA"]
-            
+            self.settings["RA"]                 = self["RA"]            
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
             self.settings["BUFFS"]              = self["BUFFS"]
@@ -172,6 +174,8 @@ function core.get()
             self.settings["STEPS DELAY"]        = self["HATE DELAY"]
             self.settings["CONVERT HPP"]        = self["CONVERT HPP"]
             self.settings["CONVERT MPP"]        = self["CONVERT MPP"]
+            self.settings["NIN TOOLS"]          = self["NIN TOOLS"]
+            self.settings["STONESKIN"]          = self["STONESKIN"]
 
         end
 
@@ -605,64 +609,168 @@ function core.get()
                         
                         -- NIN/.
                         if player.main_job == 'NIN' then
+                            local space = helpers['inventory'].hasSpace()
+
+                            if self.getSetting('SHADOWS') and helpers['actions'].canCast() and not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
+                                
+                                -- UTSUSEMI
+                                if helpers['inventory'].findItemByName("Shihei", 0) and (os.clock()-self['UTSU BLOCK'].last) > self['UTSU BLOCK'].delay then
+                                    
+
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+                                        
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: San"], player)
+
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                                
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                                
+                                        end
+                                    
+                                    end
+
+                                elseif space and helpers['actions'].canItem() and helpers['inventory'].findItemByName("Toolbag (Shihe)") and not helpers['inventory'].findItemByName("Shihe") then
+                                    helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shihe)"], player)
+
+                                end
+
+                            else
+                                
+                                if helpers['actions'].canAct() and (self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(420)) or (not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(421)) then
+                                    
+                                    if self.getSetting('TANK MODE') and helpers['actions'].isReady(bp, 'JA', "Yonin") then
+                                        helpers['queue'].addToFront(bp, bp.JA["Yonin"], player)
+
+                                    elseif helpers['actions'].isReady(bp, 'JA', "Innin") then
+                                        helpers['queue'].addToFront(bp, bp.JA["Innin"], player)
+
+                                    end
+
+                                else
+                                    
+                                    if target and helpers['actions'].isReady(bp, 'JA', "Issekigan") and not helpers['buffs'].buffActive(484) and helpers['actions'].canAct() then
+                                        helpers['queue'].add(bp, bp.JA["Issekigan"], player)
+
+                                    elseif target and self.getSetting('NIN TOOLS') and self.getSetting('TANK MODE') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Gekka: Ichi") and not helpers['buffs'].buffActive(289) then
+                                        
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Gekka: Ichi"], player)
+
+                                        elseif space and helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    elseif target and self.getSetting('NIN TOOLS') and not self.getSetting('TANK MODE') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Yain: Ichi") and not helpers['buffs'].buffActive(171) then
+                                        
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Yain: Ichi"], player)
+
+                                        elseif space and  helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    elseif target and self.getSetting('NIN TOOLS') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Migawari: Ichi") and not helpers['buffs'].buffActive(471) then
+
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Migawari: Ichi"], player)
+
+                                        elseif space and helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    elseif target and self.getSetting('NIN TOOLS') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Myoshu: Ichi") and not helpers['buffs'].buffActive(290) then
+
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Myoshu: Ichi"], player)
+
+                                        elseif space and helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    end
+
+                                end
+
+                            end
                            
                         end
                         
                         -- /SCH.
                         if player.sub_job == "SCH" then
                             
-                            -- LIGHT ARTS.
-                            if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                            
-                            -- DARK ARTS.
-                            elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                            -- ARTS.
+                            if helpers['actions'].canAct() and self.getSetting('ARTS') == "Light Arts" and not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and not helpers['buffs'].buffActive(402) then
+
+                                if self.getSetting('ARTS') == "Light Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and self.getSetting('ARTS') == "Dark Arts" and not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(401) and not helpers['buffs'].buffActive(402) then
+
+                                if self.getSetting('ARTS') == "Dark Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Addendum: White' and helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and helpers["stratagems"].gems.current > 0 then
                                 
-                            -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
-                                            
-                                if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                elseif self.getSetting('ADDENDUM') == "Addendum: Black" and not helpers['buffs'].buffActive(402) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
                                 end
                                 
-                            -- STORMS.
-                            elseif helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Addendum: Black' and helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402) and helpers["stratagems"].gems.current > 0 then
+
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
+                                end
+
+                            elseif helpers['buffs'].buffActive(401) or helpers['buffs'].buffActive(402) then
                                 
-                                if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                -- STORMS.
+                                if helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
                                     
-                                elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                    if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    end
+                                
+                                -- KLIMAFORM
+                                elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) and target then
+                                    helpers['queue'].add(bp, bp.MA["Klimaform"], player)
+
+                                -- STONESKIN.
+                                elseif self.getSetting('STONESKIN') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady(bp, 'MA', "Stoneskin") then
+                                    helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
                                     
                                 end
-                            
-                            -- KLIMAFORM
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
-                                helpers['queue'].add(bp, bp.MA["Klimaform"], player)
-                                
+
                             end
                         
                         -- /RDM.
@@ -672,13 +780,6 @@ function core.get()
                             if helpers['actions'].isReady(bp, 'MA', "Haste") and not helpers['buffs'].buffActive(33) then
                                 helpers['queue'].addToFront(bp, bp.MA["Haste"], player)
                             
-                            -- ENSPELLS.
-                            elseif (not helpers['buffs'].buffActive(94) and not helpers['buffs'].buffActive(95) and not helpers['buffs'].buffActive(96) and not helpers['buffs'].buffActive(97) and not helpers['buffs'].buffActive(98) and not helpers['buffs'].buffActive(99)) then
-                                
-                                if helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) then
-                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
-                                end
-                            
                             -- PHALANX.
                             elseif helpers['actions'].isReady(bp, 'MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
                                 helpers['queue'].addToFront(bp, bp.MA["Phalanx"], player)
@@ -686,9 +787,32 @@ function core.get()
                             -- REFRESH.
                             elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, 'MA', "Refresh") and not helpers['buffs'].buffActive(43) then
                                 helpers['queue'].addToFront(bp, bp.MA["Refresh"], player)
+
+                            -- ENSPELLS.
+                            elseif self.getSetting('ENSPELL') ~= 'None' then
+                                    
+                                if self.getSetting('ENSPELL') ~= 'Enfire' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(94) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enblizzard' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(95) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enaero' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(96) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enstone' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(97) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enthunder' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(98) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enwater' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(99) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                end
                                 
                             -- STONESKIN.
-                            elseif helpers['actions'].isReady(bp, 'MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
+                            elseif self.getSetting('STONESKIN') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady(bp, 'MA', "Stoneskin") then
                                 helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
                                 
                             -- SPIKES.
@@ -846,26 +970,34 @@ function core.get()
                         
                         -- /NIN.
                         elseif player.sub_job == "NIN" then
-                        
-                            -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
-                                
-                                if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
-                                    
-                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
-
-                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
-                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                            
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
-                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                            
-                                        end
-
-                                    end
-                                
-                                end
+                            local space = helpers['inventory'].hasSpace()
                             
+                            if self.getSetting('SHADOWS') and helpers['actions'].canCast() and not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
+                                
+                                -- UTSUSEMI
+                                if helpers['inventory'].findItemByName("Shihei", 0) and (os.clock()-self['UTSU BLOCK'].last) > self['UTSU BLOCK'].delay then
+                                    
+
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+                                        
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: San"], player)
+
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                                
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                                
+                                        end
+                                    
+                                    end
+
+                                elseif space and helpers['actions'].canItem() and helpers['inventory'].findItemByName("Toolbag (Shihe)") and not helpers['inventory'].findItemByName("Shihe") then
+                                    helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shihe)"], player)
+
+                                end
+
                             end
                         
                         end
@@ -1232,64 +1364,168 @@ function core.get()
                         
                         -- NIN/.
                         if player.main_job == 'NIN' then
+                            local space = helpers['inventory'].hasSpace()
+
+                            if self.getSetting('SHADOWS') and helpers['actions'].canCast() and not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
+                                
+                                -- UTSUSEMI
+                                if helpers['inventory'].findItemByName("Shihei", 0) and (os.clock()-self['UTSU BLOCK'].last) > self['UTSU BLOCK'].delay then
+                                    
+
+                                    if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+                                        
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: San"], player)
+
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
+                                                
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
+                                                
+                                        end
+                                    
+                                    end
+
+                                elseif space and helpers['actions'].canItem() and helpers['inventory'].findItemByName("Toolbag (Shihe)") and not helpers['inventory'].findItemByName("Shihe") then
+                                    helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shihe)"], player)
+
+                                end
+
+                            else
+                                
+                                if helpers['actions'].canAct() and (self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(420)) or (not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(421)) then
+                                    
+                                    if self.getSetting('TANK MODE') and helpers['actions'].isReady(bp, 'JA', "Yonin") then
+                                        helpers['queue'].addToFront(bp, bp.JA["Yonin"], player)
+
+                                    elseif helpers['actions'].isReady(bp, 'JA', "Innin") then
+                                        helpers['queue'].addToFront(bp, bp.JA["Innin"], player)
+
+                                    end
+
+                                else
+                                    
+                                    if target and helpers['actions'].isReady(bp, 'JA', "Issekigan") and not helpers['buffs'].buffActive(484) and helpers['actions'].canAct() then
+                                        helpers['queue'].add(bp, bp.JA["Issekigan"], player)
+
+                                    elseif target and self.getSetting('NIN TOOLS') and self.getSetting('TANK MODE') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Gekka: Ichi") and not helpers['buffs'].buffActive(289) then
+                                        
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Gekka: Ichi"], player)
+
+                                        elseif space and helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    elseif target and self.getSetting('NIN TOOLS') and not self.getSetting('TANK MODE') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Yain: Ichi") and not helpers['buffs'].buffActive(171) then
+                                        
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Yain: Ichi"], player)
+
+                                        elseif space and  helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    elseif target and self.getSetting('NIN TOOLS') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Migawari: Ichi") and not helpers['buffs'].buffActive(471) then
+
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Migawari: Ichi"], player)
+
+                                        elseif space and helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    elseif target and self.getSetting('NIN TOOLS') and helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', "Myoshu: Ichi") and not helpers['buffs'].buffActive(290) then
+
+                                        if helpers['inventory'].findItemByName('Shikanofuda') then
+                                            helpers['queue'].add(bp, bp.MA["Myoshu: Ichi"], player)
+
+                                        elseif space and helpers['actions'].canItem() and not helpers['inventory'].findItemByName('Shikanofuda') and helpers['inventory'].findItemByName("Toolbag (Shika)") then
+                                            helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shika)"], player)
+
+                                        end
+
+                                    end
+
+                                end
+
+                            end
                            
                         end
                         
                         -- /SCH.
                         if player.sub_job == "SCH" then
                             
-                            -- LIGHT ARTS.
-                            if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                            
-                            -- DARK ARTS.
-                            elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                            -- ARTS.
+                            if helpers['actions'].canAct() and self.getSetting('ARTS') == "Light Arts" and not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and not helpers['buffs'].buffActive(402) then
+
+                                if self.getSetting('ARTS') == "Light Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and self.getSetting('ARTS') == "Dark Arts" and not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(401) and not helpers['buffs'].buffActive(402) then
+
+                                if self.getSetting('ARTS') == "Dark Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Addendum: White' and helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and helpers["stratagems"].gems.current > 0 then
                                 
-                            -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
-                                            
-                                if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                elseif self.getSetting('ADDENDUM') == "Addendum: Black" and not helpers['buffs'].buffActive(402) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
                                 end
                                 
-                            -- STORMS.
-                            elseif helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Addendum: Black' and helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402) and helpers["stratagems"].gems.current > 0 then
+
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
+                                end
+
+                            elseif helpers['buffs'].buffActive(401) or helpers['buffs'].buffActive(402) then
                                 
-                                if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                -- STORMS.
+                                if helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
                                     
-                                elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                    if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    end
+                                
+                                -- KLIMAFORM
+                                elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) and target then
+                                    helpers['queue'].add(bp, bp.MA["Klimaform"], player)
+
+                                -- STONESKIN.
+                                elseif self.getSetting('STONESKIN') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady(bp, 'MA', "Stoneskin") then
+                                    helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
                                     
                                 end
-                            
-                            -- KLIMAFORM
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
-                                helpers['queue'].add(bp, bp.MA["Klimaform"], player)
-                                
+
                             end
                         
                         -- /RDM.
@@ -1299,13 +1535,6 @@ function core.get()
                             if helpers['actions'].isReady(bp, 'MA', "Haste") and not helpers['buffs'].buffActive(33) then
                                 helpers['queue'].addToFront(bp, bp.MA["Haste"], player)
                             
-                            -- ENSPELLS.
-                            elseif (not helpers['buffs'].buffActive(94) and not helpers['buffs'].buffActive(95) and not helpers['buffs'].buffActive(96) and not helpers['buffs'].buffActive(97) and not helpers['buffs'].buffActive(98) and not helpers['buffs'].buffActive(99)) then
-                                
-                                if helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) then
-                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
-                                end
-                            
                             -- PHALANX.
                             elseif helpers['actions'].isReady(bp, 'MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
                                 helpers['queue'].addToFront(bp, bp.MA["Phalanx"], player)
@@ -1313,6 +1542,33 @@ function core.get()
                             -- REFRESH.
                             elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady(bp, 'MA', "Refresh") and not helpers['buffs'].buffActive(43) then
                                 helpers['queue'].addToFront(bp, bp.MA["Refresh"], player)
+
+                            -- ENSPELLS.
+                            elseif self.getSetting('ENSPELL') ~= 'None' then
+                                    
+                                if self.getSetting('ENSPELL') ~= 'Enfire' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(94) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enblizzard' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(95) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enaero' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(96) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enstone' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(97) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enthunder' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(98) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') ~= 'Enwater' and helpers['actions'].isReady(bp, 'MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(99) then
+                                    helpers['queue'].addToFront(bp, bp.MA[self.getSetting('ENSPELL')], player)
+
+                                end
+                                
+                            -- STONESKIN.
+                            elseif self.getSetting('STONESKIN') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady(bp, 'MA', "Stoneskin") then
+                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
                                 
                             -- SPIKES.
                             elseif helpers['actions'].isReady(bp, 'MA', self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
@@ -1469,26 +1725,34 @@ function core.get()
                         
                         -- /NIN.
                         elseif player.sub_job == "NIN" then
-                        
-                            -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
+                            local space = helpers['inventory'].hasSpace()
+
+                            if self.getSetting('SHADOWS') and helpers['actions'].canCast() and not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                 
-                                if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
+                                -- UTSUSEMI
+                                if helpers['inventory'].findItemByName("Shihei", 0) and (os.clock()-self['UTSU BLOCK'].last) > self['UTSU BLOCK'].delay then
                                     
+
                                     if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+                                        
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: San"], player)
 
-                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
                                             helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                            
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                                
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
                                             helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                            
+                                                
                                         end
-
+                                    
                                     end
-                                
+
+                                elseif space and helpers['actions'].canItem() and helpers['inventory'].findItemByName("Toolbag (Shihe)") and not helpers['inventory'].findItemByName("Shihe") then
+                                    helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shihe)"], player)
+
                                 end
-                            
+
                             end
                         
                         end

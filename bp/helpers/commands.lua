@@ -128,6 +128,9 @@ commands.new = function()
             elseif command == 'sub' then
                 core.nextSetting(bp, 'SUBLIMATION')
 
+            elseif (command == 'skin' or command == 'stoneskin') then
+                core.nextSetting(bp, 'STONESKIN')
+
             elseif command == 'composure' then
                 core.nextSetting(bp, 'COMPOSURE')
 
@@ -163,6 +166,9 @@ commands.new = function()
 
             elseif command == 'ward' then
                 core.nextSetting(bp, 'BPWARD')
+
+            elseif command == 'tools' then
+                core.nextSetting(bp, 'NIN TOOLS')
 
             elseif command == 'rotate' then
                 core.nextSetting(bp, 'ROTATE WARDS')
@@ -283,7 +289,7 @@ commands.new = function()
                     if v and weaponskills[v].en then
                         local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
 
-                        if weaponskill:sub(1,8):lower() == match:sub(1,8):lower() then
+                        if weaponskill:sub(1,9):lower() == match:sub(1,9):lower() then
                             core.setSetting(bp, 'WSNAME', weaponskills[v].en)
                             break
                             
@@ -396,8 +402,9 @@ commands.new = function()
                     local list      = bp.core['ENSPELL'][1]
                     
                     for _,v in pairs(list) do
-
+                        print(v)
                         if v and type(v) == 'string' and enspell == v:sub(1,3):lower() then
+                            print(v)
                             core.setSetting(bp, 'ENSPELL', v)
                             break
 

@@ -89,6 +89,9 @@ function core.get()
     self["STEPS DELAY"]         = self.settings["HATE DELAY"] or 20
     self["CONVERT HPP"]         = self.settings["CONVERT HPP"] or 40
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
+    self["NIN TOOLS"]           = self.settings["NIN TOOLS"] or {{false,true}, false}
+    self["STONESKIN"]           = self.settings["STONESKIN"] or {{false,true}, false}
+    self["UTSU BLOCK"]          = {last=0, delay=3}
 
     -- MAGIC BURST SPELLS.
     self["MAGIC BURST"] = {
@@ -137,8 +140,7 @@ function core.get()
             self.settings["AM LEVEL"]           = self["AM LEVEL"]
             self.settings["1HR"]                = self["1HR"]
             self.settings["JA"]                 = self["JA"]
-            self.settings["RA"]                 = self["RA"]
-            
+            self.settings["RA"]                 = self["RA"]            
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
             self.settings["BUFFS"]              = self["BUFFS"]
@@ -198,6 +200,7 @@ function core.get()
             self.settings["STEPS DELAY"]        = self["HATE DELAY"]
             self.settings["CONVERT HPP"]        = self["CONVERT HPP"]
             self.settings["CONVERT MPP"]        = self["CONVERT MPP"]
+            self.settings["NIN TOOLS"]          = self["NIN TOOLS"]
 
         end
 
@@ -617,129 +620,74 @@ function core.get()
                         -- SCH/.
                         if player.main_job == 'SCH' then
 
-                            -- LIGHT ARTS.
-                            if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                            
-                            -- DARK ARTS.
-                            elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                                
-                            -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
-                                            
-                                if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
+                            -- ARTS.
+                            if helpers['actions'].canAct() and self.getSetting('ARTS') == "Light Arts" and not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and not helpers['buffs'].buffActive(402) then
+
+                                if self.getSetting('ARTS') == "Light Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and (self.getSetting('ARTS') == "Dark Arts" and not helpers['buffs'].buffActive(359)) then
+
+                                if self.getSetting('ARTS') == "Dark Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Light Arts' and helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and helpers["stratagems"].gems.current > 0 then
+
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                elseif self.getSetting('ADDENDUM') == "Addendum: Black" and not helpers['buffs'].buffActive(402) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
                                 end
                                 
-                            -- STORMS.
-                            elseif helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Dark Arts' and helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402) and helpers["stratagems"].gems.current > 0 then
+
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
+                                end
+
+                            elseif helpers['buffs'].buffActive(401) or helpers['buffs'].buffActive(402) then
                                 
-                                if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                -- STORMS.
+                                if helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
                                     
-                                elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                    if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    end
+                                
+                                -- KLIMAFORM
+                                elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) and target then
+                                    helpers['queue'].add(bp, bp.MA["Klimaform"], player)
                                     
                                 end
-                            
-                            -- KLIMAFORM
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
-                                helpers['queue'].add(bp, bp.MA["Klimaform"], player)
-                                
-                            -- STONESKIN.
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Light Arts' and helpers['actions'].isReady(bp, 'MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
-                                
+
                             end
                            
                         end
                         
-                        -- /SCH.
-                        if player.sub_job == "SCH" then
-                            
-                            -- LIGHT ARTS.
-                            if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                            
-                            -- DARK ARTS.
-                            elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                                
-                            -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
-                                            
-                                if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                elseif self.getSetting('ADDENDUM') == "Addendum: Black" and not helpers['buffs'].buffActive(402) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                end
-                                
-                            -- STORMS.
-                            elseif helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
-                                
-                                if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                end
-                            
-                            -- KLIMAFORM
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
-                                helpers['queue'].add(bp, bp.MA["Klimaform"], player)
-                                
-                            -- STONESKIN.
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Light Arts' and helpers['actions'].isReady(bp, 'MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
-                                
-                            end
-                        
                         -- /RDM.
-                        elseif player.sub_job == "RDM" and helpers['actions'].canCast() then
+                        if player.sub_job == "RDM" and helpers['actions'].canCast() then
                             
                             -- HASTE.
                             if helpers['actions'].isReady(bp, 'MA', "Haste") and not helpers['buffs'].buffActive(33) then
@@ -946,26 +894,32 @@ function core.get()
                         
                         -- /NIN.
                         elseif player.sub_job == "NIN" then
-                        
-                            -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
+                        if self.getSetting('SHADOWS') and helpers['actions'].canCast() and not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                 
-                                if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
+                                -- UTSUSEMI
+                                if helpers['inventory'].findItemByName("Shihei", 0) and (os.clock()-self['UTSU BLOCK'].last) > self['UTSU BLOCK'].delay then
                                     
+
                                     if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+                                        
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: San"], player)
 
-                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
                                             helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                            
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                                
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
                                             helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                            
+                                                
                                         end
-
+                                    
                                     end
-                                
+
+                                elseif space and helpers['actions'].canItem() and helpers['inventory'].findItemByName("Toolbag (Shihe)") and not helpers['inventory'].findItemByName("Shihe") then
+                                    helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shihe)"], player)
+
                                 end
-                            
+
                             end
                         
                         end
@@ -1324,129 +1278,74 @@ function core.get()
                         -- SCH/.
                         if player.main_job == 'SCH' then
 
-                            -- LIGHT ARTS.
-                            if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                            
-                            -- DARK ARTS.
-                            elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                                
-                            -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
-                                            
-                                if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
+                            -- ARTS.
+                            if helpers['actions'].canAct() and self.getSetting('ARTS') == "Light Arts" and not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and not helpers['buffs'].buffActive(402) then
+
+                                if self.getSetting('ARTS') == "Light Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and (self.getSetting('ARTS') == "Dark Arts" and not helpers['buffs'].buffActive(359)) then
+
+                                if self.getSetting('ARTS') == "Dark Arts" and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
+                                end
+
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Light Arts' and helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401) and helpers["stratagems"].gems.current > 0 then
+
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
                                     helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                elseif self.getSetting('ADDENDUM') == "Addendum: Black" and not helpers['buffs'].buffActive(402) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
                                 end
                                 
-                            -- STORMS.
-                            elseif helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
+                            elseif helpers['actions'].canAct() and self.getSetting('ADDENDUM') == 'Dark Arts' and helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402) and helpers["stratagems"].gems.current > 0 then
+
+                                if helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) then
+                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
+                                end
+
+                            elseif helpers['buffs'].buffActive(401) or helpers['buffs'].buffActive(402) then
                                 
-                                if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                -- STORMS.
+                                if helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
                                     
-                                elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                    if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
+                                        helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
+                                        
+                                    end
+                                
+                                -- KLIMAFORM
+                                elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) and target then
+                                    helpers['queue'].add(bp, bp.MA["Klimaform"], player)
                                     
                                 end
-                            
-                            -- KLIMAFORM
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
-                                helpers['queue'].add(bp, bp.MA["Klimaform"], player)
-                                
-                            -- STONESKIN.
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Light Arts' and helpers['actions'].isReady(bp, 'MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
-                                
+
                             end
                            
                         end
                         
-                        -- /SCH.
-                        if player.sub_job == "SCH" then
-                            
-                            -- LIGHT ARTS.
-                            if helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Light Arts" and (not helpers['buffs'].buffActive(358) and not helpers['buffs'].buffActive(401)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                            
-                            -- DARK ARTS.
-                            elseif helpers['actions'].canAct() and helpers['actions'].isReady(bp, 'JA', self.getSetting('ARTS')) and self.getSetting('ARTS') == "Dark Arts" and (not helpers['buffs'].buffActive(359) and not helpers['buffs'].buffActive(402)) then
-                                helpers['queue'].add(bp, bp.JA[self.getSetting('ARTS')], player)
-                                
-                            -- ADDENDUM.
-                            elseif helpers['actions'].canAct() and (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) and helpers['actions'].isReady(bp, 'JA', self.getSetting('ADDENDUM')) and helpers["stratagems"].gems.current > 0 then
-                                            
-                                if self.getSetting('ADDENDUM') == "Addendum: White" and not helpers['buffs'].buffActive(401) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                elseif self.getSetting('ADDENDUM') == "Addendum: Black" and not helpers['buffs'].buffActive(402) then
-                                    helpers['queue'].add(bp, bp.JA[self.getSetting('ADDENDUM')], player)
-                                    
-                                end
-                                
-                            -- STORMS.
-                            elseif helpers['actions'].canCast() and helpers['actions'].isReady(bp, 'MA', self.getSetting('WEATHER')) then
-                                
-                                if self.getSetting('WEATHER') == "Firestorm" and not helpers['buffs'].buffActive(178) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Hailstorm" and not helpers['buffs'].buffActive(179) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Windstorm" and not helpers['buffs'].buffActive(180) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Sandstorm" and not helpers['buffs'].buffActive(181) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Thunderstorm" and not helpers['buffs'].buffActive(182) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Rainstorm" and not helpers['buffs'].buffActive(183) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Aurorastorm" and not helpers['buffs'].buffActive(184) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                elseif self.getSetting('WEATHER') == "Voidstorm" and not helpers['buffs'].buffActive(185) then
-                                    helpers['queue'].add(bp, bp.MA[self.getSetting('WEATHER')], player)
-                                    
-                                end
-                            
-                            -- KLIMAFORM
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Dark Arts' and helpers['actions'].isReady(bp, 'MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
-                                helpers['queue'].add(bp, bp.MA["Klimaform"], player)
-                                
-                            -- STONESKIN.
-                            elseif helpers['actions'].canCast() and self.getSetting('ARTS') == 'Light Arts' and helpers['actions'].isReady(bp, 'MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                                helpers['queue'].add(bp, bp.MA["Stoneskin"], player)
-                                
-                            end
-                        
                         -- /RDM.
-                        elseif player.sub_job == "RDM" and helpers['actions'].canCast() then
+                        if player.sub_job == "RDM" and helpers['actions'].canCast() then
                             
                             -- HASTE.
                             if helpers['actions'].isReady(bp, 'MA', "Haste") and not helpers['buffs'].buffActive(33) then
@@ -1653,26 +1552,32 @@ function core.get()
                         
                         -- /NIN.
                         elseif player.sub_job == "NIN" then
-                        
-                            -- UTSUSEMI
-                            if helpers['actions'].canCast() and helpers['inventory'].findItemByName("Shihei", 0) and self.getSetting('SHADOWS') and target then
+                        if self.getSetting('SHADOWS') and helpers['actions'].canCast() and not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
                                 
-                                if not helpers['buffs'].buffActive(444) and not helpers['buffs'].buffActive(445) and not helpers['buffs'].buffActive(446) and not helpers['buffs'].buffActive(36) then
+                                -- UTSUSEMI
+                                if helpers['inventory'].findItemByName("Shihei", 0) and (os.clock()-self['UTSU BLOCK'].last) > self['UTSU BLOCK'].delay then
                                     
+
                                     if not helpers['queue'].typeInQueue(bp, bp.MA["Utsusemi: Ichi"]) then
+                                        
+                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") then
+                                            helpers['queue'].addToFront(bp, bp.MA["Utsusemi: San"], player)
 
-                                        if helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
                                             helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ni"], player)
-                                            
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
+                                                
+                                        elseif helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ichi") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: San") and not helpers['actions'].isReady(bp, 'MA', "Utsusemi: Ni") then
                                             helpers['queue'].addToFront(bp, bp.MA["Utsusemi: Ichi"], player)
-                                            
+                                                
                                         end
-
+                                    
                                     end
-                                
+
+                                elseif space and helpers['actions'].canItem() and helpers['inventory'].findItemByName("Toolbag (Shihe)") and not helpers['inventory'].findItemByName("Shihe") then
+                                    helpers['queue'].addToFront(bp, bp.IT["Toolbag (Shihe)"], player)
+
                                 end
-                            
+
                             end
                         
                         end

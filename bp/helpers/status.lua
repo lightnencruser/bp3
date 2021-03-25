@@ -49,7 +49,7 @@ function status.new()
     local messages  = {
         
         {82,127,128,141,166,186,194,203,205,230,236,237,242,243,266,267,268,269,270,271,272,277,278,279,280,319,320,321,412,453,645,754,755,804},
-        {7,64,83,123,159,168,204,206,322,341,342,343,344,350,378,531,647,805,806},
+        {7,64,83,123,159,168,204,206,263,322,341,342,343,344,350,378,531,647,805,806},
         {75,48},
 
     }
@@ -661,7 +661,7 @@ function status.new()
 
         if bp and s and s:length() > 0 then
 
-            for _,v in pairs(s) do
+            for i,v in pairs(s) do
                 
                 for _,buff in ipairs(v.statuses) do
                     local category  = self.getCategory(bp, buff)
@@ -672,49 +672,57 @@ function status.new()
                         local target    = windower.ffxi.get_mob_by_id(v.id)
                         local spell     = bp.res.spells[remove[buff]]
                         local priority  = T{'Cursna'}
+                        local dead      = T{2,3}
+
+                        if target and not dead:contains(target.status) then
                         
-                        if spell and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                            bp.helpers['queue'].add(bp, spell, target)
-
-                        elseif spell and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                            bp.helpers['queue'].addToFront(bp, spell, target)
-
-                        elseif category and not remove[buff] and category == 2 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                            local spell = bp.res.spells[remove[1]]
-
-                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                            if spell and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
                                 bp.helpers['queue'].add(bp, spell, target)
-                            end
 
-                        elseif category and not remove[buff] and category == 3 and (player.main_job == 'DNC' or player.sub_job == 'DNC') then
-                            local spell = bp.res.job_abilities[remove[1]]
+                            elseif spell and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                bp.helpers['queue'].addToFront(bp, spell, target)
 
-                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
-                                bp.helpers['queue'].add(bp, spell, target)
-                            end
+                            elseif category and not remove[buff] and category == 2 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                local spell = bp.res.spells[remove[1]]
 
-                        elseif category and not remove[buff] and category == 4 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                            local spell = bp.res.spells[remove[1]]
-
-                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
-                                bp.helpers['queue'].add(bp, spell, target)
-                            end
-
-                        elseif category and not remove[buff] and category == 5 then
-                                    
-                            for _,spell in ipairs(remove) do
-
-                                if bp.res.spells[spell] then
-                                    local spell = bp.res.spells[spell]
-
-                                    if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
-                                        bp.helpers['queue'].addToFront(bp, spell, target)
-                                        break
-                                    end
-
+                                if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                    bp.helpers['queue'].add(bp, spell, target)
                                 end
+
+                            elseif category and not remove[buff] and category == 3 and (player.main_job == 'DNC' or player.sub_job == 'DNC') then
+                                local spell = bp.res.job_abilities[remove[1]]
+
+                                if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                    bp.helpers['queue'].add(bp, spell, target)
+                                end
+
+                            elseif category and not remove[buff] and category == 4 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                local spell = bp.res.spells[remove[1]]
+
+                                if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                    bp.helpers['queue'].add(bp, spell, target)
+                                end
+
+                            elseif category and not remove[buff] and category == 5 then
                                         
+                                for _,spell in ipairs(remove) do
+
+                                    if bp.res.spells[spell] then
+                                        local spell = bp.res.spells[spell]
+
+                                        if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                            bp.helpers['queue'].addToFront(bp, spell, target)
+                                            break
+                                        end
+
+                                    end
+                                            
+                                end
+
                             end
+
+                        elseif target and dead:contains(target.status) then
+                            self.statuses[i] = {}
 
                         end
 

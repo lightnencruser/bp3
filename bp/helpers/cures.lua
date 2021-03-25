@@ -642,7 +642,11 @@ function cures.new()
                             local jobs = bp.helpers['party'].jobs
                             
                             if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+
+                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                    target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
+
                             end
 
                         end                        
@@ -654,17 +658,13 @@ function cures.new()
                         local cure      = self.estimateCuraga(bp, missing, count) or false
                         
                         if cure and target then
-                            
-                            if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 
-                                if player.main_job_level == 99 and (cure.id ~= 7 or cure.id ~= 8) then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            if player.main_job_level == 99 and (cure.id ~= 7 or cure.id ~= 8) then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            elseif player.main_job_level < 99 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                end
-
                             end
                             
                         end
@@ -691,7 +691,10 @@ function cures.new()
                             local jobs = bp.helpers['party'].jobs
                             
                             if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+
+                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                    target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
                             end
 
                         end                        
@@ -703,17 +706,13 @@ function cures.new()
                         local target = windower.ffxi.get_mob_by_id(target.id) or false
                         
                         if cure and target then
-                            
-                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 
-                                if player.main_job_level == 99 and cure.id ~= 195 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            if player.main_job_level == 99 and cure.id ~= 195 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            elseif player.main_job_level < 99 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                end
-
                             end
                             
                         end
@@ -795,7 +794,11 @@ function cures.new()
                             local jobs = bp.helpers['party'].jobs
                             
                             if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+
+                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                    target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
+
                             end
 
                         end                        
@@ -807,17 +810,13 @@ function cures.new()
                         local target = windower.ffxi.get_mob_by_id(target.id) or false
                         
                         if cure and target then
-                            
-                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 
-                                if player.main_job_level == 99 and cure.id ~= 7 and cure.id ~= 8 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            if player.main_job_level == 99 and cure.id ~= 7 and cure.id ~= 8 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            elseif player.main_job_level < 99 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                end
-
                             end
                             
                         end
@@ -844,7 +843,11 @@ function cures.new()
                             local jobs = bp.helpers['party'].jobs
                             
                             if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+
+                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                    target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
+
                             end
 
                         end                        
@@ -856,17 +859,13 @@ function cures.new()
                         local target = windower.ffxi.get_mob_by_id(target.id) or false
                         
                         if cure and target then
-                            
-                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
                                 
-                                if player.main_job_level == 99 and cure.id ~= 195 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            if player.main_job_level == 99 and cure.id ~= 195 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
+                            elseif player.main_job_level < 99 then
+                                helpers['queue'].updateCure(bp, cure, target)
     
-                                end
-
                             end
                             
                         end

@@ -8,14 +8,14 @@ function inventory.new()
         local items = windower.ffxi.get_items(bag or 0)
 
         if name and (name ~= '' or name ~= 'None') then
-
+            
             for index, item in ipairs(items) do
 
                 if item and index and item.id then
                     local found = res.items[item.id]
-
+                    
                     if found and found.en then
-
+                        
                         if name:sub(1, #name):lower() == (found.en):sub(1, #name):lower() then
                             return found
                         end

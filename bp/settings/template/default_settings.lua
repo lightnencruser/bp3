@@ -27,6 +27,7 @@ return {
         {name='bpsocket',       status=true},
         {name='coms',           status=true},
         {name='ciphers',        status=true},
+        {name='chests',         status=true},
         {name='mount',          status=true},
         {name='rolls',          status=true},
         {name='runes',          status=true},

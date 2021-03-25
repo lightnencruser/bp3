@@ -42,9 +42,6 @@ windower.register_event('addon command', function(...)
                 table.print(target)
             end
 
-        elseif c == 'merit' then
-            bp.packets.inject(bp.packets.new('outgoing', 0x0BE, {['_unknown1']=0x03, ['Flag']=1, ['Merit Point']=0x22}))
-
         elseif c == 'lofi' then
             local setup = {'load config','load wincontrol','config AnimationFrameRate 3','config FrameRateDivisor 3','config AutoDisconnectTime 0','config FootstepEffects false','wincontrol move 0 0','wincontrol resize 640 540'}
             
@@ -56,6 +53,32 @@ windower.register_event('addon command', function(...)
 
                 end
             
+            end
+
+        elseif c == 'trade' and a[2] then
+            local player    = windower.ffxi.get_player() or false
+            local target    = windower.ffxi.get_mob_by_target('t') or false
+            local items     = {}
+
+            if player and target and target.id and target.id ~= player.id then
+
+                for i=2, #a do
+                    
+                    if a[i] and (a[i]):match(':') then
+                        local split = a[i]:split(':')
+                        
+                        if bp.helpers['inventory'].findItemByName(split[1]) and split[2] and tonumber(split[2]) ~= nil then
+                            table.insert(items, {name=bp.helpers['inventory'].findItemByName(split[1]).en, count=tonumber(split[2])})
+                        end
+
+                    end
+
+                end
+                
+                if items and items[1] then
+                    bp.helpers['actions'].tradeItem(bp, target, #items, unpack(items))
+                end
+
             end
 
         elseif (c == 'r' or c == 'reload') then
@@ -92,7 +115,10 @@ windower.register_event('prerender', function()
         bp.helpers['dax'].render(bp)
         bp.helpers['coms'].render(bp)
         bp.helpers['assist'].render(bp)
-        bp.helpers['empyrean'].render(bp)
+
+        if bp.helpers['empyrean'] then
+            bp.helpers['empyrean'].render(bp)
+        end
 
         if (player.status == 2 or player.status == 3) and player.vitals.hp <= 0 and bp.helpers['target'].getTarget() then
             bp.helpers['target'].clear()
@@ -102,11 +128,14 @@ windower.register_event('prerender', function()
             
             if not bp.helpers['idle'].getIdle() and not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
                 bp.helpers['cures'].buildParty()
-                bp.helpers['empyrean'].scan(bp)
                 bp.helpers['controls'].checkFacing(bp)
                 bp.helpers['controls'].checkDistance(bp)
                 bp.helpers['controls'].checkAssisting(bp)
                 bp.core.handleAutomation(bp)
+
+                if bp.helpers['empyrean'] then
+                    bp.helpers['empyrean'].scan(bp)
+                end
 
                 -- Handle using bagged goods.
                 bp.helpers['items'].queueItems(bp)
@@ -190,6 +219,11 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                         -- Update Cure weights.
                         bp.helpers['cures'].updateWeight(bp, original)
+
+                        -- Check for Utsusemi, and protect from over casting.
+                        if (player.main_job == 'NIN' or player.sub_job == 'NIN') and (spell.en):match('Utsusemi') then
+                            bp.core['UTSU BLOCK'].last = os.clock()
+                        end
                     
                     else
                         bp.helpers['queue'].ready = (os.clock() + 1)
@@ -469,6 +503,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
             elseif bp.helpers['ciphers'].busy then
                 return bp.helpers['ciphers'].build(bp, original)
 
+            elseif bp.helpers['chests'].busy then
+                return bp.helpers['chests'].handleChest(bp, original)
+
             end
 
         end
@@ -560,7 +597,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                                 if bp.res.buffs[buffs.list[i]] then
                                     local gain = bp.res.buffs[buffs.list[i]]
-                                    
+
                                     if (player.main_job == 'COR' or player.sub_job == 'COR') then
 
                                         if gain.id == 308 then
@@ -635,13 +672,19 @@ windower.register_event('status change', function(new, old)
     if new == 0 and (old == 2 or old == 3) then
         bp.pinger = (os.clock() + 30)
 
+    elseif new == 0 and old == 1 then
+        bp.helpers['queue'].clear()
+
     end
 
 end)
 
 windower.register_event('gain buff', function(id)
     local id = id or false
-    --print(id)
+    
+    if id then
+
+    end
 
 end)
 
@@ -676,7 +719,10 @@ windower.register_event('job change', function(...)
 end)
 
 windower.register_event('incoming text', function(original, modified, o_mode, m_mode, blocked)
-    bp.helpers['empyrean'].parseText(bp, original, o_mode)
+
+    if bp.helpers['empyrean'] then
+        bp.helpers['empyrean'].parseText(bp, original, o_mode)
+    end
 
 end)
 

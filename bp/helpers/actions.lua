@@ -28,7 +28,7 @@ function actions.new()
         ['Flourish3']   = 0.6,  ['Scholar']         = 0.6,  ['Effusion']        = 0.6,    ['Rune']          = 0.6,
         ['Ward']        = 0.6,  ['BloodPactRage']   = 0.6,  ['BloodPactWard']   = 0.6,    ['PetCommand']    = 0.6,
         ['Monster']     = 1.0,  ['Dismount']        = 1.0,  ['Ranged']          = 1.0,    ['WhiteMagic']    = 2.7,
-        ['BlackMagic']  = 2.7,  ['BardSong']        = 2.7,  ['Ninjutsu']        = 5.0,    ['SummonerPact']  = 2.7,
+        ['BlackMagic']  = 2.7,  ['BardSong']        = 2.7,  ['Ninjutsu']        = 2.7,    ['SummonerPact']  = 2.7,
         ['BlueMagic']   = 2.7,  ['Geomancy']        = 2.7,  ['Trust']           = 2.7,
 
     }
@@ -149,7 +149,7 @@ function actions.new()
                 ['Number of Items'] = total,
 
             })
-
+            
             for i=1, #items do
                 
                 if items[i].name and items[i].count then

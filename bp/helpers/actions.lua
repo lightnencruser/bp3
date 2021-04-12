@@ -34,6 +34,7 @@ function actions.new()
     }
 
     -- Public Variables.
+    self.locked     = {flag=false, x=0, y=0, z=0}
     self.midaction  = false
     self.moving     = false
     self.injecting  = false

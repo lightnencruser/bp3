@@ -14,7 +14,7 @@ function keybinds.new()
     -- Private Variables.
     local default_binds = {
 
-        ['@b']      = "@b bp on",
+        ['@b']      = "@b bp toggle",
         ['@f']      = "@f bp follow",
         ['@a']      = "@a bp assist",
         ['@m']      = "@m ord r bp mount",
@@ -32,6 +32,7 @@ function keybinds.new()
         ['@enter']  = "@enter ord p bp controls enter",
         ['^!@f6']   = "^!@f6 ibruh bigpoke",
         ['@w']      = "@w ord rr bp wring",
+        ['@d']      = "@d ord rr bp demring",
 
     }
 

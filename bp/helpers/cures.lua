@@ -624,32 +624,43 @@ function cures.new()
                 
                 if count > 2 and (player.main_job == "WHM" or player.sub_job == "WHM") and player.main_job ~= "DNC" then
                     local target = false
-                    
+                    print('Buildng Curaga')
                     -- Build total HP missing.
                     for _,v in ipairs(party) do
-                        missing = (missing + v.missing)
+                        local dead = T{2,3}
+
+                        if v and v.missing then
+                            missing = (missing + v.missing)
                         
-                        if not target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and jobs and jobs[temp.id] then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
-                            end
-
-                        elseif target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-
-                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                            if not target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                print(temp, jobs, jobs[temp.id], dead:contains(temp.status))
+                                if temp and jobs and jobs[temp.id] and not dead:contains(temp.status) then
+                                    print('found a target')
                                     target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
+
+                            elseif target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if target and temp and target.priority and temp.id and jobs[temp.id] and jobs[temp.id].job and priority[jobs[temp.id].job] and not dead:contains(temp.status) then
+                                    print(windower.ffxi.get_mob_by_id(v.id).name, v.missing, target.id, target.missing, target.name)
+                                    if v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
+
+                                        if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                            target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                        end
+
+                                    end
+
                                 end
 
                             end
 
-                        end                        
+                        end
 
                     end
     
@@ -676,28 +687,38 @@ function cures.new()
                     
                     -- Build total HP missing.
                     for _,v in ipairs(party) do
-                        missing = (missing + v.missing)
+                        local dead = T{2,3}
+
+                        if v and v.missing then
+                            missing = (missing + v.missing)
                         
-                        if not target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and jobs and jobs[temp.id] then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
-                            end
-
-                        elseif target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-
-                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                            if not target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if temp and jobs and jobs[temp.id] and not dead:contains(temp.status) then
                                     target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
                                 end
+
+                            elseif target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if target and temp and target.priority and temp.id and jobs[temp.id] and jobs[temp.id].job and priority[jobs[temp.id].job] and not dead:contains(temp.status) then
+                                    print(windower.ffxi.get_mob_by_id(v.id).name, v.missing, target.id, target.missing, target.name)
+                                    if v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
+
+                                        if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                            target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                        end
+                                        
+                                    end
+
+                                end
+
                             end
 
-                        end                        
+                        end
 
                     end
     
@@ -779,29 +800,38 @@ function cures.new()
                     
                     -- Build total HP missing.
                     for _,v in ipairs(party) do
-                        missing = (missing + v.missing)
+                        local dead = T{2,3}
+
+                        if v and v.missing then
+                            missing = (missing + v.missing)
                         
-                        if not target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and jobs and jobs[temp.id] then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
-                            end
-
-                        elseif target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-
-                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                            if not target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if temp and jobs and jobs[temp.id] and not dead:contains(temp.status) then
                                     target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
+
+                            elseif target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if target and temp and target.priority and temp.id and jobs[temp.id] and jobs[temp.id].job and priority[jobs[temp.id].job] and not dead:contains(temp.status) then
+                                
+                                    if v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
+
+                                        if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                            target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                        end
+                                        
+                                    end
+
                                 end
 
                             end
 
-                        end                        
+                        end
 
                     end
     
@@ -828,29 +858,38 @@ function cures.new()
                     
                     -- Build total HP missing.
                     for _,v in ipairs(party) do
-                        missing = (missing + v.missing)
+                        local dead = T{2,3}
+
+                        if v and v.missing then
+                            missing = (missing + v.missing)
                         
-                        if not target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and jobs and jobs[temp.id] then
-                                target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
-                            end
-
-                        elseif target then
-                            local temp = windower.ffxi.get_mob_by_id(v.id) or false
-                            local jobs = bp.helpers['party'].jobs
-                            
-                            if temp and target and priority[jobs[temp.id].job] and v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
-
-                                if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                            if not target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if temp and jobs and jobs[temp.id] and not dead:contains(temp.status) then
                                     target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                end
+
+                            elseif target then
+                                local temp = windower.ffxi.get_mob_by_id(v.id) or false
+                                local jobs = bp.helpers['party'].jobs
+                                
+                                if target and temp and target.priority and temp.id and jobs[temp.id] and jobs[temp.id].job and priority[jobs[temp.id].job] and not dead:contains(temp.status) then
+                                
+                                    if v.missing > target.missing and priority[jobs[temp.id].job] <= target.priority then
+
+                                        if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                            target = {id=v.id, missing=v.missing, priority=priority[jobs[temp.id].job]}
+                                        end
+                                        
+                                    end
+
                                 end
 
                             end
 
-                        end                        
+                        end
 
                     end
     

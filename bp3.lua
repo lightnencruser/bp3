@@ -42,31 +42,18 @@ windower.register_event('addon command', function(...)
                 table.print(target)
             end
 
-        elseif c == 'lofi' then
-            local setup = {'load config','load wincontrol','config AnimationFrameRate 3','config FrameRateDivisor 3','config AutoDisconnectTime 0','config FootstepEffects false','wincontrol move 0 0','wincontrol resize 640 540'}
-            
-            for i=1, #setup do
-                
-                if setup[i] then
-                    windower.send_command(setup[i])
-                    coroutine.sleep(0.25)
-
-                end
-            
-            end
-
         elseif c == 'trade' and a[2] then
             local player    = windower.ffxi.get_player() or false
             local target    = windower.ffxi.get_mob_by_target('t') or false
             local items     = {}
 
             if player and target and target.id and target.id ~= player.id then
-
+                
                 for i=2, #a do
                     
                     if a[i] and (a[i]):match(':') then
                         local split = a[i]:split(':')
-                        
+
                         if bp.helpers['inventory'].findItemByName(split[1]) and split[2] and tonumber(split[2]) ~= nil then
                             table.insert(items, {name=bp.helpers['inventory'].findItemByName(split[1]).en, count=tonumber(split[2])})
                         end
@@ -83,6 +70,24 @@ windower.register_event('addon command', function(...)
 
         elseif (c == 'r' or c == 'reload') then
             windower.send_command('lua r bp3')
+
+        elseif c == 'test' then
+            local party = windower.ffxi.get_party()
+            for i,v in pairs(party) do
+
+                if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
+                    
+                    if v and type(v) == 'table' and v.mob then
+                        
+                        for ii,vv in pairs(v.mob) do
+                            print(ii,vv)
+                        end
+
+                    end
+
+                end
+
+            end
 
         else
             bp.core.handleCommands(bp, a)
@@ -470,6 +475,19 @@ windower.register_event('outgoing chunk', function(id, original, modified, injec
     elseif id == 0x050 then
         coroutine.schedule(bp.helpers['equipment'].update, 2)
 
+    elseif id == 0x015 then
+
+        if not blocked then
+            local packed = bp.packets.parse('outgoing', original)
+
+            if bp.helpers['actions'].locked.flag then
+                packed['X'], packed['Y'], packed['Z'] = bp.helpers['actions'].locked.x, bp.helpers['actions'].locked.y, bp.helpers['actions'].locked.z
+                return bp.packets.build(packed)
+
+            end
+
+        end
+
     end
 
 end)
@@ -676,6 +694,7 @@ windower.register_event('status change', function(new, old)
         bp.helpers['queue'].clear()
 
     end
+    bp.helpers['actions'].locked.flag = false
 
 end)
 
@@ -701,6 +720,7 @@ windower.register_event('zone change', function(new, old)
         end
 
     end
+    bp.helpers['actions'].locked.flag = false
 
 end)
 
@@ -737,6 +757,7 @@ end)
 
 windower.register_event('login', function()
 
+    bp.helpers['equipment'].update()
     if bp.helpers['bpsocket'] then
         --bp.helpers['bpsocket'].send(bp, {event='_LOGIN', data={player=windower.ffxi.get_player(), info=windower.ffxi.get_info()}})
     end

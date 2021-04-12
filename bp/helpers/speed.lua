@@ -83,7 +83,7 @@ function speed.new()
     self.render = function()
 
         if self.enabled then
-            self.display:text(string.format('{{ SPEED: \\cs(%s)%03d\\cr }}', self.important, self.speed))
+            self.display:text(string.format('{{ SPEED: \\cs(%s)%03d\\cr }}', self.important, (self.speed/10)))
             self.display:update()
 
             if not self.display:visible() then
@@ -158,7 +158,7 @@ function speed.new()
 
         if bp and speed and speed ~= nil and speed >= 50 and speed <= 255 then
             self.speed = speed
-            bp.helpers['popchat'].pop(string.format('SPEED SET TO: %03d', self.speed))
+            bp.helpers['popchat'].pop(string.format('SPEED SET TO: %03d', (self.speed/10)))
             self.writeSettings()
         
         else

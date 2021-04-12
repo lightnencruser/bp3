@@ -538,7 +538,7 @@ function chests.new()
                         open:schedule(0.5)
                         return true
 
-                    elseif target and target.models[1] == models[types.red] then
+                    elseif target and target.models[1] == models[types.red] and self.destroy.red then
                         
                         bp.packets.inject(bp.packets.new('outgoing', 0x05B, {
                             ['Target']              = packed['NPC'],
@@ -573,7 +573,7 @@ function chests.new()
                         open:schedule(0.5)
                         return true                    
 
-                    elseif target and target.models[1] == models[types.gold] then
+                    elseif target and target.models[1] == models[types.gold] and self.destroy.gold then
                         bp.packets.inject(bp.packets.new('outgoing', 0x05B, {
                             ['Target']              = packed['NPC'],
                             ['Target Index']        = packed['NPC Index'],

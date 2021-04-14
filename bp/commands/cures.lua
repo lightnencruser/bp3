@@ -15,6 +15,9 @@ function cures.new()
                 if command == 'save' then
                     bp.helpers['cures'].writeSettings()
 
+                elseif (command == 'p' or comand == 'priority' or command == '!') and windower.ffxi.get_mob_by_target('t') and commands[3] then
+                    bp.helpers['cures'].setPriority(bp, windower.ffxi.get_mob_by_target('t'), commands[3] or 0)
+
                 elseif command == 'power' and commands[3] and tonumber(commands[3]) ~= nil then
                     local power = tonumber(commands[3])
 

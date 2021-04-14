@@ -17,6 +17,7 @@ function alias.new()
         -- BP Shortcuts.
         {'bpon',        "ord pp bp enable"},
         {'bpoff',       "ord pp bp disable"},
+        {'poke',       "ibruh bigpoke"},
 
         -- Mounts
         {'rap',         "ord rr raptor"},

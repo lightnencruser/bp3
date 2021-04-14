@@ -16,7 +16,7 @@ function status.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/status/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=7}, padding=2, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
     self.priority   = string.format('%s,%s,%s', 215, 0, 255)
@@ -340,7 +340,7 @@ function status.new()
                     -- NPC TP Move.
                     elseif category == 11 then
                         local spell = param
-                            
+                        
                         for i=1, targets do
                             local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
                             local param   = string.format("Target %s Action 1 Param", i)

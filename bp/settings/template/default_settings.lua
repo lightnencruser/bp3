@@ -4,11 +4,11 @@ return {
     ['Ping Delay']                = 0.6,
     ['Main Character']            = 'Eliidyr',
     ['Characters']                = {
-        ''
+        'Eliidyr','Clapmycheeks','Lordpotato','Duhpeter','Peenaspump','Turtle','Mutant','Ninjar',
     },
-
     ['Controllers'] = {
-        '',
+        'Eliidyr','Clapmycheeks','Lordpotato','Duhpeter','Peenaspump','Turtle','Mutant','Ninjar',
+        'Uwu','Mieren','Doomvtwo','Mingway','Sombermabari','Zeroexeffeff','Pawjobs','Xaniko','Khyal','Gianni','Minimimi','Deathsoul','Fivestarplayer','Emos','Twochainz','Thunderlips','Dimora','Kasshoku'
     },
     ['Models'] = {
         ['head']    = 0,
@@ -18,7 +18,9 @@ return {
         ['feet']    = 0,
     },
     ['Auto Join'] = {
-        '',
+        'Eliidyr','Clapmycheeks','Lordpotato','Duhpeter','Peenaspump','Turtle','Mutant','Ninjar',
+        'Uwu','Mieren','Doomvtwo','Mingway','Sombermabari','Zeroexeffeff','Pawjobs','Xaniko','Khyal','Gianni','Minimimi','Deathsoul','Fivestarplayer',
+        'Khyat','Emos','Ishnia','Twochainz','Thunderlips','Dimora','Uncas','Solvarr','Hydaelynz','Myahihze','Kasshoku'
     },
 
     ['helpers'] = {

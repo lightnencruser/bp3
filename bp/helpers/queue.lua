@@ -1086,6 +1086,24 @@ function queue.new()
 
     end
 
+    self.pos = function(bp, x, y)
+        local bp    = bp or false
+        local x     = tonumber(x) or self.layout.pos.x
+        local y     = tonumber(y) or self.layout.pos.y
+
+        if bp and x and y then
+            self.display:pos(x, y)
+            self.layout.pos.x = x
+            self.layout.pos.y = y
+            self.writeSettings()
+        
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
+
+        end
+
+    end
+
     return self
 
 end

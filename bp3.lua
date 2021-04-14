@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '0.20210221'
+_addon.version  = '1.20210413'
 _addon.command  = 'bp'
 
 -- Get system data.
@@ -747,20 +747,18 @@ windower.register_event('incoming text', function(original, modified, o_mode, m_
 end)
 
 windower.register_event('party invite', function(sender, id)
-    --local whitelist = T(bp.settings['Auto Join'])
+    local whitelist = T(bp.settings['Auto Join'])
     
-    --if whitelist and whitelist:contains(sender) then
+    if whitelist and whitelist:contains(sender) then
         windower.send_command('wait 0.5; input /join')
-    --end
+    end
 
 end)
 
 windower.register_event('login', function()
 
-    bp.helpers['equipment'].update()
-    if bp.helpers['bpsocket'] then
-        --bp.helpers['bpsocket'].send(bp, {event='_LOGIN', data={player=windower.ffxi.get_player(), info=windower.ffxi.get_info()}})
-    end
+    coroutine.schedule(bp.helpers['equipment'].update, 2)
+    bp.helpers['autoload'].load()
 
 end)
 
@@ -768,10 +766,6 @@ windower.register_event('logout', function()
     bp.helpers['alias'].unbind()
     bp.helpers['keybinds'].unbind()
     bp.helpers['autoload'].unload()
-
-    if bp.helpers['bpsocket'] then
-        --bp.helpers['bpsocket'].send(bp, {event='_LOGOUT', data={player=windower.ffxi.get_player(), info=windower.ffxi.get_info()}})
-    end
 
 end)
 
@@ -851,21 +845,6 @@ windower.register_event('time change', function(new, old)
 
     if new then
         bp.helpers['assist'].assist(bp)
-        --[[
-        if bp.helpers['bpsocket'] then
-            local received = T(bp.helpers['bpsocket'].receive(bp))
-            
-            if received and received.event then
-                
-                if received.event == '_LOGIN' and received.name then
-                    bp.helpers['popchat'].pop(string.format('%s HAS CONNECTED TO THE SERVER!', received.name))
-                end
-
-            end
-
-        end
-        ]]--
-
     end
 
 end)

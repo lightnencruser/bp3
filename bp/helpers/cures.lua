@@ -183,7 +183,6 @@ function cures.new()
             end
 
         end
-        table.print(priorities)
 
     end
 
@@ -471,7 +470,7 @@ function cures.new()
                 if cure.levels then
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
-                print(missing, count, (missing/count), weight, (weight + (weight * (self.power / 100) ) ))
+                --print(missing, count, (missing/count), weight, (weight + (weight * (self.power / 100) ) ))
                 if cure and weight and (weight + (weight * ((self.power+20) / 100) ) ) <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end

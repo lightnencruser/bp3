@@ -610,6 +610,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- COR/.
                         if player.main_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
@@ -1318,6 +1319,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- COR/.
                         if player.main_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then

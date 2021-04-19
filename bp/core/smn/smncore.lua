@@ -760,6 +760,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then
@@ -1507,6 +1508,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- SMN/.
                         if player.main_job == 'SMN' then

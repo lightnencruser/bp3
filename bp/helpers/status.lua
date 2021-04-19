@@ -16,17 +16,17 @@ function status.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/status/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=1, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=13}, padding=2, stroke_width=2, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
     self.priority   = string.format('%s,%s,%s', 215, 0, 255)
 
     -- Public Variables.
-    self.statuses   = {}    
+    self.statuses   = {}
 
     -- Private Variables.
     local timer     = {last=0, delay=2}
-    local icons     = Q{}
+    local icons     = {}
     local map       = {'Gained','Lost','Failed'}
     local na        = {3,4,5,6,7,8,9,15,20,566}
     local erase     = {11,12,13,21,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,144,145,146,147,148,149,167,174,175,186,192,194,217,223,404,557,558,559,560,561,562,563,564,567,572}
@@ -54,14 +54,26 @@ function status.new()
 
     }
         
+    -- Build Party Data.
+    for i,v in pairs(windower.ffxi.get_party()) do
+
+        if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
+
+            if v.mob and ((v.mob.distance):sqrt() < 50 or (v.mob.distance):sqrt() > 0) then
+                table.insert(self.statuses, {name=v.mob.name, id=v.mob.id, list={}})
+                table.insert(icons, Q{})
+            end
+
+        end
+
+    end
 
     -- Private Functions
     local persist = function()
         local next = next
 
         if self.settings then
-            self.settings.layout  = self.layout
-
+            self.settings.layout = self.layout
         end
 
     end
@@ -99,8 +111,25 @@ function status.new()
     self.writeSettings()
 
     self.zoneChange = function()
-        self.statuses = {}
+        self.statuses, icons = {}, {}
         self.writeSettings()
+
+        coroutine.schedule(function()
+
+            for i,v in pairs(windower.ffxi.get_party()) do
+
+                if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
+        
+                    if v.mob then
+                        table.insert(self.statuses, {name=v.mob.name, id=v.mob.id, list={}})
+                        table.insert(icons, Q{})
+                    end
+        
+                end
+        
+            end
+        
+        end, 10)
 
     end
 
@@ -116,39 +145,27 @@ function status.new()
     self.render = function(bp)
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
+        local statuses  = self.statuses
         
-        if bp and player and T(self.statuses):length() > 0 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+        if #statuses > 0 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
             local update = {}
 
-            for i,v in pairs(self.statuses) do
-                local s = {}
+            for i=1, #statuses do
+                local player = statuses[i] or false
 
-                if v.statuses then
-
-                    for _,vv in ipairs(v.statuses) do
-
-                        if bp.res.buffs[vv] and bp.res.buffs[vv].en ~= 'Doom' then
-                            table.insert(s, string.format('%s', bp.res.buffs[vv].en:sub(1,5)))
-
-                        elseif bp.res.buffs[vv] and bp.res.buffs[vv].en == 'Doom' then
-                            table.insert(s, string.format(' \\cs(%s)%s\\cr', self.priority, bp.res.buffs[vv].en:sub(1,5)))
-
-                        end
-
-                    end
-                    table.insert(update, string.format(' %s:%s[ \\cs(%s)%s\\cr ]', v.name:upper(), (''):rpad(' ', (15-v.name:len())), self.important, table.concat(s, ', '):upper()))
-
+                if player and windower.ffxi.get_mob_by_id(statuses[i].id) then
+                    table.insert(update, string.format(':%s', windower.ffxi.get_mob_by_id(statuses[i].id).name))
                 end
 
             end
-            self.display:text(table.concat(update, '\n'))            
+            self.display:text(table.concat(update, '\n'))
             self.display:update()
 
             if not self.display:visible() then
                 self.display:show()
             end
 
-        elseif bp and T(self.statuses):length() <= 0 then
+        elseif #statuses < 1 then
 
             if self.display:visible() then
                 self.display:hide()
@@ -542,77 +559,153 @@ function status.new()
         elseif bp and actor and target and not category and buff and spell then
             local buff = self.getBuffBySpell(bp, spell)
             
-            if buff and buff ~= spell and self.statuses[target.id] then
+            if buff and buff ~= spell and T(na):contains(buff) then
                 
-                for _,v in ipairs(self.statuses[target.id].statuses) do
+                for i=1, #self.statuses do
+                    local player = self.statuses[i] or false
 
-                    if T(na):contains(v) then
-                        self.remove(bp, target, v)
+                    if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+
+                        for _,debuff in ipairs(player.list) do
+
+                            if buff == debuff then
+                                self.remove(bp, target, debuff)
+                                break
+
+                            end
+
+                        end
+
                     end
 
                 end
 
             elseif buff and buff == spell then
                 
-                if T(removal[2]):contains(spell) and self.statuses[target.id] then
+                if T(removal[2]):contains(spell) then
 
-                    for _,v in ipairs(self.statuses[target.id].statuses) do
-
-                        if T(erase):contains(v) then
-                            self.remove(bp, target, v)
+                    for i=1, #self.statuses do
+                        local player = self.statuses[i] or false
+    
+                        if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+    
+                            for _,debuff in ipairs(player.list) do
+    
+                                if buff == debuff then
+                                    self.remove(bp, target, debuff)
+                                    break
+    
+                                end
+    
+                            end
+    
                         end
-
+    
                     end
 
-                elseif T(removal[3]):contains(spell) and self.statuses[target.id] then
+                elseif T(removal[3]):contains(spell) then
 
-                    for _,v in ipairs(self.statuses[target.id].statuses) do
-
-                        if T(waltz):contains(v) then
-                            self.remove(bp, target, v)
+                    for i=1, #self.statuses do
+                        local player = self.statuses[i] or false
+    
+                        if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+    
+                            for _,debuff in ipairs(player.list) do
+    
+                                if buff == debuff then
+                                    self.remove(bp, target, debuff)
+                                    break
+    
+                                end
+    
+                            end
+    
                         end
-
+    
                     end
 
-                elseif T(removal[4]):contains(spell) and self.statuses[target.id] then
-                    local party = bp.helpers['party'].getMembers(bp, false)
+                elseif T(removal[4]):contains(spell) then
 
-                    for _,v in ipairs(self.statuses[target.id].statuses) do
-                        
-                        if T(wake):contains(v) then
-                            self.remove(bp, target, v)
+                    for i=1, #self.statuses do
+                        local player = self.statuses[i] or false
+    
+                        if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+    
+                            for _,debuff in ipairs(player.list) do
+    
+                                if buff == debuff then
+                                    self.remove(bp, target, debuff)
+                                    break
+    
+                                end
+    
+                            end
+    
                         end
-                        
+    
                     end
 
-                elseif T(removal[5]):contains(spell) and self.statuses[target.id] then
+                elseif T(removal[5]):contains(spell) then
 
-                    for _,v in ipairs(self.statuses[target.id].statuses) do
-
-                        if T(sleep):contains(v) then
-                            self.remove(bp, target, v)
+                    for i=1, #self.statuses do
+                        local player = self.statuses[i] or false
+    
+                        if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+    
+                            for _,debuff in ipairs(player.list) do
+    
+                                if buff == debuff then
+                                    self.remove(bp, target, debuff)
+                                    break
+    
+                                end
+    
+                            end
+    
                         end
-
+    
                     end
 
-                elseif T(removal[6]):contains(spell) and self.statuses[target.id] then
+                elseif T(removal[6]):contains(spell) then
 
-                    for _,v in ipairs(self.statuses[target.id].statuses) do
-
-                        if T(misery):contains(v) then
-                            self.remove(bp, target, v)
+                    for i=1, #self.statuses do
+                        local player = self.statuses[i] or false
+    
+                        if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+    
+                            for _,debuff in ipairs(player.list) do
+    
+                                if buff == debuff then
+                                    self.remove(bp, target, debuff)
+                                    break
+    
+                                end
+    
+                            end
+    
                         end
-
+    
                     end
 
-                elseif T(removal[7]):contains(spell) and self.statuses[target.id] then
+                elseif T(removal[7]):contains(spell) then
 
-                    for _,v in ipairs(self.statuses[target.id].statuses) do
-
-                        if T(kill):contains(v) then
-                            self.remove(bp, target, v)
+                    for i=1, #self.statuses do
+                        local player = self.statuses[i] or false
+    
+                        if player and player.list and target.id == player.id and T(player.list):contains(buff) then
+    
+                            for _,debuff in ipairs(player.list) do
+    
+                                if buff == debuff then
+                                    self.remove(bp, target, debuff)
+                                    break
+    
+                                end
+    
+                            end
+    
                         end
-
+    
                     end
 
                 end
@@ -656,22 +749,23 @@ function status.new()
     end
 
     self.fixStatus = function(bp)
-        local bp    = bp or false
-        local s     = T(self.statuses)
+        local bp = bp or false
+        local statuses = self.statuses
 
-        if bp and s and s:length() > 0 then
+        if bp and statuses and #statuses > 0 then
 
-            for i,v in pairs(s) do
+            for i=1, #statuses do
+                local player = statuses[i] or false
                 
-                if v and v.statuses then
+                if player and player.list then
 
-                    for _,buff in ipairs(v.statuses) do
+                    for _,buff in ipairs(player.list) do
                         local category  = self.getCategory(bp, buff)
                         local remove    = removal[category]
                         
                         if category and remove then
                             local player    = windower.ffxi.get_player()
-                            local target    = windower.ffxi.get_mob_by_id(v.id)
+                            local target    = windower.ffxi.get_mob_by_id(player.id)
                             local spell     = bp.res.spells[remove[buff]]
                             local priority  = T{'Cursna'}
                             local dead      = T{2,3}
@@ -724,7 +818,7 @@ function status.new()
                                 end
 
                             elseif target and dead:contains(target.status) then
-                                self.statuses[i] = {}
+                                self.clearStatuses(bp, target)
 
                             end
 
@@ -743,45 +837,56 @@ function status.new()
     self.build = function(bp, data)
         local bp    = bp or false
         local data  = data or false
-
+        
         if bp and data then
             local packed = bp.packets.parse('incoming', data)
 
-            if packed and packed['ID'] then
+            if packed then
+                self.statuses, icons = {}, {}
+                coroutine.schedule(function()
 
-                if (os.clock()-timer.last) >= timer.delay then
-                    self.statuses = {}
-                    coroutine.sleep(1)
-                end
-
-                if bp.helpers['party'].findByName(bp, packed['Name'], true) and packed['Index'] ~= 0 then
-                    self.statuses[packed['ID']] = {name=packed['Name'], id=packed['ID'], statuses={}}
-                    timer.last = os.clock()
-
-                end
+                    for i=1, 18 do
+                        local player = windower.ffxi.get_mob_by_id(packed[string.format('ID %d', i)]) or false
+    
+                        if player then
+                            table.insert(self.statuses, {name=player.name, id=player.id, list={}})
+                            table.insert(icons, Q{})
+                        end
+    
+                    end
+                    
+                end, 2)
 
             end
 
-        end
+        end        
 
     end
 
     self.add = function(bp, target, buff)
         local bp        = bp or false
-        local target    = target or false
         local buff      = buff or false
         
-        if bp and target and buff then
-            local s = T(self.statuses) 
+        if bp and buff then
+            local target = bp.convertTarget(target)
             
-            if s and s:length() > 0 and not self.hasStatus(bp, target, buff) and s[target.id] and s[target.id].statuses then
-                table.insert(s[target.id].statuses, buff)
-            
-            elseif s and s:length() == 0 and target and target.name and target.id then
-                s[target.id] = {}
+            if target then
+                local statuses = self.statuses
+                
+                if statuses and not self.hasStatus(bp, target, buff) then
+                    
+                    for i=1, #statuses do
+                        local player = statuses[i]
 
-                do  -- Insert new table for player.
-                    s[target.id] = {name=target.name, id=target.id, statuses={buff}}
+                        if statuses[i] and statuses[i].id and statuses[i].list and statuses[i].id == target.id then
+                            table.insert(statuses[i].list, buff)
+                            self.addIcon(bp, target, buff, i)
+                            break
+
+                        end
+
+                    end
+
                 end
 
             end
@@ -791,23 +896,28 @@ function status.new()
     end
 
     self.remove = function(bp, target, buff)
-        local bp        = bp or false
-        local target    = target or false
-        local buff      = buff or false
+        local bp    = bp or false
+        local buff  = buff or false
         
-        if bp and target and buff then
-            local t = T(self.statuses)
+        if bp and buff then
+            local target    = bp.convertTarget(target) or false
+            local statuses  = self.statuses
 
-            if t:length() > 0 and t[target.id] then
-                local s = T(t[target.id].statuses)
-                
-                if s and (s):contains(buff) then
+            if #statuses > 0 and target and target.id then
+
+                for i=1, #statuses do
+                    local player = statuses[i] or false
                     
-                    for i, status in ipairs(s) do
+                    if player and player.list and T(player.list):contains(buff) and target.id == player.id then
                         
-                        if status == buff then
-                            table.remove(s, i)
-                            break
+                        for ii, status in ipairs(statuses[i].list) do
+                            
+                            if status == buff then
+                                print(string.format('Removing %s', bp.res.buffs[status].en))
+                                table.remove(self.statuses[i].list, ii)
+                                break
+
+                            end
 
                         end
 
@@ -821,19 +931,130 @@ function status.new()
 
     end
 
-    self.hasStatus = function(bp, target, buff)
+    self.addIcon = function(bp, target, buff, position)
         local bp        = bp or false
-        local target    = target or false
         local buff      = buff or false
+        local position  = position or false
 
-        if bp and target and buff then
-            local t = T(self.statuses)
+        if bp and buff and position then
+            local target = bp.convertTarget(target) or false
 
-            if t:length() > 0 and t[target.id] then
-                local s = T(t[target.id].statuses)
+            if icons and icons[position] then
+                icons[position]:push({id=buff, icon=images.new({color={alpha = 255},texture={fit=false},draggable=false})})
 
-                if s and (s):contains(buff) then
-                    return true
+                if icons[position]:length() == 1 then
+                    local count     = icons[position]:length()
+                    local size      = (self.settings.layout.font.size + 4)
+                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
+
+                    icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
+                    icons[position][count].icon:size(size, size)
+                    icons[position][count].icon:transparency(0)
+                    icons[position][count].icon:pos_x(self.display:pos_x()-size)
+                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
+                    icons[position][count].icon:show()
+
+                else
+                    local count     = icons[position]:length()
+                    local size      = (self.settings.layout.font.size + 4)
+                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
+
+                    icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
+                    icons[position][count].icon:size(size, size)
+                    icons[position][count].icon:transparency(0)
+                    icons[position][count].icon:pos_x(icons[position][count-1].icon:pos_x()-size)
+                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
+                    icons[position][count].icon:show()
+
+                end
+
+            end
+
+        end
+
+    end
+
+    self.removeIcon = function(bp, target, buff, position)
+        local bp        = bp or false
+        local buff      = buff or false
+        local position  = position or false
+
+        if bp and buff and position then
+            local target = bp.convertTarget(target) or false
+
+            if icons and icons[position] then
+                icons[position]:push({id=buff, icon=images.new({color={alpha = 255},texture={fit=false},draggable=false})})
+
+                if icons[position]:length() == 1 then
+                    local count     = icons[position]:length()
+                    local size      = (self.settings.layout.font.size + 4)
+                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
+
+                    icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
+                    icons[position][count].icon:size(size, size)
+                    icons[position][count].icon:transparency(0)
+                    icons[position][count].icon:pos_x(self.display:pos_x()-size)
+                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
+                    icons[position][count].icon:show()
+
+                else
+                    local count     = icons[position]:length()
+                    local size      = (self.settings.layout.font.size + 4)
+                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
+
+                    icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
+                    icons[position][count].icon:size(size, size)
+                    icons[position][count].icon:transparency(0)
+                    icons[position][count].icon:pos_x(icons[position][count-1].icon:pos_x()-size)
+                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
+                    icons[position][count].icon:show()
+
+                end
+
+            end
+
+        end
+
+    end
+
+    self.clearStatuses = function(bp, target)
+        local bp = bp or false
+
+        if bp then
+            local target = bp.convertTarget(target) or false
+
+            for i=1, #self.statuses do
+                local player = self.statuses[i] or false
+
+                if player and player.id and target.id and player.id == target.id then
+                    self.statuses[i].list = {}
+                    break
+
+                end
+
+            end
+
+        end
+
+    end
+
+    self.hasStatus = function(bp, target, buff)
+        local bp    = bp or false
+        local buff  = buff or false
+
+        if bp and buff then
+            local target    = bp.convertTarget(target)
+            local statuses  = self.statuses
+
+            if target and statuses and #statuses > 0 and target.id then
+
+                for i=1, #statuses do
+                    local player = statuses[i] or false
+
+                    if player and player.id == target.id and T(player.list):contains(buff) then
+                        return true
+                    end
+
                 end
 
             end

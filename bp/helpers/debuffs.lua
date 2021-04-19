@@ -13,14 +13,14 @@ function debuffs.new()
     local self = {}
 
     -- Static Variables.
-    self.settings = dofile(string.format('%sbp/helpers/settings/debuffs/%s_settings.lua', windower.addon_path, player.name))
-    self.layout   = self.settings.layout or {pos={x=300, y=400}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Mulish', size=8}, padding=2, stroke_width=2, draggable=false}
-    self.update   = self.settings.update or {delay=2, last=0}
-    self.display  = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.settings   = dofile(string.format('%sbp/helpers/settings/debuffs/%s_settings.lua', windower.addon_path, player.name))
+    self.layout     = self.settings.layout or {pos={x=300, y=400}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=2, draggable=false}
+    self.update     = self.settings.update or {delay=2, last=0}
+    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
 
     -- Public Variables.
-    self.debuffs  = self.settings.debuffs or {}
-    self.active   = {}
+    self.debuffs    = self.settings.debuffs or {}
+    self.active     = {}
 
     -- Reset last.
     self.update.last = 0
@@ -31,7 +31,6 @@ function debuffs.new()
 
         if self.settings then
             self.settings.debuffs = self.debuffs
-            self.settings.update  = self.update
             self.settings.layout  = self.layout
 
         end
@@ -87,7 +86,7 @@ function debuffs.new()
     self.reset = function()
         local player = windower.ffxi.get_player() or false
 
-        if player then
+        if player and self.debuffs[player.main_job_id] then
 
             for i in pairs(self.debuffs[player.main_job_id]) do
                 self.debuffs[player.main_job_id][i].last = 0
@@ -96,6 +95,7 @@ function debuffs.new()
         end
 
     end
+    self.reset()
 
     -- Public Functions.
     self.cast = function(bp)
@@ -113,8 +113,6 @@ function debuffs.new()
 
                     if target and timer <= 0 and not bp.helpers['queue'].inQueue(bp, spell) and bp.helpers['actions'].isReady(bp, 'MA', spell.name) and bp.helpers['target'].castable(bp, target, bp.MA[spell.name]) then
                         bp.helpers['queue'].add(bp, bp.MA[spell.name], target)
-                        spell.last = os.clock()
-
                     end
 
                 end
@@ -295,7 +293,7 @@ function debuffs.new()
                     local color     = string.format('%s,%s,%s', math.abs(self.layout.colors.text.r/0.2), math.abs(self.layout.colors.text.g/0.2), math.abs(self.layout.colors.text.b/0.2))
                     
                     if color and timer and spell then
-                        table.insert(update, string.format(' \\cs(%s)[%.1f]\\cr: %s', color, timer, spell.name))
+                        table.insert(update, string.format(' \\cs(%s)%s[%.1f]\\cr: %s', color, (''):rpad(' ', (7-#tostring(math.floor(timer)))), timer, spell.name))
                     end
 
                 end

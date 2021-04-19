@@ -1044,25 +1044,25 @@ function queue.new()
                                 self.remove(bp, bp.MA[v.action.en], target)
                                 update = true
 
-                                if priority:contains(action.en) then
-                                    self.queue:insert(1, {action=action, target=target, priority=0, attempts=1})
+                                --if priority:contains(action.en) then
+                                    --self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                                 
-                                else
+                                --else
                                     self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
 
-                                end
+                                --end
 
                             elseif v.target.id == target.id and v.action.en ~= action.en and (v.action.en):match('Waltz') and not self.inQueue(bp, bp.JA[action.en], target) then
                                 self.remove(bp, bp.JA[v.action.en], target)
                                 update = true
                                 
-                                if priority:contains(action.en) then
-                                    self.queue:insert(1, {action=action, target=target, priority=0, attempts=1})
+                                --if priority:contains(action.en) then
+                                    --self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                                 
-                                else
+                                --else
                                     self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
                                 
-                                end
+                                --end
 
                             end
 

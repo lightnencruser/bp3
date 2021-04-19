@@ -633,6 +633,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- BLU/.
                         if player.main_job == 'BLU' then
@@ -941,6 +942,7 @@ function core.get()
 
                     -- DEBUFF LOGIC.
                     if self.getSetting('DEBUFF') and target then
+                        bp.helpers['debuffs'].cast(bp)
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
@@ -1296,6 +1298,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- BLU/.
                         if player.main_job == 'BLU' then
@@ -1604,6 +1607,7 @@ function core.get()
 
                     -- DEBUFF LOGIC.
                     if self.getSetting('DEBUFF') and target then
+                        bp.helpers['debuffs'].cast(bp)
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then

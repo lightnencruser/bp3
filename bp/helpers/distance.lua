@@ -24,7 +24,6 @@ function distance.new()
     local persist = function()
 
         if self.settings then
-            self.settings.update    = self.update
             self.settings.layout    = self.layout
             self.settings.important = self.important
 

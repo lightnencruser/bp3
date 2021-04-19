@@ -77,7 +77,7 @@ function menus.new()
 
                 for i,v in ipairs(menu) do
                     
-                    if (i < 5 or i > 9) then
+                    if (i < 4 or i > 9) then
                         updated[i] = ('C'):pack(menu[i])
                     else
                         updated[i] = ('C'):pack(255)

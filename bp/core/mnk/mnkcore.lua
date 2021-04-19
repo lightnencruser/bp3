@@ -611,6 +611,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- MNK/.
                         if player.main_job == 'MNK' and helpers['actions'].canCast() and target then
@@ -625,17 +626,11 @@ function core.get()
 
                             -- IMPETUS.
                             elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers['actions'].isReady(bp, 'JA', "Impetus") then
-
-                                if not helpers['queue'].inQueue(bp, bp.JA['Footwork']) and not helpers['queue'].inQueue(bp, bp.JA['Impetus']) then
-                                    helpers['queue'].add(bp, bp.JA["Impetus"], player)
-                                end
+                                helpers['queue'].add(bp, bp.JA["Impetus"], player)
 
                             -- FOOTWORK.
-                            elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers['actions'].isReady(bp, 'JA', "Footwork") then
-
-                                if not helpers['queue'].inQueue(bp, bp.JA['Footwork']) and not helpers['queue'].inQueue(bp, bp.JA['Impetus']) then
-                                    helpers['queue'].add(bp, bp.JA["Footwork"], player)
-                                end
+                            elseif not helpers['buffs'].buffActive(406) and not helpers['buffs'].buffActive(461) and helpers['actions'].isReady(bp, 'JA', "Footwork") and not helpers['actions'].isReady(bp, 'JA', "Impetus") then
+                                helpers['queue'].add(bp, bp.JA["Footwork"], player)
 
                             end
                            
@@ -1298,6 +1293,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- MNK/.
                         if player.main_job == 'MNK' and helpers['actions'].canCast() and target then

@@ -609,6 +609,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- BRD/.
                         if player.main_job == 'BRD' then
@@ -1277,6 +1278,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- BRD/.
                         if player.main_job == 'BRD' then

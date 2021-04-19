@@ -614,6 +614,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- WHM/.
                         if player.main_job == 'WHM' and helpers['actions'].canCast() then
@@ -622,7 +623,7 @@ function core.get()
                             if player.sub_job == 'SCH' then
 
                                 if (helpers['buffs'].buffActive(358) or helpers['buffs'].buffActive(359)) then
-
+                                    
                                     -- RERAISE
                                     if not helpers['buffs'].buffActive(113) then
                                         
@@ -988,6 +989,7 @@ function core.get()
 
                     -- DEBUFF LOGIC.
                     if self.getSetting('DEBUFF') and target then
+                        bp.helpers['debuffs'].cast(bp)
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
@@ -1352,6 +1354,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- WHM/.
                         if player.main_job == 'WHM' and helpers['actions'].canCast() then
@@ -1360,21 +1363,15 @@ function core.get()
                             if player.sub_job == 'SCH' then
 
                                 if (helpers['buffs'].buffActive(401) or helpers['buffs'].buffActive(402)) then
-
+                                    
                                     -- RERAISE
                                     if not helpers['buffs'].buffActive(113) then
                                         
                                         if self.getSetting('JOB POINTS') > 99 and helpers['actions'].isReady(bp, 'MA', "Reraise IV") then
                                             helpers['queue'].add(bp, bp.MA["Reraise IV"], player)
 
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Reraise III") then
+                                        elseif self.getSetting('JOB POINTS') < 100 and helpers['actions'].isReady(bp, 'MA', "Reraise III") then
                                             helpers['queue'].add(bp, bp.MA["Reraise III"], player)
-
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Reraise II") then
-                                            helpers['queue'].add(bp, bp.MA["Reraise II"], player)
-
-                                        elseif helpers['actions'].isReady(bp, 'MA', "Reraise") then
-                                            helpers['queue'].add(bp, bp.MA["Reraise"], player)
 
                                         end
 
@@ -1395,7 +1392,7 @@ function core.get()
                                 end
 
                             else
-
+                                
                                 -- RERAISE
                                 if not helpers['buffs'].buffActive(113) then
                                         
@@ -1728,6 +1725,7 @@ function core.get()
 
                     -- DEBUFF LOGIC.
                     if self.getSetting('DEBUFF') and target then
+                        bp.helpers['debuffs'].cast(bp)
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then

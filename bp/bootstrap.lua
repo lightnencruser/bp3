@@ -66,6 +66,35 @@ bootstrap.load = function()
         
     }
 
+    self.round = function(num)
+        
+        if num >= 0 then 
+            return math.floor(num+.5)
+
+        else
+            return math.ceil(num-.5)
+
+        end
+
+    end
+
+    self.convertTarget = function(target)
+        local target = target or false
+
+        if type(target) == 'table' then
+            return target or false
+
+        elseif type(target) == 'number' or tonumber(target) ~= nil then
+            return windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
+
+        elseif type(target) == 'string' and tonumber(target) == nil then
+            return windower.ffxi.get_mob_by_name(target) or false
+
+        end
+        return false
+
+    end
+
     self.writeSettings = function(dir, settings)
         local dir, settings = dir or false, settings or {}
 

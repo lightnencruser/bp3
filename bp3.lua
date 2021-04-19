@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '1.20210413'
+_addon.version  = '1.20210418'
 _addon.command  = 'bp'
 
 -- Get system data.
@@ -72,22 +72,15 @@ windower.register_event('addon command', function(...)
             windower.send_command('lua r bp3')
 
         elseif c == 'test' then
-            local party = windower.ffxi.get_party()
-            for i,v in pairs(party) do
-
-                if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
-                    
-                    if v and type(v) == 'table' and v.mob then
-                        
-                        for ii,vv in pairs(v.mob) do
-                            print(ii,vv)
-                        end
-
-                    end
-
-                end
-
-            end
+            bp.helpers['status'].add(bp, 'Eliidyr', 3)
+            bp.helpers['status'].add(bp, 'Eliidyr', 4)
+            bp.helpers['status'].add(bp, 'Eliidyr', 5)
+            bp.helpers['status'].add(bp, 'Eliidyr', 6)
+            bp.helpers['status'].add(bp, 'Peenaspump', 3)
+            bp.helpers['status'].add(bp, 'Peenaspump', 4)
+            bp.helpers['status'].add(bp, 'Peenaspump', 5)
+            bp.helpers['status'].add(bp, 'Clapmycheeks', 4)
+            bp.helpers['status'].add(bp, 'Clapmycheeks', 5)
 
         else
             bp.core.handleCommands(bp, a)
@@ -120,6 +113,8 @@ windower.register_event('prerender', function()
         bp.helpers['dax'].render(bp)
         bp.helpers['coms'].render(bp)
         bp.helpers['assist'].render(bp)
+        bp.helpers['enmity'].render(bp)
+        bp.helpers['buffer'].render(bp)
 
         if bp.helpers['empyrean'] then
             bp.helpers['empyrean'].render(bp)
@@ -199,7 +194,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                 end
 
-                -- Finish Weaponskill.
+            -- Finish Weaponskill.
             elseif pack['Category'] == 3 then
 
                 if actor.name == player.name then
@@ -210,24 +205,37 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
                 end
 
-                -- Finish Spell Casting.
+            -- Finish Spell Casting.
             elseif pack['Category'] == 4 then
 
                 if actor.name == player.name then
                     local spell  = bp.res.spells[param] or false
 
                     if spell and type(spell) == 'table' and spell.type then
+                        local debuffs = bp.helpers['debuffs'].debuffs
+
                         bp.helpers['queue'].ready = (os.clock() + bp.helpers['actions'].getDelays(bp)[spell.type] or 1)
-
-                        -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, spell, actor)
-
-                        -- Update Cure weights.
                         bp.helpers['cures'].updateWeight(bp, original)
+                        bp.helpers['buffer'].updateDelay(bp, target, spell)
 
                         -- Check for Utsusemi, and protect from over casting.
                         if (player.main_job == 'NIN' or player.sub_job == 'NIN') and (spell.en):match('Utsusemi') then
                             bp.core['UTSU BLOCK'].last = os.clock()
+                        end
+
+                        -- Handle updating debuffs delay.
+                        if debuffs and debuffs[player.main_job_id] then
+                            
+                            for i,v in ipairs(debuffs[player.main_job_id]) do
+
+                                if v.id == spell.id then
+                                    debuffs[player.main_job_id][i].last = os.clock()
+                                    break
+                                
+                                end
+
+                            end
                         end
                     
                     else
@@ -445,6 +453,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
             end
             bp.helpers['status'].catchStatus(bp, original)
+            bp.helpers['enmity'].catchEnmity(bp, original)
             bp.helpers['burst'].registerSkillchain(bp, original)
 
         end
@@ -504,6 +513,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
     elseif id == 0x0dd then
         bp.helpers['party'].updateJobs(bp, original)
 
+    elseif id == 0x0c8 then
+        bp.helpers['status'].build(bp, original)
+
     elseif id == 0x034 then
         local menu_hacks = bp.helpers['menus'].enabled
 
@@ -530,19 +542,23 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
     elseif id == 0x05c then
 
-        --[[
         if bp.helpers['menus'].enabled and not injected then
             local unpacked  = { original:sub(5,36):unpack("C32") }
             local packed    = {}
             
             for i,v in ipairs(unpacked) do
-                packed[i] = ('C'):pack(200)
+
+                if i > 7 then
+                    packed[i] = ('C'):pack(unpacked[i])
+                else
+                    packed[i] = ('C'):pack(255)
+                end
+
             end
             windower.packets.inject_incoming(0x05c, original:sub(1,4)..table.concat(packed, ''))
             return true
 
         end
-        ]]
 
     elseif id == 0x03C then
         local money = false
@@ -702,7 +718,7 @@ windower.register_event('gain buff', function(id)
     local id = id or false
     
     if id then
-
+        
     end
 
 end)

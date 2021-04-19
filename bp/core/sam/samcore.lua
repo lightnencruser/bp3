@@ -686,6 +686,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- SAM/.
                         if player.main_job == 'SAM' and helpers['actions'].canAct() then
@@ -1445,6 +1446,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- SAM/.
                         if player.main_job == 'SAM' and helpers['actions'].canAct() then

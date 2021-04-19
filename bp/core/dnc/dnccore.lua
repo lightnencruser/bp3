@@ -605,6 +605,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- DNC/.
                         if player.main_job == 'DNC' then
@@ -1268,6 +1269,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- DNC/.
                         if player.main_job == 'DNC' then

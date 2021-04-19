@@ -666,6 +666,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- WAR/.
                         if player.main_job == 'WAR' and helpers['actions'].canAct() then
@@ -1421,6 +1422,7 @@ function core.get()
 
                     -- BUFF LOGIC.
                     if self.getSetting('BUFFS') then
+                        bp.helpers['buffer'].cast(bp)
                         
                         -- WAR/.
                         if player.main_job == 'WAR' and helpers['actions'].canAct() then

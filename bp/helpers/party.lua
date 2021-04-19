@@ -13,10 +13,6 @@ function party.new()
         local bp    = bp or false
         local data  = data or false
 
-        do -- Build Status removal tables.
-            bp.helpers['status'].build(bp, data)
-        end
-
         if bp and data then
             local packed = bp.packets.parse('incoming', data)
 

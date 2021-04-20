@@ -259,17 +259,21 @@ function burst.new()
 
                 end
 
-            end            
+            end
 
-            if bp.core.getSetting('MULTINUKE') == 2 and T{'I','II','III'}:contains(tier) then
-                bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+            if bursting:length() > 0 then
 
-            elseif bp.core.getSetting('MULTINUKE') == 3 and T{'I','II','III'}:contains(tier) then
-                bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
-                bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+                if bp.core.getSetting('MULTINUKE') == 2 and T{'I','II','III'}:contains(tier) then
+                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
 
-            else
-                bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+                elseif bp.core.getSetting('MULTINUKE') == 3 and T{'I','II','III'}:contains(tier) then
+                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+
+                else
+                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+
+                end
 
             end
 

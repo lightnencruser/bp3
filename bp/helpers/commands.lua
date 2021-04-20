@@ -402,9 +402,9 @@ commands.new = function()
                     local list      = bp.core['ENSPELL'][1]
                     
                     for _,v in pairs(list) do
-                        print(v)
+
                         if v and type(v) == 'string' and enspell == v:sub(1,3):lower() then
-                            print(v)
+
                             core.setSetting(bp, 'ENSPELL', v)
                             break
 

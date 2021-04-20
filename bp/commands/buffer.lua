@@ -44,6 +44,9 @@ function buffer.new()
                     end
                     bp.helpers['buffer'].remove(bp, windower.ffxi.get_mob_by_target('t'), table.concat(spell, ' '))
 
+                elseif command == 'reset' then
+                    bp.helpers['buffer'].reset(bp)
+
                 elseif command == 'pos' and commands[3] then
                     bp.helpers['buffer'].pos(bp, commands[3], commands[4] or false)
 

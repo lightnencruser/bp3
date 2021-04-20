@@ -111,10 +111,11 @@ function status.new()
     self.writeSettings()
 
     self.zoneChange = function()
-        self.statuses, icons = {}, {}
         self.writeSettings()
+        self.clearIcons(bp)
 
         coroutine.schedule(function()
+            self.statuses, icons = {}, {}
 
             for i,v in pairs(windower.ffxi.get_party()) do
 
@@ -129,7 +130,7 @@ function status.new()
         
             end
         
-        end, 10)
+        end, 15)
 
     end
 
@@ -755,21 +756,20 @@ function status.new()
         if bp and statuses and #statuses > 0 then
 
             for i=1, #statuses do
-                local player = statuses[i] or false
                 
-                if player and player.list then
+                if statuses[i] and statuses[i].list then
 
-                    for _,buff in ipairs(player.list) do
+                    for _,buff in ipairs(statuses[i].list) do
                         local category  = self.getCategory(bp, buff)
                         local remove    = removal[category]
                         
                         if category and remove then
                             local player    = windower.ffxi.get_player()
-                            local target    = windower.ffxi.get_mob_by_id(player.id)
+                            local target    = windower.ffxi.get_mob_by_id(statuses[i].id)
                             local spell     = bp.res.spells[remove[buff]]
                             local priority  = T{'Cursna'}
                             local dead      = T{2,3}
-
+                            
                             if target and not dead:contains(target.status) then
                             
                                 if spell and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
@@ -842,17 +842,22 @@ function status.new()
             local packed = bp.packets.parse('incoming', data)
 
             if packed then
-                self.statuses, icons = {}, {}
+                self.clearIcons(bp)
+                
                 coroutine.schedule(function()
+                    self.statuses, icons = {}, {}
 
-                    for i=1, 18 do
-                        local player = windower.ffxi.get_mob_by_id(packed[string.format('ID %d', i)]) or false
-    
-                        if player then
-                            table.insert(self.statuses, {name=player.name, id=player.id, list={}})
-                            table.insert(icons, Q{})
+                    for i,v in pairs(windower.ffxi.get_party()) do
+
+                        if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
+                
+                            if v.mob and ((v.mob.distance):sqrt() < 50 or (v.mob.distance):sqrt() > 0) then
+                                table.insert(self.statuses, {name=v.mob.name, id=v.mob.id, list={}})
+                                table.insert(icons, Q{})
+                            end
+                
                         end
-    
+                
                     end
                     
                 end, 2)
@@ -913,8 +918,8 @@ function status.new()
                         for ii, status in ipairs(statuses[i].list) do
                             
                             if status == buff then
-                                print(string.format('Removing %s', bp.res.buffs[status].en))
                                 table.remove(self.statuses[i].list, ii)
+                                self.removeIcon(bp, target, buff, i)
                                 break
 
                             end
@@ -931,6 +936,27 @@ function status.new()
 
     end
 
+    self.clearStatuses = function(bp, target)
+        local bp = bp or false
+
+        if bp then
+            local target = bp.convertTarget(target) or false
+
+            for i=1, #self.statuses do
+                local player = self.statuses[i] or false
+
+                if player and player.id and target.id and player.id == target.id then
+                    self.statuses[i].list = {}
+                    break
+
+                end
+
+            end
+
+        end
+
+    end
+
     self.addIcon = function(bp, target, buff, position)
         local bp        = bp or false
         local buff      = buff or false
@@ -941,29 +967,27 @@ function status.new()
 
             if icons and icons[position] then
                 icons[position]:push({id=buff, icon=images.new({color={alpha = 255},texture={fit=false},draggable=false})})
+                local a_x, a_y  = self.display:pos()
+                local b_x, b_y  = self.display:extents()
+                local padding   = self.settings.layout.padding
+                local height    = math.floor(b_x/#icons)
+                local size      = self.settings.layout.font.size
+                local count     = icons[position]:length()
 
-                if icons[position]:length() == 1 then
-                    local count     = icons[position]:length()
-                    local size      = (self.settings.layout.font.size + 4)
-                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
-
+                if count == 1 then
                     icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
                     icons[position][count].icon:size(size, size)
                     icons[position][count].icon:transparency(0)
-                    icons[position][count].icon:pos_x(self.display:pos_x()-size)
-                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
+                    icons[position][count].icon:pos_x(self.display:pos_x() - size)
+                    icons[position][count].icon:pos_y(height * (position - 1) + (self.display:pos_y() + (padding * 2)))
                     icons[position][count].icon:show()
-
-                else
-                    local count     = icons[position]:length()
-                    local size      = (self.settings.layout.font.size + 4)
-                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
-
+                
+                elseif count > 1 then
                     icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
                     icons[position][count].icon:size(size, size)
                     icons[position][count].icon:transparency(0)
-                    icons[position][count].icon:pos_x(icons[position][count-1].icon:pos_x()-size)
-                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
+                    icons[position][count].icon:pos_x(icons[position][count-1].icon:pos_x() - height)
+                    icons[position][count].icon:pos_y(icons[position][count-1].icon:pos_y())
                     icons[position][count].icon:show()
 
                 end
@@ -982,53 +1006,69 @@ function status.new()
         if bp and buff and position then
             local target = bp.convertTarget(target) or false
 
-            if icons and icons[position] then
-                icons[position]:push({id=buff, icon=images.new({color={alpha = 255},texture={fit=false},draggable=false})})
+            if icons and icons[position] and icons[position].data then
+                local data = icons[position].data
+                
+                for i in ipairs(data) do
+                    
+                    if icons[position][i].id == buff then
+                        icons[position][i].icon:destroy()
+                        icons[position]:remove(i)
+                        break
 
-                if icons[position]:length() == 1 then
-                    local count     = icons[position]:length()
-                    local size      = (self.settings.layout.font.size + 4)
-                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
-
-                    icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
-                    icons[position][count].icon:size(size, size)
-                    icons[position][count].icon:transparency(0)
-                    icons[position][count].icon:pos_x(self.display:pos_x()-size)
-                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
-                    icons[position][count].icon:show()
-
-                else
-                    local count     = icons[position]:length()
-                    local size      = (self.settings.layout.font.size + 4)
-                    local offset    = math.floor( (position * size) - (size / 2) - 1 )
-
-                    icons[position][count].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, buff))
-                    icons[position][count].icon:size(size, size)
-                    icons[position][count].icon:transparency(0)
-                    icons[position][count].icon:pos_x(icons[position][count-1].icon:pos_x()-size)
-                    icons[position][count].icon:pos_y(self.display:pos_y()+offset)
-                    icons[position][count].icon:show()
+                    end
 
                 end
 
+                if icons[position]:length() > 0 then
+                    
+                    for i=1, icons[position]:length() do
+                        local a_x, a_y  = self.display:pos()
+                        local b_x, b_y  = self.display:extents()
+                        local padding   = self.settings.layout.padding
+                        local height    = math.floor(b_x/#icons)
+                        local size      = self.settings.layout.font.size
+                        local count     = icons[position]:length()
+                 
+                        if i == 1 then
+                            icons[position][i].icon:size(size, size)
+                            icons[position][i].icon:transparency(0)
+                            icons[position][i].icon:pos_x(self.display:pos_x() - size)
+                            icons[position][i].icon:pos_y(height * (position - 1) + (self.display:pos_y() + (padding * 2)))
+                            icons[position][i].icon:show()
+                        
+                        elseif i > 1 then
+                            icons[position][i].icon:size(size, size)
+                            icons[position][i].icon:transparency(0)
+                            icons[position][i].icon:pos_x(icons[position][i-1].icon:pos_x() - height)
+                            icons[position][i].icon:pos_y(icons[position][i-1].icon:pos_y())
+                            icons[position][i].icon:show()
+
+                        end
+
+                    end                        
+
+                end
+                
             end
 
         end
 
     end
 
-    self.clearStatuses = function(bp, target)
+    self.clearIcons = function(bp)
         local bp = bp or false
 
         if bp then
-            local target = bp.convertTarget(target) or false
 
-            for i=1, #self.statuses do
-                local player = self.statuses[i] or false
+            for position=1, #icons do
 
-                if player and player.id and target.id and player.id == target.id then
-                    self.statuses[i].list = {}
-                    break
+                if icons and icons[position] and icons[position].data then
+                    local data = icons[position].data
+                    
+                    for i in ipairs(data) do
+                        icons[position][i].icon:destroy()    
+                    end
 
                 end
 

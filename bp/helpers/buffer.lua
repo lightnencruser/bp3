@@ -93,6 +93,29 @@ function buffer.new()
     self.writeSettings()
 
     -- Public Functions.
+    self.reset = function(bp)
+        local bp = bp or false
+
+        if bp then
+
+            for _,v in pairs(buffs) do
+                local player = v
+                
+                for i=1, #player do
+                    local buff = player[i] or false
+                    
+                    if buff and buff.last then
+                        buff.last = 0
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
     self.add = function(bp, target, spell, delay)
         local bp        = bp or false
         local target    = target or false
@@ -293,10 +316,11 @@ function buffer.new()
             end
             
             if buffs[i] then
-                icons[i]    = {}
+                icons[i] = {}
 
                 for _,v in ipairs(buffs[i]) do
                     table.insert(icons[i], {icon=images.new({color={alpha = 255},texture={fit=false},draggable=false}), id=v.id})
+
                     local id     = self.convert(bp, v.id)
                     local index  = #icons[i]
                     local offset = (count*(font+2))
@@ -310,6 +334,7 @@ function buffer.new()
                             icons[i][index].icon:pos_x(self.display:pos_x()-(font+1))
                             icons[i][index].icon:pos_y(self.display:pos_y()+offset+3)
                             icons[i][index].icon:show()
+
 
                         else
                             icons[i][index].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, id))
@@ -445,7 +470,7 @@ function buffer.new()
                 if windower.ffxi.get_mob_by_id(i) then
                     table.insert(update, string.format(':%s', windower.ffxi.get_mob_by_id(i).name))
                 end
-                
+
             end
             self.display:text(table.concat(update, '\n'))
             self.display:update()

@@ -154,7 +154,7 @@ function actions.new()
             for i=1, #items do
                 
                 if items[i].name and items[i].count then
-
+                    
                     for index, item in ipairs(inventory) do
                         
                         if bp.res.items[item.id] and bp.res.items[item.id].en == items[i].name then
@@ -173,7 +173,7 @@ function actions.new()
                         end
 
                     end
-
+                    
                     if not update then
                         trade[string.format('Item Index %s', i)] = 0
                         trade[string.format('Item Count %s', i)] = 0

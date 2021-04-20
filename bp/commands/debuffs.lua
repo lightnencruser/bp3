@@ -28,6 +28,9 @@ function debuffs.new()
                 elseif command == '-' and commands[3] then
                     bp.helpers['debuffs'].remove(bp, table.concat(commands, ' '):sub(11))
 
+                elseif command == 'reset' then
+                    bp.helpers['debuffs'].reset()
+
                 elseif command == 'clear' then
                     bp.helpers['debuffs'].clear()
 

@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '1.20210418'
+_addon.version  = '1.20210420'
 _addon.command  = 'bp'
 
 -- Get system data.
@@ -55,7 +55,7 @@ windower.register_event('addon command', function(...)
                         local split = a[i]:split(':')
 
                         if bp.helpers['inventory'].findItemByName(split[1]) and split[2] and tonumber(split[2]) ~= nil then
-                            table.insert(items, {name=bp.helpers['inventory'].findItemByName(split[1]).en, count=tonumber(split[2])})
+                            table.insert(items, {name=bp.helpers['inventory'].findItemByName(split[1]).en, count=tonumber(split[2] or 1)})
                         end
 
                     end
@@ -72,6 +72,7 @@ windower.register_event('addon command', function(...)
             windower.send_command('lua r bp3')
 
         elseif c == 'test' then
+            bp.helpers['status'].add(bp, 'Turtle', 3)
             bp.helpers['status'].add(bp, 'Eliidyr', 3)
             bp.helpers['status'].add(bp, 'Eliidyr', 4)
             bp.helpers['status'].add(bp, 'Eliidyr', 5)
@@ -81,6 +82,10 @@ windower.register_event('addon command', function(...)
             bp.helpers['status'].add(bp, 'Peenaspump', 5)
             bp.helpers['status'].add(bp, 'Clapmycheeks', 4)
             bp.helpers['status'].add(bp, 'Clapmycheeks', 5)
+            bp.helpers['status'].add(bp, 'Duhpeter', 5)
+            bp.helpers['status'].add(bp, 'Lordpotato', 10)
+            bp.helpers['status'].add(bp, 'Ninjar', 8)
+            bp.helpers['status'].add(bp, 'Mutant', 9)
 
         else
             bp.core.handleCommands(bp, a)
@@ -462,6 +467,11 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
 end)
 
+windower.register_event('unhandled command', function(command, ...)
+    bp.helpers['console'].handle(bp, command, T{...})
+
+end)
+
 windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)
 
     if id == 0x01a then
@@ -535,6 +545,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
             elseif bp.helpers['chests'].busy then
                 return bp.helpers['chests'].handleChest(bp, original)
+
+            elseif bp.helpers['maps'].busy then
+                bp.helpers['maps'].buyMaps(bp, original)
 
             end
 

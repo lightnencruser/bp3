@@ -46,6 +46,7 @@ return {
         {name='cures',          status=true},
         {name='dax',            status=true},
         {name='debuffs',        status=true},
+        {name='debug',          status=true},
         {name='distance',       status=true},
         {name='empyrean',       status=true},
         {name='enmity',         status=true},

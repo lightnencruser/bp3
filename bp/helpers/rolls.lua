@@ -14,25 +14,27 @@ function rolls.new()
     --Static Variables.
     self.allowed    = require('resources').job_abilities:type('CorsairRoll')
     self.settings   = dofile(string.format('%sbp/helpers/settings/rolls/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=500, y=75}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=3, stroke_width=1, draggable=true}
+    self.layout     = self.settings.layout or {pos={x=500, y=75}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=5, stroke_width=1, draggable=true}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
     self.blink      = string.format('%s,%s,%s', 110, 235, 50)
-    self.unlucky    = string.format('%s,%s,%s', 235, 30, 60)
+    self.unlucky    = string.format('%s,%s,%s', 255, 0, 80)
 
     -- Public Variables.
     self.enabled    = false
     self.rolls      = self.settings.rolls or {self.allowed[109], self.allowed[105]}
     self.crooked    = self.settings.crooked or false
     self.cap        = self.settings.cap or 7
+    self.last       = 0
     self.rolled     = 0
     self.rolling    = false
-    self.active     = Q{}
+    self.active     = {false, false}
 
     -- Private Variables.
-    local blink = false
-    local valid = {309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,600}
-    local short = {
+    local colors = {[true]=string.format('%s,%s,%s', 21, 184, 0), [false]=string.format('%s,%s,%s', 255, 0, 80)}
+    local blink  = false
+    local valid  = {309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,600}
+    local short  = {
 
         ['sam']         = "Samurai Roll",       ['stp']         = "Samurai Roll",       ['att']         = "Chaos Roll",         ['at']          = "Chaos Roll",
         ['atk']         = "Chaos Roll",         ['da']          = "Fighter's Roll",     ['dbl']         = "Fighter's Roll",     ['sc']          = "Allies' Roll",
@@ -140,6 +142,7 @@ function rolls.new()
 
     -- Static Functions.
     self.writeSettings = function()
+        persist()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -153,12 +156,12 @@ function rolls.new()
 
     self.zoneChange = function()
         self.writeSettings()
-
+        self.active = {false, false}
     end
 
     self.jobChange = function()
         self.writeSettings()
-        persist()
+        self.active = {false, false}
         resetDisplay()
 
     end
@@ -167,24 +170,39 @@ function rolls.new()
         local player = windower.ffxi.get_player()
         local render    = {}
         local trigger   = false
+        local count     = 1
 
         if (player.main_job == 'COR' or player.sub_job == 'COR') then
+            table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[self.enabled], tostring(self.enabled):upper()))
 
-            for i=1, (self.active:length()) do
+            if player.main_job == 'COR' then
+                table.insert(render, string.format('\\cs(%s)Crooked Cards\\cr | \\cs(%s)Rolling\\cr\n', colors[self.crooked], colors[self.rolling]))
+                count = 2
+            
+            elseif player.sub_job == 'COR' then
+                table.insert(render, string.format('\\cs(%s)Rolling\\cr\n', colors[self.rolling]))
+                count = 1
+
+            end
+
+            for i=1, count do
 
                 if self.active[i] then
 
                     if blink and (self.active[i].dice == 11 or self.active[i].dice == lucky[self.active[i].roll.en]) then
-                        table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.blink, self.active[i].dice, self.active[i].roll.en))
+                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.blink, self.active[i].dice, self.active[i].roll.en))
                         trigger = true
 
-                    elseif (self.active[i].dice == unlucky[self.active[i].roll.en] or self.active[i].dice == 0) then
-                        table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.unlucky, self.active[i].dice, self.active[i].roll.en))
+                    elseif (self.active[i].dice == unlucky[self.active[i].roll.en] or self.active[i].dice > 11) then
+                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.unlucky, self.active[i].dice, self.active[i].roll.en))
 
                     else
-                        table.insert(render, string.format('%s► Roll #%d: \\cs(%s)[%02d] %s\\cr', (''):lpad(' ', 2), (i), self.important, self.active[i].dice, self.active[i].roll.en))
+                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.important, self.active[i].dice, self.active[i].roll.en))
 
                     end
+
+                elseif self.rolls[i] then
+                    table.insert(render, string.format('Roll #%d ► \\cs(%s)%s\\cr', i, self.unlucky, self.rolls[i].en))
 
                 end
 
@@ -194,22 +212,16 @@ function rolls.new()
                 self.display:text(table.concat(render, '\n'))
                 self.display:update()
 
-                if not self.display:visible() and self.active:length() > 0 then
+                if not self.display:visible() and #self.active > 0 then
                     self.display:show()
-
-                elseif self.active:length() == 0 then
-                    self.display:hide()
-
                 end
 
             end
 
             if not trigger then
                 blink = true
-
             else
-                blink = false
-            
+                blink = false            
             end
 
         elseif self.display:visible() then
@@ -227,55 +239,45 @@ function rolls.new()
         local dice1 = dice1 or false
         local dice2 = dice2 or false
 
-        if bp and dice1 then
+        if bp then
+            
+            if dice1 then
 
-            if dice1 and not dice2 then
-                
-                if type(dice1) == 'table' and dice1.id and self.allowed[dice1.id] then
+                if type(dice1) == 'table' and dice1.id and self.allowed[dice1.id] and self.rolls[1].en ~= dice1.en and self.rolls[2].en ~= dice1.en then
                     self.rolls[1] = dice1
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 IS NOW SET TO: %s!', self.rolls[1].en or 'ERROR'))
 
-                elseif (type(dice1) == 'number' or tonumber(dice1) ~= nil) and self.allowed[dice1] then
+                elseif (type(dice1) == 'number' or tonumber(dice1) ~= nil) and self.allowed[dice1] and self.rolls[1].id ~= dice1 and self.rolls[2].id ~= dice1 then
                     self.rolls[1] = self.allowed[dice1]
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 IS NOW SET TO: %s!', self.rolls[1].en or 'ERROR'))
 
-                elseif type(dice1) == 'string' and bp.JA[dice1] then
+                elseif type(dice1) == 'string' and bp.JA[dice1] and self.rolls[1].en:lower() ~= dice1 and self.rolls[2].en:lower() ~= dice1 then
                     self.rolls[1] = bp.JA[dice1]
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 IS NOW SET TO: %s!', self.rolls[1].en or 'ERROR'))
 
-                elseif type(dice1) == 'string' and short[dice1] then
+                elseif type(dice1) == 'string' and short[dice1] and self.rolls[1].en ~= bp.JA[short[dice1]] and self.rolls[2].en ~= bp.JA[short[dice1]] then
                     self.rolls[1] = bp.JA[short[dice1]]
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 IS NOW SET TO: %s!', self.rolls[1].en or 'ERROR'))
 
                 end
-                self.writeSettings()
-
-            elseif dice1 and dice2 then
-
-                if type(dice1) == 'table' and type(dice2) == 'table' and dice1.id and dice2.id and self.allowed[dice1.id] and self.allowed[dice2.id] then
-                    self.rolls[1] = dice1
-                    self.rolls[2] = dice2
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 & #2 IS NOW SET TO: %s & %s!', self.rolls[1].en or 'ERROR', self.rolls[2].en or 'ERROR'))
-
-                elseif (type(dice1) == 'number' or tonumber(dice1) ~= nil) and (type(dice2) == 'number' or tonumber(dice2) ~= nil) and self.allowed[dice1] and self.allowed[dice2] then
-                    self.rolls[1] = self.allowed[dice1]
-                    self.rolls[2] = self.allowed[dice2]
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 & #2 IS NOW SET TO: %s & %s!', self.rolls[1].en or 'ERROR', self.rolls[2].en or 'ERROR'))
-
-                elseif type(dice1) == 'string' and bp.JA[dice1] and type(dice2) == 'string' and bp.JA[dice2] then
-                    self.rolls[1] = bp.JA[dice1]
-                    self.rolls[2] = bp.JA[dice2]
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 & #2 IS NOW SET TO: %s & %s!', self.rolls[1].en or 'ERROR', self.rolls[2].en or 'ERROR'))
-
-                elseif type(dice1) == 'string' and short[dice1] and type(dice2) == 'string' and short[dice2] then
-                    self.rolls[1] = bp.JA[short[dice1]]
-                    self.rolls[2] = bp.JA[short[dice2]]
-                    bp.helpers['popchat'].pop(string.format('ROLL #1 & #2 IS NOW SET TO: %s & %s!', self.rolls[1].en or 'ERROR', self.rolls[2].en or 'ERROR'))
-
-                end
-                self.writeSettings()
 
             end
+
+            if dice2 then
+
+                if type(dice2) == 'table' and dice2.id and self.allowed[dice2.id] and self.rolls[1].en ~= dice2.en and self.rolls[2].en ~= dice2.en then
+                    self.rolls[2] = dice2
+
+                elseif (type(dice2) == 'number' or tonumber(dice2) ~= nil) and self.allowed[dice2] and self.rolls[1].id ~= dice2 and self.rolls[2].id ~= dice2 then
+                    self.rolls[2] = self.allowed[dice2]
+
+                elseif type(dice2) == 'string' and bp.JA[dice2] and self.rolls[1].en:lower() ~= dice2 and self.rolls[2].en:lower() ~= dice2 then
+                    self.rolls[2] = bp.JA[dice2]
+
+                elseif type(dice2) == 'string' and short[dice2] and self.rolls[1].en ~= bp.JA[short[dice2]] and self.rolls[2].en ~= bp.JA[short[dice2]] then
+                    self.rolls[2] = bp.JA[short[dice2]]
+
+                end
+
+            end
+            self.writeSettings()
+            bp.helpers['popchat'].pop(string.format('ROLLS NOW TO: %s & %s.', self.rolls[1].en, self.rolls[2].en))
 
         end
     
@@ -318,15 +320,6 @@ function rolls.new()
     self.diceTotal = function(bp, amount)
         local bp        = bp or false
         local amount    = tonumber(amount) or false
-
-        if bp and amount and amount <= 11 then
-            self.rolled = amount
-            
-            if self.active[self.active:length()] then    
-                self.active[self.active:length()].dice = amount
-            end
-
-        end
 
     end
 
@@ -385,8 +378,11 @@ function rolls.new()
                 if v and (v.en):lower() == (name):lower() then
                     return v
                     
-                elseif v and (v.en):lower() == self.getShort(bp, name) then
-                    return v
+                elseif self.getShort(bp, name) then
+
+                    if self.getShort(bp, name).en == v.en then
+                        return v
+                    end
                     
                 end
                 
@@ -437,19 +433,97 @@ function rolls.new()
 
     end
 
-    self.add = function(bp, roll)
-        local bp    = bp or false
-        local roll  = roll or false
+    self.add = function(bp, roll, rolled)
+        local bp        = bp or false
+        local roll      = roll or false
+        local rolled    = rolled or false
         
-        if bp and roll and type(roll) == 'table' and roll.en ~= 'Bust' then
-            local count = self.getActive(bp)
+        if bp and roll and rolled and type(roll) == 'table' and type(rolled) == 'number' then
             
-            if not bp.helpers['rolls'].rolling and not bp.helpers['buffs'].buffActive(self.getBuff(bp, roll.en)) and count < 2 then
-                self.active:push({roll=roll, dice=self.rolled})
-            end
+            if not self.rolling and not bp.helpers['buffs'].buffActive(roll.id) then
+                self.rolling = true
 
-        elseif bp and roll and type(roll) == 'table' and roll.en == 'Bust' then
-            self.active:push({roll=roll, dice=0})
+                if not self.active[1] and self.rolls[1].id == roll.id then
+
+                    if rolled > 11 then
+                        self.active[1]  = {roll=bp.res.buffs[309], dice=rolled}
+                        self.rolling    = false
+                        self.last       = 1
+
+                    elseif (rolled == lucky[roll.en] or rolled == 11) then
+                        self.active[1]  = {roll=roll, dice=rolled}
+                        self.rolling    = false
+                        self.last       = 1
+
+                    elseif rolled >= self.cap then
+                        self.active[1]  = {roll=roll, dice=rolled}
+                        self.rolling    = false
+                        self.last       = 1
+
+                    else
+                        self.active[1]  = {roll=roll, dice=rolled}
+                        self.last       = 1
+
+                    end
+
+                elseif not self.active[2] and self.rolls[2].id == roll.id then
+                    
+                    if rolled > 11 then
+                        self.active[2]  = {roll=bp.res.buffs[309], dice=rolled}
+                        self.rolling    = false
+                        self.last       = 2
+
+                    elseif (rolled == lucky[roll.en] or rolled == 11) then
+                        self.active[2]  = {roll=roll, dice=rolled}
+                        self.rolling    = false
+                        self.last       = 2
+
+                    elseif rolled >= self.cap then
+                        self.active[2]  = {roll=roll, dice=rolled}
+                        self.rolling    = false
+                        self.last       = 2
+
+                    else
+                        self.active[2]  = {roll=roll, dice=rolled}
+                        self.last       = 2
+
+                    end
+
+                else
+                    bp.helpers['debug'].log('ATTEMPTING TO ROLL MISMATCH ROLLS. [(HELPER) rolls.lua: self.add()]')
+
+                end
+
+            elseif self.rolling and self.active[self.last] and self.active[self.last].roll.id == roll.id then
+                    
+                if rolled > 11 then
+                    self.active[self.last] = {roll=bp.res.buffs[309], dice=rolled}
+                    self.rolling = false
+
+                elseif (rolled == lucky[roll.en] or rolled == 11) then
+                    self.active[self.last] = {roll=roll, dice=rolled}
+                    self.rolling = false
+
+                elseif rolled >= self.cap then
+                    self.active[self.last] = {roll=roll, dice=rolled}
+
+                    if bp.core.getSetting('JA') and bp.helpers['actions'].isReady(bp, 'JA', 'Snake Eye') then
+                        self.rolling = true
+
+                    else
+                        self.rolling = false
+
+                    end
+
+                else
+                    self.active[self.last] = {roll=roll, dice=rolled}
+
+                end
+
+            else
+                bp.helpers['debug'].log('FAILED TO DETERMINE LAST ROLL. [(HELPER) rolls.lua: self.add()]')
+
+            end
 
         end
         
@@ -459,15 +533,94 @@ function rolls.new()
         local bp = bp or false
         local id = id or false
 
-        if bp and id then
-
-            for i,v in ipairs(self.active.data) do
-                local buff = bp.res.buffs[self.getBuff(bp, v.roll.en).id]
-                
-                if buff.id == id then
-                    self.active:remove(i)
-                end
+        if bp and id and self.validBuff(bp, id) then
             
+            if self.active[1] and self.getBuff(bp, self.active[1].roll.en).id == id then
+                self.active[1] = false
+        
+            elseif self.active[2] and self.getBuff(bp, self.active[2].roll.en).id == id then
+                self.active[2] = false
+
+            end
+
+        end
+
+    end
+
+    self.roll = function(bp)
+        local bp = bp or false
+        local player = windower.ffxi.get_player()
+
+        if bp and #self.active <= 2 then
+            
+            if (not self.rolling and not self.active[1] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[1].en).id)) or (self.active[1] and self.active[1].roll.id ~= self.rolls[1].id and self.active[1].roll.en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[1].en).id) and not bp.helpers['buffs'].buffActive(308)) then
+                local roll = self.rolls[1] or false
+
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
+
+                    if self.crooked and bp.helpers['actions'].isReady(bp, 'JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
+                        bp.helpers['queue'].add(bp, bp.JA['Crooked Cards'], windower.ffxi.get_player())
+                    end
+                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())
+                    
+                end
+
+            elseif (not self.rolling and not self.active[2] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[2].en).id) and player.main_job == 'COR') or (self.active[2] and self.active[2].roll.id ~= self.rolls[2].id and self.active[2].roll.en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[2].en).id) and not bp.helpers['buffs'].buffActive(308)) and player.main_job == 'COR' then
+                local roll = self.rolls[2] or false
+            
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
+                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())
+                end
+
+            elseif not self.rolling and self.active[1] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[1].en).id) and self.active[1].roll.en == 'Bust' and not bp.helpers['buffs'].buffActive(308) and not bp.helpers['buffs'].buffActive(309) then
+                local roll = self.rolls[1] or false
+
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
+
+                    if self.crooked and bp.helpers['actions'].isReady(bp, 'JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
+                        bp.helpers['queue'].add(bp, bp.JA['Crooked Cards'], windower.ffxi.get_player())
+                    end
+                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())
+                    
+                end
+
+            elseif not self.rolling and self.active[2] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[2].en).id) and self.active[2].roll.en == 'Bust' and not bp.helpers['buffs'].buffActive(308) and not bp.helpers['buffs'].buffActive(309) and player.main_job == 'COR' then
+                local roll = self.rolls[2] or false
+
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
+                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())                    
+                end
+
+            elseif self.rolling and self.active[1] and bp.helpers['buffs'].buffActive(308) and self.active[1].roll.en == self.rolls[1].en and self.active[1].roll.en ~= 'Bust' and self.active[1].dice <= self.cap then
+                local roll = self.rolls[1] or false
+                
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
+                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
+                end
+
+            elseif self.rolling and self.active[2] and bp.helpers['buffs'].buffActive(308) and self.active[2].roll.en == self.rolls[2].en and self.active[2].roll.en ~= 'Bust' and self.active[2].dice <= self.cap and player.main_job == 'COR' then
+                local roll = self.rolls[2] or false
+                
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
+                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
+                end
+
+            elseif self.rolling and self.active[1] and bp.helpers['buffs'].buffActive(308) and self.active[1].roll.en == self.rolls[1].en and self.active[1].roll.en ~= 'Bust' and self.active[1].dice < 11 and self.active[1].dice > self.cap and bp.helpers['actions'].isReady(bp, 'JA', 'Snake Eye') then
+                local roll = self.rolls[1] or false
+                
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
+                    bp.helpers['queue'].add(bp, bp.JA['Snake Eye'], windower.ffxi.get_player())
+                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
+                end
+
+            elseif self.rolling and self.active[2] and bp.helpers['buffs'].buffActive(308) and self.active[2].roll.en == self.rolls[2].en and self.active[2].roll.en ~= 'Bust' and self.active[2].dice < 11 and self.active[2].dice > self.cap and bp.helpers['actions'].isReady(bp, 'JA', 'Snake Eye') and player.main_job == 'COR' then
+                local roll = self.rolls[2] or false
+                
+                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
+                    bp.helpers['queue'].add(bp, bp.JA['Snake Eye'], windower.ffxi.get_player())
+                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
+                end
+
             end
 
         end

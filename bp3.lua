@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '1.20210420'
+_addon.version  = '1.20210425'
 _addon.command  = 'bp'
 
 -- Get system data.
@@ -277,14 +277,9 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
                         -- Remove from action from queue.
                         bp.helpers['queue'].remove(bp, bp.res.job_abilities[param], actor)
                         
-                        -- Handle Specialty Abilities.
+                        -- Handle Rolls.
                         if action.type == 'CorsairRoll' and rolls[param] then
-                            bp.helpers['rolls'].add(bp, bp.helpers['rolls'].getRoll(bp, rolls[param].en))
-                            bp.helpers['rolls'].diceTotal(bp, pack['Target 1 Action 1 Param'])
-
-                        elseif param == 123 then
-                            bp.helpers['rolls'].diceTotal(bp, pack['Target 1 Action 1 Param'])
-
+                            bp.helpers['rolls'].add(bp, rolls[param], pack['Target 1 Action 1 Param'])
                         end
 
                     else
@@ -614,94 +609,6 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 
     elseif id == 0x111 then
         bp.helpers['roe'].update(bp, original)
-    
-    elseif id == 0x063 then
-        local check = original:unpack('H', 0x04+1)
-
-        if check == 9 then
-            local player = windower.ffxi.get_player() or false
-            
-            if player then
-                local buffs = { list={original:unpack('H32', 0x08+1)}, count=0 }
-
-                -- Track buff count.
-                for i=1, 32 do
-
-                    if buffs.list[i] ~= 255 then
-                        buffs.count = (buffs.count + 1)
-                    end
-
-                end
-                
-                if bp.helpers['buffs'].buffs then
-
-                    for i=0, 32 do
-
-                        if buffs.list[i] ~= bp.helpers['buffs'].buffs[i] then
-
-                            -- Gained a buff.
-                            if not T(bp.helpers['buffs'].buffs):contains(buffs.list[i]) and buffs.list[i] ~= nil then
-
-                                if bp.res.buffs[buffs.list[i]] then
-                                    local gain = bp.res.buffs[buffs.list[i]]
-
-                                    if (player.main_job == 'COR' or player.sub_job == 'COR') then
-
-                                        if gain.id == 308 then
-                                            bp.helpers['rolls'].rolling = true
-                                        
-                                        elseif bp.helpers['rolls'].validBuff(bp, gain.id) then
-                                            local rolls = bp.res.job_abilities:type('CorsairRoll')
-                                            
-                                            if gain.id == 309 then
-                                                bp.helpers['rolls'].add(bp, bp.res.buffs[309])
-                                                bp.helpers['rolls'].rolling = false
-                                                bp.helpers['rolls'].rolled  = 0
-
-                                            end
-
-                                        end
-
-                                    end
-
-                                end
-
-                            end
-
-                            -- Lost a buff.
-                            if not T(buffs.list):contains(bp.helpers['buffs'].buffs[i]) and bp.helpers['buffs'].buffs[i] ~= nil then
-
-                                if bp.res.buffs[bp.helpers['buffs'].buffs[i]] then
-                                    local lost = bp.res.buffs[bp.helpers['buffs'].buffs[i]]
-                                        
-                                    if (player.main_job == 'COR' or player.sub_job == 'COR') then
-                                        
-                                        if lost.id == 308 then
-                                            bp.helpers['rolls'].rolling = false
-                                            bp.helpers['rolls'].rolled  = 0
-
-                                        elseif bp.helpers['rolls'].validBuff(bp, lost.id) then
-                                            bp.helpers['rolls'].remove(bp, lost.id)
-
-                                        end
-
-                                    end
-
-                                end
-
-                            end
-
-                        end
-
-                    end
-
-                end
-                bp.helpers['buffs'].buffs = buffs.list
-                bp.helpers['buffs'].count = buffs.count
-
-            end
-
-        end
 
     end
 
@@ -731,7 +638,20 @@ windower.register_event('gain buff', function(id)
     local id = id or false
     
     if id then
+
+        if bp.helpers['rolls'].validBuff(bp, id) then
+            bp.helpers['rolls'].add(bp, id)
+        end
         
+    end
+
+end)
+
+windower.register_event('lose buff', function(id)
+    local id = id or false
+    
+    if id then
+        bp.helpers['rolls'].remove(bp, id)
     end
 
 end)
@@ -789,6 +709,10 @@ windower.register_event('login', function()
     coroutine.schedule(bp.helpers['equipment'].update, 2)
     bp.helpers['autoload'].load()
 
+end)
+
+windower.register_event('load', function()
+    bp.helpers['debug'].calibrate()
 end)
 
 windower.register_event('logout', function()

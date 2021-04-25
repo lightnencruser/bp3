@@ -857,45 +857,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            local rolls     = helpers['rolls'].rolls
-                            local active    = helpers['rolls'].active
-                            local buffs     = helpers['rolls'].getActive(bp)
-                            
-                            -- Make the initial roll.
-                            if buffs <= 2 and not helpers['rolls'].rolling then
-                                    
-                                for i,roll in ipairs(rolls) do
-                                    local buff = bp.res.buffs[helpers['rolls'].getBuff(bp, roll.en).id]
-                                    
-                                    if helpers['actions'].isReady(bp, 'JA', roll.en) and not helpers['buffs'].buffActive(buff.id) and not helpers['queue'].typeInQueue(bp, roll) then
-
-                                        -- Check to see if Crooked Cards is ready.
-                                        if bp.helpers['rolls'].crooked and helpers['actions'].isReady(bp, 'JA', 'Crooked Cards') and not helpers['buffs'].buffActive(601) then
-                                            helpers['queue'].add(bp, bp.JA['Crooked Cards'], player)
-                                        end
-                                        helpers['queue'].add(bp, bp.JA[roll.en], player)
-                                        break
-
-                                    end
-
-                                end
-
-                            -- If in the middle of rolling the first roll.
-                            elseif buffs > 0 and helpers['rolls'].rolling and helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
-                                local double = active[active:length()]
-
-                                if double then
-                                    local buff  = bp.res.buffs[helpers['rolls'].getBuff(bp, double.roll.en).id]
-                                    local lucky = helpers['rolls'].getLucky(bp, buff.en)
-                                    local cap   = helpers['rolls'].cap
-                                
-                                    if buff and helpers['buffs'].buffActive(buff.id) and double.dice < cap and double.dice ~= lucky and double.dice <= 11 then
-                                        helpers['queue'].addToFront(bp, bp.JA['Double-Up'], player)
-                                    end
-
-                                end
-
-                            end
+                            bp.helpers['rolls'].roll(bp)
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then
@@ -993,7 +955,7 @@ function core.get()
 
                     -- HANDLE RANGED ATTACKS.
                     if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
-                        helpers['queue'].addToFront(bp, helpers['actions'].unique.ranged, target)
+                        helpers['queue'].add(bp, helpers['actions'].unique.ranged, target)
                     end
 
                 -- PLAYER IS DISENGAGED LOGIC.
@@ -1522,45 +1484,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            local rolls     = helpers['rolls'].rolls
-                            local active    = helpers['rolls'].active
-                            local buffs     = helpers['rolls'].getActive(bp)
-                            
-                            -- Make the initial roll.
-                            if buffs <= 2 and not helpers['rolls'].rolling then
-                                    
-                                for i,roll in ipairs(rolls) do
-                                    local buff = bp.res.buffs[helpers['rolls'].getBuff(bp, roll.en).id]
-                                    
-                                    if helpers['actions'].isReady(bp, 'JA', roll.en) and not helpers['buffs'].buffActive(buff.id) and not helpers['queue'].typeInQueue(bp, roll) then
-
-                                        -- Check to see if Crooked Cards is ready.
-                                        if bp.helpers['rolls'].crooked and helpers['actions'].isReady(bp, 'JA', 'Crooked Cards') and not helpers['buffs'].buffActive(601) then
-                                            helpers['queue'].add(bp, bp.JA['Crooked Cards'], player)
-                                        end
-                                        helpers['queue'].add(bp, bp.JA[roll.en], player)
-                                        break
-
-                                    end
-
-                                end
-
-                            -- If in the middle of rolling the first roll.
-                            elseif buffs > 0 and helpers['rolls'].rolling and helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
-                                local double = active[active:length()]
-
-                                if double then
-                                    local buff  = bp.res.buffs[helpers['rolls'].getBuff(bp, double.roll.en).id]
-                                    local lucky = helpers['rolls'].getLucky(bp, buff.en)
-                                    local cap   = helpers['rolls'].cap
-                                
-                                    if buff and helpers['buffs'].buffActive(buff.id) and double.dice < cap and double.dice ~= lucky and double.dice <= 11 then
-                                        helpers['queue'].addToFront(bp, bp.JA['Double-Up'], player)
-                                    end
-
-                                end
-
-                            end
+                            bp.helpers['rolls'].roll(bp)
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then
@@ -1658,7 +1582,7 @@ function core.get()
 
                     -- HANDLE RANGED ATTACKS.
                     if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
-                        helpers['queue'].addToFront(bp, helpers['actions'].unique.ranged, target)
+                        helpers['queue'].add(bp, helpers['actions'].unique.ranged, target)
                     end
 
                 end

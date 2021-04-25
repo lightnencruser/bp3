@@ -806,7 +806,7 @@ function status.new()
                                         if bp.res.spells[spell] then
                                             local spell = bp.res.spells[spell]
 
-                                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
+                                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell) then
                                                 bp.helpers['queue'].addToFront(bp, spell, target)
                                                 break
                                             end

@@ -12,36 +12,11 @@ function rolls.new()
             if command then
                 command = command:lower()
                 
-                if command == 'set' and commands[3] then
-                    local roll1 = commands[3] or false
-                    local roll2 = commands[4] or false
-
-                    if roll1 and roll2 then
-                        local roll1     = windower.convert_auto_trans(roll1) or false
-                        local roll2     = windower.convert_auto_trans(roll2) or false
-                        local short1    = bp.helpers['rolls'].getShort(bp, roll1)
-                        local short2    = bp.helpers['rolls'].getShort(bp, roll2)
-                        
-                        if short1 and short2 then
-                            bp.helpers['rolls'].setRoll(bp, roll1:lower(), roll2:lower())
-
-                        elseif not short1 and not short2 and bp.JA[roll1] and bp.JA[roll2] then
-                            bp.helpers['rolls'].setRoll(bp, roll1, roll2)
-
-                        end
-
-                    elseif roll1 and not roll2 then
-                        local roll1     = windower.convert_auto_trans(roll1) or false
-                        local short1    = bp.helpers['rolls'].getShort(bp, roll1:lower())
-                        
-                        if short1 and not short2 then
-                            bp.helpers['rolls'].setRoll(bp, roll1:lower())
-
-                        elseif not short1 and not short2 and bp.JA[roll1] and not roll2 then
-                            bp.helpers['rolls'].setRoll(bp, roll1)
-
-                        end
-                        
+                if bp.helpers['rolls'].getRoll(bp, command) or (commands[3] and bp.helpers['rolls'].getRoll(bp, commands[3]))  then
+                    local rolls = T{roll1=bp.helpers['rolls'].getRoll(bp, command), roll2=bp.helpers['rolls'].getRoll(bp, commands[3] or false)}
+                    
+                    if (rolls.roll1 or rolls.roll2) then
+                        bp.helpers['rolls'].setRoll(bp, rolls.roll1, rolls.roll2)
                     end
 
                 elseif command == 'cap' and commands[3] then
@@ -51,7 +26,7 @@ function rolls.new()
                         bp.helpers['rolls'].setCap(bp, cap)
                     end
 
-                elseif command == 'crooked' then
+                elseif (command == 'crooked' or command == 'crook') then
                     bp.helpers['rolls'].toggleCrooked(bp)
 
                 elseif command == 'pos' and commands[3] then

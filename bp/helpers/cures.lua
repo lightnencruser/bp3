@@ -470,7 +470,7 @@ function cures.new()
                 if cure.levels then
                     required = {main=(cure.levels[player.main_job_id] or 255), sub=(cure.levels[player.sub_job_id] or 255)}
                 end
-                --print(missing, count, (missing/count), weight, (weight + (weight * (self.power / 100) ) ))
+
                 if cure and weight and (weight + (weight * ((self.power+20) / 100) ) ) <= (missing/count) and (levels.main >= required.main or levels.sub >= required.sub) then
                     spell = cure
                 end
@@ -621,7 +621,7 @@ function cures.new()
     self.handleCuring = function(bp)
         local bp = bp or false
         
-        if self.party and self.alliance and self.mode ~= 1 then
+        if bp and self.party and self.alliance and self.mode ~= 1 and bp.helpers['queue'].checkReady(bp) then
             local count     = self.curesNeeded()
             local player    = windower.ffxi.get_player() or false
             local party     = T(self.party)
@@ -629,55 +629,51 @@ function cures.new()
             local helpers   = bp.helpers
             local missing   = 0
             
-            if self.mode == 2 and count > 0 then
+            if self.mode == 2 and count > 0 and player['vitals'].mpp > 5 then
 
-                if count < 3 and (player.main_job == "WHM" or player.main_job == "RDM" or player.main_job == "SCH" or player.main_job == "PLD" or player.sub_job == "WHM" or player.sub_job == "RDM" or player.sub_job == "SCH" or player.sub_job == "PLD") and player.main_job ~= "DNC" then
-                    
+                if count < 3 and (T{'WHM','RDM','SCH','PLD'}:contains(player.main_job) or T{'WHM','RDM','SCH','PLD'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
+
                     for _,v in ipairs(party) do
                         local cure   = self.estimateCure(bp, v.missing) or false
                         local target = windower.ffxi.get_mob_by_id(v.id) or false
 
-                        if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) and v.missing > (v.max*.08) then
+                        if cure and target and not helpers['queue'].inQueue(bp, bp.MA[cure.en], target) then
 
-                            if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
-                                helpers['queue'].updateCure(bp, cure, target)
+                            if (target.distance):sqrt() < 21 and (target.distance):sqrt() ~= 0 then
 
-                            elseif player.main_job_level < 99 then
-                                helpers['queue'].updateCure(bp, cure, target)
+                                if v.missing > (v.max * 0.08) then
 
-                            end
+                                    if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    elseif player.main_job_level < 99 then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    end
 
-                        end
-                        
-                    end
-                
-                elseif count < 3 and (player.main_job == "DNC" or player.sub_job == "DNC") and player.main_job ~= "WHM" then
-                    
-                    for _,v in ipairs(party) do
-                        local cure   = self.estimateWaltz(bp, v.missing) or false
-                        local target = windower.ffxi.get_mob_by_id(v.id) or false
-                        
-                        if cure and target then
-                            
-                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
+                                end                                
 
-                                if player.main_job_level == 99 and not T{190}:contains(cure.id) then
-                                    helpers['queue'].updateCure(bp, cure, target)
-    
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
-    
+                            elseif target.name == player.name and (target.distance):sqrt() == 0 then
+
+                                if v.missing > (v.max * 0.08) then
+
+                                    if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    elseif player.main_job_level < 99 then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    end
+
                                 end
 
                             end
-                            
+
                         end
                         
                     end
                 
-                end
-                
-                if count > 2 and (player.main_job == "WHM" or player.sub_job == "WHM") and player.main_job ~= "DNC" then
+                elseif count > 2 and (player.main_job == "WHM" or player.sub_job == "WHM") and player.main_job ~= "DNC" then
                     local target = false
                     
                     for _,v in ipairs(party) do
@@ -734,118 +730,53 @@ function cures.new()
                         end
                         
                     end
-                
-                elseif count > 2 and (player.main_job == "DNC" or player.sub_job == "DNC") and player.main_job ~= "WHM" then
-                    local target = false
-                    
-                    for _,v in ipairs(party) do
-                        local dead = T{2,3}
 
-                        if v and v.missing then
-                            
-                            if not target then
-                                local temp      = windower.ffxi.get_mob_by_id(v.id) or false
-                                local priority  = self.getPriority(temp)
-                                
-                                if temp and priority and not dead:contains(temp.status) then
-                                    missing = (missing + v.missing)
-                                    target  = {id=temp.id, missing=v.missing, priority=priority, distance=temp.distance}
-                                end
-
-                            elseif target then
-                                local temp      = windower.ffxi.get_mob_by_id(v.id) or false
-                                local priority  = self.getPriority(temp)
-
-                                if target and temp and target.priority and temp.id and not dead:contains(temp.status) and priority >= target.priority then
-                                    
-                                    if v.missing > target.missing then
-                                        
-                                        if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
-                                            missing = (missing + v.missing)
-                                            target  = {id=temp.id, missing=v.missing, priority=priority, distance=temp.distance}
-                                        end
-
-                                    end
-
-                                end
-
-                            end
-
-                        end
-
-                    end
-
-                    if missing > 0 and target and target.id then
-                        local target    = windower.ffxi.get_mob_by_id(target.id) or false
-                        local cure      = self.estimateCuraga(bp, missing, count) or false
-                        
-                        if cure and target then
-                            
-                            if player.main_job_level == 99 and not T{195}:contains(cure.id) then
-                                helpers['queue'].updateCure(bp, cure, target)
-    
-                            elseif player.main_job_level < 99 then
-                                helpers['queue'].updateCure(bp, cure, target)
-    
-                            end
-                            
-                        end
-                        
-                    end
-                    
                 end
             
-            elseif self.mode == 3 and count > 0 then
-                local missing   = 0
-                
-                if count < 3 then
-                    
-                    for _,v in ipairs(alliance) do
+            elseif self.mode == 3 and count > 0 and player['vitals'].mpp > 5 then
+
+                if count < 3 and (T{'WHM','RDM','SCH','PLD'}:contains(player.main_job) or T{'WHM','RDM','SCH','PLD'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
+
+                    for _,v in ipairs(party) do
                         local cure   = self.estimateCure(bp, v.missing) or false
                         local target = windower.ffxi.get_mob_by_id(v.id) or false
-                        
-                        if cure and target then
-                            
-                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
-                                
-                                if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
-                                    helpers['queue'].updateCure(bp, cure, target)
-    
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
-    
+
+                        if cure and target and not helpers['queue'].inQueue(bp, bp.MA[cure.en], target) then
+
+                            if (target.distance):sqrt() < 21 and (target.distance):sqrt() ~= 0 then
+
+                                if v.missing > (v.max * 0.08) then
+
+                                    if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    elseif player.main_job_level < 99 then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    end
+
+                                end                                
+
+                            elseif target.name == player.name and (target.distance):sqrt() == 0 then
+
+                                if v.missing > (v.max * 0.08) then
+
+                                    if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    elseif player.main_job_level < 99 then
+                                        helpers['queue'].updateCure(bp, cure, target)
+        
+                                    end
+
                                 end
 
                             end
-                            
+
                         end
                         
                     end
-                
-                elseif count < 3 and (player.main_job == "DNC" or player.sub_job == "DNC") and player.main_job ~= "WHM" then
-                    
-                    for _,v in ipairs(alliance) do
-                        local cure   = self.estimateWaltz(bp, v.missing) or false
-                        local target = windower.ffxi.get_mob_by_id(v.id) or false
-                        
-                        if cure and target then
-                            
-                            if cure and target and (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
-                                
-                                if player.main_job_level == 99 and not T{190}:contains(cure.id) then
-                                    helpers['queue'].updateCure(bp, cure, target)
-    
-                                elseif player.main_job_level < 99 then
-                                    helpers['queue'].updateCure(bp, cure, target)
-    
-                                end
-                                
-                            end
-                            
-                        end
-                        
-                    end
-                
+
                 end
                 
                 if count > 2 and (player.main_job == "WHM" or player.sub_job == "WHM") and player.main_job ~= "DNC" then
@@ -895,64 +826,6 @@ function cures.new()
                         if cure and target then
                             
                             if player.main_job_level == 99 and not T{7}:contains(cure.id) then
-                                helpers['queue'].updateCure(bp, cure, target)
-    
-                            elseif player.main_job_level < 99 then
-                                helpers['queue'].updateCure(bp, cure, target)
-    
-                            end
-                            
-                        end
-                        
-                    end
-                
-                elseif count > 2 and (player.main_job == "DNC" or player.sub_job == "DNC") and player.main_job ~= "WHM" then
-                    local target = false
-                    
-                    for _,v in ipairs(party) do
-                        local dead = T{2,3}
-
-                        if v and v.missing then
-                            
-                            if not target then
-                                local temp      = windower.ffxi.get_mob_by_id(v.id) or false
-                                local priority  = self.getPriority(temp)
-                                
-                                if temp and priority and not dead:contains(temp.status) then
-                                    missing = (missing + v.missing)
-                                    target  = {id=temp.id, missing=v.missing, priority=priority, distance=temp.distance}
-                                end
-
-                            elseif target then
-                                local temp      = windower.ffxi.get_mob_by_id(v.id) or false
-                                local priority  = self.getPriority(temp)
-
-                                if target and temp and target.priority and temp.id and not dead:contains(temp.status) and priority >= target.priority then
-                                    
-                                    if v.missing > target.missing then
-                                        
-                                        if (target.distance):sqrt() < 21 and ((target.distance):sqrt() ~= 0 or target.name == player.name and (target.distance):sqrt() == 0) then
-                                            missing = (missing + v.missing)
-                                            target  = {id=temp.id, missing=v.missing, priority=priority, distance=temp.distance}
-                                        end
-
-                                    end
-
-                                end
-
-                            end
-
-                        end
-
-                    end
-
-                    if missing > 0 and target and target.id then
-                        local target    = windower.ffxi.get_mob_by_id(target.id) or false
-                        local cure      = self.estimateCuraga(bp, missing, count) or false
-                        
-                        if cure and target then
-                            
-                            if player.main_job_level == 99 and not T{195}:contains(cure.id) then
                                 helpers['queue'].updateCure(bp, cure, target)
     
                             elseif player.main_job_level < 99 then

@@ -473,6 +473,21 @@ commands.new = function()
                 
                 end
 
+            elseif command == 'aspir%' then
+                local number = tonumber(commands[2]) or false
+            
+                if number then
+                    
+                    if number > 0 and number <= 100 then
+                        core.setSetting(bp, 'ASPIR THRESHOLD', number)
+                        
+                    else
+                        msg = ("INVALID! - PLEASE PICK A NUMBER BETWEEN 1 and 100.")
+                        
+                    end
+                
+                end
+
             elseif command == 'hatedelay' then
                 local number = tonumber(commands[2]) or false
             

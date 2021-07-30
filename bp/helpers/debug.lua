@@ -11,7 +11,10 @@ end
 function debug.new()
     local self = {}
 
-    -- Static Variables.
+    -- Public Variables
+    self.debugging      = false
+
+    -- Private Variables.
     local extend        = {x=windower.get_windower_settings().x_res, y=windower.get_windower_settings().y_res}
     local settings      = dofile(string.format('%sbp/helpers/settings/debug/%s_settings.lua', windower.addon_path, player.name))
     local layout        = {pos={x=0, y=0}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=255, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Arial', size=10}, padding=5, stroke_width=1, draggable=false}
@@ -110,7 +113,7 @@ function debug.new()
         local message = message or false
         local size = #logs
 
-        if message then
+        if message and self.debugging then
             table.insert(logs, {timestamp=os.date(), message=message})
             self.writeSettings()
             self.updateLogs()

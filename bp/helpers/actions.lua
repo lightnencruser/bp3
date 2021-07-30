@@ -475,19 +475,11 @@ function actions.new()
                 self.position.z   = player.z
                 self.moving       = true
 
-                do -- Turn the player idle they have not been moving for longer than 30 minutes.
-                    bp.helpers['idle'].activate(bp)
-                end
-
             else
                 self.position.x   = player.x
                 self.position.y   = player.y
                 self.position.z   = player.z
                 self.moving       = false
-
-                do -- Turn the player idle they have not been moving for longer than 30 minutes.
-                    bp.helpers['idle'].isIdle(bp)
-                end
 
             end
 

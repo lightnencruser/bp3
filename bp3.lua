@@ -73,19 +73,24 @@ windower.register_event('addon command', function(...)
 
         elseif c == 'test' then
             bp.helpers['status'].add(bp, 'Turtle', 3)
-            bp.helpers['status'].add(bp, 'Eliidyr', 3)
-            bp.helpers['status'].add(bp, 'Eliidyr', 4)
+            bp.helpers['status'].add(bp, 'Turtle', 2)
+            bp.helpers['status'].add(bp, 'Turtle', 4)
             bp.helpers['status'].add(bp, 'Eliidyr', 5)
             bp.helpers['status'].add(bp, 'Eliidyr', 6)
-            bp.helpers['status'].add(bp, 'Peenaspump', 3)
-            bp.helpers['status'].add(bp, 'Peenaspump', 4)
-            bp.helpers['status'].add(bp, 'Peenaspump', 5)
+            bp.helpers['status'].add(bp, 'Peenaspump', 2)
             bp.helpers['status'].add(bp, 'Clapmycheeks', 4)
             bp.helpers['status'].add(bp, 'Clapmycheeks', 5)
+            bp.helpers['status'].add(bp, 'Clapmycheeks', 2)
+            bp.helpers['status'].add(bp, 'Ninjar', 2)
             bp.helpers['status'].add(bp, 'Duhpeter', 5)
             bp.helpers['status'].add(bp, 'Lordpotato', 10)
-            bp.helpers['status'].add(bp, 'Ninjar', 8)
-            bp.helpers['status'].add(bp, 'Mutant', 9)
+            bp.helpers['status'].add(bp, 'Ninjar', 5)
+            bp.helpers['status'].add(bp, 'Ninjar', 6)
+
+        elseif c == 'stats' then
+            local statuses = bp.helpers['status'].statuses
+            
+            table.print(statuses)
 
         else
             bp.core.handleCommands(bp, a)
@@ -131,7 +136,7 @@ windower.register_event('prerender', function()
 
         if bp.settings['Enabled'] and not bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
             
-            if not bp.helpers['idle'].getIdle() and not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
+            if not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
                 bp.helpers['cures'].buildParty()
                 bp.helpers['controls'].checkFacing(bp)
                 bp.helpers['controls'].checkDistance(bp)
@@ -152,7 +157,7 @@ windower.register_event('prerender', function()
 
         elseif bp.settings['Enabled'] and bp.blocked[windower.ffxi.get_info().zone] and not bp.shutdown[windower.ffxi.get_info().zone] and (os.clock() - bp.pinger) > bp.settings['Ping Delay'] then
 
-            if not bp.helpers['idle'].getIdle() and not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
+            if not bp.helpers['buffs'].buffActive(69) and not bp.helpers['buffs'].buffActive(71) then
                 bp.helpers['cures'].buildParty()
                 bp.helpers['queue'].render(bp)
 
@@ -487,7 +492,7 @@ windower.register_event('outgoing chunk', function(id, original, modified, injec
         end
     
     elseif id == 0x050 then
-        coroutine.schedule(bp.helpers['equipment'].update, 2)
+        coroutine.schedule(bp.helpers['equipment'].update, 4)
 
     elseif id == 0x015 then
 
@@ -513,7 +518,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
         return bp.helpers['models'].adjustModel(bp, original)
 
     elseif id == 0x029 then
-        bp.helpers['status'].lostStatus(bp, original)
+        --bp.helpers['status'].lostStatus(bp, original)
 
     elseif id == 0x0dd then
         bp.helpers['party'].updateJobs(bp, original)
@@ -635,15 +640,7 @@ windower.register_event('status change', function(new, old)
 end)
 
 windower.register_event('gain buff', function(id)
-    local id = id or false
-    
-    if id then
-
-        if bp.helpers['rolls'].validBuff(bp, id) then
-            bp.helpers['rolls'].add(bp, id)
-        end
-        
-    end
+   
 
 end)
 
@@ -706,13 +703,13 @@ end)
 
 windower.register_event('login', function()
 
-    coroutine.schedule(bp.helpers['equipment'].update, 2)
+    coroutine.schedule(bp.helpers['equipment'].update, 4)
     bp.helpers['autoload'].load()
 
 end)
 
 windower.register_event('load', function()
-    bp.helpers['debug'].calibrate()
+    --bp.helpers['debug'].calibrate()
 end)
 
 windower.register_event('logout', function()

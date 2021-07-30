@@ -260,7 +260,7 @@ function queue.new()
                     
                     if action_type == 'JobAbility' and helpers['actions'].canAct(bp) and (not self.inQueue(bp, action, target) or bypass_type:contains(action.type)) then
 
-                        if helpers['actions'].isReady(bp, 'JA', action.en) then
+                        if helpers['actions'].isReady(bp, 'JA', action.en) and helpers['target'].castable(bp, target, action) then
 
                             if action.prefix == '/pet' then
                                 local pet       = windower.ffxi.get_mob_by_target('pet') or false
@@ -318,7 +318,7 @@ function queue.new()
                                             self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
                                         end
                                     
-                                    else
+                                    elseif helpers['target'].castable(bp, target, action) then
                                         self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                     end
@@ -453,7 +453,7 @@ function queue.new()
                     
                     if action_type == 'JobAbility' and helpers['actions'].canAct(bp) and (not self.inQueue(bp, action, target) or bypass_type:contains(action.type)) then
 
-                        if helpers['actions'].isReady(bp, 'JA', action.en) then
+                        if helpers['actions'].isReady(bp, 'JA', action.en) and helpers['target'].castable(bp, target, action) then
 
                             if action.prefix == '/pet' then
                                 local pet = windower.ffxi.get_mob_by_target('pet') or false
@@ -504,7 +504,7 @@ function queue.new()
                                             self.queue:push({action=action, target=target, priority=priority, attempts=1})
                                         end
                                     
-                                    else
+                                    elseif helpers['target'].castable(bp, target, action) then
                                         self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                     end
@@ -842,12 +842,13 @@ function queue.new()
         local waltz     = T{190,191,192,193,311,195,262}
 
         if action and target then
-
+            
             for i,v in ipairs(self.queue.data) do
 
                 if type(v) == 'table' and type(target) == 'table' and v.action then
 
                     if (cures):contains(action.id) and (cures):contains(v.action.id) and action.prefix == '/magic' then
+                        print('Removed: ', action.en)
                         self.queue:remove(i)
                         break
 
@@ -1043,26 +1044,12 @@ function queue.new()
                             if v.target.id == target.id and v.action.en ~= action.en and ((v.action.en):match('Cure') or (v.action.en):match('Cura')) and not self.inQueue(bp, bp.MA[action.en], target) then
                                 self.remove(bp, bp.MA[v.action.en], target)
                                 update = true
-
-                                --if priority:contains(action.en) then
-                                    --self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
-                                
-                                --else
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
-
-                                --end
+                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
 
                             elseif v.target.id == target.id and v.action.en ~= action.en and (v.action.en):match('Waltz') and not self.inQueue(bp, bp.JA[action.en], target) then
                                 self.remove(bp, bp.JA[v.action.en], target)
                                 update = true
-                                
-                                --if priority:contains(action.en) then
-                                    --self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
-                                
-                                --else
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
-                                
-                                --end
+                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
 
                             end
 

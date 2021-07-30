@@ -88,6 +88,8 @@ function core.get()
     self["STEPS DELAY"]         = self.settings["HATE DELAY"] or 20
     self["CONVERT HPP"]         = self.settings["CONVERT HPP"] or 45
     self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
+    self["ASPIR THRESHOLD"]     = self.settings["ASPIR THRESHOLD"] or 65
+    self["DRAIN THRESHOLD"]     = self.settings["DRAIN THRESHOLD"] or 65
     self["NIN TOOLS"]           = self.settings["NIN TOOLS"] or {{false,true}, false}
     self["STONESKIN"]           = self.settings["STONESKIN"] or {{false,true}, false}
     self["UTSU BLOCK"]          = {last=0, delay=3}
@@ -202,6 +204,8 @@ function core.get()
             self.settings["CONVERT HPP"]        = self["CONVERT HPP"]
             self.settings["CONVERT MPP"]        = self["CONVERT MPP"]
             self.settings["NIN TOOLS"]          = self["NIN TOOLS"]
+            self.settings["ASPIR THRESHOLD"]    = self["ASPIR THRESHOLD"]
+            self.settings["DRAIN THRESHOLD"]    = self["DRAIN THRESHOLD"]
 
         end
 
@@ -781,14 +785,14 @@ function core.get()
                         
                         -- /SAM.
                         elseif player.sub_job == "SAM" and helpers['actions'].canAct() then
-                            local slots = bp.helpers['equipment'].main.slots
+                            local weapon = bp.helpers['equipment'].main
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and slots and slots:contains(0) and not slots:contains(1) then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and slots and slots:contains(0) and not slots:contains(1) then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.
@@ -1408,14 +1412,14 @@ function core.get()
                         
                         -- /SAM.
                         elseif player.sub_job == "SAM" and helpers['actions'].canAct() then
-                            local slots = bp.helpers['equipment'].main.slots
+                            local weapon = bp.helpers['equipment'].main
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and slots and slots:contains(0) and not slots:contains(1) then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and slots and slots:contains(0) and not slots:contains(1) then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.

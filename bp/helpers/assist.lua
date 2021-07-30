@@ -71,7 +71,7 @@ function assist.new()
         
         if assistance and player.status == 0 and assistance.status == 1 then
             local ally = windower.ffxi.get_mob_by_id(assistance.id) or false
-
+            print('Do assist things')
             if ally and not bp.helpers['target'].getTarget() and (ally.distance):sqrt() < 25 and (ally.distance):sqrt() ~= 0 then
 
                 if ally.target_index then
@@ -79,6 +79,7 @@ function assist.new()
 
                     if mob and bp.helpers['target'].canEngage(bp, mob) then
                         bp.helpers['target'].setTarget(bp, mob)
+                        print('Attempting to set target to:', mob.id)
                     end
 
                 end

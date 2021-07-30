@@ -65,8 +65,7 @@ function burst.new()
                 if category == 3 then
                     
                     if packed['Target 1 Action 1 Added Effect Message'] and messages[packed['Target 1 Action 1 Added Effect Message']] then
-                        self.burst(bp, self.buildSpells(bp, self.getElements(packed['Target 1 Action 1 Added Effect Message'])))                        
-
+                        self.burst(bp, self.buildSpells(bp, self.getElements(packed['Target 1 Action 1 Added Effect Message'])))
                     end
 
                 end
@@ -234,7 +233,7 @@ function burst.new()
 
         if bp and spells and target then
             local bursting = T{}
-
+            
             for _,v in ipairs(spells) do
 
                 if only and self.isNuke(v) then

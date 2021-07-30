@@ -754,14 +754,14 @@ function core.get()
                         
                         -- /SAM.
                         elseif player.sub_job == "SAM" and helpers['actions'].canAct() then
-                            local slots = bp.helpers['equipment'].main.slots
+                            local weapon = bp.helpers['equipment'].main
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and slots and slots:contains(0) and not slots:contains(1) then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and slots and slots:contains(0) and not slots:contains(1) then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.
@@ -1380,14 +1380,14 @@ function core.get()
                         
                         -- /SAM.
                         elseif player.sub_job == "SAM" and helpers['actions'].canAct() then
-                            local slots = bp.helpers['equipment'].main.slots
+                            local weapon = bp.helpers['equipment'].main
                             
                             -- HASSO.
-                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and slots and slots:contains(0) and not slots:contains(1) then
+                            if not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady(bp, 'JA', "Hasso") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Hasso"], player)
                             
                             -- SEIGAN.
-                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and slots and slots:contains(0) and not slots:contains(1) then
+                            elseif self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady(bp, 'JA', "Seigan") and weapon and T{4,6,7,8,10,12}:contains(weapon.skill) then
                                 helpers['queue'].add(bp, bp.JA["Seigan"], player)
                             
                             -- MEDITATE.

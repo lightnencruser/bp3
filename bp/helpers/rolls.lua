@@ -157,79 +157,13 @@ function rolls.new()
     self.zoneChange = function()
         self.writeSettings()
         self.active = {false, false}
+        self.enabled = false
     end
 
     self.jobChange = function()
         self.writeSettings()
         self.active = {false, false}
         resetDisplay()
-
-    end
-
-    self.render = function()
-        local player = windower.ffxi.get_player()
-        local render    = {}
-        local trigger   = false
-        local count     = 1
-
-        if (player.main_job == 'COR' or player.sub_job == 'COR') then
-            table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[self.enabled], tostring(self.enabled):upper()))
-
-            if player.main_job == 'COR' then
-                table.insert(render, string.format('\\cs(%s)Crooked Cards\\cr | \\cs(%s)Rolling\\cr\n', colors[self.crooked], colors[self.rolling]))
-                count = 2
-            
-            elseif player.sub_job == 'COR' then
-                table.insert(render, string.format('\\cs(%s)Rolling\\cr\n', colors[self.rolling]))
-                count = 1
-
-            end
-
-            for i=1, count do
-
-                if self.active[i] then
-
-                    if blink and (self.active[i].dice == 11 or self.active[i].dice == lucky[self.active[i].roll.en]) then
-                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.blink, self.active[i].dice, self.active[i].roll.en))
-                        trigger = true
-
-                    elseif (self.active[i].dice == unlucky[self.active[i].roll.en] or self.active[i].dice > 11) then
-                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.unlucky, self.active[i].dice, self.active[i].roll.en))
-
-                    else
-                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.important, self.active[i].dice, self.active[i].roll.en))
-
-                    end
-
-                elseif self.rolls[i] then
-                    table.insert(render, string.format('Roll #%d ► \\cs(%s)%s\\cr', i, self.unlucky, self.rolls[i].en))
-
-                end
-
-            end
-
-            if render then
-                self.display:text(table.concat(render, '\n'))
-                self.display:update()
-
-                if not self.display:visible() and #self.active > 0 then
-                    self.display:show()
-                end
-
-            end
-
-            if not trigger then
-                blink = true
-            else
-                blink = false            
-            end
-
-        elseif self.display:visible() then
-            self.display:text('')
-            self.display:update()
-            self.display:hide()
-
-        end
 
     end
 
@@ -320,6 +254,23 @@ function rolls.new()
     self.diceTotal = function(bp, amount)
         local bp        = bp or false
         local amount    = tonumber(amount) or false
+
+    end
+
+    self.checkRolling = function(bp)
+
+        if windower.ffxi.get_player().buffs then
+
+            for _,v in ipairs(windower.ffxi.get_player().buffs) do
+                    
+                if v == 308 then
+                    return true
+                end
+
+            end
+            return false
+
+        end
 
     end
 
@@ -489,9 +440,6 @@ function rolls.new()
 
                     end
 
-                else
-                    bp.helpers['debug'].log('ATTEMPTING TO ROLL MISMATCH ROLLS. [(HELPER) rolls.lua: self.add()]')
-
                 end
 
             elseif self.rolling and self.active[self.last] and self.active[self.last].roll.id == roll.id then
@@ -519,9 +467,6 @@ function rolls.new()
                     self.active[self.last] = {roll=roll, dice=rolled}
 
                 end
-
-            else
-                bp.helpers['debug'].log('FAILED TO DETERMINE LAST ROLL. [(HELPER) rolls.lua: self.add()]')
 
             end
 
@@ -637,19 +582,72 @@ function rolls.new()
 
     end
 
-    self.hide = function()
+    self.render = function(bp)
+        local bp        = bp or false
+        local player    = windower.ffxi.get_player()
+        local render    = {}
+        local trigger   = false
+        local count     = 1
 
-        if self.display and self.display:visible() then
+        if (player.main_job == 'COR' or player.sub_job == 'COR') then
+            table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[self.enabled], tostring(self.enabled):upper()))
+
+            if player.main_job == 'COR' then
+                table.insert(render, string.format('\\cs(%s)Crooked Cards\\cr | \\cs(%s)Rolling\\cr\n', colors[self.crooked], colors[self.rolling]))
+                count = 2
+            
+            elseif player.sub_job == 'COR' then
+                table.insert(render, string.format('\\cs(%s)Rolling\\cr\n', colors[self.rolling]))
+                count = 1
+
+            end
+
+            for i=1, count do
+
+                if self.active[i] then
+
+                    if blink and (self.active[i].dice == 11 or self.active[i].dice == lucky[self.active[i].roll.en]) then
+                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.blink, self.active[i].dice, self.active[i].roll.en))
+                        trigger = true
+
+                    elseif (self.active[i].dice == unlucky[self.active[i].roll.en] or self.active[i].dice > 11) then
+                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.unlucky, self.active[i].dice, self.active[i].roll.en))
+
+                    else
+                        table.insert(render, string.format('Roll #%d ► \\cs(%s)[%02d] %s\\cr', i, self.important, self.active[i].dice, self.active[i].roll.en))
+
+                    end
+
+                elseif self.rolls[i] then
+                    table.insert(render, string.format('Roll #%d ► \\cs(%s)%s\\cr', i, self.unlucky, self.rolls[i].en))
+
+                end
+
+            end
+
+            if render then
+                self.display:text(table.concat(render, '\n'))
+                self.display:update()
+
+                if not self.display:visible() and #self.active > 0 then
+                    self.display:show()
+                end
+
+            end
+
+            if not trigger then
+                blink = true
+            else
+                blink = false            
+            end
+
+        elseif self.display:visible() then
+            self.display:text('')
+            self.display:update()
             self.display:hide()
+
         end
-
-    end
-
-    self.show = function()
-
-        if self.display[i] and not self.display:visible() then
-            self.display:show()
-        end
+        self.checkRolling()
 
     end
 

@@ -2,12 +2,11 @@ local console = {}
 function console.new()
     local self = {}
 
-    self.handle = function(bp, command, args)
-        local bp        = bp or false
+    self.handle = function(command, args)
         local command   = command or false
         local args      = args or false
         
-        if bp and command and command:sub(1,1) == '/' then
+        if command and command:sub(1,1) == '/' then
             local send = {}
 
             for i=1, #args do

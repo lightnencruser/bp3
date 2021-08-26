@@ -12,6 +12,7 @@ function controls.new()
     local self = {}
 
     -- Private Variables.
+    local bp        = false
     local delays    = {assist=2, distance=0.45, facing=1}
     local times     = {assist=0, distance=0, facing=0}
 
@@ -54,7 +55,14 @@ function controls.new()
     self.writeSettings()
 
     -- Public Functions.
-    self.checkAssisting = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.checkAssisting = function()
         local bp = bp or false
 
         if bp and self.assist then
@@ -81,7 +89,7 @@ function controls.new()
         
     end
     
-    self.checkDistance = function(bp)
+    self.checkDistance = function()
         local bp = bp or false
 
         if bp and self.distance then
@@ -99,7 +107,7 @@ function controls.new()
                     local distance  = target.distance:sqrt()
                     
                     if distance > maximum then
-                        helpers['actions'].move(bp, target.x, target.y)
+                        helpers['actions'].move(target.x, target.y)
                         times.distance = os.clock()
                             
                     elseif distance < maximum and distance > (maximum-variation) then
@@ -120,7 +128,7 @@ function controls.new()
         
     end
 
-    self.checkFacing = function(bp)
+    self.checkFacing = function()
         local bp = bp or false
 
         if bp and self.facing then
@@ -131,7 +139,7 @@ function controls.new()
                 local target = windower.ffxi.get_mob_by_id(target.id) or false
 
                 if target then
-                    helpers['actions'].face(bp, target)
+                    helpers['actions'].face(target)
                     times.facing = os.clock()
                 
                 end
@@ -142,7 +150,7 @@ function controls.new()
         
     end
 
-    self.toggle = function(bp, command)
+    self.toggle = function(command)
         local bp = bp or false
         local command = command or ''
 

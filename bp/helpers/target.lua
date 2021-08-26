@@ -17,14 +17,15 @@ function target.new()
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
-    -- Public Variables.
-    self.targets    = {player=false, party=false, luopan=false, entrust=false}
-    self.mode       = self.settings.mode or 1
-
     -- Private Variables.
+    local bp        = false
     local debug     = false
     local reset     = {last=0, delay=0.5}
     local modes     = {'PLAYER TARGETING','PARTY TARGETING'}
+
+    -- Public Variables.
+    self.targets    = {player=false, party=false, luopan=false, entrust=false}
+    self.mode       = self.settings.mode or 1
 
     -- Private Functions.
     local persist = function()
@@ -112,7 +113,14 @@ function target.new()
     end
 
     -- Public Functions.
-    self.setTarget = function(bp, target)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.setTarget = function(target)
         local bp        = bp or false
         local target    = target or false
 
@@ -138,15 +146,15 @@ function target.new()
 
             if target then
 
-                if not self.targets.player and windower.ffxi.get_mob_by_target('t') and self.allowed(bp, windower.ffxi.get_mob_by_target('t')) and self.canEngage(bp, windower.ffxi.get_mob_by_target('t')) then
+                if not self.targets.player and windower.ffxi.get_mob_by_target('t') and self.allowed(windower.ffxi.get_mob_by_target('t')) and self.canEngage(windower.ffxi.get_mob_by_target('t')) then
                     self.targets.player = windower.ffxi.get_mob_by_target('t')
                 end              
 
-                if self.mode == 1 and self.allowed(bp, target) and self.canEngage(bp, target) and not self.targets.player then
+                if self.mode == 1 and self.allowed(target) and self.canEngage(target) and not self.targets.player then
                     self.targets.player = target
                     helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
 
-                elseif self.mode == 2 and self.allowed(bp, target) and self.canEngage(bp, target) and not self.targets.party then
+                elseif self.mode == 2 and self.allowed(target) and self.canEngage(target) and not self.targets.party then
                     self.targets.party = target
                     windower.send_command(string.format('ord r* bp target share %s', target.id))
                     helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
@@ -159,7 +167,7 @@ function target.new()
 
     end
 
-    self.setLuopan = function(bp, target)
+    self.setLuopan = function(target)
         local bp        = bp or false
         local target    = target or false
 
@@ -194,7 +202,7 @@ function target.new()
 
     end
 
-    self.setEntrust = function(bp, target)
+    self.setEntrust = function(target)
         local bp        = bp or false
         local target    = target or false
         local player    = windower.ffxi.get_player()
@@ -207,7 +215,7 @@ function target.new()
             elseif type(target) == 'table' then
                 target = windower.ffxi.get_mob_by_id(target.id) or false
 
-            elseif type(target) == 'string' and windower.ffxi.get_mob_by_name(target) and not self.isEnemy(bp, windower.ffxi.get_mob_by_name(target)) then
+            elseif type(target) == 'string' and windower.ffxi.get_mob_by_name(target) and not self.isEnemy(windower.ffxi.get_mob_by_name(target)) then
                 target = windower.ffxi.get_mob_by_name(target) or false
 
             elseif windower.ffxi.get_mob_by_target('t') then
@@ -225,7 +233,7 @@ function target.new()
 
         else
 
-            if (target.distance):sqrt() < 22 and target.name ~= player.name and bp.helpers['party'].isInParty(bp, target, false) then
+            if (target.distance):sqrt() < 22 and target.name ~= player.name and bp.helpers['party'].isInParty(target, false) then
                 self.targets.entrust = target
             end
 
@@ -233,7 +241,7 @@ function target.new()
 
     end
 
-    self.canEngage = function(bp, mob)
+    self.canEngage = function(mob)
         local bp    = bp or false
         local mob   = mob or false
 
@@ -244,7 +252,7 @@ function target.new()
 
             if player and party then
 
-                if (mob.claim_id == 0 or helpers['party'].isInParty(bp, mob.claim_id, true) or helpers['buffs'].buffActive(603) or helpers['buffs'].buffActive(511) or helpers['buffs'].buffActive(257) or helpers['buffs'].buffActive(267)) then
+                if (mob.claim_id == 0 or helpers['party'].isInParty(mob.claim_id, true) or helpers['buffs'].buffActive(603) or helpers['buffs'].buffActive(511) or helpers['buffs'].buffActive(257) or helpers['buffs'].buffActive(267)) then
                     return true
                 end
 
@@ -255,7 +263,7 @@ function target.new()
 
     end
 
-    self.isEnemy = function(bp, target)
+    self.isEnemy = function(target)
         local bp        = bp or false
         local target    = target or false
 
@@ -286,7 +294,7 @@ function target.new()
 
     end
 
-    self.castable = function(bp, target, spell)
+    self.castable = function(target, spell)
         local bp        = bp or false
         local target    = target or false
         local targets   = spell.targets
@@ -299,10 +307,10 @@ function target.new()
                 if i == 'Self' and target.name == windower.ffxi.get_player().name then
                     return v
 
-                elseif i == 'Party' and helpers['party'].isInParty(bp, target, false) then
+                elseif i == 'Party' and helpers['party'].isInParty(target, false) then
                     return v
 
-                elseif i == 'Ally' and helpers['party'].isInParty(bp, target, true) then
+                elseif i == 'Ally' and helpers['party'].isInParty(target, true) then
                     return v
 
                 elseif i == 'Player' and not target.is_npc then
@@ -323,7 +331,7 @@ function target.new()
 
     end
 
-    self.onlySelf = function(bp, spell)
+    self.onlySelf = function(spell)
         local bp    = bp or false
         local spell = spell or false
 
@@ -339,7 +347,7 @@ function target.new()
 
     end
 
-    self.validSpellTarget = function(bp, id, target)
+    self.validSpellTarget = function(id, target)
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
         local target    = target or false
@@ -357,10 +365,10 @@ function target.new()
                     if (spell.targets):contains("Self") and player.name == target.name then
                         return target
                         
-                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(target, true) then
                         return target
                         
-                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(target, false) then
                         return target
                             
                     elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
@@ -378,10 +386,10 @@ function target.new()
                     if (spell.targets):contains("Self") and player.name == target.name then
                         return target
                         
-                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(target, true) then
                         return target
                         
-                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(target, false) then
                         return target
                             
                     elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
@@ -399,10 +407,10 @@ function target.new()
                     if (spell.targets):contains("Self") and player.name == target.name then
                         return target
                         
-                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(target, true) then
                         return target
                         
-                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(target, false) then
                         return target
                             
                     elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
@@ -425,10 +433,10 @@ function target.new()
                     if (spell.targets):contains("Self") and player.name == target.name then
                         return target
                         
-                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(target, true) then
                         return target
                         
-                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(target, false) then
                         return target
                             
                     elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
@@ -446,10 +454,10 @@ function target.new()
                     if (spell.targets):contains("Self") and player.name == target.name then
                         return target
                         
-                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(target, true) then
                         return target
                         
-                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(target, false) then
                         return target
                             
                     elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
@@ -467,10 +475,10 @@ function target.new()
                     if (spell.targets):contains("Self") and player.name == target.name then
                         return target
                         
-                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(bp, target, true) then
+                    elseif (spell.targets):contains("Ally") and helpers['party'].isInParty(target, true) then
                         return target
                         
-                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(bp, target, false) then
+                    elseif (spell.targets):contains("Party") and helpers['party'].isInParty(target, false) then
                         return target
                             
                     elseif (spell.targets):contains("Self") and (spell.targets):contains("Party") and (spell.targets):contains("NPC") and (spell.targets):contains("Player") and (spell.targets):contains("Ally") and (spell.targets):contains("Enemy") then
@@ -487,7 +495,7 @@ function target.new()
         
     end
 
-    self.isDead = function(bp, target)
+    self.isDead = function(target)
         local bp        = bp or false
         local target    = target or false
         local dead      = T{2,3}
@@ -499,7 +507,7 @@ function target.new()
 
     end
 
-    self.allowed = function(bp, target)
+    self.allowed = function(target)
         local bp        = bp or false
         local target    = target or false
 
@@ -511,34 +519,24 @@ function target.new()
                 local distance = (target.distance:sqrt())
 
                 if (distance == 0.089004568755627 or distance > 35) and distance ~= 0 then
-                    if debug then print('Distance failure!') end
                     return false
                 end
 
                 if not target then
-                    if debug then print('Target failure!') end
                     return false
                 end
 
                 if target.hpp == 0 then
-                    if debug then print('HPP failure!') end
                     return false
                 end
 
                 if not target.valid_target then
-                    if debug then print('Valid target failure!') end
                     return false
                 end
 
-                if not self.isEnemy(bp, target) and not helpers['party'].isInParty(bp, target, true) then
-                    if debug then print('Is enemy failure!') end
+                if not self.isEnemy(target) and not helpers['party'].isInParty(target, true) then
                     return false
                 end
-
-                --if target.charmed then
-                    --if debug then print('Charmed target failure!') end
-                    --return false
-                --end
                 return true
 
             end
@@ -548,35 +546,35 @@ function target.new()
 
     end
 
-    self.updateTargets = function(bp, player)
+    self.updateTargets = function(player)
         
         if player and player.status == 1 and not self.getTarget() and windower.ffxi.get_mob_by_target('t') then
-            self.setTarget(bp, windower.ffxi.get_mob_by_target('t'))
+            self.setTarget(windower.ffxi.get_mob_by_target('t'))
 
         elseif player and player.status == 1 and self.getTarget() and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
-            self.setTarget(bp, windower.ffxi.get_mob_by_target('t'))
+            self.setTarget(windower.ffxi.get_mob_by_target('t'))
 
         end
 
-        if self.targets.player and (not self.allowed(bp, self.targets.player) or (self.targets.player.distance):sqrt() > 35) then
+        if self.targets.player and (not self.allowed(self.targets.player) or (self.targets.player.distance):sqrt() > 35) then
             self.targets.player = false
         end
 
-        if self.targets.party and (not self.allowed(bp, self.targets.party) or (self.targets.party.distance):sqrt() > 35) then
+        if self.targets.party and (not self.allowed(self.targets.party) or (self.targets.party.distance):sqrt() > 35) then
             self.targets.party = false
         end
 
-        if self.targets.entrust and (not self.allowed(bp, self.targets.entrust) or (self.targets.entrust.distance):sqrt() > 35) then
+        if self.targets.entrust and (not self.allowed(self.targets.entrust) or (self.targets.entrust.distance):sqrt() > 35) then
             self.targets.entrust = false
         end
 
-        if self.targets.luopan and (not self.allowed(bp, self.targets.luopan) or (self.targets.luopan.distance):sqrt() > 35) then
+        if self.targets.luopan and (not self.allowed(self.targets.luopan) or (self.targets.luopan.distance):sqrt() > 35) then
             self.targets.luopan = false
         end
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local update    = {[1]='',[2]=''}
@@ -620,7 +618,7 @@ function target.new()
 
     end
 
-    self.changeMode = function(bp)
+    self.changeMode = function()
         local bp = bp or false
 
         if bp then
@@ -638,7 +636,7 @@ function target.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

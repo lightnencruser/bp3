@@ -18,6 +18,9 @@ function popchat.new()
     self.fade       = 255
     self.fader      = (255/(self.delay*16))
 
+    -- Private Variables.
+    local bp        = false
+
     -- Static Functions.
     self.writeSettings = function()
 
@@ -61,6 +64,13 @@ function popchat.new()
     resetDisplay()
 
     -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
     self.pop = function(message)
         local message = message or false
 

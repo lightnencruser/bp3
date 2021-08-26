@@ -13,15 +13,15 @@ function trust.new()
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/trust_settings.lua', windower.addon_path))
 
+    -- Private Variables.
+    local bp        = false
+    local trust     = self.settings.trust or {}
+
     -- Public Variables.
     self.enabled    = false
 
-    -- Private Variables.
-    local trust     = self.settings.trust or {}
-
     -- Private Functions.
     local persist = function()
-        local next = next
 
         if self.settings then
             self.settings.enabled   = self.enabled
@@ -32,7 +32,6 @@ function trust.new()
     end
     persist()
 
-    -- Static Functions.
     self.writeSettings = function()
         persist()
 
@@ -47,7 +46,15 @@ function trust.new()
     end
     self.writeSettings()
 
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
     return self
 
 end
-trust.new()
+return trust.new()

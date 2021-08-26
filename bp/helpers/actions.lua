@@ -4,7 +4,8 @@ local res       = require('resources')
 function actions.new()
     local self = {}
 
-    -- Static Variables.
+    -- Private Variables.
+    local bp            = {}
     local categories    = {[6]='JobAbility',[7]='WeaponSkill',[8]='Magic',[9]='Item',[12]='Ranged',[13]='JobAbility',[14]='JobAbility',[15]='JobAbility'}
     local types         = {['Magic']={res='spells'},['Trust']={res='spells'},['JobAbility']={res='job_abilities'},['WeaponSkill']={res='weapon_skills'},['Item']={res='items'},['Ranged']={res='none'}}
     local ranges        = {[0]=255,[2]=3.40,[3]=4.47,[4]=5.76,[5]=6.89,[6]=7.80,[7]=8.40,[8]=10.40,[9]=12.40,[10]=14.50,[11]=16.40,[12]=20.40,[13]=23.4}
@@ -46,7 +47,14 @@ function actions.new()
 
     }
 
-    -- Static Functions.
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
     self.doAction = function(target, param, action, x, y, z)
         local x, y, z = x or 0, y or 0, z or 0
 
@@ -56,7 +64,7 @@ function actions.new()
 
     end
 
-    self.synthItem = function(bp, crystal, ingredients, materials)
+    self.synthItem = function(crystal, ingredients, materials)
         local bp            = bp or false
         local crystal       = bp.libraries['inventory'].findItemByName(crystal) or false
         local materials     = T(materials) or false
@@ -131,7 +139,7 @@ function actions.new()
 
     end
 
-    self.tradeItem = function(bp, npc, total, ...)
+    self.tradeItem = function(npc, total, ...)
         local bp    = bp or false
         local npc   = npc or false
         local items = T{...} or false
@@ -218,7 +226,7 @@ function actions.new()
     
     end
 
-    self.canAct = function(bp)
+    self.canAct = function()
         local player  = windower.ffxi.get_player()
         local ready   = {[0]=0,[1]=1}
 
@@ -242,7 +250,7 @@ function actions.new()
 
     end
 
-    self.canItem = function(bp)
+    self.canItem = function()
         local player  = windower.ffxi.get_player() or false
         local ready   = {[0]=0,[1]=1}
 
@@ -266,7 +274,7 @@ function actions.new()
 
     end
 
-    self.canMove = function(bp)
+    self.canMove = function()
         local player  = windower.ffxi.get_player() or false
         local ready   = {[0]=0,[1]=1,[10]=10,[11]=11,[85]=85}
 
@@ -289,10 +297,8 @@ function actions.new()
         return true
 
     end
-
-
-    -- Public Functions.
-    self.isReady = function(bp, category, name)
+    
+    self.isReady = function(category, name)
         local bp          = bp or false
         local player      = windower.ffxi.get_player() or false
         local category    = category or false
@@ -332,17 +338,33 @@ function actions.new()
             elseif category == 'MA' then
                 local action  = MA[name] or false
                 local job     = {main = {id=player.main_job_id, level=player.main_job_level}, sub = {id=player.sub_job_id, level=player.sub_job_level}}
+                local jpoints = bp.player['job_points'][bp.player.main_job:lower()].jp_spent
 
                 if action and self.allowed.cast then
                     local spells = windower.ffxi.get_spells()
                     local recast = windower.ffxi.get_spell_recasts()
 
                     if spells and spells[action.id] and recast[action.recast_id] and recast[action.recast_id] < 1 then
-                        local main    = action.levels[job.main.id] or 0
-                        local sub     = action.levels[job.sub.id] or 0
+                        local main    = action.levels[job.main.id] or false
+                        local sub     = action.levels[job.sub.id] or false
 
-                        if (job.main.level >= main or job.sub.level >= sub) then
-                            return true
+                        print(job.main.level, main, job.sub.level, sub)
+
+                        if main then
+
+                            if main < 100 and job.main.level >= main then
+                                return true
+
+                            elseif main >= 100 and jpoints >= main then
+                                return true
+                            end
+
+                        elseif sub then
+
+                            if sub < 100 and job.sub.level >= sub then
+                                return true
+                            end
+
                         end
 
                     end
@@ -372,15 +394,15 @@ function actions.new()
 
     end
 
-    self.useItem = function(bp, item, target, bag)
+    self.useItem = function(item, target, bag)
         local bp      = bp or false
         local target  = target or windower.ffxi.get_player()
         local bag     = bag or 0
 
         if bp and target and item and not self.midaction then
             local helpers = bp.helpers
-            local temp    = helpers['inventory'].findItemByName(bp, item)
-            local index   = select(1, helpers['inventory'].findItemById(bp, temp.id))
+            local temp    = helpers['inventory'].findItemByName(item)
+            local index   = select(1, helpers['inventory'].findItemById(temp.id))
 
             if type(index) == 'number' then
                 windower.packets.inject_outgoing(0x037, ('iIIHCCCCCC'):pack(0x00003700, target.id, 1, target.index, index, bag, 0, 0, 0, 0))
@@ -390,7 +412,7 @@ function actions.new()
 
     end
 
-    self.equipItem = function(bp, name, slot)
+    self.equipItem = function(name, slot)
         local bp = bp or false
 
         if bp and name and not self.midaction then
@@ -420,7 +442,7 @@ function actions.new()
 
     end
 
-    self.turn = function(bp, x, y)
+    self.turn = function(x, y)
         local bp      = bp or false
         local x       = x or false
         local y       = y or false
@@ -432,7 +454,7 @@ function actions.new()
 
     end
 
-    self.face = function(bp, mob)
+    self.face = function(mob)
         local player  = windower.ffxi.get_mob_by_target('me')
         local mob     = mob or false
 
@@ -442,7 +464,7 @@ function actions.new()
 
     end
 
-    self.move = function(bp, x, y)
+    self.move = function(x, y)
         local bp = bp or false
         local me = windower.ffxi.get_mob_by_target("me") or false
         
@@ -458,11 +480,11 @@ function actions.new()
         windower.ffxi.run(false)
     end
 
-    self.acceptRaise = function(bp)
+    self.acceptRaise = function()
         windower.packets.inject_outgoing(0x01a, ('iIHHHHfff'):pack(0x1A0E3C0A, player.id, player.index, 13, 0, 0, 0, 0, 0))
     end
 
-    self.setMoving = function(bp)
+    self.setMoving = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_mob_by_target('me') or false
         local ready     = {[0]=0,[1]=1,[10]=10,[11]=11,[85]=85}
@@ -493,12 +515,12 @@ function actions.new()
 
     end
 
-    self.getRanges = function(bp)
+    self.getRanges = function()
         local bp = bp or false
         return ranges
     end
 
-    self.getActionRange = function(bp, action)
+    self.getActionRange = function(action)
         local bp      = bp or false
         local action  = action or false
 
@@ -509,11 +531,11 @@ function actions.new()
 
     end
 
-    self.getDelays = function(bp)
+    self.getDelays = function()
         return delays
     end
 
-    self.buildAction = function(bp, category, param)
+    self.buildAction = function(category, param)
         local bp = bp or false
 
         if category and param and categories[category] then
@@ -541,7 +563,7 @@ function actions.new()
 
     end
 
-    self.getActionType = function(bp, action)
+    self.getActionType = function(action)
         local bp      = bp or false
         local action  = action or false
 
@@ -569,7 +591,7 @@ function actions.new()
 
     end
 
-    self.getActionDelay = function(bp, action)
+    self.getActionDelay = function(action)
         local bp      = bp or false
         local action  = action or 1
 
@@ -602,7 +624,7 @@ function actions.new()
 
     end
 
-    self.doMenu = function(bp, id, index, zone, option, menuid, automated, u1, u2)
+    self.doMenu = function(id, index, zone, option, menuid, automated, u1, u2)
         local u1 = u1 or 0
         local u2 = u2 or 0
 
@@ -612,7 +634,7 @@ function actions.new()
 
     end
 
-    self.exitMenu = function(bp, packets, target)
+    self.exitMenu = function(packets, target)
         
         if packets and target then
             windower.packets.inject_outgoing(0x05b, ("iIHHHBCHH"):pack(0x05b, target.id, 0, 16384, target.index, false, 0, packets["Zone"], packets["Menu ID"]))
@@ -620,7 +642,7 @@ function actions.new()
 
     end
 
-    self.getDirection = function(bp, x, y)
+    self.getDirection = function(x, y)
         local facing        = windower.ffxi.get_mob_by_target("me").facing
         local directions    = {"E","NE","N","NW","W","SW","S","SE"}
         --[[

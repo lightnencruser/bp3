@@ -1,12 +1,10 @@
 local merits = {}
 function merits.new()
-    local self = {}
-
-    -- Public Variables.
-    
+    local self = {}    
 
     -- Private Variables.
-    local data = {
+    local bp    = false
+    local data  = {
 
         -- STATS
         ['STR']             = {3, 1, 064, 0, {3,6,9,9,9,12,12,12,12,15,15,15,15,18,18}},
@@ -21,8 +19,6 @@ function merits.new()
         ['THROWING']        = {3, 1, 110, 0, {1,2,3,3,3,3,3,3}},
 
     }
-
-
 
     return self
 

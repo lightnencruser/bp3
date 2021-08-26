@@ -3,17 +3,25 @@ function sparks.new()
     local self = {}
     
     -- Private Variables.
+    local bp        = false
     local items     = dofile(string.format("%sbp/resources/sparks_list.lua", windower.addon_path))
     local name      = false
     local purchase  = false
     local quantity  = 0
     local targets   = {'Isakoth'}
 
-    -- Static Variables.
+    -- Public Variables.
     self.busy       = false
 
     -- Public Functions.
-    self.poke = function(bp, item, count)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.poke = function(item, count)
         local bp        = bp or false
         local item      = item or false
         local count     = tonumber(count) or 1
@@ -55,7 +63,7 @@ function sparks.new()
 
     end
 
-    self.purchase = function(bp, data)
+    self.purchase = function(data)
         local bp = bp or false
         local data = data or false
 
@@ -67,22 +75,22 @@ function sparks.new()
                 bp.helpers['popchat'].pop(string.format('NOW PURCHASING %s %s.', quantity, name))
                 
                 for i=1, quantity do
-                    bp.helpers['actions'].doMenu(bp, target.id, target.index, packed['Zone'], purchase.option, packed['Menu ID'], true, purchase._u1, purchase._u2)
+                    bp.helpers['actions'].doMenu(target.id, target.index, packed['Zone'], purchase.option, packed['Menu ID'], true, purchase._u1, purchase._u2)
                     
                     if i == quantity then
-                        bp.helpers['actions'].exitMenu(bp, packed, target)
+                        bp.helpers['actions'].exitMenu(packed, target)
                     end
                 
                 end
             
             else
                 bp.helpers['popchat'].pop("MAKE SURE YOU HAVE ENOUGH INVENTORY SPACE!")
-                bp.helpers['actions'].exitMenu(bp, packed, target)
+                bp.helpers['actions'].exitMenu(packed, target)
             
             end
             
         else
-            bp.helpers['actions'].exitMenu(bp, packets, target)
+            bp.helpers['actions'].exitMenu(packets, target)
             
         end
 
@@ -96,7 +104,7 @@ function sparks.new()
     
     end
 
-    self.sellShields = function(bp)
+    self.sellShields = function()
         local n         = bp.helpers['inventory'].getSlotCount('Acheron Shield', 0)
         local item      = bp.helpers['inventory'].findItemByName('Acheron Shield', 0)
         local appraise  = bp.packets.new('outgoing', 0x084)

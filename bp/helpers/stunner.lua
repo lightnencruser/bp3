@@ -19,8 +19,11 @@ function stunner.new()
     self.actions    = res.monster_abilities
     self.allowed    = {[8]=true,[4]=true}
 
+    -- Private Variables.
+    local bp        = false
+
     -- Public Variables.
-    self.stuns  = self.settings.stuns or {}
+    self.stuns      = self.settings.stuns or {}
 
     -- Private Functions
     local persist = function()
@@ -56,7 +59,14 @@ function stunner.new()
     end
 
     -- Public Functions.
-    self.add = function(bp, action)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.add = function(action)
         local bp        = bp or false
         local action    = action or false
 
@@ -123,7 +133,7 @@ function stunner.new()
 
     end
 
-    self.remove = function(bp, action)
+    self.remove = function(action)
         local bp        = bp or false
         local action    = action or false
         local temp      = {}
@@ -183,7 +193,7 @@ function stunner.new()
 
     end
 
-    self.stunnable = function(bp, id)
+    self.stunnable = function(id)
         local bp = bp or false
         local id = id or false
 
@@ -194,7 +204,7 @@ function stunner.new()
 
     end
 
-    self.stun = function(bp, id, target)
+    self.stun = function(id, target)
         local bp        = bp or false
         local id        = id or false
         local target    = windower.ffxi.get_mob_by_id(target) or false
@@ -204,7 +214,7 @@ function stunner.new()
 
             if self.stuns[id] then
                 bp.helpers['queue'].clear()
-                bp.helpers['queue'].addToFront(bp, bp.MA['Stun'], target.id)
+                bp.helpers['queue'].addToFront(bp.MA['Stun'], target.id)
             end
 
         end

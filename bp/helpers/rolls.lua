@@ -20,21 +20,13 @@ function rolls.new()
     self.blink      = string.format('%s,%s,%s', 110, 235, 50)
     self.unlucky    = string.format('%s,%s,%s', 255, 0, 80)
 
-    -- Public Variables.
-    self.enabled    = false
-    self.rolls      = self.settings.rolls or {self.allowed[109], self.allowed[105]}
-    self.crooked    = self.settings.crooked or false
-    self.cap        = self.settings.cap or 7
-    self.last       = 0
-    self.rolled     = 0
-    self.rolling    = false
-    self.active     = {false, false}
-
     -- Private Variables.
-    local colors = {[true]=string.format('%s,%s,%s', 21, 184, 0), [false]=string.format('%s,%s,%s', 255, 0, 80)}
-    local blink  = false
-    local valid  = {309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,600}
-    local short  = {
+    local bp        = false
+    local events    = {}
+    local colors    = {[true]=string.format('%s,%s,%s', 21, 184, 0), [false]=string.format('%s,%s,%s', 255, 0, 80)}
+    local blink     = false
+    local valid     = {309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,600}
+    local short     = {
 
         ['sam']         = "Samurai Roll",       ['stp']         = "Samurai Roll",       ['att']         = "Chaos Roll",         ['at']          = "Chaos Roll",
         ['atk']         = "Chaos Roll",         ['da']          = "Fighter's Roll",     ['dbl']         = "Fighter's Roll",     ['sc']          = "Allies' Roll",
@@ -92,6 +84,16 @@ function rolls.new()
         ["Miser's Roll"]        = 7,
 
     }
+
+    -- Public Variables.
+    self.enabled    = false
+    self.rolls      = self.settings.rolls or {self.allowed[109], self.allowed[105]}
+    self.crooked    = self.settings.crooked or false
+    self.cap        = self.settings.cap or 7
+    self.last       = 0
+    self.rolled     = 0
+    self.rolling    = false
+    self.active     = {false, false}
 
     -- Private Functions.
     local persist = function()
@@ -168,7 +170,14 @@ function rolls.new()
     end
 
     -- Public Functions.
-    self.setRoll = function(bp, dice1, dice2)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.setRoll = function(dice1, dice2)
         local bp    = bp or false
         local dice1 = dice1 or false
         local dice2 = dice2 or false
@@ -217,7 +226,7 @@ function rolls.new()
     
     end
 
-    self.setCap = function(bp, cap)
+    self.setCap = function(cap)
         local bp    = bp or false
         local cap   = tonumber(cap) or false
 
@@ -233,7 +242,7 @@ function rolls.new()
 
     end
 
-    self.toggleCrooked = function(bp)
+    self.toggleCrooked = function()
         local bp = bp or false
 
         if bp then
@@ -251,13 +260,7 @@ function rolls.new()
 
     end
 
-    self.diceTotal = function(bp, amount)
-        local bp        = bp or false
-        local amount    = tonumber(amount) or false
-
-    end
-
-    self.checkRolling = function(bp)
+    self.checkRolling = function()
 
         if windower.ffxi.get_player().buffs then
 
@@ -274,7 +277,7 @@ function rolls.new()
 
     end
 
-    self.getActive = function(bp)
+    self.getActive = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
     
@@ -285,7 +288,7 @@ function rolls.new()
             
             for _,v in ipairs(buffs) do
                 
-                if self.validBuff(bp, v) then
+                if self.validBuff(v) then
                     count = (count + 1)
                 end
             
@@ -297,7 +300,7 @@ function rolls.new()
         
     end
 
-    self.getShort = function(bp, name)
+    self.getShort = function(name)
         local name = name or false
         
         if name and type(name) == 'string' and short[name] then
@@ -315,7 +318,7 @@ function rolls.new()
         
     end
 
-    self.getRoll = function(bp, name)
+    self.getRoll = function(name)
         local bp    = bp or false
         local name  = name or false
         
@@ -329,9 +332,9 @@ function rolls.new()
                 if v and (v.en):lower() == (name):lower() then
                     return v
                     
-                elseif self.getShort(bp, name) then
+                elseif self.getShort(name) then
 
-                    if self.getShort(bp, name).en == v.en then
+                    if self.getShort(name).en == v.en then
                         return v
                     end
                     
@@ -344,9 +347,7 @@ function rolls.new()
         
     end
     
-    self.getBuff = function(bp, name)
-        local bp    = bp or false
-        local name  = name or false
+    self.getBuff = function(name)
         
         if bp and name and type(name) == 'string' then
             local helpers = bp.helpers
@@ -365,9 +366,7 @@ function rolls.new()
         
     end
 
-    self.validBuff = function(bp, id)
-        local bp = bp or false
-        local id = id or false
+    self.validBuff = function(id)
 
         if bp and id then
 
@@ -384,87 +383,31 @@ function rolls.new()
 
     end
 
-    self.add = function(bp, roll, rolled)
-        local bp        = bp or false
-        local roll      = roll or false
-        local rolled    = rolled or false
+    self.add = function(roll, rolled)
+        local roll = roll or false
+        local rolled = rolled or false
         
         if bp and roll and rolled and type(roll) == 'table' and type(rolled) == 'number' then
-            
-            if not self.rolling and not bp.helpers['buffs'].buffActive(roll.id) then
-                self.rolling = true
 
-                if not self.active[1] and self.rolls[1].id == roll.id then
+            if self.rolls[1].id == roll.id then
+                self.last = 1
+                
+                if rolled > 11 then
+                    self.active[1] = {roll=bp.res.buffs[309], dice=rolled}
 
-                    if rolled > 11 then
-                        self.active[1]  = {roll=bp.res.buffs[309], dice=rolled}
-                        self.rolling    = false
-                        self.last       = 1
-
-                    elseif (rolled == lucky[roll.en] or rolled == 11) then
-                        self.active[1]  = {roll=roll, dice=rolled}
-                        self.rolling    = false
-                        self.last       = 1
-
-                    elseif rolled >= self.cap then
-                        self.active[1]  = {roll=roll, dice=rolled}
-                        self.rolling    = false
-                        self.last       = 1
-
-                    else
-                        self.active[1]  = {roll=roll, dice=rolled}
-                        self.last       = 1
-
-                    end
-
-                elseif not self.active[2] and self.rolls[2].id == roll.id then
-                    
-                    if rolled > 11 then
-                        self.active[2]  = {roll=bp.res.buffs[309], dice=rolled}
-                        self.rolling    = false
-                        self.last       = 2
-
-                    elseif (rolled == lucky[roll.en] or rolled == 11) then
-                        self.active[2]  = {roll=roll, dice=rolled}
-                        self.rolling    = false
-                        self.last       = 2
-
-                    elseif rolled >= self.cap then
-                        self.active[2]  = {roll=roll, dice=rolled}
-                        self.rolling    = false
-                        self.last       = 2
-
-                    else
-                        self.active[2]  = {roll=roll, dice=rolled}
-                        self.last       = 2
-
-                    end
+                else
+                    self.active[1] = {roll=roll, dice=rolled}
 
                 end
 
-            elseif self.rolling and self.active[self.last] and self.active[self.last].roll.id == roll.id then
-                    
+            elseif self.rolls[2].id == roll.id then
+                self.last = 2
+                
                 if rolled > 11 then
-                    self.active[self.last] = {roll=bp.res.buffs[309], dice=rolled}
-                    self.rolling = false
-
-                elseif (rolled == lucky[roll.en] or rolled == 11) then
-                    self.active[self.last] = {roll=roll, dice=rolled}
-                    self.rolling = false
-
-                elseif rolled >= self.cap then
-                    self.active[self.last] = {roll=roll, dice=rolled}
-
-                    if bp.core.getSetting('JA') and bp.helpers['actions'].isReady(bp, 'JA', 'Snake Eye') then
-                        self.rolling = true
-
-                    else
-                        self.rolling = false
-
-                    end
+                    self.active[2] = {roll=bp.res.buffs[309], dice=rolled}
 
                 else
-                    self.active[self.last] = {roll=roll, dice=rolled}
+                    self.active[2] = {roll=roll, dice=rolled}
 
                 end
 
@@ -474,16 +417,15 @@ function rolls.new()
         
     end
 
-    self.remove = function(bp, id)
-        local bp = bp or false
+    self.remove = function(id)
         local id = id or false
 
-        if bp and id and self.validBuff(bp, id) then
+        if bp and id and self.validBuff(id) then
             
-            if self.active[1] and self.getBuff(bp, self.active[1].roll.en).id == id then
+            if self.active[1] and self.getBuff(self.active[1].roll.en).id == id then
                 self.active[1] = false
         
-            elseif self.active[2] and self.getBuff(bp, self.active[2].roll.en).id == id then
+            elseif self.active[2] and self.getBuff(self.active[2].roll.en).id == id then
                 self.active[2] = false
 
             end
@@ -492,79 +434,60 @@ function rolls.new()
 
     end
 
-    self.roll = function(bp)
-        local bp = bp or false
+    self.roll = function()
         local player = windower.ffxi.get_player()
 
         if bp and #self.active <= 2 then
-            
-            if (not self.rolling and not self.active[1] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[1].en).id)) or (self.active[1] and self.active[1].roll.id ~= self.rolls[1].id and self.active[1].roll.en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[1].en).id) and not bp.helpers['buffs'].buffActive(308)) then
-                local roll = self.rolls[1] or false
 
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
+            if not self.rolling then
+                
+                if not self.active[1] and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[1].en).id) then
+                    local roll = self.rolls[1]
 
-                    if self.crooked and bp.helpers['actions'].isReady(bp, 'JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
-                        bp.helpers['queue'].add(bp, bp.JA['Crooked Cards'], windower.ffxi.get_player())
+                    if roll and bp.helpers['actions'].isReady('JA', roll.en) and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[1].en).id) then
+
+                        if bp.helpers['actions'].isReady('JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
+                            bp.helpers['queue'].add(bp.JA['Crooked Cards'], player)
+                        end
+                        bp.helpers['queue'].add(bp.JA[roll.en], player)
+
                     end
-                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())
-                    
-                end
 
-            elseif (not self.rolling and not self.active[2] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[2].en).id) and player.main_job == 'COR') or (self.active[2] and self.active[2].roll.id ~= self.rolls[2].id and self.active[2].roll.en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[2].en).id) and not bp.helpers['buffs'].buffActive(308)) and player.main_job == 'COR' then
-                local roll = self.rolls[2] or false
-            
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
-                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())
-                end
+                elseif self.active[1] and self.active[1].id ~= self.rolls[1].id and self.active[1].en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[1].en).id) then
+                    local roll = self.active[1].roll
 
-            elseif not self.rolling and self.active[1] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[1].en).id) and self.active[1].roll.en == 'Bust' and not bp.helpers['buffs'].buffActive(308) and not bp.helpers['buffs'].buffActive(309) then
-                local roll = self.rolls[1] or false
+                    if roll and bp.helpers['actions'].isReady('JA', roll.en) then
 
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
+                        if bp.helpers['actions'].isReady('JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
+                            bp.helpers['queue'].add(bp.JA['Crooked Cards'], player)
+                        end
+                        bp.helpers['queue'].add(bp.JA[roll.en], player)
 
-                    if self.crooked and bp.helpers['actions'].isReady(bp, 'JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
-                        bp.helpers['queue'].add(bp, bp.JA['Crooked Cards'], windower.ffxi.get_player())
                     end
-                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())
-                    
+
+                elseif not self.active[2] and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[2].en).id) then
+                    local roll = self.rolls[2]
+
+                    if roll and bp.helpers['actions'].isReady('JA', roll.en) then
+                        bp.helpers['queue'].add(bp.JA[roll.en], player)
+                    end
+
+                elseif self.active[2] and self.active[2].id ~= self.rolls[2].id and self.active[2].en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[2].en).id) then
+                    local roll = self.active[2].roll
+
+                    if roll and bp.helpers['actions'].isReady('JA', roll.en) then
+                        bp.helpers['queue'].add(bp.JA[roll.en], player)
+                    end
+
                 end
-
-            elseif not self.rolling and self.active[2] and not bp.helpers['buffs'].buffActive(self.getBuff(bp, self.rolls[2].en).id) and self.active[2].roll.en == 'Bust' and not bp.helpers['buffs'].buffActive(308) and not bp.helpers['buffs'].buffActive(309) and player.main_job == 'COR' then
-                local roll = self.rolls[2] or false
-
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', roll.en) then
-                    bp.helpers['queue'].add(bp, bp.JA[roll.en], windower.ffxi.get_player())                    
-                end
-
-            elseif self.rolling and self.active[1] and bp.helpers['buffs'].buffActive(308) and self.active[1].roll.en == self.rolls[1].en and self.active[1].roll.en ~= 'Bust' and self.active[1].dice <= self.cap then
-                local roll = self.rolls[1] or false
                 
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
-                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
-                end
 
-            elseif self.rolling and self.active[2] and bp.helpers['buffs'].buffActive(308) and self.active[2].roll.en == self.rolls[2].en and self.active[2].roll.en ~= 'Bust' and self.active[2].dice <= self.cap and player.main_job == 'COR' then
-                local roll = self.rolls[2] or false
-                
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
-                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
-                end
+            elseif self.rolling and self.active and self.active[self.last] and self.active[self.last].dice <= self.cap then
+                local roll = self.rolls[self.last]
 
-            elseif self.rolling and self.active[1] and bp.helpers['buffs'].buffActive(308) and self.active[1].roll.en == self.rolls[1].en and self.active[1].roll.en ~= 'Bust' and self.active[1].dice < 11 and self.active[1].dice > self.cap and bp.helpers['actions'].isReady(bp, 'JA', 'Snake Eye') then
-                local roll = self.rolls[1] or false
-                
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
-                    bp.helpers['queue'].add(bp, bp.JA['Snake Eye'], windower.ffxi.get_player())
-                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
-                end
-
-            elseif self.rolling and self.active[2] and bp.helpers['buffs'].buffActive(308) and self.active[2].roll.en == self.rolls[2].en and self.active[2].roll.en ~= 'Bust' and self.active[2].dice < 11 and self.active[2].dice > self.cap and bp.helpers['actions'].isReady(bp, 'JA', 'Snake Eye') and player.main_job == 'COR' then
-                local roll = self.rolls[2] or false
-                
-                if roll and bp.helpers['actions'].isReady(bp, 'JA', 'Double-Up') then
-                    bp.helpers['queue'].add(bp, bp.JA['Snake Eye'], windower.ffxi.get_player())
-                    bp.helpers['queue'].add(bp, bp.JA['Double-Up'], windower.ffxi.get_player())
-                end
+                if roll and bp.helpers['actions'].isReady('JA', 'Double-Up') then
+                    bp.helpers['queue'].add(bp.JA['Double-Up'], player)
+                end                
 
             end
 
@@ -572,7 +495,7 @@ function rolls.new()
 
     end
 
-    self.getLucky = function(bp, name)
+    self.getLucky = function(name)
         local bp    = bp or false
         local name  = name or false
 
@@ -582,7 +505,7 @@ function rolls.new()
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local render    = {}
@@ -651,7 +574,7 @@ function rolls.new()
 
     end
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if bp then
@@ -669,7 +592,7 @@ function rolls.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y
@@ -686,6 +609,70 @@ function rolls.new()
         end
 
     end
+
+    events.prerender = windower.register_event('prerender', function()
+
+        if bp.common.pingReady() then
+            local buffs = T(windower.ffxi.get_player().buffs)
+
+            if buffs:contains(308) then
+
+                if self.active and self.active[self.last] then
+                    local last = self.active[self.last]
+
+                    if last.dice <= self.cap and last.dice ~= lucky[last.roll.en] then
+                        self.rolling = true
+                    
+                    elseif (last.dice > self.cap or last.dice == lucky[last.roll.en] or last.dice == 11 or last.dice == unlucky[last.roll.en]) then
+                        self.rolling = false
+
+                    end
+                
+                else
+                    self.rolling = false
+
+                end
+
+            else
+                self.rolling = false
+
+            end
+
+            if self.active and self.active[self.last] and self.active[self.last].roll and self.active[self.last].roll.en == 'Bust' and not buffs:contains(309) then
+                self.active[self.last] = false
+            end
+        
+        end
+    
+    end)
+
+    events.prerender = windower.register_event('lose buff', function(id)
+        local roll1 = self.rolls[1]
+        local roll2 = self.rolls[2]
+        local buff1 = self.getBuff(roll1.en)
+        local buff2 = self.getBuff(roll2.en)
+
+        if roll1 and buff1 and buff1.id == id then
+            self.active[1] = false
+
+        elseif roll2 and buff2 and buff2.id == id then
+            self.active[2] = false
+
+        elseif id == 309 then
+
+            for i,v in ipairs(self.active) do
+                
+                if v and v.roll and v.roll.en == 'Bust' then
+                    self.active[i] = false
+                    break
+
+                end
+
+            end
+
+        end
+
+    end)
 
     return self
 

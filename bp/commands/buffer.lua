@@ -2,9 +2,19 @@ local buffer = {}
 function buffer.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
@@ -34,7 +44,7 @@ function buffer.new()
                         end
 
                     end
-                    bp.helpers['buffer'].add(bp, windower.ffxi.get_mob_by_target('t'), table.concat(spell, ' '), tonumber(delay) or 2)
+                    bp.helpers['buffer'].add(windower.ffxi.get_mob_by_target('t'), table.concat(spell, ' '), tonumber(delay) or 2)
                 
                 elseif command == '-' and commands[3] and windower.ffxi.get_mob_by_target('t') then
                     local spell = {}
@@ -42,13 +52,13 @@ function buffer.new()
                     for i=3, #commands do
                         table.insert(spell, string.format('%s', commands[i]))
                     end
-                    bp.helpers['buffer'].remove(bp, windower.ffxi.get_mob_by_target('t'), table.concat(spell, ' '))
+                    bp.helpers['buffer'].remove(windower.ffxi.get_mob_by_target('t'), table.concat(spell, ' '))
 
                 elseif command == 'reset' then
                     bp.helpers['buffer'].reset(bp)
 
                 elseif command == 'pos' and commands[3] then
-                    bp.helpers['buffer'].pos(bp, commands[3], commands[4] or false)
+                    bp.helpers['buffer'].pos(commands[3], commands[4] or false)
 
                 end
 

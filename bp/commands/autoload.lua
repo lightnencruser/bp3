@@ -2,9 +2,19 @@ local autoload = {}
 function autoload.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
         
         if bp and commands then
             local command = commands[2] or false
@@ -13,7 +23,7 @@ function autoload.new()
                 command = command:lower()
 
                 if (command == 'install' or command == 'add') and commands[3] then
-                    bp.helpers['autoload'].install(bp, commands[3])
+                    bp.helpers['autoload'].install(commands[3])
                 end
 
             end

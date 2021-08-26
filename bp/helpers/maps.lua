@@ -2,19 +2,27 @@ local maps  = {}
 function maps.new()
     local self = {}
 
-    -- Public Variables.
-    self.busy   = false
-
     -- Private Variables.
-    local vendors = {
+    local bp        = false
+    local vendors   = {
         
         [17780860] = {id=17780860, index=124, menuid=10000, maps=255},
         [17776720] = {id=17776720, index=80, menuid=10000, maps=255},
     
     }
 
+    -- Public Variables.
+    self.busy       = false
+
     -- Public Functions.
-    self.buyMaps = function(bp, data)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.buyMaps = function(data)
         local bp    = bp or false
         local data  = data or false
 

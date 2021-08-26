@@ -17,8 +17,11 @@ function distance.new()
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
+    -- Private Variables.
+    local bp        = false
+
     -- Public Variables.
-    self.distance = nil
+    self.distance   = nil
 
     -- Private Functions
     local persist = function()
@@ -65,7 +68,15 @@ function distance.new()
     end
     self.writeSettings()
 
-    self.render = function(bp)
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.render = function()
         local bp        = bp or false
         local target    = windower.ffxi.get_mob_by_target('t') or false
         local color     = {string.format('%s,%s,%s', 25, 165, 200), string.format('%s,%s,%s', 25, 165, 200)}
@@ -96,7 +107,7 @@ function distance.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

@@ -2,9 +2,19 @@ local bubbles = {}
 function bubbles.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
@@ -13,7 +23,7 @@ function bubbles.new()
                 command = command:lower()
 
                 if command == 'set' and commands[3] then
-                    bp.helpers['bubbles'].setBubbles(bp, commands[3], commands[4] or false, commands[5] or false)
+                    bp.helpers['bubbles'].setBubbles(commands[3], commands[4] or false, commands[5] or false)
 
                 elseif command == 'display' then
                     bp.helpers['bubbles'].toggleDisplay()
@@ -49,10 +59,10 @@ function bubbles.new()
                     bp.helpers['bubbles'].togglePlacement(bp)
 
                 elseif command == 'distance' then
-                    bp.helpers['bubbles'].setDistance(bp, commands[3])
+                    bp.helpers['bubbles'].setDistance(commands[3])
 
                 elseif command == 'pos' and commands[3] then
-                    bp.helpers['bubbles'].pos(bp, commands[3], commands[4] or false)
+                    bp.helpers['bubbles'].pos(commands[3], commands[4] or false)
 
                 end
 

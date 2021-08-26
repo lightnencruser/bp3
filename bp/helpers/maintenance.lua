@@ -2,13 +2,23 @@ local maintenance = {}
 function maintenance.new()
     local self = {}
 
+    -- Private Variables.
+    local bp        = false
+
     -- Public Variables.
     self.data       = false
     self.status     = 0
     self.enabled    = false
 
     -- Public Functions.
-    self.updateData = function(bp, original)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.updateData = function(original)
         local original = original or false
 
         if original then
@@ -22,7 +32,7 @@ function maintenance.new()
 
     end
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if bp then

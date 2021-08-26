@@ -2,9 +2,19 @@ local accolades = {}
 function accolades.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
         
         if bp and commands and commands[2] then
             local item, count = {}, commands[#commands] or false
@@ -18,7 +28,7 @@ function accolades.new()
             end
             
             if item and item ~= '' then
-                bp.helpers['accolades'].poke(bp, table.concat(item, ' '), count)
+                bp.helpers['accolades'].poke(table.concat(item, ' '), count)
             end
 
         end

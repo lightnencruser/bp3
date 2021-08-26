@@ -2,7 +2,7 @@ local menus = {}
 function menus.new()
     local self = {}
 
-    self.capture = function(bp, commands)
+    self.capture = function(commands)
         local bp = bp or false
 
         if bp then

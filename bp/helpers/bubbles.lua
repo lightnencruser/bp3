@@ -19,11 +19,13 @@ function bubbles.new()
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
-    -- Public Variables.
-    self.bubbles        = self.settings.bubbles or {self.allowed[772], self.allowed[818], self.allowed[780]}
-    self.flags          = self.settings.flags or {indi=true, geo=true, entrust=true, ecliptic=true, dematerialize=true, circle=true, glory=true, lifecycle=true, distance=22}
-
     -- Private Variables.
+    local bp        = false
+    local buffs     = {'Ecliptic Attrition', 'Lasting Emanation'}
+    local buff      = 2
+    local math      = math
+    local placement = 1
+    local map       = {directions={'East','Southeast','South','Southwest','West','Northwest','North','Northeast'}, placement={'Front','Side'}}
     local short = {
         
         self = {
@@ -68,17 +70,9 @@ function bubbles.new()
 
     }
 
-    -- Private Variables.
-    local buffs     = {'Ecliptic Attrition', 'Lasting Emanation'}
-    local buff      = 2
-    local math      = math
-    local placement = 1
-    local map       = {
-
-        directions  = {'East','Southeast','South','Southwest','West','Northwest','North','Northeast'},
-        placement   = {'Front','Side'},
-
-    }
+    -- Public Variables.
+    self.bubbles        = self.settings.bubbles or {self.allowed[772], self.allowed[818], self.allowed[780]}
+    self.flags          = self.settings.flags or {indi=true, geo=true, entrust=true, ecliptic=true, dematerialize=true, circle=true, glory=true, lifecycle=true, distance=22}
 
     -- Private Functions
     local persist = function()
@@ -168,7 +162,14 @@ function bubbles.new()
     end
 
     -- Public Functions.
-    self.render = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.render = function()
         local bp = bp or false
 
         if bp and self.display:visible() then
@@ -215,7 +216,7 @@ function bubbles.new()
 
     end
 
-    self.isGeoSpell = function(bp, id)
+    self.isGeoSpell = function(id)
         local bp = bp or false
         local id = id or false
 
@@ -234,7 +235,7 @@ function bubbles.new()
 
     end
 
-    self.valid = function(bp, id)
+    self.valid = function(id)
         local bp = bp or false
         local id = id or false
 
@@ -253,7 +254,7 @@ function bubbles.new()
 
     end
 
-    self.setBubbles = function(bp, b1, b2, b3)
+    self.setBubbles = function(b1, b2, b3)
         local bp = bp or false
         local b1 = b1 or false
         local b2 = b2 or false
@@ -320,7 +321,7 @@ function bubbles.new()
 
     end
 
-    self.togglePlacement = function(bp)
+    self.togglePlacement = function()
         local bp = bp or false
 
         if bp then
@@ -338,7 +339,7 @@ function bubbles.new()
 
     end
 
-    self.offsetBubble = function(bp, target, param, category)
+    self.offsetBubble = function(target, param, category)
         local bp        = bp or false
         local target    = target or false
         local param     = param or false
@@ -350,13 +351,13 @@ function bubbles.new()
             local offset    = {x=0, y=0}
 
             if mob and mob.facing then
-                local direction = self.getDirection(bp, mob.facing)
+                local direction = self.getDirection(mob.facing)
 
                 if map.placement[placement] == 'Front' then
-                    offset = self.buildFrontOffset(bp, direction, mob.model_size, mob.model_scale)
+                    offset = self.buildFrontOffset(direction, mob.model_size, mob.model_scale)
 
                 elseif map.placement[placement] == 'Side' then
-                    offset = self.buildSideOffset(bp, direction, mob.model_size, mob.model_scale)
+                    offset = self.buildSideOffset(direction, mob.model_size, mob.model_scale)
 
                 end
                 
@@ -379,7 +380,7 @@ function bubbles.new()
 
     end
 
-    self.buildSideOffset = function(bp, direction, size, scale)
+    self.buildSideOffset = function(direction, size, scale)
         local bp        = bp or false
         local direction = direction or false
         local size      = size or false
@@ -419,7 +420,7 @@ function bubbles.new()
 
     end
 
-    self.buildFrontOffset = function(bp, direction, size, scale)
+    self.buildFrontOffset = function(direction, size, scale)
         local bp        = bp or false
         local direction = direction or false
         local size      = size or false
@@ -459,7 +460,7 @@ function bubbles.new()
 
     end
 
-    self.getDirection = function(bp, rotation)
+    self.getDirection = function(rotation)
         local bp        = bp or false
         local rotation  = rotation or 0
 
@@ -496,7 +497,7 @@ function bubbles.new()
 
     end
 
-    self.handle = function(bp, target)
+    self.handle = function(target)
         local bp        = bp or false
         local target    = target or false
         local pet       = windower.ffxi.get_mob_by_target('pet') or false
@@ -507,45 +508,45 @@ function bubbles.new()
             -- HANDLE GEO-SPELLS.
             if not pet and target then
                 
-                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady(bp, 'MA', bubbles[2].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[2].en]) then
+                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady('MA', bubbles[2].en) and not bp.helpers['queue'].inQueue(bp.MA[bubbles[2].en]) then
                     
-                    if self.flags.glory and bp.helpers['actions'].isReady(bp, 'JA', "Blaze of Glory") then
-                        bp.helpers['queue'].add(bp, bp.JA['Blaze of Glory'], 'me')
-                        bp.helpers['queue'].add(bp, bp.MA[bubbles[2].en], target)
+                    if self.flags.glory and bp.helpers['actions'].isReady('JA', "Blaze of Glory") then
+                        bp.helpers['queue'].add(bp.JA['Blaze of Glory'], 'me')
+                        bp.helpers['queue'].add(bp.MA[bubbles[2].en], target)
 
                     else
-                        bp.helpers['queue'].add(bp, bp.MA[bubbles[2].en], target)
+                        bp.helpers['queue'].add(bp.MA[bubbles[2].en], target)
 
                     end
 
                 end
             
-            elseif pet and (pet.distance):sqrt() > (self.flags.distance+5) and self.flags.circle and bp.helpers['actions'].isReady(bp, 'JA', "Full Circle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Full Circle'], 'me') then
+            elseif pet and (pet.distance):sqrt() > (self.flags.distance+5) and self.flags.circle and bp.helpers['actions'].isReady('JA', "Full Circle") and not bp.helpers['queue'].inQueue(bp.JA['Full Circle'], 'me') then
                 bp.helpers['queue'].clear()
-                bp.helpers['queue'].addToFront(bp, bp.JA['Full Circle'], 'me')
+                bp.helpers['queue'].addToFront(bp.JA['Full Circle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady(bp, 'JA', "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp, bp.JA['Ecliptic Attrition'], 'me') then
-                bp.helpers['queue'].addToFront(bp, bp.JA['Ecliptic Attrition'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady('JA', "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp.JA['Ecliptic Attrition'], 'me') then
+                bp.helpers['queue'].addToFront(bp.JA['Ecliptic Attrition'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady(bp, 'JA', "Life Cycle") and not bp.helpers['queue'].inQueue(bp, bp.JA['Life Cycle'], 'me') then
-                bp.helpers['queue'].addToFront(bp, bp.JA['Life Cycle'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady('JA', "Life Cycle") and not bp.helpers['queue'].inQueue(bp.JA['Life Cycle'], 'me') then
+                bp.helpers['queue'].addToFront(bp.JA['Life Cycle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady(bp, 'JA', "Dematerialize") and not bp.helpers['queue'].inQueue(bp, bp.JA['Dematerialize'], 'me') then
-                bp.helpers['queue'].addToFront(bp, bp.JA['Dematerialize'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady('JA', "Dematerialize") and not bp.helpers['queue'].inQueue(bp.JA['Dematerialize'], 'me') then
+                bp.helpers['queue'].addToFront(bp.JA['Dematerialize'], 'me')
 
             end
 
             -- HANDLE INDI-SPELLS.
-            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady(bp, 'MA', bubbles[1].en) and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[1].en]) then
-                bp.helpers['queue'].add(bp, bp.MA[bubbles[1].en], 'me')
+            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady('MA', bubbles[1].en) and not bp.helpers['queue'].inQueue(bp.MA[bubbles[1].en]) then
+                bp.helpers['queue'].add(bp.MA[bubbles[1].en], 'me')
             end
 
             -- HANDLE ENTRUST SPELLS.
-            if self.flags.entrust and bp.helpers['actions'].isReady(bp, 'JA', "Entrust") and not bp.helpers['queue'].inQueue(bp, bp.MA[bubbles[3].en]) then
+            if self.flags.entrust and bp.helpers['actions'].isReady('JA', "Entrust") and not bp.helpers['queue'].inQueue(bp.MA[bubbles[3].en]) then
 
                 if bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
-                    bp.helpers['queue'].add(bp, bp.JA['Entrust'], 'me')
-                    bp.helpers['queue'].add(bp, bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
+                    bp.helpers['queue'].add(bp.JA['Entrust'], 'me')
+                    bp.helpers['queue'].add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
 
                 end
 
@@ -555,7 +556,7 @@ function bubbles.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y
@@ -573,7 +574,7 @@ function bubbles.new()
 
     end
 
-    self.toggleBOG = function(bp)
+    self.toggleBOG = function()
         local bp = bp or false
 
         if bp then
@@ -592,7 +593,7 @@ function bubbles.new()
 
     end
 
-    self.toggleEnhancements = function(bp)
+    self.toggleEnhancements = function()
         local bp = bp or false
 
         if bp then
@@ -611,7 +612,7 @@ function bubbles.new()
 
     end
 
-    self.toggleBuff = function(bp)
+    self.toggleBuff = function()
         local n = #buffs
 
         if buff < n then
@@ -626,7 +627,7 @@ function bubbles.new()
 
     end
 
-    self.toggleIndi = function(bp)
+    self.toggleIndi = function()
         local bp = bp or false
 
         if bp then
@@ -645,7 +646,7 @@ function bubbles.new()
 
     end
 
-    self.toggleGeo = function(bp)
+    self.toggleGeo = function()
         local bp = bp or false
 
         if bp then
@@ -664,7 +665,7 @@ function bubbles.new()
 
     end
 
-    self.toggleEntrust = function(bp)
+    self.toggleEntrust = function()
         local bp = bp or false
 
         if bp then
@@ -683,7 +684,7 @@ function bubbles.new()
 
     end
 
-    self.toggleDematerialize = function(bp)
+    self.toggleDematerialize = function()
         local bp = bp or false
 
         if bp then
@@ -702,7 +703,7 @@ function bubbles.new()
 
     end
 
-    self.toggleLifeCycle = function(bp)
+    self.toggleLifeCycle = function()
         local bp = bp or false
 
         if bp then
@@ -721,7 +722,7 @@ function bubbles.new()
 
     end
 
-    self.toggleFullCircle = function(bp)
+    self.toggleFullCircle = function()
         local bp = bp or false
 
         if bp then
@@ -740,7 +741,7 @@ function bubbles.new()
 
     end
 
-    self.setDistance = function(bp, distance)
+    self.setDistance = function(distance)
         local bp        = bp or false
         local distance  = distance or false
 

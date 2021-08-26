@@ -11,15 +11,16 @@ end
 function enmity.new()
     local self = {}
 
+    -- Static Variables.
+    self.settings       = dofile(string.format('%sbp/helpers/settings/enmity/%s_settings.lua', windower.addon_path, player.name))
+    self.layout         = self.settings.layout or {pos={x=1, y=1}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Impact', size=15}, padding=4, stroke_width=1, draggable=false}
+    self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important      = string.format('%s,%s,%s', 25, 165, 200)
+
     -- Private Variable.
+    local bp            = false
     local has_enmity    = false
     local clock         = {last=0, delay=10}
-
-    -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/enmity/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=1, y=1}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Impact', size=15}, padding=4, stroke_width=1, draggable=false}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Functions
     local persist = function()
@@ -67,7 +68,14 @@ function enmity.new()
     self.writeSettings()
 
     -- Public Functions.
-    self.catchEnmity = function(bp, data)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.catchEnmity = function(data)
         local bp    = bp or false
         local data  = data or false
 
@@ -82,7 +90,7 @@ function enmity.new()
                 local category  = packed['Category']
                 local allowed   = T{1,6,7,8,11,12,13,14,15}
                 
-                if actor and target and current and allowed:contains(category) and actor.id ~= player.id and current.id == actor.id and bp.helpers['party'].isInParty(bp, target, true) and not bp.helpers['party'].isInParty(bp, actor, true) then
+                if actor and target and current and allowed:contains(category) and actor.id ~= player.id and current.id == actor.id and bp.helpers['party'].isInParty(target, true) and not bp.helpers['party'].isInParty(actor, true) then
                     has_enmity = target
                     clock.last = os.clock()
 
@@ -94,7 +102,7 @@ function enmity.new()
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp = bp or false
 
         -- Reset after 30 seconds of idle actions.
@@ -122,7 +130,7 @@ function enmity.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

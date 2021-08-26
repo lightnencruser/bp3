@@ -16,12 +16,8 @@ function empyrean.new()
     self.layout     = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
 
-    -- Public Variables.
-    self.trial      = {}
-    self.Target     = false
-    self.enabled    = false
-
     -- Private Variables.
+    local bp        = false
     local timers    = {sound={last=0, delay=30}, scan={last=0, delay=20}, warning={}}
     local sounds    = {ph='Energy_Blade', nm='Energy_Blade'}
     local spawned   = {}
@@ -220,6 +216,11 @@ function empyrean.new()
 
     }
 
+    -- Public Variables.
+    self.trial      = {}
+    self.Target     = false
+    self.enabled    = false
+
     -- Private Functions
     local persist = function()
         local next = next
@@ -253,12 +254,12 @@ function empyrean.new()
     end
     resetDisplay()
 
-    local playSound = function(bp, name)
+    local playSound = function(name)
         local bp    = bp or false
         local name  = name or false
         
         if bp and name and type(name) == 'string' and (os.clock()-timers.sound.last) > timers.sound.delay then
-            bp.helpers['sounds'].play(bp, name)
+            bp.helpers['sounds'].play(name)
             timers.sound.last = os.clock()    
         end
 
@@ -413,7 +414,14 @@ function empyrean.new()
     end
 
     -- Public Functions.
-    self.scan = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.scan = function()
         local bp    = bp or false
         local zone  = bp.res.zones[windower.ffxi.get_info().zone] or false
 
@@ -440,7 +448,7 @@ function empyrean.new()
 
     end
 
-    self.find = function(bp, data)
+    self.find = function(data)
         local bp    = bp or false
         local data  = data or false
         local zone  = bp.res.zones[windower.ffxi.get_info().zone] or false
@@ -479,7 +487,7 @@ function empyrean.new()
                             spawned[packed['Index']].pos    = {x=packed['X'], y=packed['Y'], z=packed['Z']}
 
                         end
-                        playSound(bp, sounds.nm)
+                        playSound(sounds.nm)
 
                     end
 
@@ -499,7 +507,7 @@ function empyrean.new()
                             spawned[packed['Index']].pos    = {x=packed['X'], y=packed['Y'], z=packed['Z']}
                             
                         end
-                        playSound(bp, sounds.ph)
+                        playSound(sounds.ph)
 
                     elseif packed['Mask'] == 1 then
 
@@ -530,7 +538,7 @@ function empyrean.new()
     
     end
 
-    self.set = function(bp, trial)
+    self.set = function(trial)
         local bp    = bp or false
         local trial = trial or false
 
@@ -575,7 +583,7 @@ function empyrean.new()
 
     end
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if bp then
@@ -593,7 +601,7 @@ function empyrean.new()
 
     end
 
-    self.parseText = function(bp, message, mode)
+    self.parseText = function(message, mode)
         local bp        = bp or false
         local message   = message or false
         local mode      = mode or false
@@ -623,7 +631,7 @@ function empyrean.new()
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp = bp or false
 
         if bp then
@@ -643,12 +651,6 @@ function empyrean.new()
                 }
                 self.display:text(table.concat(update, '\n'))
                 self.display:update()
-
-                --Debug.
-                local debug = false
-                if debug then
-                    print(T(spawned))
-                end
 
                 if not self.display:visible() then
                     self.display:show()

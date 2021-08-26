@@ -17,13 +17,13 @@ function coms.new()
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
-    -- Public Variables.
-    self.enabled    = true
-
     -- Private Variables.
+    local bp        = false
     local actions   = {}
     local timer     = {last=0, decay=15}
-    
+
+    -- Public Variables.
+    self.enabled    = true    
 
     -- Private Functions
     local persist = function()
@@ -83,7 +83,14 @@ function coms.new()
     end
 
     -- Public Functions.
-    self.send = function(bp, action, name, attempts)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.send = function(action, name, attempts)
         local bp        = bp or false
         local action    = action or false
         local name      = name or false
@@ -118,7 +125,7 @@ function coms.new()
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp = bp or false
 
         if bp then
@@ -159,7 +166,7 @@ function coms.new()
 
     end
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if bp then
@@ -178,7 +185,7 @@ function coms.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

@@ -3,7 +3,8 @@ function menus.new()
     local self = {}
 
     -- Private Variables.
-    local allowed = {
+    local bp        = false
+    local allowed   = {
 
         assaults    = S{'Yahsra','Isdebaaq','Famad','Lageegee','Bhoy Yhupplo'},
         sparks      = S{'Isakoth'},
@@ -14,7 +15,14 @@ function menus.new()
     self.enabled = false
 
     -- Public Functions.
-    self.capture = function(bp, original)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.capture = function(original)
         local bp        = bp or false
         local original  = original or false
 
@@ -136,7 +144,7 @@ function menus.new()
 
     end
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if bp then

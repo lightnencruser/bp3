@@ -2,21 +2,31 @@ local speed = {}
 function speed.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
 
             if command == 'pos' and commands[3] then
-                bp.helpers['speed'].pos(bp, commands[3], commands[4] or false)
+                bp.helpers['speed'].pos(commands[3], commands[4] or false)
 
             elseif command == 'save' then
                 bp.helpers['speed'].writeSettings()
 
             elseif command and tonumber(command) ~= nil then
-                bp.helpers['speed'].setSpeed(bp, command or 50)
+                bp.helpers['speed'].setSpeed(command or 50)
 
             else
                 bp.helpers['speed'].toggle(bp)

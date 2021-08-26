@@ -20,6 +20,7 @@ function cures.new()
     self.important      = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
+    local bp            = false
     local weights       = self.settings.weights or {}
     local spells        = {1,2,3,4,5,6,7,8,9,10,11}
     local abilities     = {190,191,192,193,311,195,262}
@@ -166,7 +167,7 @@ function cures.new()
         
     end
 
-    self.setPriority = function(bp, target, urgency)
+    self.setPriority = function(target, urgency)
         local bp        = bp or false
         local target    = target or false
         local urgency   = urgency or false
@@ -208,7 +209,14 @@ function cures.new()
     end
     
     -- Public Functions.
-    self.render = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.render = function()
         local bp = bp or false
 
         if bp and (os.clock()-timers.last) > 15 then
@@ -274,7 +282,7 @@ function cures.new()
 
     end
 
-    self.changeMode = function(bp)
+    self.changeMode = function()
         local bp = bp or false
 
         if bp then
@@ -290,7 +298,7 @@ function cures.new()
 
     end
 
-    self.off = function(bp)
+    self.off = function()
         local bp = bp or false
 
         if bp then
@@ -306,7 +314,7 @@ function cures.new()
 
     end
 
-    self.validSpell = function(bp, id)
+    self.validSpell = function(id)
         local bp = bp or false
         local id = id or false
 
@@ -324,7 +332,7 @@ function cures.new()
 
     end
 
-    self.validAbility = function(bp, id)
+    self.validAbility = function(id)
         local bp = bp or false
         local id = id or false
 
@@ -342,7 +350,7 @@ function cures.new()
 
     end
 
-    self.getCure = function(bp, id)
+    self.getCure = function(id)
         local bp = bp or false
         local id = id or false
         
@@ -369,7 +377,7 @@ function cures.new()
         
     end
 
-    self.getWeight = function(bp, id)
+    self.getWeight = function(id)
         local player    = windower.ffxi.get_player() or false
         local bp        = bp or false
         local id        = id or false
@@ -384,7 +392,7 @@ function cures.new()
             return math.floor(weight/#weights[player.main_job_id][id])
             
         else
-            local spell = self.getCure(bp, id)
+            local spell = self.getCure(id)
 
             if spell and spell.min then
                 return spell.min
@@ -394,7 +402,7 @@ function cures.new()
         
     end
     
-    self.estimateCure = function(bp, missing)
+    self.estimateCure = function(missing)
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local levels    = {main=player.main_job_level, sub=player.sub_job_level}
@@ -405,7 +413,7 @@ function cures.new()
         if bp and missing then
             
             for _,v in ipairs({1,2,3,4,5,6}) do
-                local weight = self.getWeight(bp, v)
+                local weight = self.getWeight(v)
                 local cure   = res.spells[v]
                 
                 if cure.levels then
@@ -423,7 +431,7 @@ function cures.new()
         
     end
     
-    self.estimateWaltz = function(bp, missing)
+    self.estimateWaltz = function(missing)
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local levels    = {main=player.main_job_level, sub=player.sub_job_level}
@@ -434,7 +442,7 @@ function cures.new()
         if bp and missing then
             
             for _,v in ipairs({190,191,192,193,311}) do
-                local weight = self.getWeight(bp, v)
+                local weight = self.getWeight(v)
                 local cure   = res.job_abilities[v]
                 
                 if cure.levels then
@@ -452,7 +460,7 @@ function cures.new()
         
     end
     
-    self.estimateCuraga = function(bp, missing, count)
+    self.estimateCuraga = function(missing, count)
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local levels    = {main=player.main_job_level, sub=player.sub_job_level}
@@ -464,7 +472,7 @@ function cures.new()
         if bp and missing and count then
             
             for _,v in ipairs({7,8,9,10,11}) do
-                local weight = self.getWeight(bp, v)
+                local weight = self.getWeight(v)
                 local cure   = res.spells[v]
 
                 if cure.levels then
@@ -482,7 +490,7 @@ function cures.new()
         
     end
     
-    self.estimateWaltzga = function(bp, missing, count)
+    self.estimateWaltzga = function(missing, count)
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local levels    = {main=player.main_job_level, sub=player.sub_job_level}
@@ -495,7 +503,7 @@ function cures.new()
             missing = missing
             
             for _,v in ipairs({195,262}) do
-                local weight = self.getWeight(bp, v)
+                local weight = self.getWeight(v)
                 local cure   = res.job_abilities[v]
                 
                 if cure.levels then
@@ -513,7 +521,7 @@ function cures.new()
         
     end
 
-    self.updateWeight = function(bp, data)
+    self.updateWeight = function(data)
         local packets   = packets.parse("incoming", data)
         local id        = packets["Param"] or false
         local targets   = packets["Target Count"] or false
@@ -524,9 +532,9 @@ function cures.new()
             local helpers = bp.helpers
             local player  = windower.ffxi.get_player()
 
-            if self.validSpell(bp, id) then
+            if self.validSpell(id) then
                 local cure = res.spells[id] or false
-                local info = self.getCure(bp, cure.id)
+                local info = self.getCure(cure.id)
 
                 if cure and info then
                     
@@ -568,9 +576,9 @@ function cures.new()
 
                 end
 
-            elseif self.validAbility(bp, id) then
+            elseif self.validAbility(id) then
                 local cure = res.job_abilities[id] or false
-                local info = self.getCure(bp, cure.id)
+                local info = self.getCure(cure.id)
 
                 if cure and info then
 
@@ -618,7 +626,7 @@ function cures.new()
 
     end
 
-    self.handleCuring = function(bp)
+    self.handleCuring = function()
         local bp = bp or false
         
         if bp and self.party and self.alliance and self.mode ~= 1 and bp.helpers['queue'].checkReady(bp) then
@@ -634,20 +642,20 @@ function cures.new()
                 if count < 3 and (T{'WHM','RDM','SCH','PLD'}:contains(player.main_job) or T{'WHM','RDM','SCH','PLD'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
 
                     for _,v in ipairs(party) do
-                        local cure   = self.estimateCure(bp, v.missing) or false
+                        local cure   = self.estimateCure(v.missing) or false
                         local target = windower.ffxi.get_mob_by_id(v.id) or false
 
-                        if cure and target and not helpers['queue'].inQueue(bp, bp.MA[cure.en], target) then
+                        if cure and target and not helpers['queue'].inQueue(bp.MA[cure.en], target) then
 
                             if (target.distance):sqrt() < 21 and (target.distance):sqrt() ~= 0 then
 
                                 if v.missing > (v.max * 0.08) then
 
                                     if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     elseif player.main_job_level < 99 then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     end
 
@@ -658,10 +666,10 @@ function cures.new()
                                 if v.missing > (v.max * 0.08) then
 
                                     if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     elseif player.main_job_level < 99 then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     end
 
@@ -715,15 +723,15 @@ function cures.new()
 
                     if missing > 0 and target and target.id then
                         local target    = windower.ffxi.get_mob_by_id(target.id) or false
-                        local cure      = self.estimateCuraga(bp, missing, count) or false
+                        local cure      = self.estimateCuraga(missing, count) or false
                         
                         if cure and target then
                             
                             if player.main_job_level == 99 and not T{7}:contains(cure.id) then
-                                helpers['queue'].updateCure(bp, cure, target)
+                                helpers['queue'].updateCure(cure, target)
     
                             elseif player.main_job_level < 99 then
-                                helpers['queue'].updateCure(bp, cure, target)
+                                helpers['queue'].updateCure(cure, target)
     
                             end
                             
@@ -738,20 +746,20 @@ function cures.new()
                 if count < 3 and (T{'WHM','RDM','SCH','PLD'}:contains(player.main_job) or T{'WHM','RDM','SCH','PLD'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
 
                     for _,v in ipairs(party) do
-                        local cure   = self.estimateCure(bp, v.missing) or false
+                        local cure   = self.estimateCure(v.missing) or false
                         local target = windower.ffxi.get_mob_by_id(v.id) or false
 
-                        if cure and target and not helpers['queue'].inQueue(bp, bp.MA[cure.en], target) then
+                        if cure and target and not helpers['queue'].inQueue(bp.MA[cure.en], target) then
 
                             if (target.distance):sqrt() < 21 and (target.distance):sqrt() ~= 0 then
 
                                 if v.missing > (v.max * 0.08) then
 
                                     if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     elseif player.main_job_level < 99 then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     end
 
@@ -762,10 +770,10 @@ function cures.new()
                                 if v.missing > (v.max * 0.08) then
 
                                     if player.main_job_level == 99 and not T{1,2}:contains(cure.id) then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     elseif player.main_job_level < 99 then
-                                        helpers['queue'].updateCure(bp, cure, target)
+                                        helpers['queue'].updateCure(cure, target)
         
                                     end
 
@@ -821,15 +829,15 @@ function cures.new()
 
                     if missing > 0 and target and target.id then
                         local target    = windower.ffxi.get_mob_by_id(target.id) or false
-                        local cure      = self.estimateCuraga(bp, missing, count) or false
+                        local cure      = self.estimateCuraga(missing, count) or false
                         
                         if cure and target then
                             
                             if player.main_job_level == 99 and not T{7}:contains(cure.id) then
-                                helpers['queue'].updateCure(bp, cure, target)
+                                helpers['queue'].updateCure(cure, target)
     
                             elseif player.main_job_level < 99 then
-                                helpers['queue'].updateCure(bp, cure, target)
+                                helpers['queue'].updateCure(cure, target)
     
                             end
                             
@@ -845,7 +853,7 @@ function cures.new()
         
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

@@ -2,9 +2,19 @@ local stunner = {}
 function stunner.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
@@ -15,7 +25,7 @@ function stunner.new()
                 for i=3, #commands do
                     table.insert(action, string.format('%s', commands[i]))
                 end
-                bp.helpers['stunner'].add(bp, table.concat(action, ' '))
+                bp.helpers['stunner'].add(table.concat(action, ' '))
 
             elseif command == '-' and commands[3] then
                 local action = {}
@@ -23,7 +33,7 @@ function stunner.new()
                 for i=3, #commands do
                     table.insert(action, string.format('%s', commands[i]))
                 end
-                bp.helpers['stunner'].remove(bp, table.concat(action, ' '))
+                bp.helpers['stunner'].remove(table.concat(action, ' '))
 
             end
 

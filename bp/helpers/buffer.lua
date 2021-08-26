@@ -14,24 +14,19 @@ function buffer.new()
     local self = {}
 
     -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/buffer/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=13}, padding=2, stroke_width=2, draggable=false}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.settings       = dofile(string.format('%sbp/helpers/settings/buffer/%s_settings.lua', windower.addon_path, player.name))
+    self.layout         = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=10}, padding=5, stroke_width=2, draggable=false}
+    self.display        = { {id=0, display=texts.new('-- BUFFING --', {flags={draggable=self.layout.draggable}})} }
+    self.important      = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
-    local buffs     = {}
-    local icons     = {}
-    local list      = {}
-    local allowed   = {}
-    for i,v in pairs(res) do
-        local targets = T(v.targets)
-        
-        if (#targets == 1 and targets[1] ~= 'Self') or #targets > 1 then
-            allowed[i] = v
-        end        
-
-    end
-    local conversion = {
+    local bp            = false
+    local private       = {events={}}
+    local buffs         = {}
+    local icons         = {}
+    local list          = {}
+    local allowed       = {}
+    local conversion    = {
 
         [43]=40, [44]=40, [45]=40, [46]=40, [47]=40, -- Protect.
         [48]=41, [49]=41, [50]=41, [51]=41, [52]=41, -- Shell.
@@ -47,6 +42,14 @@ function buffer.new()
         [478]=228, -- Embrava.
 
     }
+    for i,v in pairs(res) do
+        local targets = T(v.targets)
+        
+        if (#targets == 1 and targets[1] ~= 'Self') or #targets > 1 then
+            allowed[i] = v
+        end        
+
+    end
 
     -- Private Functions
     local persist = function()
@@ -59,23 +62,27 @@ function buffer.new()
     end
     persist()
 
-    local resetDisplay = function()
-        self.display:pos(self.layout.pos.x, self.layout.pos.y)
-        self.display:font(self.layout.font.name)
-        self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
-        self.display:alpha(self.layout.colors.text.alpha)
-        self.display:size(self.layout.font.size)
-        self.display:pad(self.layout.padding)
-        self.display:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
-        self.display:bg_alpha(self.layout.colors.bg.alpha)
-        self.display:stroke_width(self.layout.stroke_width)
-        self.display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
-        self.display:stroke_alpha(self.layout.colors.stroke.alpha)
-        self.display:hide()
-        self.display:update()
+    local resetDisplay = function(n)
+
+        if n and type(n) == 'number' then
+            self.display[n].display:pos(self.layout.pos.x, self.layout.pos.y + (n * (self.layout.font.size + self.layout.padding)))
+            self.display[n].display:font(self.layout.font.name)
+            self.display[n].display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
+            self.display[n].display:alpha(self.layout.colors.text.alpha)
+            self.display[n].display:size(self.layout.font.size)
+            self.display[n].display:pad(self.layout.padding)
+            self.display[n].display:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
+            self.display[n].display:bg_alpha(self.layout.colors.bg.alpha)
+            self.display[n].display:stroke_width(self.layout.stroke_width)
+            self.display[n].display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
+            self.display[n].display:stroke_alpha(self.layout.colors.stroke.alpha)
+            self.display[n].display:show()
+            self.display[n].display:update()
+
+        end
 
     end
-    resetDisplay()
+    resetDisplay(1)
 
     -- Static Functions.
     self.writeSettings = function()
@@ -93,8 +100,14 @@ function buffer.new()
     self.writeSettings()
 
     -- Public Functions.
-    self.reset = function(bp)
-        local bp = bp or false
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.reset = function()
 
         if bp then
 
@@ -116,64 +129,129 @@ function buffer.new()
 
     end
 
-    self.add = function(bp, target, spell, delay)
-        local bp        = bp or false
+    self.add = function(target, spell, delay)
         local target    = target or false
         local spell     = spell or false
         local delay     = delay or 2
 
         if bp and target and spell then
 
-            if type(target) == 'table' and target.id and self.valid(bp, spell) then
-                local spell = self.valid(bp, spell)
+            if type(target) == 'table' and target.id and self.valid(spell) then
+                local spell = self.valid(spell)
 
-                if not self.exists(bp, target, spell) then
+                if not self.exists(target, spell) and bp.helpers['actions'].isReady('MA', spell.en) then
                 
                     if buffs[target.id] then
                         table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
+
+                        for _,v in ipairs(self.display) do
+                            local list = {}
+
+                            for _,v in ipairs(buffs[target.id]) do
+                                table.insert(list, bp.res.spells[v.id].en)
+                            end
+
+                            if v.id and v.display and v.id == target.id then
+                                v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
+                                v.display:show()
+                                v.display:update()
+
+                            end
+
+                        end
+
                     
                     else
                         buffs[target.id] = {}
                         table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
+                        table.insert(self.display, {id=target.id, display=texts.new('', {flags={draggable=self.layout.draggable}})})
+
+                        resetDisplay(#self.display)
+                        self.display[#self.display].display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, bp.res.spells[spell.id].en))
+                        self.display[#self.display].display:show()
+                        self.display[#self.display].display:update()
 
                     end
-                    self.updateIcons(bp)
 
                 end
 
-            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(bp, target, spell) then
+            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(target, spell) then
                 local target    = windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
-                local spell     = self.valid(bp, spell)
+                local spell     = self.valid(spell)
 
-                if target and not self.exists(bp, target, spell) then
+                if target and not self.exists(target, spell) then
                     
                     if buffs[target.id] then
                         table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
+
+                        for _,v in ipairs(self.display) do
+                            local list = {}
+
+                            for _,v in ipairs(buffs[target.id]) do
+                                table.insert(list, bp.res.spells[v.id].en)
+                            end
+
+                            if v.id and v.display and v.id == target.id then
+                                v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
+                                v.display:show()
+                                v.display:update()
+
+                            end
+
+                        end
+
                     
                     else
                         buffs[target.id] = {}
                         table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
+                        table.insert(self.display, {id=target.id, display=texts.new('', {flags={draggable=self.layout.draggable}})})
+
+                        resetDisplay(#self.display)
+                        self.display[#self.display].display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, bp.res.spells[spell.id].en))
+                        self.display[#self.display].display:show()
+                        self.display[#self.display].display:update()
 
                     end
-                    self.updateIcons(bp)
 
                 end
 
-            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(bp, target, spell) then
+            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(target, spell) then
                 local target    = windower.ffxi.get_mob_by_name(target) or false
-                local spell     = self.valid(bp, spell)
+                local spell     = self.valid(spell)
 
-                if target and not self.exists(bp, target, spell) then
+                if target and not self.exists(target, spell) then
                     
                     if buffs[target.id] then
                         table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
+
+                        for _,v in ipairs(self.display) do
+                            local list = {}
+
+                            for _,v in ipairs(buffs[target.id]) do
+                                table.insert(list, bp.res.spells[v.id].en)
+                            end
+
+                            if v.id and v.display and v.id == target.id then
+                                v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
+                                v.display:show()
+                                v.display:update()
+
+                            end
+
+                        end
+
                     
                     else
                         buffs[target.id] = {}
                         table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
+                        table.insert(self.display, {id=target.id, display=texts.new('', {flags={draggable=self.layout.draggable}})})
+
+                        resetDisplay(#self.display)
+                        self.display[#self.display].display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, bp.res.spells[spell.id].en))
+                        self.display[#self.display].display:show()
+                        self.display[#self.display].display:update()
 
                     end
-                    self.updateIcons(bp)
 
                 end
 
@@ -183,17 +261,17 @@ function buffer.new()
 
     end
 
-    self.remove = function(bp, target, spell)
+    self.remove = function(target, spell)
         local bp        = bp or false
         local target    = target or false
         local spell     = spell or false
 
         if bp and target and spell and target.id and buffs[target.id] then
 
-            if type(target) == 'table' and target.id and self.valid(bp, spell) then
-                local spell = self.valid(bp, spell)
+            if type(target) == 'table' and target.id and self.valid(spell) then
+                local spell = self.valid(spell)
 
-                if self.exists(bp, target, spell) then
+                if self.exists(target, spell) then
                 
                     for i,v in ipairs(buffs[target.id]) do
 
@@ -204,15 +282,15 @@ function buffer.new()
                         end
 
                     end
-                    self.updateIcons(bp)
+                    self.updateBuffs(target)
 
                 end
 
-            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(bp, target, spell) then
+            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(target, spell) then
                 local target    = windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
-                local spell     = self.valid(bp, spell)                
+                local spell     = self.valid(spell)                
 
-                if target and self.exists(bp, target, spell) then
+                if target and self.exists(target, spell) then
 
                     for i,v in ipairs(buffs[target.id]) do
 
@@ -223,15 +301,15 @@ function buffer.new()
                         end
 
                     end
-                    self.updateIcons(bp)
+                    self.updateBuffs(target)
                     
                 end
 
-            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(bp, target, spell) then
+            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(target, spell) then
                 local target    = windower.ffxi.get_mob_by_name(target) or false
-                local spell     = self.valid(bp, spell)
+                local spell     = self.valid(spell)
 
-                if target and self.exists(bp, target, spell) then
+                if target and self.exists(target, spell) then
 
                     for i,v in ipairs(buffs[target.id]) do
 
@@ -242,7 +320,7 @@ function buffer.new()
                         end
 
                     end
-                    self.updateIcons(bp)
+                    self.updateBuffs(target)
                     
                 end
 
@@ -252,7 +330,31 @@ function buffer.new()
 
     end
 
-    self.valid = function(bp, spell)
+    self.updateBuffs = function(target)
+
+        if target then
+
+            for _,v in ipairs(self.display) do
+                local list = {}
+
+                for _,v in ipairs(buffs[target.id]) do
+                    table.insert(list, bp.res.spells[v.id].en)
+                end
+
+                if v.id and v.display and v.id == target.id then
+                    v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
+                    v.display:show()
+                    v.display:update()
+
+                end
+
+            end
+
+        end
+
+    end
+
+    self.valid = function(spell)
         local bp    = bp or false
         local spell = spell or false
 
@@ -281,7 +383,7 @@ function buffer.new()
 
     end
 
-    self.exists = function(bp, target, spell)
+    self.exists = function(target, spell)
         local bp        = bp or false
         local target    = target or false
         local spell     = spell or false
@@ -301,64 +403,7 @@ function buffer.new()
 
     end
 
-    self.updateIcons = function(bp)
-        local count = 0
-        local font  = (self.settings.layout.font.size+3)
-
-        for i in pairs(buffs) do
-
-            if icons[i] then
-            
-                for _,v in ipairs(icons[i]) do
-                    v.icon:destroy()
-                end
-            
-            end
-            
-            if buffs[i] then
-                icons[i] = {}
-
-                for _,v in ipairs(buffs[i]) do
-                    table.insert(icons[i], {icon=images.new({color={alpha = 255},texture={fit=false},draggable=false}), id=v.id})
-
-                    local id     = self.convert(bp, v.id)
-                    local index  = #icons[i]
-                    local offset = (count*(font+2))
-                    
-                    if icons[i] and icons[i][index] and icons[i][index].icon then
-                        
-                        if index == 1 then
-                            icons[i][index].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, id))
-                            icons[i][index].icon:size(font, font)
-                            icons[i][index].icon:transparency(0)
-                            icons[i][index].icon:pos_x(self.display:pos_x()-(font+1))
-                            icons[i][index].icon:pos_y(self.display:pos_y()+offset+3)
-                            icons[i][index].icon:show()
-
-
-                        else
-                            icons[i][index].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, id))
-                            icons[i][index].icon:size(font, font)
-                            icons[i][index].icon:transparency(0)
-                            icons[i][index].icon:pos_x(icons[i][index-1].icon:pos_x()-(font+1))
-                            icons[i][index].icon:pos_y(icons[i][index-1].icon:pos_y())
-                            icons[i][index].icon:show()
-
-                        end                        
-                        
-                    end
-
-                end
-
-            end
-            count = (count + 1)
-
-        end
-
-    end
-
-    self.cast = function(bp)
-        local bp = bp or false
+    self.cast = function()
 
         if bp then
 
@@ -368,9 +413,9 @@ function buffer.new()
                 if player and buffs[player.id] then
 
                     for index,buff in ipairs(buffs[player.id]) do
-                        
-                        if (os.clock()-buff.last) > buff.delay and bp.res.spells[buff.id] and bp.helpers['actions'].isReady(bp, 'MA', bp.res.spells[buff.id].en) and not bp.helpers['queue'].inQueue(bp, bp.res.spells[buff.id]) then
-                            bp.helpers['queue'].add(bp, bp.res.spells[buff.id], player)
+
+                        if (os.clock()-buff.last) > buff.delay and bp.res.spells[buff.id] and bp.helpers['actions'].isReady('MA', bp.res.spells[buff.id].en) and not bp.helpers['queue'].inQueue(bp.res.spells[buff.id]) then
+                            bp.helpers['queue'].add(bp.res.spells[buff.id], player)
                         end
 
                     end
@@ -383,21 +428,21 @@ function buffer.new()
 
     end
 
-    self.updateDelay = function(bp, target, spell)
-        local bp        = bp or false
+    self.updateDelay = function(target, spell)
         local target    = target or false
         local spell     = spell or false
 
         if bp and target and spell and target.id and buffs[target.id] then
 
-            if type(target) == 'table' and target.id and self.valid(bp, spell) then
-                local spell = self.valid(bp, spell)
+            if type(target) == 'table' and target.id and self.valid(spell) then
+                local spell = self.valid(spell)
 
-                if self.exists(bp, target, spell) then
-                
+                if self.exists(target, spell) then
+
                     for i,v in ipairs(buffs[target.id]) do
-
+                        
                         if v.id and v.id == spell.id then
+                            
                             buffs[target.id][i].last = os.clock()
                             break
 
@@ -407,11 +452,11 @@ function buffer.new()
 
                 end
 
-            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(bp, target, spell) then
+            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(target, spell) then
                 local target    = windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
-                local spell     = self.valid(bp, spell)                
+                local spell     = self.valid(spell)                
 
-                if target and self.exists(bp, target, spell) then
+                if target and self.exists(target, spell) then
 
                     for i,v in ipairs(buffs[target.id]) do
 
@@ -425,11 +470,11 @@ function buffer.new()
                     
                 end
 
-            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(bp, target, spell) then
+            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(target, spell) then
                 local target    = windower.ffxi.get_mob_by_name(target) or false
-                local spell     = self.valid(bp, spell)
+                local spell     = self.valid(spell)
 
-                if target and self.exists(bp, target, spell) then
+                if target and self.exists(target, spell) then
 
                     for i,v in ipairs(buffs[target.id]) do
 
@@ -449,7 +494,7 @@ function buffer.new()
 
     end
 
-    self.convert = function(bp, id)
+    self.convert = function(id)
         local bp = bp or false
         local id = id or false
 
@@ -460,40 +505,19 @@ function buffer.new()
 
     end
 
-    self.render = function(bp)
-
-        if T(buffs):length() > 0 then
-            local update = {}
-
-            for i in pairs(buffs) do
-
-                if windower.ffxi.get_mob_by_id(i) then
-                    table.insert(update, string.format(':%s', windower.ffxi.get_mob_by_id(i).name))
-                end
-
-            end
-            self.display:text(table.concat(update, '\n'))
-            self.display:update()
-
-            if not self.display:visible() then
-                self.display:show()
-            end
-
-        end
-        
-    end
-
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
-            self.display:pos(x, y)
             self.layout.pos.x = x
             self.layout.pos.y = y
-            self.updateIcons(bp)
             self.writeSettings()
+
+            for i=1, #self.display do
+                resetDisplay(i)
+            end
         
         elseif bp and (not x or not y) then
             bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')

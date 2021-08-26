@@ -20,15 +20,8 @@ function songs.new()
     self.icon       = images.new({color={alpha = 255},texture={fit=false},draggable=true})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
-    -- Public Variables.
-    self.position   = self.settings.position or 1
-    self.dummies    = self.settings.dummies or {}
-    self.warning    = self.settings.warning or false
-    self.delay      = self.settings.delay or 180
-    self.piano      = false
-    self.jukebox    = Q{}
-
     -- Private Variables.
+    local bp        = false
     local math      = math
     local dummies   = {{self.allowed[378], self.allowed[379]}, {self.allowed[409], self.allowed[410]}, {self.allowed[403], self.allowed[404]}}
     local valid     = {310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,319,330,331,332,333,334,335,336,337,338,339,600}
@@ -93,6 +86,14 @@ function songs.new()
         ["lcarol1"]   = "Light Carol",          ["lcarol2"]     = "Light Carol II",        ["dcarol1"]   = "Dark Carol",           ["dcarol2"]   = "Dark Carol II",
 
     }
+
+    -- Public Variables.
+    self.position   = self.settings.position or 1
+    self.dummies    = self.settings.dummies or {}
+    self.warning    = self.settings.warning or false
+    self.delay      = self.settings.delay or 180
+    self.piano      = false
+    self.jukebox    = Q{}
 
     -- Correct Dummy Songs
     self.dummies = {dummies[self.position][1], dummies[self.position][2]}
@@ -214,7 +215,14 @@ function songs.new()
     end
 
     -- Public Functions.
-    self.render = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.render = function()
         
         if self.jukebox:length() > 0 and self.display:visible() then
             local update = {}
@@ -232,7 +240,7 @@ function songs.new()
 
     end
 
-    self.valid = function(bp, song)
+    self.valid = function(song)
         local bp    = bp or false
         local song  = song or false
 
@@ -251,7 +259,7 @@ function songs.new()
 
     end
 
-    self.changeDummy = function(bp)
+    self.changeDummy = function()
         local bp = bp or false
 
         if bp then
@@ -268,7 +276,7 @@ function songs.new()
 
     end
 
-    self.toggleWarning = function(bp)
+    self.toggleWarning = function()
         local bp = bp or false
 
         if bp then
@@ -288,7 +296,7 @@ function songs.new()
 
     end
 
-    self.sing = function(bp, commands)
+    self.sing = function(commands)
         local bp        = bp or false
         local commands  = commands or false
         
@@ -309,8 +317,8 @@ function songs.new()
                 --helpers['queue'].clear()
             end
             
-            if commands[#commands]:sub(1, 1) == '*' and helpers['party'].getMember(bp, commands[#commands]:sub(2, #commands[#commands]), false) then
-                target = helpers['party'].getMember(bp, commands[#commands]:sub(2, #commands[#commands]), false)
+            if commands[#commands]:sub(1, 1) == '*' and helpers['party'].getMember(commands[#commands]:sub(2, #commands[#commands]), false) then
+                target = helpers['party'].getMember(commands[#commands]:sub(2, #commands[#commands]), false)
                 
                 if target and player then
                     
@@ -332,12 +340,12 @@ function songs.new()
             end
 
             -- Determine if NiTro should CAN used.
-            if bp.core.getSetting('JA') and helpers['actions'].isReady(bp, 'JA', 'Nightingale') and helpers['actions'].isReady(bp, 'JA', 'Troubadour') then
+            if bp.core.getSetting('JA') and helpers['actions'].isReady('JA', 'Nightingale') and helpers['actions'].isReady('JA', 'Troubadour') then
                 flags.ja = true
             end
 
             -- Adjust songs allowed if one-hour is enabled and available.
-            if bp.core.getSetting('1HR') and flags.ja and helpers['actions'].isReady(bp, 'JA', 'Soul Voice') and helpers['actions'].isReady(bp, 'JA', 'Clarion Call') then
+            if bp.core.getSetting('1HR') and flags.ja and helpers['actions'].isReady('JA', 'Soul Voice') and helpers['actions'].isReady('JA', 'Clarion Call') then
                 count.allowed   = (count.allowed + 1)
                 flags.specials  = true
 
@@ -354,21 +362,21 @@ function songs.new()
             end
 
             if flags.ja and not flags.specials then
-                helpers['queue'].add(bp, bp.JA['Nightingale'], player)
-                helpers['queue'].add(bp, bp.JA['Troubadour'], player)
+                helpers['queue'].add(bp.JA['Nightingale'], player)
+                helpers['queue'].add(bp.JA['Troubadour'], player)
 
-                if helpers['actions'].isReady(bp, 'JA', 'Marcato') then
-                    helpers['queue'].add(bp, bp.JA['Marcato'], player)
+                if helpers['actions'].isReady('JA', 'Marcato') then
+                    helpers['queue'].add(bp.JA['Marcato'], player)
                 end
 
             elseif flags.ja and flags.specials then
-                helpers['queue'].add(bp, bp.JA['Soul Voice'], player)
-                helpers['queue'].add(bp, bp.JA['Clarion Call'], player)
-                helpers['queue'].add(bp, bp.JA['Nightingale'], player)
-                helpers['queue'].add(bp, bp.JA['Troubadour'], player)
+                helpers['queue'].add(bp.JA['Soul Voice'], player)
+                helpers['queue'].add(bp.JA['Clarion Call'], player)
+                helpers['queue'].add(bp.JA['Nightingale'], player)
+                helpers['queue'].add(bp.JA['Troubadour'], player)
 
-                if helpers['actions'].isReady(bp, 'JA', 'Marcato') then
-                    helpers['queue'].add(bp, bp.JA['Marcato'], player)
+                if helpers['actions'].isReady('JA', 'Marcato') then
+                    helpers['queue'].add(bp.JA['Marcato'], player)
                 end
 
             end
@@ -390,7 +398,7 @@ function songs.new()
 
                         end
 
-                        if helpers['buffs'].buffActive(348) or helpers['queue'].inQueue(bp, bp.JA['Troubadour']) then
+                        if helpers['buffs'].buffActive(348) or helpers['queue'].inQueue(bp.JA['Troubadour']) then
                             self.jukebox:push({target=target, commands=new_commands, time=(os.clock()+self.delay)})
 
                         else
@@ -405,57 +413,57 @@ function songs.new()
                     if complex[param].songs[complex[param].count] == 'Honor March' and self.hasHonorMarch(bp) then
 
                         if count.songs == 3 and not flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
     
                         elseif count.songs == 4 and flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
     
                         elseif count.songs == 4 and not flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
     
                         elseif count.songs == 5 and flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
     
                         end
-                        helpers['queue'].add(bp, bp.MA[complex[param].songs[complex[param].count]], target)
+                        helpers['queue'].add(bp.MA[complex[param].songs[complex[param].count]], target)
                         complex[param].count = (complex[param].count + 1)
                         count.songs = (count.songs + 1)
 
                     elseif complex[param].songs[complex[param].count] == 'Honor March' and not self.hasHonorMarch(bp) then
                         
                         if count.songs == 3 and not flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
     
                         elseif count.songs == 4 and flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
     
                         elseif count.songs == 4 and not flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
     
                         elseif count.songs == 5 and flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
     
                         end
-                        helpers['queue'].add(bp, bp.MA[complex[param].songs[(complex[param].count+1)]], target)
+                        helpers['queue'].add(bp.MA[complex[param].songs[(complex[param].count+1)]], target)
                         complex[param].count = (complex[param].count + 2)
                         count.songs = (count.songs + 1)
 
                     else                    
 
                         if count.songs == 3 and not flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
     
                         elseif count.songs == 4 and flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
     
                         elseif count.songs == 4 and not flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
     
                         elseif count.songs == 5 and flags.specials then
-                            helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                            helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
     
                         end
-                        helpers['queue'].add(bp, bp.MA[complex[param].songs[complex[param].count]], target)
+                        helpers['queue'].add(bp.MA[complex[param].songs[complex[param].count]], target)
                         complex[param].count = (complex[param].count + 1)
                         count.songs = (count.songs + 1)
 
@@ -464,19 +472,19 @@ function songs.new()
                 elseif short[param] and count.songs <= count.allowed then
 
                     if count.songs == 3 and not flags.specials then
-                        helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                        helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
 
                     elseif count.songs == 4 and flags.specials then
-                        helpers['queue'].add(bp, bp.MA[dummies[self.position][1].en], target)
+                        helpers['queue'].add(bp.MA[dummies[self.position][1].en], target)
 
                     elseif count.songs == 4 and not flags.specials then
-                        helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                        helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
 
                     elseif count.songs == 5 and flags.specials then
-                        helpers['queue'].add(bp, bp.MA[dummies[self.position][2].en], target)
+                        helpers['queue'].add(bp.MA[dummies[self.position][2].en], target)
 
                     end
-                    helpers['queue'].add(bp, bp.MA[short[param]], target)
+                    helpers['queue'].add(bp.MA[short[param]], target)
                     count.songs = (count.songs + 1)
 
                 end
@@ -488,7 +496,7 @@ function songs.new()
 
     end
 
-    self.getSongsAllowed = function(bp)
+    self.getSongsAllowed = function()
         local bp = bp or false
 
         if bp then
@@ -507,7 +515,7 @@ function songs.new()
 
     end
 
-    self.hasHonorMarch = function(bp)
+    self.hasHonorMarch = function()
         local bp = bp or false
 
         if bp then
@@ -522,7 +530,7 @@ function songs.new()
 
     end
 
-    self.specialIsActive = function(bp)
+    self.specialIsActive = function()
         local bp = bp or false
 
         if bp then

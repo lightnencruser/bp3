@@ -2,9 +2,19 @@ local dax = {}
 function dax.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
@@ -21,7 +31,7 @@ function dax.new()
                     for i=3, #commands do
                         table.insert(name, string.format('%s', commands[i]))
                     end
-                    bp.helpers['dax'].add(bp, table.concat(name, ' '))
+                    bp.helpers['dax'].add(table.concat(name, ' '))
                 
                 elseif command == '-' and commands[3] then
                     local name = {}
@@ -29,10 +39,10 @@ function dax.new()
                     for i=3, #commands do
                         table.insert(name, string.format('%s', commands[i]))
                     end
-                    bp.helpers['dax'].remove(bp, table.concat(name, ' '))
+                    bp.helpers['dax'].remove(table.concat(name, ' '))
 
                 elseif command == 'pos' and commands[3] then
-                    bp.helpers['dax'].pos(bp, commands[3], commands[4] or false)
+                    bp.helpers['dax'].pos(commands[3], commands[4] or false)
 
                 end
 

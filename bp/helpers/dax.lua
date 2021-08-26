@@ -17,10 +17,8 @@ function dax.new()
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
 
-    -- Public Variables.
-    self.enabled    = self.settings.enabled or true
-
     -- Private Variables.
+    local bp        = false
     local allowed   = self.settings.allowed or {
 
         ['WAR'] = {},
@@ -47,6 +45,9 @@ function dax.new()
         ['RUN'] = {},
 
     }
+
+    -- Public Variables.
+    self.enabled    = self.settings.enabled or true
 
     -- Private Functions
     local persist = function()
@@ -125,7 +126,14 @@ function dax.new()
     end
 
     -- Public Functions.
-    self.list = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.list = function()
         local bp = bp or false
 
         if bp then
@@ -139,7 +147,7 @@ function dax.new()
 
     end
 
-    self.add = function(bp, name)
+    self.add = function(name)
         local bp    = bp or false
         local name  = name or ''
         
@@ -174,7 +182,7 @@ function dax.new()
 
     end
 
-    self.remove = function(bp, name)
+    self.remove = function(name)
         local bp   = bp or false
         local name = name or ''
 
@@ -227,7 +235,7 @@ function dax.new()
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp = bp or false
         
         if bp then
@@ -258,7 +266,7 @@ function dax.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y
@@ -276,7 +284,7 @@ function dax.new()
 
     end
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if self.enabled then

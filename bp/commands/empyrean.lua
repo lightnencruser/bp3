@@ -2,9 +2,19 @@ local empyrean = {}
 function empyrean.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
@@ -13,7 +23,7 @@ function empyrean.new()
                 command = command:lower()
 
                 if command == 'set' and commands[3] then
-                    bp.helpers['empyrean'].set(bp, tonumber(commands[3]))
+                    bp.helpers['empyrean'].set(tonumber(commands[3]))
 
                 end
 

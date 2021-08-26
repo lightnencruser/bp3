@@ -3,13 +3,22 @@ function ciphers.new()
     local self = {}
 
     -- Private Variables.
+    local bp        = false
     local npc       = {'Clarion Star'}
 
     -- Public Variables.
     self.busy       = false
     self.cipher     = false
 
-    self.poke = function(bp)
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.poke = function()
         local item = bp.helpers['inventory'].findItemByName('Cipher') or false
         local target
 
@@ -25,11 +34,11 @@ function ciphers.new()
 
             end
             
-            if target and item and type(item) == 'table' and self.isTrust(bp, item) then
+            if target and item and type(item) == 'table' and self.isTrust(item) then
                 self.busy = true
 
                 do
-                    bp.helpers['actions'].tradeItem(bp, target, 1, {name=item.en, count=1})
+                    bp.helpers['actions'].tradeItem(target, 1, {name=item.en, count=1})
 
                 end
 
@@ -45,7 +54,7 @@ function ciphers.new()
         
     end
 
-    self.build = function(bp, data)
+    self.build = function(data)
         local bp    = bp or false
         local data  = data or false
 
@@ -79,7 +88,7 @@ function ciphers.new()
 
     end
     
-    self.isTrust = function(bp, check)
+    self.isTrust = function(check)
         local bp    = bp or false
         local check = check or false
         

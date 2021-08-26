@@ -2,9 +2,19 @@ local songs = {}
 function songs.new()
     local self = {}
 
-    self.capture = function(bp, commands)
-        local bp        = bp or false
-        local commands  = commands or false
+    -- Private Variables.
+    local bp = false
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.capture = function(commands)
+        local commands = commands or false
 
         if bp and commands then
             local command = commands[2] or false
@@ -37,10 +47,10 @@ function songs.new()
                     bp.helpers['songs'].clearJukebox()
 
                 elseif command == 'pos' and commands[3] then
-                    bp.helpers['songs'].pos(bp, commands[3], commands[4] or false)
+                    bp.helpers['songs'].pos(commands[3], commands[4] or false)
 
                 else
-                    bp.helpers['songs'].sing(bp, commands)
+                    bp.helpers['songs'].sing(commands)
 
                 end
 

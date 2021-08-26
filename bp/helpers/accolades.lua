@@ -3,6 +3,7 @@ function accolades.new()
     local self = {}
     
     -- Private Variables.
+    local bp        = false
     local name      = false
     local purchase  = false
     local quantity  = 0
@@ -25,11 +26,18 @@ function accolades.new()
 
     }
 
-    -- Static Variables.
+    -- Public Variables.
     self.busy = false
 
     -- Public Functions.
-    self.poke = function(bp, item, count)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.poke = function(item, count)
         local bp        = bp or false
         local item      = item or false
         local count     = tonumber(count) or 1
@@ -80,7 +88,7 @@ function accolades.new()
 
     end
 
-    self.purchase = function(bp, data)
+    self.purchase = function(data)
         local bp = bp or false
         local data = data or false
 
@@ -103,9 +111,9 @@ function accolades.new()
 
                 end
                 bp.helpers['popchat'].pop(string.format('NOW PURCHASING %s %s.', quantity, purchase.name))
-                bp.helpers['actions'].doMenu(bp, target.id, target.index, packed['Zone'], 10, packed['Menu ID'], true)
-                bp.helpers['actions'].doMenu(bp, target.id, target.index, packed['Zone'], purchase.id, packed['Menu ID'], true)
-                bp.helpers['actions'].doMenu(bp, target.id, target.index, packed['Zone'], purchase.quantity, packed['Menu ID'], true, purchase.unknown1)
+                bp.helpers['actions'].doMenu(target.id, target.index, packed['Zone'], 10, packed['Menu ID'], true)
+                bp.helpers['actions'].doMenu(target.id, target.index, packed['Zone'], purchase.id, packed['Menu ID'], true)
+                bp.helpers['actions'].doMenu(target.id, target.index, packed['Zone'], purchase.quantity, packed['Menu ID'], true, purchase.unknown1)
             
             end
             
@@ -121,7 +129,7 @@ function accolades.new()
     
     end
 
-    self.sellPowders = function(bp)
+    self.sellPowders = function()
         local n         = bp.helpers['inventory'].getSlotCount('Prize Powder', 0)
         local item      = bp.helpers['inventory'].findItemByName('Prize Powder', 0)
         local appraise  = bp.packets.new('outgoing', 0x084)

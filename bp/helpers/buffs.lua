@@ -2,9 +2,12 @@ local buffs = {}
 function buffs.new()
     local self = {}
 
+    -- Private Variables.
+    local bp    = false
+
     -- Public Variables
-    self.buffs = {}
-    self.count = 0
+    self.buffs  = {}
+    self.count  = 0
 
     -- Private Functions.
     local buildBuffs = function()
@@ -27,6 +30,13 @@ function buffs.new()
     buildBuffs()
 
     -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
     self.buffActive = function(id)
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false

@@ -14,20 +14,21 @@ function stratagems.new()
     local self = {}
 
     -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/stratagems/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=100, y=800}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Impact', size=12}, padding=5, stroke_width=2, draggable=true}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.important  = self.settings.important or string.format('%s,%s,%s', 25, 165, 200)
+    self.settings       = dofile(string.format('%sbp/helpers/settings/stratagems/%s_settings.lua', windower.addon_path, player.name))
+    self.layout         = self.settings.layout or {pos={x=100, y=800}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Impact', size=12}, padding=5, stroke_width=2, draggable=true}
+    self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important      = self.settings.important or string.format('%s,%s,%s', 25, 165, 200)
 
-    -- Public Variables.
-    self.gems       = {current=0, max=0}
-
-    --Private Variables.
+    -- Private Variables.
+    local bp            = false
     local icon          = images.new({color={alpha = 255},texture={fit = false},draggable=false})
     local recharge      = 0
     local math          = math
     local icon_offset   = {x=15,y=13}
     local wp            = {last=2, delay=60}
+
+    -- Public Variables.
+    self.gems           = {current=0, max=0}
 
     -- Private Functions.
     local persist = function()

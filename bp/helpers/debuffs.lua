@@ -13,17 +13,17 @@ function debuffs.new()
     local self = {}
 
     -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/debuffs/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=300, y=400}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=2, draggable=false}
-    self.update     = self.settings.update or {delay=2, last=0}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.settings       = dofile(string.format('%sbp/helpers/settings/debuffs/%s_settings.lua', windower.addon_path, player.name))
+    self.layout         = self.settings.layout or {pos={x=300, y=400}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=2, draggable=false}
+    self.update         = self.settings.update or {delay=2, last=0}
+    self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
+
+    local bp            = false
 
     -- Public Variables.
-    self.debuffs    = self.settings.debuffs or {}
-    self.active     = {}
-
-    -- Reset last.
-    self.update.last = 0
+    self.debuffs        = self.settings.debuffs or {}
+    self.active         = {}
+    self.update.last    = 0
 
     -- Private Functions
     local persist = function()
@@ -98,7 +98,14 @@ function debuffs.new()
     self.reset()
 
     -- Public Functions.
-    self.cast = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.cast = function()
         local bp = bp or false
 
         if bp then
@@ -111,8 +118,8 @@ function debuffs.new()
                     local timer     = (spell.delay-(os.clock()-spell.last)) > 0 and (spell.delay-(os.clock()-spell.last)) or 0
                     local target    = bp.helpers['target'].getTarget()
 
-                    if target and timer <= 0 and not bp.helpers['queue'].inQueue(bp, spell) and bp.helpers['actions'].isReady(bp, 'MA', spell.name) and bp.helpers['target'].castable(bp, target, bp.MA[spell.name]) then
-                        bp.helpers['queue'].add(bp, bp.MA[spell.name], target)
+                    if target and timer <= 0 and not bp.helpers['queue'].inQueue(spell) and bp.helpers['actions'].isReady('MA', spell.name) and bp.helpers['target'].castable(target, bp.MA[spell.name]) then
+                        bp.helpers['queue'].add(bp.MA[spell.name], target)
                     end
 
                 end
@@ -123,7 +130,7 @@ function debuffs.new()
 
     end
 
-    self.add = function(bp, spell, delay)
+    self.add = function(spell, delay)
         local bp      = bp or false
         local spell   = spell or false
         local delay   = delay or 180
@@ -134,11 +141,11 @@ function debuffs.new()
 
             if player and helpers then
 
-                if spell and self.debuffs[player.main_job_id] and not self.exists(bp, spell) then
+                if spell and self.debuffs[player.main_job_id] and not self.exists(spell) then
                     table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
-                elseif spell and not self.exists(bp, spell) then
+                elseif spell and not self.exists(spell) then
                     self.debuffs[player.main_job_id] = {}
                     table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
@@ -154,11 +161,11 @@ function debuffs.new()
             if player and helpers then
                 local spell = res.spells[tonumber(spell)]
 
-                if spell and self.debuffs[player.main_job_id] and not self.exists(bp, spell) then
+                if spell and self.debuffs[player.main_job_id] and not self.exists(spell) then
                     table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
-                elseif spell and not self.exists(bp, spell) then
+                elseif spell and not self.exists(spell) then
                     self.debuffs[player.main_job_id] = {}
                     table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
@@ -174,11 +181,11 @@ function debuffs.new()
             if player and helpers then
                 local spell = bp.MA[spell]
 
-                if spell and self.debuffs[player.main_job_id] and not self.exists(bp, spell) then
+                if spell and self.debuffs[player.main_job_id] and not self.exists(spell) then
                     table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
 
-                elseif spell and not self.exists(bp, spell) then
+                elseif spell and not self.exists(spell) then
                     self.debuffs[player.main_job_id] = {}
                     table.insert(self.debuffs[player.main_job_id], {id=spell.id, name=spell.en, delay=delay, last=0})
                     helpers['popchat'].pop(string.format('Adding %s to debuffs list.', spell.en))
@@ -192,7 +199,7 @@ function debuffs.new()
 
     end
 
-    self.remove = function(bp, spell)
+    self.remove = function(spell)
         local bp    = bp or false
         local spell = spell or false
         local next  = next
@@ -205,7 +212,7 @@ function debuffs.new()
 
                 for i,v in pairs(self.debuffs[player.main_job_id]) do
 
-                    if v.id == spell.id and self.exists(bp, spell) then
+                    if v.id == spell.id and self.exists(spell) then
                         local removed = table.remove(self.debuffs[player.main_job_id], i)
 
                         if removed then
@@ -230,7 +237,7 @@ function debuffs.new()
 
                 for i,v in pairs(self.debuffs[player.main_job_id]) do
 
-                    if v.id == spell.id and self.exists(bp, spell) then
+                    if v.id == spell.id and self.exists(spell) then
                         local removed = table.remove(self.debuffs[player.main_job_id], i)
 
                         if removed then
@@ -255,7 +262,7 @@ function debuffs.new()
 
                 for i,v in pairs(self.debuffs[player.main_job_id]) do
 
-                    if v.id == spell.id and self.exists(bp, spell) then
+                    if v.id == spell.id and self.exists(spell) then
                         local removed = table.remove(self.debuffs[player.main_job_id], i)
 
                         if removed then
@@ -275,8 +282,7 @@ function debuffs.new()
 
     end
 
-    self.render = function(bp)
-        local bp = bp or false
+    self.render = function()
         
         if bp and bp.helpers['target'].getTarget() and (os.clock()-self.update.last) > self.update.delay then
             local player    = windower.ffxi.get_player()
@@ -332,7 +338,7 @@ function debuffs.new()
 
     end
 
-    self.exists = function(bp, spell)
+    self.exists = function(spell)
         local bp    = bp or false
         local spell = spell or false
 
@@ -386,7 +392,7 @@ function debuffs.new()
 
     end
 
-    self.ready = function(bp, spell)
+    self.ready = function(spell)
         local bp    = bp or false
         local spell = spell or false
 
@@ -450,7 +456,7 @@ function debuffs.new()
 
     end
 
-    self.getDelay = function(bp, spell)
+    self.getDelay = function(spell)
         local bp    = bp or false
         local spell = spell or false
 
@@ -504,7 +510,7 @@ function debuffs.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

@@ -19,12 +19,9 @@ function runes.new()
     self.layout     = self.settings.layout or {pos={x=900, y=800}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Impact', size=11}, padding=0, stroke_width=2, draggable=false}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
-    
-    -- Public Variables.
-    self.runes      = self.settings.runes or {self.allowed[365], self.allowed[365], self.allowed[365]}
-    self.mode       = self.settings.mode or 1
 
     -- Private Functions.
+    local bp        = false
     local timer     = {last=2, delay=30}
     local modes     = {'RESISTANCE','DAMAGE'}
     local valid     = {523,524,525,526,527,528,529,530}
@@ -53,6 +50,10 @@ function runes.new()
         ['Tenebrae']    = {string.format('%s,%s,%s', 155, 0, 60),       string.format('%s,%s,%s', 230, 235, 250)},
     
     }
+
+    -- Public Variables.
+    self.runes      = self.settings.runes or {self.allowed[365], self.allowed[365], self.allowed[365]}
+    self.mode       = self.settings.mode or 1
 
     -- Private Functions.
     local persist = function()
@@ -150,8 +151,15 @@ function runes.new()
     end
 
     -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
 
-    self.setRune = function(bp, r1, r2, r3)
+    end
+    
+
+    self.setRune = function(r1, r2, r3)
         local bp = bp or false
         local r1 = r1 or false
         local r2 = r2 or false
@@ -237,7 +245,7 @@ function runes.new()
         
     end
     
-    self.getRune = function(bp, name)
+    self.getRune = function(name)
         local bp    = bp or false
         local name  = name or false
         
@@ -263,7 +271,7 @@ function runes.new()
         
     end
     
-    self.getBuff = function(bp, name)
+    self.getBuff = function(name)
         local bp    = bp or false
         local name  = name or false
         
@@ -284,7 +292,7 @@ function runes.new()
         
     end
     
-    self.getActive = function(bp)
+    self.getActive = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
     
@@ -295,7 +303,7 @@ function runes.new()
             
             for _,v in ipairs(buffs) do
                 
-                if self.validBuff(bp, v) then
+                if self.validBuff(v) then
                     count = (count + 1)
                 end
             
@@ -307,7 +315,7 @@ function runes.new()
         
     end
     
-    self.validBuff = function(bp, id)
+    self.validBuff = function(id)
         local bp = bp or false
         local id = id or false
         
@@ -326,7 +334,7 @@ function runes.new()
         
     end
 
-    self.handleRunes = function(bp)
+    self.handleRunes = function()
         local bp = bp or false
 
         if bp then
@@ -341,7 +349,7 @@ function runes.new()
                         local rune = self.runes[i]
 
                         if rune then
-                            helpers['queue'].add(bp, bp.JA[rune.en], 'me')
+                            helpers['queue'].add(bp.JA[rune.en], 'me')
                         end
 
                     end
@@ -355,7 +363,7 @@ function runes.new()
                     local rune = self.runes[i]
 
                     if rune then
-                        helpers['queue'].add(bp, bp.JA[rune.en], 'me')
+                        helpers['queue'].add(bp.JA[rune.en], 'me')
                     end
 
                 end
@@ -367,13 +375,13 @@ function runes.new()
 
     end
 
-    self.toggleMode = function(bp)
+    self.toggleMode = function()
         self.mode = ( self.mode == 1 and 2 or 1 )
         bp.helpers['popchat'].pop(string.format('RUNES MODE: %s', modes[self.mode]))
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

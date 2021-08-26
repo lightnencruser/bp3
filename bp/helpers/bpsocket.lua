@@ -4,6 +4,7 @@ bpsocket.new = function()
     local self = {}
 
     -- Private Variables.
+    local bp    = false
     local host  = '127.0.0.1'
     local port  = 8080
 
@@ -12,7 +13,14 @@ bpsocket.new = function()
     self.tcp    = self.socket.tcp()
 
     -- Public Functions.
-    self.send = function(bp, data)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.send = function(data)
         local bp    = bp or false
         local data  = data or false
 
@@ -22,7 +30,7 @@ bpsocket.new = function()
 
     end
 
-    self.receive = function(bp)
+    self.receive = function()
         local bp = bp or false
         local s, status, partial = self.tcp:receive()
 
@@ -44,7 +52,7 @@ bpsocket.new = function()
 
     end
 
-    self.handle = function(bp, data)
+    self.handle = function(data)
         local bp    = bp or false
         local data  = data or false
 

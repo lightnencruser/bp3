@@ -12,12 +12,13 @@ function assist.new()
     local self = {}
 
     -- Static Variables.
-    self.settings   = dofile(string.format('%sbp/helpers/settings/assist/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=true}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.important  = string.format('%s,%s,%s', 25, 165, 200)
+    self.settings       = dofile(string.format('%sbp/helpers/settings/assist/%s_settings.lua', windower.addon_path, player.name))
+    self.layout         = self.settings.layout or {pos={x=500, y=350}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=200, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=4, stroke_width=1, draggable=true}
+    self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
+    self.important      = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
+    local bp            = false
     local assistance    = false
     local timer         = {last=0, delay=0.75}
 
@@ -66,20 +67,25 @@ function assist.new()
     self.writeSettings()
 
     -- Public Functions.
-    self.assist = function(bp)
-        local bp = bp or false
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.assist = function()
         
-        if assistance and player.status == 0 and assistance.status == 1 then
+        if bp and assistance and player.status == 0 and assistance.status == 1 then
             local ally = windower.ffxi.get_mob_by_id(assistance.id) or false
-            print('Do assist things')
+
             if ally and not bp.helpers['target'].getTarget() and (ally.distance):sqrt() < 25 and (ally.distance):sqrt() ~= 0 then
 
                 if ally.target_index then
                     local mob = windower.ffxi.get_mob_by_index(ally.target_index)
 
-                    if mob and bp.helpers['target'].canEngage(bp, mob) then
-                        bp.helpers['target'].setTarget(bp, mob)
-                        print('Attempting to set target to:', mob.id)
+                    if mob and bp.helpers['target'].canEngage(mob) then
+                        bp.helpers['target'].setTarget(mob)
                     end
 
                 end
@@ -90,12 +96,12 @@ function assist.new()
 
     end
 
-    self.set = function(bp, target)
+    self.set = function(target)
         local bp        = bp or false
         local target    = target or false
         local player    = windower.ffxi.get_player()
 
-        if bp and player and player.status == 0 and target and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(bp, target, true) then
+        if bp and player and player.status == 0 and target and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) then
             
             if (os.clock()-timer.last) < timer.delay then
                 windower.send_ipc_message(string.format('assist:::%s', target.id))
@@ -119,7 +125,7 @@ function assist.new()
 
     end
 
-    self.catch = function(bp, message)
+    self.catch = function(message)
         local bp        = bp or false
         local message   = string.split(message, ':::') or false
         local player    = windower.ffxi.get_player()
@@ -129,7 +135,7 @@ function assist.new()
 
             if target then
 
-                if player.status == 0 and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(bp, target, true) and (target.distance):sqrt() < 15 then
+                if player.status == 0 and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) and (target.distance):sqrt() < 15 then
                     assistance = target
                     bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
 
@@ -147,7 +153,7 @@ function assist.new()
 
     end
 
-    self.render = function(bp)
+    self.render = function()
         local bp = bp or false
 
         if bp then
@@ -172,7 +178,7 @@ function assist.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

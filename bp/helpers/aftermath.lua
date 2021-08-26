@@ -3,6 +3,7 @@ function aftermath.new()
     local self = {}
     
     -- Private Variables
+    local bp         = false
     local levels     = {270,271,272,273}
     local relics     = {"Spharai","Mandau","Excalibur","Ragnarok","Guttler","Bravura","Apocalypse","Gungnir","Kikoku","Amanomurakumo","Mjollnir","Claustrum","Yoichinoyumi","Annihilator"}
     local aftermaths = {
@@ -74,7 +75,7 @@ function aftermath.new()
         
     }
     
-    self.getWeaponskill = function(bp, weapon)
+    self.getWeaponskill = function(weapon)
         local bp        = bp or false
         local weapon    = weapon or false
         
@@ -85,7 +86,7 @@ function aftermath.new()
         
     end
     
-    self.checkRelic = function(bp)
+    self.checkRelic = function()
         local bp = bp or false
 
         if bp and bp.helpers['equipment'] ~= nil then
@@ -103,7 +104,7 @@ function aftermath.new()
         
     end
 
-    self.getBuffByLevel = function(bp, level)
+    self.getBuffByLevel = function(level)
         local bp    = bp or false
         local level = level or false
         

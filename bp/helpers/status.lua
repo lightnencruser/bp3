@@ -21,10 +21,8 @@ function status.new()
     self.important  = string.format('%s,%s,%s', 25, 165, 200)
     self.priority   = string.format('%s,%s,%s', 215, 0, 255)
 
-    -- Public Variables.
-    self.statuses   = {}
-
     -- Private Variables.
+    local bp        = false
     local debug     = {}
     local timer     = {last=0, delay=2}
     local watching  = {1,2,3,4,5,6,7,8,9,10,11,14,15,16,17,18,19,20,23,24,25,26,27,33,34,35,36,37,56,58,59,79,80,98,143,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,253,254,255,256,257,258,259,273,274,276,286,341,342,343,344,345,346,347,348,349,350,351,352,356,357,359,361,362,363,364,365,366,368,369,370,371,372,373,374,375,376,377,421,422}
@@ -54,6 +52,9 @@ function status.new()
         {2},
 
     }
+
+    -- Public Variables.
+    self.statuses   = {}
         
     -- Build Party Data.
     for i,v in pairs(windower.ffxi.get_party()) do
@@ -141,7 +142,14 @@ function status.new()
     end
 
     -- Public Functions.
-    self.render = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.render = function()
         local bp        = bp or false
         local player    = windower.ffxi.get_player()
         local statuses  = self.statuses
@@ -193,7 +201,7 @@ function status.new()
 
     end
 
-    self.catchStatus = function(bp, data)
+    self.catchStatus = function(data)
         local bp        = bp or false
         local data      = data or false
         local player    = windower.ffxi.get_player()
@@ -209,7 +217,7 @@ function status.new()
                 local category  = packed["Category"]
                 local param     = packed["Param"]
 
-                if actor and target and helpers['party'].isInParty(bp, target, true) then
+                if actor and target and helpers['party'].isInParty(target, true) then
                     local spell = param
                         
                     for i=1, targets do
@@ -217,8 +225,8 @@ function status.new()
                         local param   = string.format("Target %s Action 1 Param", i)
                         local message = string.format("Target %s Action 1 Message", i)
                         
-                        if packed[message] and bp.helpers['party'].isInParty(bp, target, false) and T(watching):contains(spell) then
-                            self.handleStatus(bp, actor, target, spell, packed[param], packed[message])
+                        if packed[message] and bp.helpers['party'].isInParty(target, false) and T(watching):contains(spell) then
+                            self.handleStatus(actor, target, spell, packed[param], packed[message])
                         end
 
                     end
@@ -231,7 +239,7 @@ function status.new()
 
     end
 
-    self.handleStatus = function(bp, actor, target, spell, buff, message)
+    self.handleStatus = function(actor, target, spell, buff, message)
         local player    = windower.ffxi.get_player()
         local bp        = bp or false
 
@@ -242,7 +250,7 @@ function status.new()
             if T(messages[1]):contains(message) then
 
                 if buff then
-                    self.add(bp, target, buff)
+                    self.add(target, buff)
                 end
 
             -- Lost a status effect.
@@ -260,10 +268,10 @@ function status.new()
                                 for _,debuff in ipairs(player.list) do
 
                                     if T{2,19}:contains(debuff) then
-                                        self.remove(bp, target, debuff)
+                                        self.remove(target, debuff)
 
                                         if actor.id ~= player.id and bp.res.spells[spell] then
-                                            bp.helpers['queue'].remove(bp, bp.res.spells[spell], target)
+                                            bp.helpers['queue'].remove(bp.res.spells[spell], target)
                                         end
                                         break
 
@@ -276,16 +284,16 @@ function status.new()
                         end
 
                     else
-                        self.remove(bp, target, debuff)
+                        self.remove(target, debuff)
 
                         if actor.id ~= player.id and bp.res.spells[spell] then
-                            bp.helpers['queue'].remove(bp, bp.res.spells[spell], target)
+                            bp.helpers['queue'].remove(bp.res.spells[spell], target)
                         end
 
                     end
                 
                 else
-                    self.clearStatuses(bp, target)
+                    self.clearStatuses(target)
 
                 end
 
@@ -305,10 +313,10 @@ function status.new()
                                 for _,debuff in ipairs(player.list) do
 
                                     if T(removals[spell]):contains(debuff) then
-                                        self.remove(bp, target, debuff)
+                                        self.remove(target, debuff)
 
                                         if actor.id ~= player.id and bp.res.spells[spell] then
-                                            bp.helpers['queue'].remove(bp, bp.res.spells[spell], target)
+                                            bp.helpers['queue'].remove(bp.res.spells[spell], target)
                                         end
                                         break
 
@@ -329,7 +337,7 @@ function status.new()
                 local special = T{[23]=134,[24]=134,[25]=134,[26]=134,[27]=134,[33]=134,[34]=134,[35]=134,[36]=134,[37]=134,[220]=3,[221]=3,[222]=3,[223]=3,[224]=3,[225]=3,[226]=3,[227]=3,[228]=3,[229]=3,[230]=135,[231]=135,[232]=135,[233]=135,[234]=135}
 
                 if special[spell] then
-                    self.add(bp, target, special[spell])
+                    self.add(target, special[spell])
                 end
 
             end
@@ -338,7 +346,7 @@ function status.new()
 
     end
 
-    self.fixStatus = function(bp)
+    self.fixStatus = function()
         local bp = bp or false
         local statuses = self.statuses
 
@@ -349,7 +357,7 @@ function status.new()
                 if statuses[i] and statuses[i].list then
                     
                     for _,buff in ipairs(statuses[i].list) do
-                        local category  = self.getCategory(bp, buff)
+                        local category  = self.getCategory(buff)
                         local remove    = removal[category]
                         
                         if category and remove then
@@ -361,24 +369,24 @@ function status.new()
                             
                             if target and not dead:contains(target.status) then
                             
-                                if spell and category == 1 and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    bp.helpers['queue'].add(bp, spell, target)
+                                if spell and category == 1 and remove[buff] and target and not bp.helpers['queue'].inQueue(spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                    bp.helpers['queue'].add(spell, target)
 
-                                elseif spell and category == 1 and remove[buff] and target and not bp.helpers['queue'].inQueue(bp, spell, target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    bp.helpers['queue'].addToFront(bp, spell, target)
+                                elseif spell and category == 1 and remove[buff] and target and not bp.helpers['queue'].inQueue(spell, target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
+                                    bp.helpers['queue'].addToFront(spell, target)
 
                                 elseif category and not remove[buff] and category == 2 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
                                     local spell = bp.res.spells[remove[1]]
 
-                                    if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
-                                        bp.helpers['queue'].add(bp, spell, target)
+                                    if spell and target and not bp.helpers['queue'].inQueue(spell, target) then
+                                        bp.helpers['queue'].add(spell, target)
                                     end
 
                                 elseif category and not remove[buff] and category == 3 and (player.main_job == 'DNC' or player.sub_job == 'DNC') then
                                     local spell = bp.res.job_abilities[remove[1]]
 
-                                    if spell and target and not bp.helpers['queue'].inQueue(bp, spell, target) then
-                                        bp.helpers['queue'].add(bp, spell, target)
+                                    if spell and target and not bp.helpers['queue'].inQueue(spell, target) then
+                                        bp.helpers['queue'].add(spell, target)
                                     end
 
                                 -- WAKE FROM SLEEP.
@@ -386,18 +394,18 @@ function status.new()
 
                                     if target then
 
-                                        if (player.main_job == 'WHM' or player.sub_job == 'WHM') and bp.helpers['party'].isInParty(bp, target, false) then
+                                        if (player.main_job == 'WHM' or player.sub_job == 'WHM') and bp.helpers['party'].isInParty(target, false) then
                                             local spell = bp.MA['Curaga']
 
-                                            if spell and not bp.helpers['queue'].inQueue(bp, spell) then
-                                                bp.helpers['queue'].addToFront(bp, spell, target)
+                                            if spell and not bp.helpers['queue'].inQueue(spell) then
+                                                bp.helpers['queue'].addToFront(spell, target)
                                             end
 
-                                        elseif bp.helpers['party'].isInParty(bp, target, true) then
+                                        elseif bp.helpers['party'].isInParty(target, true) then
                                             local spell = bp.MA['Cure']
 
-                                            if spell and not bp.helpers['queue'].inQueue(bp, spell, target) then
-                                                bp.helpers['queue'].addToFront(bp, spell, target)
+                                            if spell and not bp.helpers['queue'].inQueue(spell, target) then
+                                                bp.helpers['queue'].addToFront(spell, target)
                                             end
 
                                         end
@@ -412,8 +420,8 @@ function status.new()
                                         if bp.res.spells[spell] then
                                             local spell = bp.res.spells[spell]
 
-                                            if spell and target and not bp.helpers['queue'].inQueue(bp, spell) then
-                                                bp.helpers['queue'].addToFront(bp, spell, target)
+                                            if spell and target and not bp.helpers['queue'].inQueue(spell) then
+                                                bp.helpers['queue'].addToFront(spell, target)
                                                 break
                                             end
 
@@ -424,7 +432,7 @@ function status.new()
                                 end
 
                             elseif target and dead:contains(target.status) then
-                                self.clearStatuses(bp, target)
+                                self.clearStatuses(target)
 
                             end
 
@@ -440,7 +448,7 @@ function status.new()
 
     end
 
-    self.getCategory = function(bp, id)
+    self.getCategory = function(id)
         local bp = bp or false
         local id = id or false
         
@@ -507,7 +515,7 @@ function status.new()
         
     end
 
-    self.build = function(bp, data)
+    self.build = function(data)
         local bp    = bp or false
         local data  = data or false
         
@@ -539,7 +547,7 @@ function status.new()
 
     end
 
-    self.add = function(bp, target, buff)
+    self.add = function(target, buff)
         local bp        = bp or false
         local buff      = buff or false
         
@@ -549,7 +557,7 @@ function status.new()
             if target then
                 local statuses = self.statuses
                 
-                if statuses and not self.hasStatus(bp, target, buff) then
+                if statuses and not self.hasStatus(target, buff) then
                     
                     for i=1, #statuses do
                         local player = statuses[i]
@@ -570,7 +578,7 @@ function status.new()
         
     end
 
-    self.remove = function(bp, target, buff)
+    self.remove = function(target, buff)
         local bp    = bp or false
         local buff  = buff or false
         
@@ -605,7 +613,7 @@ function status.new()
 
     end
 
-    self.clearStatuses = function(bp, target)
+    self.clearStatuses = function(target)
         local bp = bp or false
 
         if bp then
@@ -626,7 +634,7 @@ function status.new()
 
     end
 
-    self.hasStatus = function(bp, target, buff)
+    self.hasStatus = function(target, buff)
         local bp    = bp or false
         local buff  = buff or false
 
@@ -652,7 +660,7 @@ function status.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

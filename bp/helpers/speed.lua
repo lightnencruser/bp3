@@ -18,6 +18,9 @@ function speed.new()
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
     self.important  = self.settings.important or string.format('%s,%s,%s', 25, 165, 200)
 
+    -- Private Variables.
+    local bp        = false
+
     -- Public Variables.
     self.speed      = self.settings.speed or 50
     self.enabled    = self.settings.enabled or false
@@ -101,7 +104,14 @@ function speed.new()
     end
 
     -- Public Functions.
-    self.adjustSpeed = function(bp, packet_id, data)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.adjustSpeed = function(packet_id, data)
         local bp    = bp or false
         local data  = data or false
         
@@ -152,7 +162,7 @@ function speed.new()
 
     end
 
-    self.setSpeed = function(bp, speed)
+    self.setSpeed = function(speed)
         local bp    = bp or false
         local speed = tonumber(speed) or false
 
@@ -169,7 +179,7 @@ function speed.new()
     end
 
 
-    self.toggle = function(bp)
+    self.toggle = function()
         local bp = bp or false
 
         if self.enabled then
@@ -182,7 +192,7 @@ function speed.new()
 
     end
 
-    self.pos = function(bp, x, y)
+    self.pos = function(x, y)
         local bp    = bp or false
         local x     = tonumber(x) or self.layout.pos.x
         local y     = tonumber(y) or self.layout.pos.y

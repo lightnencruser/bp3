@@ -1,6 +1,4 @@
-local noknock   = {}
-local player    = windower.ffxi.get_player()
-
+local noknock = {}
 function noknock.new()
     local self = {}
 

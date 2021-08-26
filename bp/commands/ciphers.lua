@@ -2,7 +2,7 @@ local ciphers = {}
 function ciphers.new()
     local self = {}
 
-    self.capture = function(bp)
+    self.capture = function()
         local bp = bp or false
         
         if bp then

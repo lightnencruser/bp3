@@ -14,10 +14,8 @@ function items.new()
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/items/%s_settings.lua', windower.addon_path, player.name))
 
-    -- Public Variables.
-    self.enabled    = false
-
     -- Private Variables.
+    local bp        = false
     local items     = {
 
         res[6391],  res[6312],  res[6358],  res[6533],
@@ -52,6 +50,9 @@ function items.new()
 
     }
 
+    -- Public Variables.
+    self.enabled    = false
+
     -- Private Functions
     local persist = function()
 
@@ -79,7 +80,7 @@ function items.new()
     end
     self.writeSettings()
 
-    self.toggle = function(bp)
+    self.toggle = function()
         
         if self.enabled then
             self.enabled = false
@@ -93,7 +94,14 @@ function items.new()
     end        
 
     -- Public Functions.
-    self.queueItems = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.queueItems = function()
         local bp = bp or false
 
         if bp and self.enabled and bp.helpers['inventory'].hasSpace() and not bp.helpers['target'].getTarget() then
@@ -101,8 +109,8 @@ function items.new()
 
             for _,v in ipairs(items) do
 
-                if bp.helpers['inventory'].findItemByName(v.en) and not bp.helpers['queue'].inQueue(bp, v) then
-                    bp.helpers['queue'].add(bp, v, player)
+                if bp.helpers['inventory'].findItemByName(v.en) and not bp.helpers['queue'].inQueue(v) then
+                    bp.helpers['queue'].add(v, player)
                 end
 
             end

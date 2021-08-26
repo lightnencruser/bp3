@@ -3,9 +3,10 @@ function burst.new()
     local self = {}
 
     -- Private Variables.
-    local elements = T{'Fire','Blizzard','Stone','Aero','Water','Thunder'}
-    local tiers    = T{'I','II','III','IV','V','VI'}
-    local messages = {
+    local bp        = false
+    local elements  = T{'Fire','Blizzard','Stone','Aero','Water','Thunder'}
+    local tiers     = T{'I','II','III','IV','V','VI'}
+    local messages  = {
         
         [288] = "Light",
         [289] = "Darkness",
@@ -47,7 +48,14 @@ function burst.new()
     }
 
     -- Public Functions.
-    self.registerSkillchain = function(bp, data)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.registerSkillchain = function(data)
         local bp        = bp or false
         local data      = data or false
         local enabled   = bp.core.getSetting('BURST')
@@ -65,7 +73,7 @@ function burst.new()
                 if category == 3 then
                     
                     if packed['Target 1 Action 1 Added Effect Message'] and messages[packed['Target 1 Action 1 Added Effect Message']] then
-                        self.burst(bp, self.buildSpells(bp, self.getElements(packed['Target 1 Action 1 Added Effect Message'])))
+                        self.burst(self.buildSpells(self.getElements(packed['Target 1 Action 1 Added Effect Message'])))
                     end
 
                 end
@@ -85,7 +93,7 @@ function burst.new()
 
     end
 
-    self.buildSpells = function(bp, allowed)
+    self.buildSpells = function(allowed)
         local spells    = T{}
         local element   = bp.core.getSetting('ELEMENT')
         local aoe       = bp.core.getSetting('ALLOW AOE')
@@ -224,8 +232,7 @@ function burst.new()
 
     end
 
-    self.burst = function(bp, spells)
-        local bp        = bp or false
+    self.burst = function(spells)
         local spells    = spells or false
         local tier      = bp.core.getSetting('NUKE TIER')
         local only      = bp.core.getSetting('NUKE ONLY')
@@ -241,7 +248,7 @@ function burst.new()
                     if tier == 'Random' then
                         table.insert(bursting, v)
 
-                    elseif (tier ~= 'I' and (v):match(tier) and bp.helpers['actions'].isReady(bp, 'MA', v)) or (tier == 'I' and self.isNuke(v) and not (v):match(tier) and not (v):match('V') and bp.helpers['actions'].isReady(bp, 'MA', v)) then
+                    elseif (tier ~= 'I' and (v):match(tier) and bp.helpers['actions'].isReady('MA', v)) or (tier == 'I' and self.isNuke(v) and not (v):match(tier) and not (v):match('V') and bp.helpers['actions'].isReady('MA', v)) then
                         table.insert(bursting, v)
 
                     end
@@ -251,7 +258,7 @@ function burst.new()
                     if tier == 'Random' then
                         table.insert(bursting, v)
 
-                    elseif (tier ~= 'I' and (v):match(tier) and bp.helpers['actions'].isReady(bp, 'MA', v)) or (tier == 'I' and self.isNuke(v) and not (v):match(tier) and not (v):match('V') and bp.helpers['actions'].isReady(bp, 'MA', v)) then
+                    elseif (tier ~= 'I' and (v):match(tier) and bp.helpers['actions'].isReady('MA', v)) or (tier == 'I' and self.isNuke(v) and not (v):match(tier) and not (v):match('V') and bp.helpers['actions'].isReady('MA', v)) then
                         table.insert(bursting, v)
 
                     end
@@ -263,14 +270,14 @@ function burst.new()
             if bursting:length() > 0 then
 
                 if bp.core.getSetting('MULTINUKE') == 2 and T{'I','II','III'}:contains(tier) then
-                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+                    bp.helpers['queue'].addToFront(bp.MA[bursting[math.random(1, bursting:length())]], target)
 
                 elseif bp.core.getSetting('MULTINUKE') == 3 and T{'I','II','III'}:contains(tier) then
-                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
-                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+                    bp.helpers['queue'].addToFront(bp.MA[bursting[math.random(1, bursting:length())]], target)
+                    bp.helpers['queue'].addToFront(bp.MA[bursting[math.random(1, bursting:length())]], target)
 
                 else
-                    bp.helpers['queue'].addToFront(bp, bp.MA[bursting[math.random(1, bursting:length())]], target)
+                    bp.helpers['queue'].addToFront(bp.MA[bursting[math.random(1, bursting:length())]], target)
 
                 end
 

@@ -12,6 +12,7 @@ function chests.new()
     local self = {}
 
     -- Private Variables.
+    local bp        = false
     local models    = {965,968,969}
     local types     = {blue=1, red=2, gold=3}
     local special   = {isl=0x11, temps=0x12, cruor=0x13, xp=0x14, te=0x15, ki=0x40, temp2=0x3E, augmented=0x3F, revit=0x41, items=0x3D}
@@ -74,7 +75,14 @@ function chests.new()
     self.writeSettings()
 
     -- Public Functions.
-    self.findChest = function(bp)
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.findChest = function()
         local bp = bp or false
 
         if bp then
@@ -110,7 +118,7 @@ function chests.new()
 
     end
 
-    self.openChest = function(bp)
+    self.openChest = function()
         local bp = bp or false
 
         if bp then
@@ -148,7 +156,7 @@ function chests.new()
 
     end
 
-    self.handleChest = function(bp, original)
+    self.handleChest = function(original)
         local bp        = bp or false
         local orginal   = orginal or false
 
@@ -189,7 +197,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -223,7 +231,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -257,7 +265,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -291,7 +299,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -325,7 +333,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -359,7 +367,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -394,7 +402,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -428,7 +436,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -462,7 +470,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -496,7 +504,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -530,7 +538,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -565,7 +573,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end
@@ -599,7 +607,7 @@ function chests.new()
                         local open = function()
 
                             if bp.helpers['inventory'].findItemByName('Forbidden Key') and windower.ffxi.get_mob_by_id(packed['NPC']) then
-                                bp.helpers['actions'].tradeItem(bp, windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
+                                bp.helpers['actions'].tradeItem(windower.ffxi.get_mob_by_id(packed['NPC']), 1, {name='Forbidden Key', count=1})
                             end
     
                         end

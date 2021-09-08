@@ -19,6 +19,7 @@ function dax.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local allowed   = self.settings.allowed or {
 
         ['WAR'] = {},
@@ -50,7 +51,7 @@ function dax.new()
     self.enabled    = self.settings.enabled or true
 
     -- Private Functions
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
@@ -61,9 +62,9 @@ function dax.new()
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -78,10 +79,10 @@ function dax.new()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
 
-    local isAllowed = function(name)
-        local player = windower.ffxi.get_player()
+    private.isAllowed = function(name)
+        local player = bp.player
 
         if allowed[player.main_job] then
 
@@ -98,9 +99,37 @@ function dax.new()
 
     end
 
-    -- Static Functions.
+    private.render = function()
+        
+        if bp then
+            
+            if bp.core and bp.core.settings and bp.player and T(allowed[bp.player.main_job]):length() > 0 and self.enabled then
+                local update = {}
+                
+                for _, name in pairs(allowed[bp.player.main_job]) do
+                    table.insert(update, string.format('%s%s : \\cs(%s)%s\\cr', name:upper(), (''):rpad(' ', (15-name:len())), self.important, tostring(bp.core.getSetting(name:upper())):upper()))        
+                end
+                self.display:text(table.concat(update, '\n'))
+                self.display:update()
+
+                if not self.display:visible() then
+                    self.display:show()
+                end
+
+            elseif bp.player and (T(allowed[bp.player.main_job]):length() < 1 or self.display:visible()) then
+                self.display:text('')
+                self.display:update()
+                self.display:hide()
+
+            end
+
+        end        
+
+    end
+
+    -- Public Functions.
     self.writeSettings = function()
-        persist()
+        private.persist()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -113,19 +142,6 @@ function dax.new()
     end
     self.writeSettings()
 
-    self.zoneChange = function()
-        self.writeSettings()
-
-    end
-
-    self.jobChange = function()
-        self.writeSettings()
-        persist()
-        resetDisplay()
-
-    end
-
-    -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
             bp = buddypal
@@ -157,7 +173,7 @@ function dax.new()
 
             if core and core.settings then
 
-                if core.settings[name:upper()] and isAllowed(name:upper()) then
+                if core.settings[name:upper()] and private.isAllowed(name:upper()) then
 
                     if type(core.settings[name:upper()]) == 'table' and core.settings[name:upper()][2] then
                         table.insert(allowed[player.main_job], name:upper())
@@ -192,7 +208,7 @@ function dax.new()
 
             if core and core.settings then
 
-                if core.settings[name:upper()] and not isAllowed(name:upper()) then
+                if core.settings[name:upper()] and not private.isAllowed(name:upper()) then
 
                     if type(core.settings[name:upper()]) == 'table' and core.settings[name:upper()][2] then
 
@@ -235,41 +251,9 @@ function dax.new()
 
     end
 
-    self.render = function()
-        local bp = bp or false
-        
-        if bp then
-            local core      = bp.core
-            local player    = windower.ffxi.get_player()
-            
-            if core and core.settings and T(allowed[player.main_job]):length() > 0 and self.enabled then
-                local update = {}
-                
-                for _, name in pairs(allowed[player.main_job]) do
-                    table.insert(update, string.format('%s%s : \\cs(%s)%s\\cr', name:upper(), (''):rpad(' ', (15-name:len())), self.important, tostring(core.getSetting(name:upper())):upper()))        
-                end
-                self.display:text(table.concat(update, '\n'))
-                self.display:update()
-
-                if not self.display:visible() then
-                    self.display:show()
-                end
-
-            elseif (T(allowed[player.main_job]):length() < 1 or self.display:visible()) then
-                self.display:text('')
-                self.display:update()
-                self.display:hide()
-
-            end
-
-        end        
-
-    end
-
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -304,6 +288,23 @@ function dax.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+        
+    end)
+
+    private.events.jobchange = windower.register_event('job change', function(new, old)
+        self.writeSettings()
+        private.resetDisplay()
+        
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function(new, old)
+        self.writeSettings()
+        
+    end)
 
     return self
 

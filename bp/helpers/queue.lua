@@ -20,6 +20,7 @@ function queue.new()
 
     -- Private Variables.
     local bp            = false
+    local private       = {events={}}
     local protection    = os.clock()
     local loaded        = false
 
@@ -29,7 +30,7 @@ function queue.new()
     self.max            = self.settings.max or 20
 
     -- Private Functions.
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
@@ -39,9 +40,9 @@ function queue.new()
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -56,78 +57,9 @@ function queue.new()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
 
-    -- Static Functions.
-    self.writeSettings = function()
-
-        if f:exists() then
-            f:write(string.format('return %s', T(self.settings):tovstring()))
-
-        elseif not f:exists() then
-            f:write(string.format('return %s', T({}):tovstring()))
-        end
-
-    end
-    self.writeSettings()
-
-    self.attempt = function()
-
-        if self.queue and self.queue[1] and self.queue[1].attempts then
-            self.queue[1].attempts, protection = (self.queue[1].attempts + 1), os.clock()
-            return self.queue[1].attempts
-
-        else
-            self.clear()
-
-        end
-
-    end
-
-    self.clear = function()
-        self.queue:clear()
-        self.queue = Q{}
-        self.display:text('')
-        self.display:update()
-        self.display:hide()
-
-    end
-
-    self.zoneChange = function()
-        self.clear()
-        self.writeSettings()
-        self.display:text('')
-        self.display:update()
-        self.display:hide()
-
-    end
-
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-    
-    self.checkReady = function()
-        local player      = windower.ffxi.get_player() or false
-        local ready       = {[0]=0,[1]=1}
-
-        if (os.clock()-self.ready) > 0 and player and ready[player.status] then
-
-            if not loaded then
-                bp.helpers['equipment'].update()
-            end
-            return true
-
-        end
-        return false
-
-    end
-
-    self.render = function()
-        local bp        = bp or false
+    private.render = function()
         local contents  = {}
         local text      = ((' '):lpad(' ', 20) .. ('[ ACTION QUEUE ]') .. (' '):rpad(' ', 20))
 
@@ -147,7 +79,7 @@ function queue.new()
                         local name      = (v.action.en):sub(1,20) or ('NONE')
                         local attempts  = (v.attempts)
                         local target    = (v.target.name):sub(1,15) or ('NONE')
-                        local cost      = v.action.mp_cost or ('0')
+                        local cost      = (v.action.mp_cost) or ('0')
                         local ready     = (self.ready-os.clock()) > 0 and (self.ready-os.clock()) or 0
 
                         -- Add string to update table.
@@ -202,51 +134,78 @@ function queue.new()
 
     end
 
+    -- Public Functions.
+    self.writeSettings = function()
+
+        if f:exists() then
+            f:write(string.format('return %s', T(self.settings):tovstring()))
+
+        elseif not f:exists() then
+            f:write(string.format('return %s', T({}):tovstring()))
+        end
+
+    end
+    self.writeSettings()
+
+    self.clear = function()
+        self.queue:clear()
+        self.queue = Q{}
+        self.display:text('')
+        self.display:update()
+        self.display:hide()
+
+    end
+
+    self.attempt = function()
+
+        if self.queue and self.queue[1] and self.queue[1].attempts then
+            self.queue[1].attempts, protection = (self.queue[1].attempts + 1), os.clock()
+            return self.queue[1].attempts
+
+        else
+            self.clear()
+
+        end
+
+    end
+
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+    
+    self.checkReady = function()
+        local player      = windower.ffxi.get_player() or false
+        local ready       = {[0]=0,[1]=1}
+
+        if (os.clock()-self.ready) > 0 and player and ready[player.status] then
+
+            if not loaded then
+                bp.helpers['equipment'].update()
+            end
+            return true
+
+        end
+        return false
+
+    end
+
     self.addToFront = function(action, target)
-        local player    = windower.ffxi.get_player() or false
-        local me        = windower.ffxi.get_mob_by_target('me') or false
-        local levels    = {main=player.main_job_level, sub=player.sub_job_level}
-        local jpoints   = bp.player['job_points'][bp.player.main_job:lower()].jp_spent
+        local player    = bp.player or false
+        local me        = bp.me or false
         local helpers   = bp.helpers or false
-        local target    = target or false
         local priority  = 0
 
-        if bp and helpers then
+        if bp and helpers and target then
             local action_type = self.getType(action)
             
             if (player.status == 0 or player.status == 1) and not helpers['actions'].moving then
-
-                if type(target) == 'string' then
-                    local types = T{'t','bt','st','me','ft','ht','pet'}
-
-                    if types:contains(target) and windower.ffxi.get_mob_by_target(target) then
-                        target = windower.ffxi.get_mob_by_target(target)
-
-                    elseif windower.ffxi.get_mob_by_name(target) then
-                        target = windower.ffxi.get_mob_by_name(target)
-
-                    end
-
-                elseif type(target) == 'number' then
-
-                    if windower.ffxi.get_mob_by_id(target) then
-                        target = windower.ffxi.get_mob_by_id(target)
-                    end
-
-                elseif type(target) == 'table' then
-
-                    if target.id then
-
-                        if windower.ffxi.get_mob_by_id(target.id) then
-                            target = windower.ffxi.get_mob_by_id(target.id)
-                        end
-
-                    end
-
-                end
+                target = bp.helpers['target'].getValidTarget(target)
 
                 if target and me then
-                    local ranges        = helpers['actions'].getRanges(bp)
+                    local ranges        = helpers['actions'].getRanges()
                     local distance      = (target.distance):sqrt()
                     local bypass_type   = T{'Rune'}
                     
@@ -293,18 +252,11 @@ function queue.new()
 
                                     end
 
-                                elseif action.type == 'Geomancy' and not self.inQueue(action) and (action.en):match('Geo-') and T(action.targets):contains('Party') and player['vitals'].mp >= action.mp_cost then
-                                    
-                                    if helpers['party'].isInParty(target.id, false) then
-                                        self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+                                elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Self') and target.id == player.id and player['vitals'].mp >= action.mp_cost then
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
-                                    else
-                                        self.queue:insert(1, {action=action, target=player, priority=priority, attempts=1})
-
-                                    end
-
-                                elseif action.type == 'Geomancy' and not self.inQueue(action) and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(target) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+                                elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(target) and player['vitals'].mp >= action.mp_cost then
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
 
                                 elseif not self.inQueue(action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
 
@@ -312,6 +264,17 @@ function queue.new()
 
                                         if not self.typeInQueue(action) then
                                             self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+                                        end
+
+                                    elseif (action.en):match('Indi-') and player['vitals'].mp >= action.mp_cost then
+                                        
+                                        if player.id ~= target.id and bp.helpers['actions'].isReady('JA', "Entrust") and helpers['party'].isInParty(target.id, false) then
+                                            self.queue:push({action=bp.JA['Entrust'], target=me, priority=priority, attempts=1})
+                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                                        elseif player.id == target.id then
+                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
                                         end
                                     
                                     elseif helpers['target'].castable(target, action) then
@@ -384,54 +347,21 @@ function queue.new()
     end
 
     self.add = function(action, target)
-        local player    = windower.ffxi.get_player() or false
-        local me        = windower.ffxi.get_mob_by_target('me') or false
+        local player    = bp.player or false
+        local me        = bp.me or false
         local helpers   = bp.helpers or false
-        local target    = target or false
         local priority  = 0
 
-        if bp and helpers then
+        if bp and helpers and target then
             local action_type = self.getType(action)
             
             if (player.status == 0 or player.status == 1) and not helpers['actions'].moving then
-
-                if type(target) == 'string' then
-                    local types = T{'t','bt','st','me','ft','ht','pet'}
-
-                    if types:contains(target) and windower.ffxi.get_mob_by_target(target) then
-                        target = windower.ffxi.get_mob_by_target(target)
-
-                    elseif windower.ffxi.get_mob_by_name(target) then
-                        target = windower.ffxi.get_mob_by_name(target)
-
-                    end
-
-                elseif type(target) == 'number' then
-
-                    if windower.ffxi.get_mob_by_id(target) then
-                        target = windower.ffxi.get_mob_by_id(target)
-                    end
-
-                elseif type(target) == 'table' then
-
-                    if target.id then
-
-                        if windower.ffxi.get_mob_by_id(target.id) then
-                            target = windower.ffxi.get_mob_by_id(target.id)
-                        end
-
-                    end
-
-                end
+                target = bp.helpers['target'].getValidTarget(target)
 
                 if target and me then
-                    local ranges        = helpers['actions'].getRanges(bp)
+                    local ranges        = helpers['actions'].getRanges()
                     local distance      = (target.distance):sqrt()
                     local bypass_type   = T{'Rune'}
-                    
-                    if helpers['target'].onlySelf(action) and target.id ~= player.id and not helpers['buffs'].buffActive(584) and not self.inQueue(bp.JA['Entrust']) then
-                        target = windower.ffxi.get_mob_by_target('me')                        
-                    end
                     
                     if action_type == 'JobAbility' and helpers['actions'].canAct() and (not self.inQueue(action, target) or bypass_type:contains(action.type)) then
 
@@ -462,7 +392,7 @@ function queue.new()
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
 
                                 if action.prefix == '/song' and helpers['party'].isInParty(target.id, false) then
-                                    
+
                                     if helpers['actions'].isReady('JA', 'Pianissimo') and helpers['songs'].piano then
                                         self.queue:push({action=bp.JA['Pianissimo'], target=me, priority=priority, attempts=1})
                                         self.queue:push({action=action, target=target, priority=priority, attempts=1})
@@ -484,6 +414,17 @@ function queue.new()
 
                                         if not self.typeInQueue(action) then
                                             self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                        end
+
+                                    elseif (action.en):match('Indi-') and player['vitals'].mp >= action.mp_cost then
+                                        
+                                        if player.id ~= target.id and bp.helpers['actions'].isReady('JA', "Entrust") and helpers['party'].isInParty(target.id, false) then
+                                            self.queue:push({action=bp.JA['Entrust'], target=me, priority=priority, attempts=1})
+                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                                        elseif player.id == target.id then
+                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
                                         end
                                     
                                     elseif helpers['target'].castable(target, action) then
@@ -555,11 +496,69 @@ function queue.new()
 
     end
 
+    self.hardAdd = function(action, target)
+        local player    = bp.player or false
+        local me        = bp.me or false
+        local helpers   = bp.helpers or false
+        local priority  = 0
+
+        if bp and helpers and target then
+            local action_type = self.getType(action)
+            
+            if (player.status == 0 or player.status == 1) and not helpers['actions'].moving then
+                target = bp.helpers['target'].getValidTarget(target)
+
+                if target and me then
+                    local ranges        = helpers['actions'].getRanges()
+                    local distance      = (target.distance):sqrt()
+                    local bypass_type   = T{'Rune'}
+                    
+                    if action_type == 'JobAbility' then
+                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                    elseif action_type == 'Magic' then
+                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                    elseif action_type == 'WeaponSkill' then
+                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                    elseif action_type == 'Item' then
+                        self.queue:push({action=action, target=target, priority=priority, attempts=1})
+
+                    elseif action_type == 'Ranged' then
+                        helpers['equipment'].update()
+
+                        if helpers['equipment'].ranged and helpers['equipment'].ranged.en ~= 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                            helpers['actions'].unique.ranged.en = helpers['equipment'].ranged.en
+                        
+                            if distance < (ranges[action.range]+target.model_size) then
+                                self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=1})
+                            end
+
+                        elseif helpers['equipment'].ranged and helpers['equipment'].ranged.en == 'Gil' and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                            helpers['actions'].unique.ranged.en = helpers['equipment'].ammo.en
+                        
+                            if distance < (ranges[action.range]+target.model_size) then
+                                self.queue:push({action=helpers['actions'].unique.ranged, target=target, priority=priority, attempts=1})
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
     self.handle = function()
         local bp = bp or false
 
         if bp and self.queue and self.queue:length() > 0 and (os.clock()-protection) > 1 and self.checkReady(bp) then
-            local player    = windower.ffxi.get_player() or false
+            local player    = bp.player
             local helpers   = bp.helpers
             local action    = self.queue[1].action
             local target    = self.queue[1].target
@@ -860,9 +859,8 @@ function queue.new()
     end
 
     self.inQueue = function(action, target)
-        local bp        = bp or false
-        local action    = action or false
-        local target    = target or false
+        local action = action or false
+        local target = target or false
 
         if action and target and self.queue.data then
 
@@ -921,24 +919,20 @@ function queue.new()
     end
 
     self.replace = function(action, target, name)
-        local bp = bp or false
 
-        if bp then
+        if bp and action and target and name then
             local helpers       = bp.helpers
             local action_type   = helpers['queue'].getType(action)
-            local action        = action or false
-            local target        = target or false
-            local name          = name or ''
             local data          = self.queue.data
 
-            if action and target and data and name ~= '' then
+            if data and name ~= '' then
 
                 if #data > 0 then
 
                     for i,v in ipairs(data) do
 
                         if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target then
-                            local player = windower.ffxi.get_player() or false
+                            local player = bp.player
 
                             if v.target.id == target.id and (name):match(v.action.en) and v.action.id ~= action.id then
 
@@ -948,18 +942,15 @@ function queue.new()
                                 end
 
                                 if action_type == 'JobAbility' then
-                                    helpers['queue'].remove(bp.JA[v.action.en], target)
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
+                                    self.queue.data[i] = {action=action, target=target, priority=0, attempts=1}
                                     break
 
                                 elseif action_type == 'Magic' then
-                                    helpers['queue'].remove(bp.MA[v.action.en], target)
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
+                                    self.queue.data[i] = {action=action, target=target, priority=0, attempts=1}
                                     break
 
                                 elseif action_type == 'WeaponSkill' then
-                                    helpers['queue'].remove(bp.WS[v.action.en], target)
-                                    self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
+                                    self.queue.data[i] = {action=action, target=target, priority=0, attempts=1}
                                     break
 
                                 end
@@ -981,71 +972,10 @@ function queue.new()
 
                 end
 
-            elseif #data == 0 then
-                local player = windower.ffxi.get_player() or false
-
-                -- Convert to self target.
-                if player and helpers['target'].onlySelf(action) and target.id ~= player.id then
-                    target = windower.ffxi.get_mob_by_target('me')
-                end
-                helpers['queue'].add(action, target)
-
             end
 
         end
         return false
-
-    end
-
-    self.updateCure = function(action, target, priority)
-        local bp = bp or false
-
-        if bp then
-            local helpers       = bp.helpers
-            local action_type   = helpers['queue'].getType(action)
-            local action        = action or false
-            local target        = target or false
-            local data          = self.queue.data
-            local priority      = T{'Cure IV','Cure V','Cure VI','Curaga III','Curaga IV','Curaga V','Curing Waltz IV','Curing Waltz V','Divine Waltz II'}
-
-            if action and target and data then
-                local update = false
-
-                for i,v in ipairs(data) do
-                    
-                    if i > 1 then
-                        
-                        if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target and (v.action.type == 'WhiteMagic' or v.action.type == 'Waltz') then
-
-                            if v.target.id == target.id and v.action.en ~= action.en and ((v.action.en):match('Cure') or (v.action.en):match('Cura')) and not self.inQueue(bp.MA[action.en], target) then
-                                self.remove(bp.MA[v.action.en], target)
-                                update = true
-                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
-
-                            elseif v.target.id == target.id and v.action.en ~= action.en and (v.action.en):match('Waltz') and not self.inQueue(bp.JA[action.en], target) then
-                                self.remove(bp.JA[v.action.en], target)
-                                update = true
-                                self.queue:insert(i, {action=action, target=target, priority=0, attempts=1})
-
-                            end
-
-                        end
-
-                    end
-
-                end
-
-                if not update and priority:contains(action.en) then
-                    helpers['queue'].addToFront(action, target)
-
-                elseif not update then
-                    helpers['queue'].add(action, target)
-
-                end
-
-            end
-
-        end
 
     end
 
@@ -1066,6 +996,32 @@ function queue.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function()
+        self.clear()
+        self.writeSettings()
+        
+    end)
+
+    private.events.statuschange = windower.register_event('status change', function(new, old)
+        local reset = T{2,3,4,5,33,38,39,40,41,42,43,44,47,48,51,52,53,54,55,56,57,58,59,60,61,85}
+
+        if reset:contains(new) then
+            self.clear()
+
+        elseif new == 0 and old == 1 then
+            self.clear()
+
+        end
+
+    end)
+
 
     return self
 

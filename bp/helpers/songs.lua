@@ -45,7 +45,7 @@ function songs.new()
         ["ice"]         = {count=1, songs={"Ice Carol","Ice Carol II"}},
         ["wind"]        = {count=1, songs={"Wind Carol","Wind Carol II"}},
         ["earth"]       = {count=1, songs={"Earth Carol","Earth Carol II"}},
-        ["thunder"]     = {count=1, songs={"Thunder Carol","Thunder Carol II"}},
+        ["thunder"]     = {count=1, songs={"Lightning Carol","Lightning Carol II"}},
         ["water"]       = {count=1, songs={"Water Carol","Water Carol II"}},
         ["light"]       = {count=1, songs={"Light Carol","Light Carol II"}},
         ["dark"]        = {count=1, songs={"Dark Carol","Dark Carol II"}},

@@ -937,7 +937,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 
@@ -1566,7 +1566,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 

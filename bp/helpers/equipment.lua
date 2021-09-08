@@ -3,14 +3,26 @@ local res = require('resources')
 function equipment.new()
     local self = {}
 
+    -- Private Variables.
+    local bp        = false
+    local private   = {events={}}
+
     -- Public Variables.
     self.main   = false
     self.ranged = false
     self.ammo   = false
 
-    -- Static Functions.
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
     self.update = function()
-        local equipment = windower.ffxi.get_items()['equipment']
+        local items = windower.ffxi.get_items()
+        local equipment = items['equipment']
 
         if equipment then
             local main      = windower.ffxi.get_items(equipment['main_bag'], equipment['main']) or false
@@ -33,6 +45,20 @@ function equipment.new()
 
     end
     self.update()
+
+    -- Private Events.
+    private.events.outgoing = windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)
+
+        if id == 50 then
+            coroutine.schedule(self.update, 4)
+        end
+    
+    end)
+
+    private.events.login = windower.register_event('login', function()
+        coroutine.schedule(self.update, 5)
+    
+    end)
 
     return self
 

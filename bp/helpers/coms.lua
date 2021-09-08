@@ -19,14 +19,15 @@ function coms.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local actions   = {}
-    local timer     = {last=0, decay=15}
+    local timer     = {last=0, decay=10}
 
     -- Public Variables.
     self.enabled    = true    
 
     -- Private Functions
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
@@ -36,9 +37,9 @@ function coms.new()
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -53,56 +54,44 @@ function coms.new()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
 
-    -- Static Functions.
-    self.writeSettings = function()
-        persist()
+    private.render = function()
 
-        if f:exists() then
-            f:write(string.format('return %s', T(self.settings):tovstring()))
+        if self.enabled then
+            local update = {}
 
-        elseif not f:exists() then
-            f:write(string.format('return %s', T({}):tovstring()))
+            if (os.clock()-timer.last) < timer.decay then
+
+                for _,v in pairs(actions) do
+                    table.insert(update, v)
+                end
+                self.display:text(table.concat(update, '\n'))
+                self.display:update()
+
+                if not self.display:visible() then
+                    self.display:show()
+                end
+
+
+            else
+                self.display:text('')
+                self.display:update()
+                self.display:hide()
+                actions = {}
+
+            end
+
+        elseif not self.enabled and self.display:visible() then
+            self.display:text('')
+            self.display:update()
+            self.display:hide()
 
         end
 
     end
-    self.writeSettings()
 
-    self.zoneChange = function()
-        self.writeSettings()
-
-    end
-
-    self.jobChange = function()
-        self.writeSettings()
-        persist()
-        resetDisplay()
-
-    end
-
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-    
-    self.send = function(action, name, attempts)
-        local bp        = bp or false
-        local action    = action or false
-        local name      = name or false
-        local attempts  = attempts or 1
-
-        if bp and action and name and attempts then
-            windower.send_ipc_message(string.format('coms:::%s:::%s:::%s', name, action.en, attempts))
-        end
-
-    end
-
-    self.catch = function(message)
+    private.receive = function(message)
         local message = message or false
 
         if message then
@@ -116,7 +105,7 @@ function coms.new()
                 if name and action then
                     actions[name]   = string.format('%s:%s► [ \\cs(%s)%s (%s)\\cr ]', name:upper(), (''):rpad('-', (20-name:len())), self.important, action, attempts)
                     timer.last      = os.clock()
-
+                    
                 end
 
             end
@@ -125,44 +114,37 @@ function coms.new()
 
     end
 
-    self.render = function()
-        local bp = bp or false
+    -- Static Functions.
+    self.writeSettings = function()
+        private.persist()
 
-        if bp then
-            local core = bp.core
+        if f:exists() then
+            f:write(string.format('return %s', T(self.settings):tovstring()))
 
-            if self.enabled then
-                local update = {}
+        elseif not f:exists() then
+            f:write(string.format('return %s', T({}):tovstring()))
 
-                if (os.clock()-timer.last) < timer.decay then
+        end
 
-                    for _,v in pairs(actions) do
-                        table.insert(update, v)
-                    end
-                    self.display:text(table.concat(update, '\n'))
-                    self.display:update()
+    end
+    self.writeSettings()
 
-                    if not self.display:visible() then
-                        self.display:show()
-                    end
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
 
+    end
+    
+    self.send = function(action, name, attempts)
+        local action    = action or false
+        local name      = name or false
+        local attempts  = attempts or 1
 
-                else
-                    self.display:text('')
-                    self.display:update()
-                    self.display:hide()
-                    actions = {}
-
-                end
-
-            elseif not self.enabled and self.display:visible() then
-                self.display:text('')
-                self.display:update()
-                self.display:hide()
-
-            end
-
-        end        
+        if bp and action and name and attempts then
+            windower.send_ipc_message(string.format('coms:::%s:::%s:::%s', name, action.en, attempts))
+        end
 
     end
 
@@ -186,9 +168,8 @@ function coms.new()
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -203,6 +184,30 @@ function coms.new()
 
     end
     
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+        
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function()
+        self.writeSettings()
+        
+    end)
+
+    private.events.jobchange = windower.register_event('job change', function()
+        self.writeSettings()
+        private.resetDisplay()
+        
+    end)
+
+    private.events.ipc = windower.register_event('ipc message', function(message)
+
+        if message and message:sub(1,4) == 'coms' then
+            private.receive(message)
+        end
+    
+    end)
 
     return self
 

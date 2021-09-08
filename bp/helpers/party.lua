@@ -129,27 +129,9 @@ function party.new()
     end
 
     self.isInParty = function(player, alliance)
-        local player    = player or false
+        local player    = bp.helpers['target'].getValidTarget(player)
+        local party     = bp.party
         local alliance  = alliance or false
-        local party     = windower.ffxi.get_party() or false
-
-        if player then
-
-            if type(player) == "table" then
-                player = player
-
-            elseif type(player) == "string" then
-                player = windower.ffxi.get_mob_by_name(self.findByName(player, alliance))
-
-            elseif type(player) == "number" then
-                player = windower.ffxi.get_mob_by_id(player)
-
-            else
-                return false
-
-            end
-
-        end
 
         if player and party then
 

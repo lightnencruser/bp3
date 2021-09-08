@@ -11,6 +11,7 @@ function noknock.new()
 
             for n = 1, act.targets[x].action_count do
                 act.targets[x].actions[n].stagger = 0
+                act.targets[x].actions[n].knockback = 0
 
             end
 

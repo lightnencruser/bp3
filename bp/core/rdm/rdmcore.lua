@@ -21,6 +21,7 @@ function core.get()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local timers    = {hate=0, steps=0}
 
     -- Public Variables
@@ -262,6 +263,49 @@ function core.get()
         self.writeSettings()
         self.display:destroy()
         self.config:destroy()
+
+    end
+
+    private.buildSkills = function()
+        local JA = windower.ffxi.get_abilities().job_abilities
+        local WS = windower.ffxi.get_abilities().weapon_skills
+        local MA = windower.ffxi.get_spells()
+
+        coroutine.schedule(function()
+            
+            for _,v in ipairs(JA) do
+                local skill = bp.res.job_abilities[v]
+                
+                if skill and bp.helpers['actions'].isAvailable('JA', skill.en) then
+                    private.abilities[skill.en] = {enabled=false, skill=skill}
+                end
+
+            end
+            
+            for _,v in ipairs(WS) do
+                local skill = bp.res.weapon_skills[v]
+                
+                if skill and bp.helpers['actions'].isAvailable('WS', skill.en) then
+                    private.abilities[skill.en] = {enabled=false, skill=skill}
+                end
+
+            end
+            
+            for i,v in ipairs(MA) do
+                local skill = bp.res.spells[i]
+                
+                if skill and bp.helpers['actions'].isAvailable('MA', skill.en) and skill.targets['Self'] and skill.skill == 34 then
+                    local blocked = T{'Sneak','Invisible','Deodorize'}
+
+                    if not (skill.en):match('Protect') and not (skill.en):match('Shell') and not (skill.en):match('Bar') and not (skill.en):match('Teleport') and not blocked:contains(skill.en) then
+                        private.abilities[skill.en] = {enabled=false, skill=skill}
+                    end                    
+                    
+                end
+
+            end
+
+        end, 1)
 
     end
 
@@ -1030,7 +1074,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 
@@ -1243,7 +1287,7 @@ function core.get()
                         
                         -- /RUN.
                         elseif player.sub_job == "RUN" then
-                            local active = helpers["runes"].getActive(bp)
+                            local active = helpers["runes"].getActive()
                             
                             -- FLASH.
                             if target and helpers['actions'].canCast() and helpers['actions'].isReady('MA', "Flash") then
@@ -1723,7 +1767,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 
@@ -1735,11 +1779,6 @@ function core.get()
             end
 
         end
-
-    end
-
-    self.render = function()
-        local bp = bp or false
 
     end
 

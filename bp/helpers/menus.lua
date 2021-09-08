@@ -47,6 +47,38 @@ function menus.new()
                 windower.packets.inject_incoming(0x034, original:sub(1,8)..table.concat(updated, '')..original:sub(41))
                 return true
 
+            -- Unlock Dynamis-D Upgrades.
+            elseif npc and npc.id == 17772818 then
+                local updated = {}
+
+                for i,v in ipairs(menu) do
+                    
+                    if (i < 4 or i > 9) then
+                        updated[i] = ('C'):pack(menu[i])
+                    else
+                        updated[i] = ('C'):pack(255)
+                    end
+                    
+                end
+                windower.packets.inject_incoming(0x034, original:sub(1,8)..table.concat(updated, '')..original:sub(41))
+                return true
+
+            -- Ody Bosses.
+            elseif npc and npc.id == 20975715 then
+                local updated = {}
+
+                for i,v in ipairs(menu) do
+                    
+                    if (i < 2 or i > 20) then
+                        updated[i] = ('C'):pack(menu[i])
+                    else
+                        updated[i] = ('C'):pack(1)
+                    end
+                    
+                end
+                windower.packets.inject_incoming(0x034, original:sub(1,8)..table.concat(updated, '')..original:sub(41))
+                return true
+
             -- Unlock Sparks.
             elseif npc and allowed.sparks:contains(npc.name) then
                 local updated = {}

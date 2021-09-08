@@ -19,6 +19,7 @@ function target.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local debug     = false
     local reset     = {last=0, delay=0.5}
     local modes     = {'PLAYER TARGETING','PARTY TARGETING'}
@@ -28,7 +29,7 @@ function target.new()
     self.mode       = self.settings.mode or 1
 
     -- Private Functions.
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
@@ -39,9 +40,9 @@ function target.new()
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -56,11 +57,89 @@ function target.new()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
+
+    private.render = function()
+        local player = bp.player
+        local update = {[1]='',[2]=''}
+
+        -- Handle Player Target.
+        if self.targets.player then
+            update[1] = string.format('Player:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.player.name)
+
+        elseif not self.targets.player then
+            update[1] = ''
+
+        end
+
+        -- Handle Party Target.
+        if self.targets.party then
+            update[2] = string.format(' +  Party:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.party.name)
+
+        elseif not self.targets.party then
+            update[2] = ''
+
+        end
+
+        if (update[1] ~= '' or update[2] ~= '') then
+            self.display:text(table.concat(update, ''))
+            self.display:update()
+
+            if not self.display:visible() then
+                self.display:show()
+            end
+        
+        else
+            update[1] = string.format(' Targets:  \\cs(%s)[ %s ]\\cr ', self.important, ' None ')
+            self.display:text(table.concat(update, ''))
+            self.display:update()
+            
+            if not self.display:visible() then
+                self.display:show()
+            end
+
+        end
+
+    end
+
+    private.updateTargets = function()
+        
+        if bp and bp.player and bp.player.status == 1 and not self.getTarget() and windower.ffxi.get_mob_by_target('t') then
+            self.setTarget(windower.ffxi.get_mob_by_target('t'))
+
+        elseif bp and bp.player and bp.player.status == 1 and self.getTarget() and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
+            self.setTarget(windower.ffxi.get_mob_by_target('t'))
+
+        end
+
+        if self.targets.player and (not self.allowed(self.targets.player) or (self.targets.player.distance):sqrt() > 35) then
+            self.targets.player = false
+        end
+
+        if self.targets.party and (not self.allowed(self.targets.party) or (self.targets.party.distance):sqrt() > 35) then
+            self.targets.party = false
+        end
+
+        if self.targets.entrust and (not self.allowed(self.targets.entrust) or (self.targets.entrust.distance):sqrt() > 35) then
+            self.targets.entrust = false
+        end
+
+        if self.targets.luopan and (not self.allowed(self.targets.luopan) or (self.targets.luopan.distance):sqrt() > 35) then
+            self.targets.luopan = false
+        end
+
+    end
+
+    private.clear = function()
+        self.targets.player     = false
+        self.targets.party      = false
+        self.targets.luopan     = false
+
+    end
 
     -- Static Functions.
     self.writeSettings = function()
-        persist()
+        private.persist()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -73,12 +152,6 @@ function target.new()
     end
     self.writeSettings()
 
-    self.zoneChange = function()
-        self.clear()
-        self.writeSettings()
-
-    end
-
     self.getTarget = function()
 
         if self.targets.player and type(self.targets.player) == 'table' and windower.ffxi.get_mob_by_id(self.targets.player.id) then
@@ -90,13 +163,6 @@ function target.new()
         end
         return false
 
-
-    end
-
-    self.clear = function()
-        self.targets.player     = false
-        self.targets.party      = false
-        self.targets.luopan     = false
 
     end
 
@@ -347,6 +413,36 @@ function target.new()
 
     end
 
+    self.getValidTarget = function(target)
+        
+        if type(target) == 'string' then
+            local types = T{'t','bt','st','me','ft','ht','pet'}
+
+            if types:contains(target) and windower.ffxi.get_mob_by_target(target) then
+                return windower.ffxi.get_mob_by_target(target)
+
+            elseif windower.ffxi.get_mob_by_name(target) then
+                return windower.ffxi.get_mob_by_name(target)
+
+            end
+
+        elseif type(target) == 'number' then
+
+            if windower.ffxi.get_mob_by_id(target) then
+                return windower.ffxi.get_mob_by_id(target)
+            end
+
+        elseif type(target) == 'table' then
+
+            if target.id and windower.ffxi.get_mob_by_id(target.id) then
+                return windower.ffxi.get_mob_by_id(target.id)
+            end
+
+        end
+        return false
+
+    end
+
     self.validSpellTarget = function(id, target)
         local bp        = bp or false
         local player    = windower.ffxi.get_player() or false
@@ -546,91 +642,53 @@ function target.new()
 
     end
 
-    self.updateTargets = function(player)
-        
-        if player and player.status == 1 and not self.getTarget() and windower.ffxi.get_mob_by_target('t') then
-            self.setTarget(windower.ffxi.get_mob_by_target('t'))
+    self.inRange = function(target, r, flag)
 
-        elseif player and player.status == 1 and self.getTarget() and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
-            self.setTarget(windower.ffxi.get_mob_by_target('t'))
+        if target and target.x and target.y then
+            local me    = bp.me
+            local x     = target.x
+            local y     = target.y
+            local r     = r or 6
+            
+            if me and x and y then
+                
+                if (( (me.x-x)^2 + (me.y-y)^2) < r^2) and not flag then
+                    return true
+                    
+                elseif (( (me.x-x)^2 + (me.y-y)^2) > r^2) and flag then
+                    return true
+                    
+                end
+            
+            end
 
         end
-
-        if self.targets.player and (not self.allowed(self.targets.player) or (self.targets.player.distance):sqrt() > 35) then
-            self.targets.player = false
-        end
-
-        if self.targets.party and (not self.allowed(self.targets.party) or (self.targets.party.distance):sqrt() > 35) then
-            self.targets.party = false
-        end
-
-        if self.targets.entrust and (not self.allowed(self.targets.entrust) or (self.targets.entrust.distance):sqrt() > 35) then
-            self.targets.entrust = false
-        end
-
-        if self.targets.luopan and (not self.allowed(self.targets.luopan) or (self.targets.luopan.distance):sqrt() > 35) then
-            self.targets.luopan = false
-        end
+        return false
 
     end
 
-    self.render = function()
-        local bp        = bp or false
-        local player    = windower.ffxi.get_player()
-        local update    = {[1]='',[2]=''}
-
-        -- Handle Player Target.
-        if self.targets.player then
-            update[1] = string.format('Player:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.player.name)
-
-        elseif not self.targets.player then
-            update[1] = ''
-
-        end
-
-        -- Handle Party Target.
-        if self.targets.party then
-            update[2] = string.format(' +  Party:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.party.name)
-
-        elseif not self.targets.party then
-            update[2] = ''
-
-        end
-
-        if (update[1] ~= '' or update[2] ~= '') then
-            self.display:text(table.concat(update, ''))
-            self.display:update()
-
-            if not self.display:visible() then
-                self.display:show()
-            end
+    self.findHomepoint = function()
+        local mobs = windower.ffxi.get_mob_array()
         
-        else
-            update[1] = string.format(' Targets:  \\cs(%s)[ %s ]\\cr ', self.important, ' None ')
-            self.display:text(table.concat(update, ''))
-            self.display:update()
+        for _,v in pairs(mobs) do
             
-            if not self.display:visible() then
-                self.display:show()
+            if type(v) == 'table' and (v.name):match("Home Point") then
+                return v
             end
-
+    
         end
-
+        return false
+        
     end
 
     self.changeMode = function()
-        local bp = bp or false
 
-        if bp then
+        if self.mode == 1 then
+            self.mode = 2
 
-            if self.mode == 1 then
-                self.mode = 2
+        else
+            self.mode = 1
 
-            else
-                self.mode = 1
-
-            end
-        
         end
         bp.helpers['popchat'].pop(string.format('TARGETING MODE NOW SET TO: %s', modes[self.mode]))
 
@@ -653,6 +711,23 @@ function target.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+        if bp and bp.player and (bp.player.status == 2 or bp.player.status == 3) and bp.player['vitals'].hp <= 0 and self.getTarget() then
+            private.clear()
+        end
+        private.updateTargets()
+
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function(new, old)
+        private.clear()
+        self.writeSettings()
+
+    end)
 
     return self
 

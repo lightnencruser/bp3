@@ -297,11 +297,10 @@ function core.get()
     end
 
     self.handleAutomation = function()
-        local bp = bp or false
 
         if bp then
             local helpers = bp.helpers
-            local player = windower.ffxi.get_player()
+            local player = bp.player
             
             if helpers['queue'].ready and not helpers['actions'].moving and bp.settings['Enabled'] then
                 bp.helpers['cures'].handleCuring(bp)
@@ -1010,7 +1009,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 
@@ -1708,7 +1707,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 

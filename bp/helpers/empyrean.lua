@@ -18,6 +18,7 @@ function empyrean.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}, data={}}
     local timers    = {sound={last=0, delay=30}, scan={last=0, delay=20}, warning={}}
     local sounds    = {ph='Energy_Blade', nm='Energy_Blade'}
     local spawned   = {}
@@ -29,7 +30,7 @@ function empyrean.new()
         string.format('%s,%s,%s', 140, 200, 125),
 
     }
-    local data      = self.settings.data or {
+    private.data    = self.settings.data or {
 
         ["Verethragna"] = {
             
@@ -218,11 +219,11 @@ function empyrean.new()
 
     -- Public Variables.
     self.trial      = {}
-    self.Target     = false
+    self.target     = false
     self.enabled    = false
 
     -- Private Functions
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
@@ -234,9 +235,9 @@ function empyrean.new()
         end
 
     end
-    persist()
+    private.persist()
     
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -252,11 +253,10 @@ function empyrean.new()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
 
     local playSound = function(name)
-        local bp    = bp or false
-        local name  = name or false
+        local name = name or false
         
         if bp and name and type(name) == 'string' and (os.clock()-timers.sound.last) > timers.sound.delay then
             bp.helpers['sounds'].play(name)
@@ -265,7 +265,7 @@ function empyrean.new()
 
     end
 
-    local updateCount = function()
+    private.updateCount = function()
 
         if self.enabled and self.trial and self.trial.trial then
 
@@ -294,7 +294,7 @@ function empyrean.new()
 
     -- Static Functions.
     self.writeSettings = function()
-        persist()
+        private.persist()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -306,17 +306,6 @@ function empyrean.new()
 
     end
     self.writeSettings()
-
-    self.zoneChange = function()
-        self.writeSettings()
-
-    end
-
-    self.jobChange = function()
-        self.writeSettings()
-        persist()
-
-    end
 
     self.getNextTrial = function()
 
@@ -539,7 +528,6 @@ function empyrean.new()
     end
 
     self.set = function(trial)
-        local bp    = bp or false
         local trial = trial or false
 
         do -- Reset the timers, and enable the addon.
@@ -584,7 +572,6 @@ function empyrean.new()
     end
 
     self.toggle = function()
-        local bp = bp or false
 
         if bp then
 
@@ -602,18 +589,17 @@ function empyrean.new()
     end
 
     self.parseText = function(message, mode)
-        local bp        = bp or false
         local message   = message or false
         local mode      = mode or false
 
         if bp and message and mode and mode == 36 then
             local message   = (message):strip_format() or false
-            local player    = windower.ffxi.get_player()
+            local player    = bp.player
 
             if self.trial and self.trial.trial then
 
                 if message == string.format('%s defeats the %s.', player.name, self.trial.mob) then
-                    updateCount()
+                    private.updateCount()
 
                     for i=1, #self.trial.nm do
 
@@ -632,10 +618,9 @@ function empyrean.new()
     end
 
     self.render = function()
-        local bp = bp or false
 
-        if bp then
-            local zone = bp.res.zones[windower.ffxi.get_info().zone] or false
+        if bp and bp.info then
+            local zone = bp.res.zones[bp.info.zone] or false
 
             if self.enabled and self.trial and self.trial.trial and zone and zone.en == self.trial.zone then
                 local warning   = self.getWarnings()
@@ -666,6 +651,21 @@ function empyrean.new()
         end
 
     end
+
+    -- Private Events.
+    --private.events.zonechange = windower.register_event('prerender', function()
+    
+    --end)
+
+    private.events.zonechange = windower.register_event('zone change', function(new, old)
+        self.writeSettings()
+
+    end)
+
+    private.events.zonechange = windower.register_event('job change', function(new, old)
+        self.writeSettings()
+
+    end)
 
     return self
 

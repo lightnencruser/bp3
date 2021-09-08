@@ -445,7 +445,7 @@ function core.get()
                                 end
 
                                 -- CHIVALRY.
-                                if helpers['actions'].isReady('JA', "Chivalry") and player['vitals'].tp >= self.getSetting('CHIVALRY') then
+                                if helpers['actions'].isReady('JA', "Chivalry") and player['vitals'].mpp < 45 and player['vitals'].tp >= self.getSetting('CHIVALRY') then
                                     helpers['queue'].add(bp.JA["Chivalry"], player)
                                 end
 
@@ -654,7 +654,7 @@ function core.get()
                                     helpers['queue'].add(bp.MA["Geist Wall"], target)
                                     timers.hate = os.clock()
                                 
-                                -- JETTATURA.
+                                -- SHEEP SONG.
                                 elseif target and helpers['actions'].isReady('MA', "Sheep Song") then
                                     helpers['queue'].add(bp.MA["Sheep Song"], target)
                                     timers.hate = os.clock()
@@ -1046,7 +1046,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 
@@ -1172,7 +1172,7 @@ function core.get()
                         if player.main_job == 'PLD' then
 
                             -- CHIVALRY.
-                            if helpers['actions'].isReady('JA', "Chivalry") and player['vitals'].tp >= self.getSetting('CHIVALRY') then
+                            if helpers['actions'].isReady('JA', "Chivalry") and player['vitals'].mpp < 45 and player['vitals'].tp >= self.getSetting('CHIVALRY') then
                                 helpers['queue'].add(bp.JA["Chivalry"], player)
                             end
                            
@@ -1770,7 +1770,7 @@ function core.get()
                     end
 
                     -- HANDLE RANGED ATTACKS.
-                    if self.getSetting('RA') and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if self.getSetting('RA') and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 

@@ -6,6 +6,7 @@ function actions.new()
 
     -- Private Variables.
     local bp            = {}
+    local private       = {events={}}
     local categories    = {[6]='JobAbility',[7]='WeaponSkill',[8]='Magic',[9]='Item',[12]='Ranged',[13]='JobAbility',[14]='JobAbility',[15]='JobAbility'}
     local types         = {['Magic']={res='spells'},['Trust']={res='spells'},['JobAbility']={res='job_abilities'},['WeaponSkill']={res='weapon_skills'},['Item']={res='items'},['Ranged']={res='none'}}
     local ranges        = {[0]=255,[2]=3.40,[3]=4.47,[4]=5.76,[5]=6.89,[6]=7.80,[7]=8.40,[8]=10.40,[9]=12.40,[10]=14.50,[11]=16.40,[12]=20.40,[13]=23.4}
@@ -47,6 +48,35 @@ function actions.new()
 
     }
 
+    -- Private Functions.
+    private.setMoving = function()
+
+        if bp and bp.me then
+
+            if (bp.me.x ~= self.position.x or bp.me.y ~= self.position.y) then
+                self.position.x   = bp.me.x
+                self.position.y   = bp.me.y
+                self.position.z   = bp.me.z
+                self.moving       = true
+
+            else
+                self.position.x   = bp.me.x
+                self.position.y   = bp.me.y
+                self.position.z   = bp.me.z
+                self.moving       = false
+
+            end
+
+        else
+            self.position.x   = 0
+            self.position.y   = 0
+            self.position.z   = 0
+            self.moving       = true
+
+        end
+
+    end
+
     -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
@@ -57,6 +87,7 @@ function actions.new()
     
     self.doAction = function(target, param, action, x, y, z)
         local x, y, z = x or 0, y or 0, z or 0
+        local target = bp.helpers['target'].getValidTarget(target)
 
         if target and action and actions[action] and not self.midaction and not self.injecting and not windower.ffxi.get_info().mog_house then
             windower.packets.inject_outgoing(0x01a, ('iIHHHHfff'):pack(0x00001A00, target.id, target.index, actions[action], param or 0, 0, x, z, y))
@@ -65,13 +96,12 @@ function actions.new()
     end
 
     self.synthItem = function(crystal, ingredients, materials)
-        local bp            = bp or false
-        local crystal       = bp.libraries['inventory'].findItemByName(crystal) or false
+        local crystal       = bp.helpers['inventory'].findItemByName(crystal) or false
         local materials     = T(materials) or false
         local ingredients   = ingredients or 1
         
         if bp and crystal and materials then
-            local crystal   = {name=crystal.en, id=crystal.id, index=bp.libraries['inventory'].findItemIndexByName(crystal.en)}
+            local crystal   = {name=crystal.en, id=crystal.id, index=bp.helpers['inventory'].findItemIndexByName(crystal.en)}
             local n         = 1
             
             -- Build Basic Packet.
@@ -89,13 +119,13 @@ function actions.new()
             for _,material in ipairs(materials) do
 
                 if material and material.count then
-                    local item  = bp.libraries['inventory'].findItemIndexByName(material.name, 0, material.count) or false
-                    local count = bp.libraries['inventory'].getCountByIndex(item)
+                    local item  = bp.helpers['inventory'].findItemIndexByName(material.name, 0, material.count) or false
+                    local count = bp.helpers['inventory'].getCountByIndex(item)
                     
                     if count and count >= material.count then
 
                         for ii=1, material.count do
-                            synth[string.format('Ingredient %s', n)] = bp.libraries['inventory'].findItemByIndex(item).id
+                            synth[string.format('Ingredient %s', n)] = bp.helpers['inventory'].findItemByIndex(item).id
                             synth[string.format('Ingredient Index %s', n)] = item
                             n = n + 1
 
@@ -297,9 +327,64 @@ function actions.new()
         return true
 
     end
+
+    self.isAvailable = function(category, name)
+
+        if bp and bp.player and category and name then
+            local JA, MA, WS = bp.JA, bp.MA, bp.WS
+
+            if category == 'JA' then
+                local action = JA[name] or false
+
+                if action and self.allowed.act then
+
+                    if (action.prefix == '/jobability' or action.prefix == '/pet') then
+                        local skills = windower.ffxi.get_abilities().job_abilities
+
+                        for _,v in ipairs(skills) do
+
+                            if v == action.id then
+                                return true
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            elseif category == 'MA' then
+                local action  = MA[name] or false
+
+                if action and action.id then
+                    local spells = windower.ffxi.get_spells()
+
+                    if spells and spells[action.id] then
+                        return true
+                    end
+
+                end
+
+            elseif category == 'WS' then
+                local action = WS[name] or false
+                local skills = windower.ffxi.get_abilities().weapon_skills
+
+                for _,v in ipairs(skills) do
+                    
+                    if action.id == v then
+                        return true
+                    end
+
+                end
+
+            end
+
+        end
+        return false
+
+    end
     
     self.isReady = function(category, name)
-        local bp          = bp or false
         local player      = windower.ffxi.get_player() or false
         local category    = category or false
 
@@ -348,8 +433,6 @@ function actions.new()
                         local main    = action.levels[job.main.id] or false
                         local sub     = action.levels[job.sub.id] or false
 
-                        print(job.main.level, main, job.sub.level, sub)
-
                         if main then
 
                             if main < 100 and job.main.level >= main then
@@ -395,7 +478,6 @@ function actions.new()
     end
 
     self.useItem = function(item, target, bag)
-        local bp      = bp or false
         local target  = target or windower.ffxi.get_player()
         local bag     = bag or 0
 
@@ -480,51 +562,32 @@ function actions.new()
         windower.ffxi.run(false)
     end
 
-    self.acceptRaise = function()
-        windower.packets.inject_outgoing(0x01a, ('iIHHHHfff'):pack(0x1A0E3C0A, player.id, player.index, 13, 0, 0, 0, 0, 0))
-    end
+    self.keyCombo = function(combo, delay)
 
-    self.setMoving = function()
-        local bp        = bp or false
-        local player    = windower.ffxi.get_mob_by_target('me') or false
-        local ready     = {[0]=0,[1]=1,[10]=10,[11]=11,[85]=85}
+        if combo and type(combo) == 'table' then
 
-        if bp and  player then
-
-            if (player.x ~= self.position.x or player.y ~= self.position.y) then
-                self.position.x   = player.x
-                self.position.y   = player.y
-                self.position.z   = player.z
-                self.moving       = true
-
-            else
-                self.position.x   = player.x
-                self.position.y   = player.y
-                self.position.z   = player.z
-                self.moving       = false
+            for _,v in ipairs(combo) do
+                windower.send_command(string.format('setkey %s down; wait 0.2; setkey %s up', v, v))
+                coroutine.sleep(delay or 0.3)
 
             end
-
-        else
-            self.position.x   = 0
-            self.position.y   = 0
-            self.position.z   = 0
-            self.moving       = true
 
         end
 
     end
 
+    self.acceptRaise = function()
+        windower.packets.inject_outgoing(0x01a, ('iIHHHHfff'):pack(0x1A0E3C0A, player.id, player.index, 13, 0, 0, 0, 0, 0))
+    end
+
     self.getRanges = function()
-        local bp = bp or false
         return ranges
     end
 
     self.getActionRange = function(action)
-        local bp      = bp or false
-        local action  = action or false
+        local action = action or false
 
-        if action and type(action) == 'table' and action.range and ranges[action.range] then
+        if bp and action and type(action) == 'table' and action.range and ranges[action.range] then
             return ranges[action.range]
         end
         return 999
@@ -536,9 +599,8 @@ function actions.new()
     end
 
     self.buildAction = function(category, param)
-        local bp = bp or false
 
-        if category and param and categories[category] then
+        if bp and category and param and categories[category] then
             local name = categories[category]
 
             if types[categories[category]] then
@@ -564,10 +626,8 @@ function actions.new()
     end
 
     self.getActionType = function(action)
-        local bp      = bp or false
-        local action  = action or false
 
-        if action and type(action) == 'table' then
+        if bp and action and type(action) == 'table' then
 
             if action.prefix then
 
@@ -592,8 +652,7 @@ function actions.new()
     end
 
     self.getActionDelay = function(action)
-        local bp      = bp or false
-        local action  = action or 1
+        local action = action or 1
 
         if bp and action and type(action) == 'table' then
             local helpers = bp.helpers
@@ -637,7 +696,7 @@ function actions.new()
     self.exitMenu = function(packets, target)
         
         if packets and target then
-            windower.packets.inject_outgoing(0x05b, ("iIHHHBCHH"):pack(0x05b, target.id, 0, 16384, target.index, false, 0, packets["Zone"], packets["Menu ID"]))
+            windower.packets.inject_outgoing(0x05b, ("iIHHHBCHH"):pack(0x05b, target.id, 0, 16384, target.index, false, 0, packets['Zone'], packets['Menu ID']))
         end
 
     end
@@ -688,6 +747,41 @@ function actions.new()
         ]]--
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.setMoving()
+
+    end)
+
+    private.events.statuschange = windower.register_event('status change', function(new, old)
+        self.locked.flag = false
+    
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function(new, old)
+        self.locked.flag = false
+    
+    end)
+
+    private.events.outgoing = windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)
+    
+        if id == 0x015 then
+    
+            if not blocked then
+                local parsed = bp.packets.parse('outgoing', original)
+
+                if self.locked.flag then
+                    parsed['X'], parsed['Y'], parsed['Z'] = self.locked.x, self.locked.y, self.locked.z
+                    return bp.packets.build(parsed)
+
+                end
+
+            end
+
+        end
+    
+    end)
 
     return self
 

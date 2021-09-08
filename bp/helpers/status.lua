@@ -2,9 +2,7 @@ local status    = {}
 local player    = windower.ffxi.get_player()
 local files     = require('files')
 local texts     = require('texts')
-local images    = require('images')
 local f = files.new(string.format('bp/helpers/settings/status/%s_settings.lua', player.name))
-require('queues')
 require('tables')
 
 if not f:exists() then
@@ -16,71 +14,72 @@ function status.new()
 
     -- Static Variables.
     self.settings   = dofile(string.format('%sbp/helpers/settings/status/%s_settings.lua', windower.addon_path, player.name))
-    self.layout     = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=10}, padding=2, stroke_width=2, draggable=false}
+    self.layout     = self.settings.layout or {pos={x=300, y=400}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=2, draggable=false}
+    self.update     = self.settings.update or {delay=2, last=0}
     self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.important  = string.format('%s,%s,%s', 25, 165, 200)
-    self.priority   = string.format('%s,%s,%s', 215, 0, 255)
 
     -- Private Variables.
     local bp        = false
-    local debug     = {}
-    local timer     = {last=0, delay=2}
-    local watching  = {1,2,3,4,5,6,7,8,9,10,11,14,15,16,17,18,19,20,23,24,25,26,27,33,34,35,36,37,56,58,59,79,80,98,143,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,253,254,255,256,257,258,259,273,274,276,286,341,342,343,344,345,346,347,348,349,350,351,352,356,357,359,361,362,363,364,365,366,368,369,370,371,372,373,374,375,376,377,421,422}
-    local na        = {3,4,5,6,7,8,9,15,20,566}
-    local erase     = {11,12,13,21,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,144,145,146,147,148,149,167,174,175,186,192,194,217,223,404,557,558,559,560,561,562,563,564,567,572}
-    local waltz     = {11,12,13,21,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,144,145,146,147,148,149,174,175,186,404,557,558,559,560,561,562,563,564,567,572}
-    local wake      = {2,19,193}
-    local sleep     = {14,17}
-    local misery    = {}
-    local kill      = {14,17}
-    local removal = {
-        
-        {[3]=14,[4]=15,[5]=16,[6]=17,[7]=18,[8]=19,[9]=20,[15]=20,[20]=20,[31]=19,[566]=15},
-        {143},
-        {194},
-        {1,2,3,4,5,6,7,8,9,10,11},
-        {259,253,471,463,98},
-        {0},
-        {0},
-    
-    }
-    local messages  = {
-        
-        {82,127,128,141,160,164,166,186,194,203,205,230,236,237,242,243,266,267,268,269,270,271,272,277,278,279,280,319,320,321,412,453,645,754,755,804},
-        {7,64,83,123,159,168,204,206,263,322,341,342,343,344,350,378,531,647,805,806},
-        {75,48},
-        {2},
+    local private   = {events={}, statuses={}}
+    local priority  = self.settings.priorities or {}
+    local debug     = true
+    local timer     = {last=0, delay=1}
+    local allowed   = T{15,14,17,2,19,193,7,9,20,144,145,134,135,186,13,21,146,147,148,149,167,174,175,194,217,223,404,557,558,559,560,561,562,563,564,3,4,5,6,8,31,566,11,12,128,129,130,131,132,133,136,137,138,139,140,141,142,567}
+    local map       = {
+
+        -- Priority Status Removal map.
+        {
+            list={15}, 
+            remove={[15]=20},
+        },
+        {
+            list={14,17}, 
+            remove={[14]=98,[17]=98},
+        },
+        {
+            list={2,19,193}, 
+            remove={[2]=1,[19]=1,[193]=1},
+        },
+        {
+            list={7},
+            remove={[7]=18},
+        },
+        {
+            list={9,20,144,145},
+            remove={[9]=20,[20]=20,[144]=143,[145]=143},
+        },
+        {
+            list={134,135,186},
+            remove={[134]=143,[135]=143,[186]=143},
+        },
+        {
+            list={13,21,146,147,148,149,167,174,175,194,217,223,404,557,558,559,560,561,562,563,564},
+            remove={[13]=143,[21]=143,[146]=143,[147]=143,[148]=143,[149]=143,[167]=143,[174]=143,[175]=143,[194]=143,[217]=143,[223]=143,[404]=143,[557]=143,[558]=143,[559]=143,[560]=143,[561]=143,[562]=143,[563]=143,[564]=143},
+        },
+        {
+            list={3,4,5,6,8,31,566},
+            remove={[3]=14,[4]=15,[5]=16,[6]=17,[8]=19,[31]=19,[566]=15},
+        },
+        {
+            list={11,12,128,129,130,131,132,133,136,137,138,139,140,141,142,567},
+            remove={[11]=143,[12]=143,[128]=143,[129]=143,[130]=143,[131]=143,[132]=143,[133]=143,[136]=143,[137]=143,[138]=143,[139]=143,[140]=143,[141]=143,[142]=143,[567]=143},
+        },
 
     }
-
-    -- Public Variables.
-    self.statuses   = {}
-        
-    -- Build Party Data.
-    for i,v in pairs(windower.ffxi.get_party()) do
-
-        if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
-
-            if v.mob and ((v.mob.distance):sqrt() < 50 or (v.mob.distance):sqrt() > 0) then
-                table.insert(self.statuses, {name=v.mob.name, id=v.mob.id, list={}})
-            end
-
-        end
-
-    end
 
     -- Private Functions
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
             self.settings.layout = self.layout
+            self.settings.priorities = priority
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -92,14 +91,14 @@ function status.new()
         self.display:stroke_width(self.layout.stroke_width)
         self.display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
         self.display:stroke_alpha(self.layout.colors.stroke.alpha)
+        self.display:hide()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
 
-    -- Static Functions.
     self.writeSettings = function()
-        persist()
+        private.persist()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -111,548 +110,179 @@ function status.new()
     end
     self.writeSettings()
 
-    self.zoneChange = function()
-        self.writeSettings()
+    private.render = function()
 
-        coroutine.schedule(function()
-            self.statuses = {}
+        if debug then
 
-            for i,v in pairs(windower.ffxi.get_party()) do
+            if #private.statuses > 0 then
+                local update = {}
+                local spells = {}
 
-                if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
-        
-                    if v.mob then
-                        table.insert(self.statuses, {name=v.mob.name, id=v.mob.id, list={}})
-                    end
-        
-                end
-        
-            end
-        
-        end, 15)
+                for i,v in ipairs(private.statuses) do
+                    local player = windower.ffxi.get_mob_by_id(v.id)
 
-    end
-
-    self.jobChange = function()
-        self.statuses = {}
-        self.writeSettings()
-        persist()
-        resetDisplay()
-
-    end
-
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-    
-    self.render = function()
-        local bp        = bp or false
-        local player    = windower.ffxi.get_player()
-        local statuses  = self.statuses
-        
-        if #statuses > 0 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-            local update = {'-- STATUS EFFECTS --\n'}
-
-            for i=1, #statuses do
-                local player = statuses[i] or false
-
-                if player and windower.ffxi.get_mob_by_id(statuses[i].id) then
-                    local player    = windower.ffxi.get_mob_by_id(statuses[i].id)
-                    local effects   = {}
-
-                    if statuses[i].list and #statuses[i].list > 0 then
-
-                        for _,v in ipairs(statuses[i].list) do
-                            local buff = bp.res.buffs[v] or false
-                                
-                            if buff then
-                                table.insert(effects, string.format('%s%s', buff.name:sub(1,1):upper(), buff.name:sub(2)))
-                            end
-
+                    if player then
+                    
+                        if i == 1 then
+                            table.insert(update, string.format('%s--{ STATUS DEBUFFS }--\n', (''):lpad(' ', 20)))
                         end
-                        table.insert(update, string.format('%s\\cs(%s)%s[ %s ]\\cr', windower.ffxi.get_mob_by_id(statuses[i].id).name, self.important, (' '):rpad(' ', 25-tostring(player.name):len()), table.concat(effects, ' ')))
+                        table.insert(update, string.format('%s%s [%02d]: --> {%02d}', (''):lpad(' ', (15-#player.name)), player.name, v.priority, #v.list))
 
                     else
-                        table.insert(update, string.format('%s\\cs(%s)%s[  ]\\cr', windower.ffxi.get_mob_by_id(statuses[i].id).name, self.important, (' '):rpad(' ', 25-tostring(player.name):len())))
+                        
+                        if i == 1 then
+                            table.insert(update, string.format('%s--{ STATUS DEBUFFS }--\n', (''):lpad(' ', 20)))
+                        end
+                        table.insert(update, '??? [0]: --> {00}')
 
                     end
 
                 end
+                self.display:text(table.concat(update, '\n'))
+                self.display:update()
 
-            end
-            self.display:text(table.concat(update, '\n'))
-            self.display:update()
+                if not self.display:visible() then
+                    self.display:show()
+                end
 
-            if not self.display:visible() then
-                self.display:show()
-            end
-
-        elseif #statuses < 1 then
-
-            if self.display:visible() then
+            elseif #private.statuses == 0 and self.display:visible() then
                 self.display:hide()
+
             end
 
         end
 
     end
 
-    self.catchStatus = function(data)
-        local bp        = bp or false
-        local data      = data or false
-        local player    = windower.ffxi.get_player()
+    private.parseParty = function(data) -- Credit: Byrth.
+        local parsed = bp.packets.parse('incoming', data)
+        local buffs = {}
 
-        if bp and data and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-            local packed    = bp.packets.parse('incoming', data)
-            local helpers   = bp.helpers
+        for i=1,5 do
+            table.insert(buffs, {id=parsed[string.format('ID %s', i)], priority=priority[parsed[string.format('ID %s', i)]] or 1, list={}})
 
-            if packed then
-                local actor     = windower.ffxi.get_mob_by_id(packed["Actor"])
-                local target    = windower.ffxi.get_mob_by_id(packed["Target 1 ID"])
-                local targets   = packed["Target Count"]
-                local category  = packed["Category"]
-                local param     = packed["Param"]
+            for ii=1,32 do
+                local buff = data:byte((i-1)*48+5+16+ii-1) + 256*( math.floor( data:byte((i-1)*48+5+8+ math.floor((ii-1)/4)) / 4^((ii-1)%4) )%4)
 
-                if actor and target and helpers['party'].isInParty(target, true) then
-                    local spell = param
-                        
-                    for i=1, targets do
-                        local target  = windower.ffxi.get_mob_by_id(packed[string.format("Target %s ID", i)])
-                        local param   = string.format("Target %s Action 1 Param", i)
-                        local message = string.format("Target %s Action 1 Message", i)
-                        
-                        if packed[message] and bp.helpers['party'].isInParty(target, false) and T(watching):contains(spell) then
-                            self.handleStatus(actor, target, spell, packed[param], packed[message])
-                        end
-
-                    end
-
+                if buff > 0 and buff ~= 255 and allowed:contains(buff) then
+                    table.insert(buffs[i].list, buff)
                 end
 
             end
 
         end
+        private.send(buffs)
+        
+    end
+
+    private.parsePlayer = function(data)
+        local parsed = bp.packets.parse('incoming', data)
+        local buffs = {}
+
+        if bp and bp.player then
+            table.insert(buffs, {id=bp.player.id, priority=priority[player.id] or 1, list={}})
+
+            for i=1, 32 do
+                local buff = tonumber(parsed[string.format('Buffs %s', i)]) or 0
+                
+                if buff > 0 and buff ~= 255 and allowed:contains(buff) then
+                    table.insert(buffs[1].list, buff)
+                end
+
+            end
+            private.send(buffs)
+
+        end
 
     end
 
-    self.handleStatus = function(actor, target, spell, buff, message)
-        local player    = windower.ffxi.get_player()
-        local bp        = bp or false
+    private.send = function(buffs)
 
-        if bp and player and actor and target and spell and message then
-            debug.message = false
+        if bp and bp.player and buffs and type(buffs) == 'table' then
             
-            -- Gained a status effect.
-            if T(messages[1]):contains(message) then
+            if #buffs > 0 then
 
-                if buff then
-                    self.add(target, buff)
-                end
-
-            -- Lost a status effect.
-            elseif T(messages[2]):contains(message) then
-
-                if buff then
-
-                    if T{1,2,3,4,5,6,7,8,9,10,11}:contains(spell) and message == 7 then
-
-                        for i=1, #self.statuses do
-                            local player = self.statuses[i] or false
-        
-                            if player and player.list and target.id == player.id then
-
-                                for _,debuff in ipairs(player.list) do
-
-                                    if T{2,19}:contains(debuff) then
-                                        self.remove(target, debuff)
-
-                                        if actor.id ~= player.id and bp.res.spells[spell] then
-                                            bp.helpers['queue'].remove(bp.res.spells[spell], target)
-                                        end
-                                        break
-
-                                    end
-
-                                end
-        
-                            end
-        
-                        end
+                for _,v in ipairs(buffs) do
+                    
+                    if #v.list > 0 then
+                        windower.send_ipc_message(string.format('%s+%s+%s+%s', 'STATUS', v.id, v.priority, table.concat(v.list, ':')))
 
                     else
-                        self.remove(target, debuff)
-
-                        if actor.id ~= player.id and bp.res.spells[spell] then
-                            bp.helpers['queue'].remove(bp.res.spells[spell], target)
-                        end
+                        windower.send_ipc_message(string.format('%s+%s+%s', 'STATUS', v.id, v.priority))
 
                     end
-                
+
+                end
+
+            end
+
+        end
+
+    end
+
+    private.receive = function(message)
+        
+        if message then
+            local split = message:split('+')
+            local buffs
+            
+            if split[1] and split[2] and split[3] and split[1] == 'STATUS' and tonumber(split[2]) > 0 and tonumber(split[3]) then
+                local member = windower.ffxi.get_mob_by_id(tonumber(split[2])) or false
+
+                if split[4] then
+                    buffs = split[4]:split(':')
+
                 else
-                    self.clearStatuses(target)
+                    buffs = false
 
                 end
+                
+                if member and private.exists(member.id) then
 
-            -- Spell had no effect.
-            elseif T(messages[3]):contains(message) then
+                    for i,v in ipairs(private.statuses) do
 
-                if T{14,15,16,17,18,19,20,143}:contains(spell) then
-                    local removals = {[14]={3,540},[15]={4,566},[16]={5},[17]={6},[18]={7},[19]={8,31},[20]={9,15,20,30},[143]={11,12,13,21,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,144,145,146,147,148,149,174,175,192,194,217,223,565,567,572}}                    
+                        if v.id == member.id then
+                            private.statuses[i] = {id=member.id, priority=priority[member.id] or tonumber(split[3]), list={}}
 
-                    if removals[spell] then
+                            if buffs and #buffs > 0 then
 
-                        for i=1, #self.statuses do
-                            local player = self.statuses[i] or false
-        
-                            if player and player.list and target.id == player.id then
-
-                                for _,debuff in ipairs(player.list) do
-
-                                    if T(removals[spell]):contains(debuff) then
-                                        self.remove(target, debuff)
-
-                                        if actor.id ~= player.id and bp.res.spells[spell] then
-                                            bp.helpers['queue'].remove(bp.res.spells[spell], target)
-                                        end
-                                        break
-
-                                    end
-
+                                for _,vv in ipairs(buffs) do
+                                    table.insert(private.statuses[i].list, tonumber(vv))
                                 end
-        
-                            end
-        
-                        end
-
-                    end
-
-                end
-
-            -- Action has no Buff ID.
-            elseif T(messages[4]):contains(message) then
-                local special = T{[23]=134,[24]=134,[25]=134,[26]=134,[27]=134,[33]=134,[34]=134,[35]=134,[36]=134,[37]=134,[220]=3,[221]=3,[222]=3,[223]=3,[224]=3,[225]=3,[226]=3,[227]=3,[228]=3,[229]=3,[230]=135,[231]=135,[232]=135,[233]=135,[234]=135}
-
-                if special[spell] then
-                    self.add(target, special[spell])
-                end
-
-            end
-
-        end       
-
-    end
-
-    self.fixStatus = function()
-        local bp = bp or false
-        local statuses = self.statuses
-
-        if bp and statuses and #statuses then
-            
-            for i=1, #statuses do
-                
-                if statuses[i] and statuses[i].list then
-                    
-                    for _,buff in ipairs(statuses[i].list) do
-                        local category  = self.getCategory(buff)
-                        local remove    = removal[category]
-                        
-                        if category and remove then
-                            local player    = windower.ffxi.get_player()
-                            local target    = windower.ffxi.get_mob_by_id(statuses[i].id)
-                            local spell     = bp.res.spells[remove[buff]]
-                            local priority  = T{'Cursna'}
-                            local dead      = T{2,3}
                             
-                            if target and not dead:contains(target.status) then
-                            
-                                if spell and category == 1 and remove[buff] and target and not bp.helpers['queue'].inQueue(spell, target) and not priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    bp.helpers['queue'].add(spell, target)
-
-                                elseif spell and category == 1 and remove[buff] and target and not bp.helpers['queue'].inQueue(spell, target) and priority:contains(spell.en) and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    bp.helpers['queue'].addToFront(spell, target)
-
-                                elseif category and not remove[buff] and category == 2 and (player.main_job == 'WHM' or player.sub_job == 'WHM') then
-                                    local spell = bp.res.spells[remove[1]]
-
-                                    if spell and target and not bp.helpers['queue'].inQueue(spell, target) then
-                                        bp.helpers['queue'].add(spell, target)
-                                    end
-
-                                elseif category and not remove[buff] and category == 3 and (player.main_job == 'DNC' or player.sub_job == 'DNC') then
-                                    local spell = bp.res.job_abilities[remove[1]]
-
-                                    if spell and target and not bp.helpers['queue'].inQueue(spell, target) then
-                                        bp.helpers['queue'].add(spell, target)
-                                    end
-
-                                -- WAKE FROM SLEEP.
-                                elseif category and category == 4 then
-
-                                    if target then
-
-                                        if (player.main_job == 'WHM' or player.sub_job == 'WHM') and bp.helpers['party'].isInParty(target, false) then
-                                            local spell = bp.MA['Curaga']
-
-                                            if spell and not bp.helpers['queue'].inQueue(spell) then
-                                                bp.helpers['queue'].addToFront(spell, target)
-                                            end
-
-                                        elseif bp.helpers['party'].isInParty(target, true) then
-                                            local spell = bp.MA['Cure']
-
-                                            if spell and not bp.helpers['queue'].inQueue(spell, target) then
-                                                bp.helpers['queue'].addToFront(spell, target)
-                                            end
-
-                                        end
-
-                                    end
-
-                                -- SLEEP TARGET!
-                                elseif category and not remove[buff] and category == 5 then
-                                            
-                                    for _,spell in ipairs(remove) do
-
-                                        if bp.res.spells[spell] then
-                                            local spell = bp.res.spells[spell]
-
-                                            if spell and target and not bp.helpers['queue'].inQueue(spell) then
-                                                bp.helpers['queue'].addToFront(spell, target)
-                                                break
-                                            end
-
-                                        end
-                                                
-                                    end
-
-                                end
-
-                            elseif target and dead:contains(target.status) then
-                                self.clearStatuses(target)
-
                             end
-
-                        end
-
-                    end
-
-                end
-
-            end
-
-        end
-
-    end
-
-    self.getCategory = function(id)
-        local bp = bp or false
-        local id = id or false
-        
-        if id then
-            
-            for _,v in ipairs(na) do
-                
-                if v == id then
-                    return 1
-                end
-                
-            end
-            
-            for _,v in ipairs(erase) do
-                
-                if v == id then
-                    return 2
-                end
-                
-            end
-            
-            for _,v in ipairs(waltz) do
-                
-                if v == id then
-                    return 3
-                end
-                
-            end
-            
-            for _,v in ipairs(wake) do
-                
-                if v == id then
-                    return 4
-                end
-                
-            end
-            
-            for _,v in ipairs(sleep) do
-                
-                if v == id then
-                    return 5
-                end
-                
-            end
-            
-            for _,v in ipairs(misery) do
-                
-                if v == id then
-                    return 6
-                end
-                
-            end
-            
-            for _,v in ipairs(kill) do
-                
-                if v == id then
-                    return 7
-                end
-                
-            end
-            
-        end
-        return false
-        
-    end
-
-    self.build = function(data)
-        local bp    = bp or false
-        local data  = data or false
-        
-        if bp and data then
-            local packed = bp.packets.parse('incoming', data)
-
-            if packed then
-                
-                coroutine.schedule(function()
-                    self.statuses = {}
-
-                    for i,v in pairs(windower.ffxi.get_party()) do
-
-                        if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil then
-                
-                            if v.mob and ((v.mob.distance):sqrt() < 50 or (v.mob.distance):sqrt() > 0) then
-                                table.insert(self.statuses, {name=v.mob.name, id=v.mob.id, list={}})
-                            end
-                
-                        end
-                
-                    end
-                    
-                end, 2)
-
-            end
-
-        end        
-
-    end
-
-    self.add = function(target, buff)
-        local bp        = bp or false
-        local buff      = buff or false
-        
-        if bp and buff then
-            local target = bp.convertTarget(target)
-            
-            if target then
-                local statuses = self.statuses
-                
-                if statuses and not self.hasStatus(target, buff) then
-                    
-                    for i=1, #statuses do
-                        local player = statuses[i]
-
-                        if statuses[i] and statuses[i].id and statuses[i].list and statuses[i].id == target.id then
-                            table.insert(statuses[i].list, buff)
                             break
-
-                        end
-
-                    end
-
-                end
-
-            end
-            
-        end
-        
-    end
-
-    self.remove = function(target, buff)
-        local bp    = bp or false
-        local buff  = buff or false
-        
-        if bp and buff then
-            local target    = bp.convertTarget(target) or false
-            local statuses  = self.statuses
-
-            if #statuses > 0 and target and target.id then
-
-                for i=1, #statuses do
-                    local player = statuses[i] or false
-                    
-                    if player and player.list and T(player.list):contains(buff) and target.id == player.id then
                         
-                        for ii, status in ipairs(statuses[i].list) do
-                            
-                            if status == buff then
-                                table.remove(self.statuses[i].list, ii)
-                                break
-
-                            end
-
                         end
 
                     end
 
-                end
+                elseif member and not private.exists(member.id) then
+                    table.insert(private.statuses, {id=member.id, priority=priority[member.id] or tonumber(split[3]), list={}})
 
-            end
-            
-        end
+                    if buffs and #buffs > 0 then
 
-    end
-
-    self.clearStatuses = function(target)
-        local bp = bp or false
-
-        if bp then
-            local target = bp.convertTarget(target) or false
-
-            for i=1, #self.statuses do
-                local player = self.statuses[i] or false
-
-                if player and player.id and target.id and player.id == target.id then
-                    self.statuses[i].list = {}
-                    break
-
-                end
-
-            end
-
-        end
-
-    end
-
-    self.hasStatus = function(target, buff)
-        local bp    = bp or false
-        local buff  = buff or false
-
-        if bp and buff then
-            local target    = bp.convertTarget(target)
-            local statuses  = self.statuses
-
-            if target and statuses and #statuses > 0 and target.id then
-
-                for i=1, #statuses do
-                    local player = statuses[i] or false
-
-                    if player and player.id == target.id and T(player.list):contains(buff) then
-                        return true
+                        for _,v in ipairs(buffs) do
+                            table.insert(private.statuses[#private.statuses].list, tonumber(v))
+                        end
+                    
                     end
 
                 end
+                private.sort()
 
+            end
+
+        end
+
+    end
+
+    private.exists = function(id)
+
+        for _,v in ipairs(private.statuses) do
+
+            if v.id == id then
+                return true
             end
 
         end
@@ -660,10 +290,40 @@ function status.new()
 
     end
 
-    self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+    private.getPriority = function(id)
+
+        for _,v in ipairs(private.statuses) do
+
+            if v.id == id then
+                return v.priority
+            end
+
+        end
+        return 1
+
+    end
+
+    private.setPriority = function(value, target)
+
+        if value and target and tonumber(value) ~= nil and target.id then
+            priority[target.id] = tonumber(value)
+            self.writeSettings()
+            bp.helpers['popchat'].pop(string.format('%s priority now set to %s!', target.name, tonumber(value)))
+
+        end
+
+    end
+
+    private.sort = function()
+        table.sort(private.statuses, function(a, b)
+            return a.priority > b.priority
+        end)
+
+    end
+
+    private.pos = function(x, y)
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -677,6 +337,165 @@ function status.new()
         end
 
     end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.fixStatus = function()
+
+        if #private.statuses > 0 and (bp.player.main_job == 'WHM' or bp.player.sub_job == 'WHM') then
+
+            for i,m in pairs(map) do
+                local list = T(m.list)
+                
+                for _,v in ipairs(private.statuses) do
+
+                    for _,buff in ipairs(v.list) do
+
+                        if list:contains(buff) then
+                            local target = windower.ffxi.get_mob_by_id(v.id) or false
+                            local spell = m.remove[buff]
+
+                            if spell and target and bp.res.spells[spell] then
+                                local spell = bp.res.spells[spell]
+
+                                if i == 1 then
+
+                                    if bp.helpers['actions'].isReady('MA', spell.en) and not bp.helpers['queue'].inQueue(spell, target) then
+                                        bp.helpers['queue'].addToFront(spell, target)
+                                    end
+
+                                elseif i == 2 then
+
+                                    if bp.helpers['actions'].isReady('MA', spell.en) and not bp.helpers['queue'].inQueue(spell, target) then
+                                        bp.helpers['queue'].add(spell, target)
+                                    end
+
+                                elseif i == 3 then
+
+                                    if bp.helpers['party'].isInParty(target, false) then
+                                        local spell = bp.MA['Curaga']
+
+                                        if bp.helpers['actions'].isReady('MA', spell.en) and not bp.helpers['queue'].inQueue(spell) then
+                                            bp.helpers['queue'].add(spell, target)
+                                        end
+
+                                    else
+
+                                        if bp.helpers['actions'].isReady('MA', spell.en) and not bp.helpers['queue'].inQueue(spell, target) then
+                                            bp.helpers['queue'].add(spell, target)
+                                        end
+
+                                    end
+
+                                else
+                                    
+                                    if spell.en == 'erase' and bp.helpers['target'].isInParty(target, false) then
+
+                                        if bp.helpers['actions'].isReady('MA', spell.en) and not bp.helpers['queue'].inQueue(spell, target) then
+                                            bp.helpers['queue'].add(spell, target)
+                                        end
+
+                                    else
+
+                                        if bp.helpers['actions'].isReady('MA', spell.en) and not bp.helpers['queue'].inQueue(spell, target) then
+                                            bp.helpers['queue'].add(spell, target)
+                                        end
+
+                                    end
+
+                                end
+
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            end            
+
+        end
+
+    end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        if commands[1] and commands[2] and commands[1] == 'status' then
+            local command = commands[2]:lower()
+
+            if command == 'pos' and commands[3] then
+                private.pos(commands[3], commands[4] or false)
+
+            elseif (command == 'priority' or command == 'p') and commands[3] and windower.ffxi.get_mob_by_target('t') then
+                private.setPriority(tonumber(commands[3]), windower.ffxi.get_mob_by_target('t'))
+
+            elseif command == 'list' then
+
+                for i,v in ipairs(private.statuses) do
+                    local player = windower.ffxi.get_mob_by_id(v.id)
+
+                    if player then
+                        print(string.format('[%03d] %s: %s', v.priority, player.name, table.concat(v.list, ' + ')))
+                    end
+
+                end
+
+            elseif command == 'debug' then
+
+                if debug then
+                    debug = false
+                    self.display:text('')
+                    self.display:update()
+                    self.display:hide()
+
+                else
+                    debug = true
+
+                end
+
+            elseif not commands[2] then
+                bp.core.nextSetting('STATUS')
+
+            end
+
+        end
+
+    end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x076 then
+            private.parseParty(original)
+
+        elseif id == 0x063 then
+            private.parsePlayer(original)
+
+        elseif id == 0x028 then
+
+        end
+
+    end)
+
+    private.events.ipc = windower.register_event('ipc message', function(message)
+            
+        if message and message:sub(1,6) == 'STATUS' then
+            private.receive(message)
+        end
+    
+    end)
+
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
 
     return self
 

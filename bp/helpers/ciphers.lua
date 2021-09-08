@@ -89,15 +89,14 @@ function ciphers.new()
     end
     
     self.isTrust = function(check)
-        local bp    = bp or false
         local check = check or false
         
         if bp and check and type(check) == 'table' then
             local allowed = bp.res.spells:type('Trust')
 
             for i,v in pairs(allowed) do
-
-                if v and v.en and (check.en):sub(8, #check.en):match(v.en) then
+                
+                if v and v.en and (check.en):sub(9, #check.en) == v.en then
                     self.cipher = v.id
                     return true
 

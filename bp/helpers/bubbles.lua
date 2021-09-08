@@ -1,4 +1,4 @@
---// BUBBLE OFFSET BUILDER WRITTEN BY DARKDOOM22: https://github.com/Darkdoom22/BubbleOffset/blob/main/bubbleoffset.lualocal //
+--// BUBBLE OFFSET BUILDER WRITTEN BY DARKDOOM22: https://github.com/Darkdoom22/BubbleOffset/blob/main/bubbleoffset.lualocal
 local bubbles   = {}
 local player    = windower.ffxi.get_player()
 local files     = require('files')
@@ -21,6 +21,7 @@ function bubbles.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local buffs     = {'Ecliptic Attrition', 'Lasting Emanation'}
     local buff      = 2
     local math      = math
@@ -75,7 +76,7 @@ function bubbles.new()
     self.flags          = self.settings.flags or {indi=true, geo=true, entrust=true, ecliptic=true, dematerialize=true, circle=true, glory=true, lifecycle=true, distance=22}
 
     -- Private Functions
-    local persist = function()
+    private.persist = function()
         local next = next
 
         if self.settings then
@@ -86,9 +87,9 @@ function bubbles.new()
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -102,76 +103,19 @@ function bubbles.new()
         self.display:stroke_alpha(self.layout.colors.stroke.alpha)
         self.display:update()
 
-        do -- Handle job sepcifics.
-            local player = windower.ffxi.get_player()
-
-            if player.main_job == 'GEO' then
-                self.display:show()
-
-            else
-                self.display:hide()
-
-            end
-
-        end
-
-    end
-    resetDisplay()
-
-    -- Static Functions.
-    self.writeSettings = function()
-        persist()
-
-        if f:exists() then
-            f:write(string.format('return %s', T(self.settings):tovstring()))
-
-        elseif not f:exists() then
-            f:write(string.format('return %s', T({}):tovstring()))
-
-        end
-
-    end
-    self.writeSettings()
-
-    self.zoneChange = function()
-        self.writeSettings()
-
-    end
-
-    self.jobChange = function()
-        self.writeSettings()
-        persist()
-        resetDisplay()
-
-    end
-
-    self.getPlacement = function()
-        return map.placement[placement]
-    end
-
-    self.toggleDisplay = function()
-
-        if self.display:visible() then
-            self.display:hide()
-
-        else
+        if windower.ffxi.get_player() and windower.ffxi.get_player().main_job == 'GEO' then
             self.display:show()
 
+        else
+            self.display:hide()
+
         end
 
     end
+    private.resetDisplay()
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-    
-    self.render = function()
-        local bp = bp or false
-
+    private.render = function()
+        
         if bp and self.display:visible() then
             local luopan    = bp.helpers['target'].targets.luopan
             local entrust   = bp.helpers['target'].targets.entrust
@@ -212,6 +156,57 @@ function bubbles.new()
             self.display:text(table.concat(update, '\n'))
             self.display:update()
 
+        end
+
+    end
+
+    -- Static Functions.
+    self.writeSettings = function()
+        private.persist()
+
+        if f:exists() then
+            f:write(string.format('return %s', T(self.settings):tovstring()))
+
+        elseif not f:exists() then
+            f:write(string.format('return %s', T({}):tovstring()))
+
+        end
+
+    end
+    self.writeSettings()
+
+    self.zoneChange = function()
+        self.writeSettings()
+
+    end
+
+    self.jobChange = function()
+        self.writeSettings()
+        private.persist()
+        private.resetDisplay()
+
+    end
+
+    self.getPlacement = function()
+        return map.placement[placement]
+    end
+
+    self.toggleDisplay = function()
+
+        if self.display:visible() then
+            self.display:hide()
+
+        else
+            self.display:show()
+
+        end
+
+    end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
         end
 
     end
@@ -322,7 +317,6 @@ function bubbles.new()
     end
 
     self.togglePlacement = function()
-        local bp = bp or false
 
         if bp then
 
@@ -340,7 +334,6 @@ function bubbles.new()
     end
 
     self.offsetBubble = function(target, param, category)
-        local bp        = bp or false
         local target    = target or false
         local param     = param or false
         local category  = category or false
@@ -542,13 +535,8 @@ function bubbles.new()
             end
 
             -- HANDLE ENTRUST SPELLS.
-            if self.flags.entrust and bp.helpers['actions'].isReady('JA', "Entrust") and not bp.helpers['queue'].inQueue(bp.MA[bubbles[3].en]) then
-
-                if bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
-                    bp.helpers['queue'].add(bp.JA['Entrust'], 'me')
-                    bp.helpers['queue'].add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
-
-                end
+            if self.flags.entrust and bp.helpers['actions'].isReady('JA', "Entrust") and not bp.helpers['queue'].inQueue(bp.MA[bubbles[3].en]) and bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
+                bp.helpers['queue'].add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
 
             end
 
@@ -628,7 +616,6 @@ function bubbles.new()
     end
 
     self.toggleIndi = function()
-        local bp = bp or false
 
         if bp then
 
@@ -647,7 +634,6 @@ function bubbles.new()
     end
 
     self.toggleGeo = function()
-        local bp = bp or false
 
         if bp then
 
@@ -666,7 +652,6 @@ function bubbles.new()
     end
 
     self.toggleEntrust = function()
-        local bp = bp or false
 
         if bp then
 
@@ -685,7 +670,6 @@ function bubbles.new()
     end
 
     self.toggleDematerialize = function()
-        local bp = bp or false
 
         if bp then
 
@@ -704,7 +688,6 @@ function bubbles.new()
     end
 
     self.toggleLifeCycle = function()
-        local bp = bp or false
 
         if bp then
 
@@ -723,7 +706,6 @@ function bubbles.new()
     end
 
     self.toggleFullCircle = function()
-        local bp = bp or false
 
         if bp then
 
@@ -742,8 +724,7 @@ function bubbles.new()
     end
 
     self.setDistance = function(distance)
-        local bp        = bp or false
-        local distance  = distance or false
+        local distance = distance or false
 
         if bp and distance and tonumber(distance) ~= nil then
             self.flags.distance = tonumber(distance)
@@ -757,6 +738,30 @@ function bubbles.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
+
+    private.events.actions = windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)
+        
+        if id == 0x01a then
+            local parsed = bp.packets.parse('outgoing', original)
+    
+            if parsed and parsed['Category'] == 3 then
+    
+                if self.isGeoSpell(parsed['Param']) then
+                    return bp.packets.build(self.offsetBubble(parsed['Target'], parsed['Param'], parsed['Category']))    
+                end
+                return original
+    
+            end
+
+        end
+    
+    end)
 
     return self
 

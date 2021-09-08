@@ -19,11 +19,12 @@ function enmity.new()
 
     -- Private Variable.
     local bp            = false
+    local private       = {events={}}
     local has_enmity    = false
     local clock         = {last=0, delay=10}
 
     -- Private Functions
-    local persist = function()
+    private.persist = function()
 
         if self.settings then
             self.settings.layout    = self.layout
@@ -32,9 +33,9 @@ function enmity.new()
         end
 
     end
-    persist()
+    private.persist()
 
-    local resetDisplay = function()
+    private.resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
         self.display:font(self.layout.font.name)
         self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
@@ -50,11 +51,11 @@ function enmity.new()
         self.display:update()
 
     end
-    resetDisplay()
+    private.resetDisplay()
 
     -- Static Functions.
     self.writeSettings = function()
-        persist()
+        private.persist()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -67,43 +68,7 @@ function enmity.new()
     end
     self.writeSettings()
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-    
-    self.catchEnmity = function(data)
-        local bp    = bp or false
-        local data  = data or false
-
-        if bp and data then
-            local packed = bp.packets.parse('incoming', data)
-
-            if packed then
-                local player    = windower.ffxi.get_player()
-                local actor     = windower.ffxi.get_mob_by_id(packed['Actor'])
-                local target    = windower.ffxi.get_mob_by_id(packed['Target 1 ID'])
-                local current   = bp.helpers['target'].getTarget()
-                local category  = packed['Category']
-                local allowed   = T{1,6,7,8,11,12,13,14,15}
-                
-                if actor and target and current and allowed:contains(category) and actor.id ~= player.id and current.id == actor.id and bp.helpers['party'].isInParty(target, true) and not bp.helpers['party'].isInParty(actor, true) then
-                    has_enmity = target
-                    clock.last = os.clock()
-
-                end
-
-            end
-
-        end
-
-    end
-
-    self.render = function()
-        local bp = bp or false
+    private.render = function()
 
         -- Reset after 30 seconds of idle actions.
         if (os.clock()-clock.last) > clock.delay then
@@ -130,10 +95,43 @@ function enmity.new()
 
     end
 
+    private.catchEnmity = function(data)
+        local data = data or false
+
+        if bp and data then
+            local packed = bp.packets.parse('incoming', data)
+
+            if packed then
+                local player    = bp.player
+                local actor     = windower.ffxi.get_mob_by_id(packed['Actor'])
+                local target    = windower.ffxi.get_mob_by_id(packed['Target 1 ID'])
+                local current   = bp.helpers['target'].getTarget()
+                local category  = packed['Category']
+                local allowed   = T{1,6,7,8,11,12,13,14,15}
+                
+                if actor and target and current and allowed:contains(category) and actor.id ~= player.id and current.id == actor.id and bp.helpers['party'].isInParty(target, true) and not bp.helpers['party'].isInParty(actor, true) then
+                    has_enmity = target
+                    clock.last = os.clock()
+
+                end
+
+            end
+
+        end
+
+    end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -147,6 +145,20 @@ function enmity.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x028 then
+            private.catchEnmity(original)
+        end
+    
+    end)
 
     return self
 

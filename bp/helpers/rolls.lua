@@ -446,7 +446,7 @@ function rolls.new()
 
                     if roll and bp.helpers['actions'].isReady('JA', roll.en) and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[1].en).id) then
 
-                        if bp.helpers['actions'].isReady('JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
+                        if self.crooked and bp.helpers['actions'].isReady('JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
                             bp.helpers['queue'].add(bp.JA['Crooked Cards'], player)
                         end
                         bp.helpers['queue'].add(bp.JA[roll.en], player)
@@ -458,7 +458,7 @@ function rolls.new()
 
                     if roll and bp.helpers['actions'].isReady('JA', roll.en) then
 
-                        if bp.helpers['actions'].isReady('JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
+                        if self.crooked and bp.helpers['actions'].isReady('JA', 'Crooked Cards') and not bp.helpers['buffs'].buffActive(601) then
                             bp.helpers['queue'].add(bp.JA['Crooked Cards'], player)
                         end
                         bp.helpers['queue'].add(bp.JA[roll.en], player)
@@ -487,7 +487,16 @@ function rolls.new()
 
                 if roll and bp.helpers['actions'].isReady('JA', 'Double-Up') then
                     bp.helpers['queue'].add(bp.JA['Double-Up'], player)
-                end                
+                end
+            
+            elseif self.rolling and self.active and self.active[self.last] and self.active[self.last].dice > self.cap and self.active[self.last].dice < 11 then
+                local roll = self.rolls[self.last]
+
+                if roll and bp.helpers['actions'].isReady('JA', 'Double-Up') and bp.helpers['actions'].isReady('JA', 'Snake Eye') then
+                    bp.helpers['queue'].add(bp.JA['Snake Eye'], player)
+                    bp.helpers['queue'].add(bp.JA['Double-Up'], player)
+
+                end
 
             end
 
@@ -506,13 +515,12 @@ function rolls.new()
     end
 
     self.render = function()
-        local bp        = bp or false
-        local player    = windower.ffxi.get_player()
         local render    = {}
+        local player    = bp.player
         local trigger   = false
         local count     = 1
 
-        if (player.main_job == 'COR' or player.sub_job == 'COR') then
+        if bp.player and (player.main_job == 'COR' or player.sub_job == 'COR') then
             table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[self.enabled], tostring(self.enabled):upper()))
 
             if player.main_job == 'COR' then
@@ -611,7 +619,8 @@ function rolls.new()
     end
 
     events.prerender = windower.register_event('prerender', function()
-
+        self.render()
+        
         if bp.common.pingReady() then
             local buffs = T(windower.ffxi.get_player().buffs)
 
@@ -624,7 +633,14 @@ function rolls.new()
                         self.rolling = true
                     
                     elseif (last.dice > self.cap or last.dice == lucky[last.roll.en] or last.dice == 11 or last.dice == unlucky[last.roll.en]) then
-                        self.rolling = false
+
+                        if bp.helpers['actions'].isReady('JA', 'Snake Eye') then
+                            self.rolling = true
+
+                        else
+                            self.rolling = false
+
+                        end
 
                     end
                 
@@ -646,7 +662,7 @@ function rolls.new()
     
     end)
 
-    events.prerender = windower.register_event('lose buff', function(id)
+    events.losebuff = windower.register_event('lose buff', function(id)
         local roll1 = self.rolls[1]
         local roll2 = self.rolls[2]
         local buff1 = self.getBuff(roll1.en)

@@ -21,7 +21,6 @@ commands.new = function()
     end
 
     self.captureCore = function(commands)
-        local bp    = bp or false
         local core  = bp.core or false
         local msg   = ''
         

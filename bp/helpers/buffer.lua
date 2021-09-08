@@ -16,7 +16,7 @@ function buffer.new()
     -- Static Variables.
     self.settings       = dofile(string.format('%sbp/helpers/settings/buffer/%s_settings.lua', windower.addon_path, player.name))
     self.layout         = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=10}, padding=5, stroke_width=2, draggable=false}
-    self.display        = { {id=0, display=texts.new('-- BUFFING --', {flags={draggable=self.layout.draggable}})} }
+    self.display        = { {id=1, display=texts.new('--{ BUFFING }--', {flags={draggable=self.layout.draggable}})} }
     self.important      = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.

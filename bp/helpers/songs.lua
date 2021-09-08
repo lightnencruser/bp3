@@ -505,7 +505,7 @@ function songs.new()
             if helpers['inventory'].inBag('Daurdabla') then
                 return 4
 
-            elseif helpers['inventory'].inBag('Terpander') or helpers['inventory'].inBag('Blurred Harp +1') then
+            elseif helpers['inventory'].inBag('Terpander') or helpers['inventory'].inBag('Blurred Harp +1') or helpers['inventory'].inBag('Blurred Harp') then
                 return 3
 
             end

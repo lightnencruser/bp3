@@ -4,7 +4,7 @@ function ciphers.new()
 
     -- Private Variables.
     local bp        = false
-    local npc       = {'Clarion Star'}
+    local npc       = {'Clarion Star','Gondebaud','Wetata'}
 
     -- Public Variables.
     self.busy       = false

@@ -22,7 +22,7 @@ function status.new()
     local bp        = false
     local private   = {events={}, statuses={}}
     local priority  = self.settings.priorities or {}
-    local debug     = true
+    local debug     = false
     local timer     = {last=0, delay=1}
     local allowed   = T{15,14,17,2,19,193,7,9,20,144,145,134,135,186,13,21,146,147,148,149,167,174,175,194,217,223,404,557,558,559,560,561,562,563,564,3,4,5,6,8,31,566,11,12,128,129,130,131,132,133,136,137,138,139,140,141,142,567}
     local map       = {

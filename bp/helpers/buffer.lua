@@ -437,8 +437,6 @@ function buffer.new()
                 if actor.id == bp.player.id then
                     local spell = bp.res.spells[param] or false
 
-                    print(actor.name, target.name, spell)
-
                     if spell and type(spell) == 'table' and spell.type then
                         private.reset(target, spell)
                     end

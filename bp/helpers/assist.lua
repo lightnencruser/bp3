@@ -99,7 +99,7 @@ function assist.new()
 
     private.set = function(target)
         local target = target or false
-
+        
         if bp and bp.player and target then
             local player = bp.player
 
@@ -211,6 +211,30 @@ function assist.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local a = T{...}
+        local c = a[1] or false
+    
+        if c and c == 'assist' then
+            local command = a[2] or false
+
+            if command then
+                command = command:lower()
+            
+                if command == 'pos' and a[3] then
+                    private.pos(a[3], a[4] or false)
+                end
+            
+            elseif not command then
+                private.set(windower.ffxi.get_mob_by_target('t') or false)
+
+            end
+
+        end
+        
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         private.render()
 

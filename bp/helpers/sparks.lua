@@ -64,12 +64,10 @@ function sparks.new()
     end
 
     self.purchase = function(data)
-        local bp = bp or false
-        local data = data or false
 
         if bp and data and self.busy then
-            local packed    = bp.packets.parse('incoming', data) or false
-            local target    = windower.ffxi.get_mob_by_id(packed['NPC']) or false
+            local packed = bp.packets.parse('incoming', data) or false
+            local target = windower.ffxi.get_mob_by_id(packed['NPC']) or false
         
             if packed and target and purchase and quantity ~= 0 then
                 bp.helpers['popchat'].pop(string.format('NOW PURCHASING %s %s.', quantity, name))

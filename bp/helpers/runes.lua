@@ -125,8 +125,17 @@ function runes.new()
     end
 
     self.render = function()
-        local player = windower.ffxi.get_player()
+        local player = bp.player
         local update = {}
+
+        if bp.hideUI then
+            
+            if self.display:visible() then
+                self.display:hide()
+            end
+            return
+
+        end
         
         if (player.main_job == 'RUN' or player.sub_job == 'RUN') then
 

@@ -7,6 +7,7 @@ bpsocket.new = function()
     local bp    = false
     local host  = '127.0.0.1'
     local port  = 8080
+    local private = {events={}}
 
     -- Public Variables.
     self.socket = require('socket')
@@ -20,29 +21,28 @@ bpsocket.new = function()
 
     end
     
-    self.send = function(data)
-        local bp    = bp or false
-        local data  = data or false
+    self.send = function(event, data)
 
-        if bp and data and type(data) == 'table' then
-            self.tcp:send(JSON:encode(data))
+        if data and type(data) == 'table' then
+            self.tcp:send(string.format('%s|BP|', JSON.encode({event, data})))
         end
 
     end
 
     self.receive = function()
-        local bp = bp or false
         local s, status, partial = self.tcp:receive()
 
         if status and status == 'closed' then
+            bp.helpers['popchat'].pop('SERVER CLOSED')
             self.tcp:close()
             return false
         
         end
 
-        if bp and (s or partial) then
-            local data = JSON:decode(s or partial)
-
+        if (s or partial) then
+            --local data = JSON.decode(s or partial)
+            local data = s or partial
+            
             if data then
                 return data
             end
@@ -52,11 +52,13 @@ bpsocket.new = function()
 
     end
 
-    self.handle = function(data)
-        local bp    = bp or false
-        local data  = data or false
+    self.close = function()
+        self.tcp:close()
+    end
 
-        if bp and data then
+    self.handle = function(data)
+
+        if data then
 
         end
         return false
@@ -66,6 +68,27 @@ bpsocket.new = function()
     -- Create a conection.
     --self.tcp:connect(host, port)
     --self.tcp:settimeout(0.01)
+
+    --[[
+    private.events.textin = windower.register_event('incoming text', function(original, modified, omode, mmode, blocked)
+        local blocked = T{161}
+
+        if not blocked:contains(omode) then
+            bp.helpers['bpsocket'].send('chat', {original=original:strip_format(), omode=omode})
+        end
+    
+    end)
+
+    private.events.textout = windower.register_event('outgoing text', function(original, modified, blocked)
+        --bp.helpers['bpsocket'].send('chat_out', {original=string.format('%s', original:strip_format())})
+    
+    end)
+
+    local data_check = windower.register_event('time change', function()
+        self.receive()
+    
+    end)
+    ]]--
 
     return self
 

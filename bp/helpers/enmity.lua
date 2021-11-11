@@ -70,6 +70,15 @@ function enmity.new()
 
     private.render = function()
 
+        if bp.hideUI then
+            
+            if self.display:visible() then
+                self.display:hide()
+            end
+            return
+
+        end
+
         -- Reset after 30 seconds of idle actions.
         if (os.clock()-clock.last) > clock.delay then
             has_enmity = false

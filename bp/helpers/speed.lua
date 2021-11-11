@@ -20,6 +20,7 @@ function speed.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
 
     -- Public Variables.
     self.speed      = self.settings.speed or 50
@@ -83,7 +84,16 @@ function speed.new()
 
     end
 
-    self.render = function()
+    private.render = function()
+
+        if bp and bp.hideUI then
+            
+            if self.display:visible() then
+                self.display:hide()
+            end
+            return
+
+        end
 
         if self.enabled then
             self.display:text(string.format('{{ SPEED: \\cs(%s)%03d\\cr }}', self.important, (self.speed/10)))
@@ -111,15 +121,13 @@ function speed.new()
 
     end
     
-    self.adjustSpeed = function(packet_id, data)
-        local bp    = bp or false
-        local data  = data or false
+    self.adjustSpeed = function(id, data)
         
-        if bp and packet_id and data then
-            local packed    = bp.packets.parse('incoming', data)
-            local maint     = bp.helpers['maintenance'].enabled
+        if bp and id and data then
+            local packed = bp.packets.parse('incoming', data)
+            local maint = bp.helpers['maintenance'].enabled
             
-            if packet_id == 0x037 then
+            if id == 0x037 then
             
                 if packed and packed['Movement Speed/2'] and self.enabled then
                     packed['Movement Speed/2'] = self.speed
@@ -137,7 +145,7 @@ function speed.new()
 
                 end
 
-            elseif packet_id == 0x00d then
+            elseif id == 0x00d then
                 
                 if packed and packed['Movement Speed'] and self.enabled then
                     packed['Movement Speed'] = self.speed
@@ -209,6 +217,12 @@ function speed.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
 
     return self
 

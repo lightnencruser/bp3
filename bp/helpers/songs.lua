@@ -22,6 +22,7 @@ function songs.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local math      = math
     local dummies   = {{self.allowed[378], self.allowed[379]}, {self.allowed[409], self.allowed[410]}, {self.allowed[403], self.allowed[404]}}
     local valid     = {310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,319,330,331,332,333,334,335,336,337,338,339,600}
@@ -84,6 +85,7 @@ function songs.new()
         ["wcarol1"]   = "Wind Carol",           ["wcarol2"]     = "Wind Carol II",         ["ecarol1"]   = "Earth Carol",          ["ecarol2"]   = "Earth Carol II",
         ["tcarol1"]   = "Lightning Carol",      ["tcarol2"]     = "Lightning Carol II",    ["wcarol1"]   = "Water Carol",          ["waterc2"]   = "Water Carol II",
         ["lcarol1"]   = "Light Carol",          ["lcarol2"]     = "Light Carol II",        ["dcarol1"]   = "Dark Carol",           ["dcarol2"]   = "Dark Carol II",
+        ["dir"]       = "Adventurer's Dirge",
 
     }
 
@@ -214,15 +216,19 @@ function songs.new()
 
     end
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
+    private.render = function()
 
-    end
-    
-    self.render = function()
+        if bp and bp.hideUI then
+            
+            if self.icon:visible() then
+                self.icon:hide()
+            end
+            return
+
+        elseif not self.icon:visible() then
+            self.icon:show()
+
+        end
         
         if self.jukebox:length() > 0 and self.display:visible() then
             local update = {}
@@ -236,6 +242,14 @@ function songs.new()
         elseif self.jukebox:length() == 0 and self.display:visible() then
             self.display:hide()
 
+        end
+
+    end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
         end
 
     end
@@ -572,6 +586,13 @@ function songs.new()
         self.display:pos(self.icon:pos_x()+40, self.icon:pos_y()+15)
         self.display:update()
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
+    
 
     return self
 

@@ -22,7 +22,7 @@ function rolls.new()
 
     -- Private Variables.
     local bp        = false
-    local events    = {}
+    local private   = {events={}, timer=0}
     local colors    = {[true]=string.format('%s,%s,%s', 21, 184, 0), [false]=string.format('%s,%s,%s', 255, 0, 80)}
     local blink     = false
     local valid     = {309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,600}
@@ -227,8 +227,7 @@ function rolls.new()
     end
 
     self.setCap = function(cap)
-        local bp    = bp or false
-        local cap   = tonumber(cap) or false
+        local cap = tonumber(cap) or false
 
         if bp and cap and cap ~= nil and cap > 0 and cap < 11 then
             self.cap = cap
@@ -243,7 +242,6 @@ function rolls.new()
     end
 
     self.toggleCrooked = function()
-        local bp = bp or false
 
         if bp then
 
@@ -262,9 +260,9 @@ function rolls.new()
 
     self.checkRolling = function()
 
-        if windower.ffxi.get_player().buffs then
+        if bp.player and bp.player.buffs then
 
-            for _,v in ipairs(windower.ffxi.get_player().buffs) do
+            for _,v in ipairs(bp.player.buffs) do
                     
                 if v == 308 then
                     return true
@@ -278,12 +276,10 @@ function rolls.new()
     end
 
     self.getActive = function()
-        local bp        = bp or false
-        local player    = windower.ffxi.get_player() or false
     
-        if bp and player then
+        if bp and bp.player then
             local helpers   = bp.helpers
-            local buffs     = windower.ffxi.get_player().buffs
+            local buffs     = bp.player.buffs
             local count     = 0
             
             for _,v in ipairs(buffs) do
@@ -301,7 +297,6 @@ function rolls.new()
     end
 
     self.getShort = function(name)
-        local name = name or false
         
         if name and type(name) == 'string' and short[name] then
             
@@ -319,8 +314,6 @@ function rolls.new()
     end
 
     self.getRoll = function(name)
-        local bp    = bp or false
-        local name  = name or false
         
         if bp and name and type(name) == 'string' then
             local helpers   = bp.helpers
@@ -368,7 +361,7 @@ function rolls.new()
 
     self.validBuff = function(id)
 
-        if bp and id then
+        if id then
 
             for _,v in ipairs(valid) do
 
@@ -384,8 +377,6 @@ function rolls.new()
     end
 
     self.add = function(roll, rolled)
-        local roll = roll or false
-        local rolled = rolled or false
         
         if bp and roll and rolled and type(roll) == 'table' and type(rolled) == 'number' then
 
@@ -435,7 +426,7 @@ function rolls.new()
     end
 
     self.roll = function()
-        local player = windower.ffxi.get_player()
+        local player = bp.player
 
         if bp and #self.active <= 2 then
 
@@ -505,8 +496,6 @@ function rolls.new()
     end
 
     self.getLucky = function(name)
-        local bp    = bp or false
-        local name  = name or false
 
         if bp and name and type(name) == 'string' and name ~= '' then
             return lucky[name]
@@ -556,6 +545,15 @@ function rolls.new()
 
             end
 
+            if bp.hideUI then
+            
+                if self.display:visible() then
+                    self.display:hide()
+                end
+                return
+    
+            end
+
             if render then
                 self.display:text(table.concat(render, '\n'))
                 self.display:update()
@@ -582,28 +580,9 @@ function rolls.new()
 
     end
 
-    self.toggle = function()
-        local bp = bp or false
-
-        if bp then
-
-            if self.enabled then
-                self.enabled = false
-
-            else
-                self.enabled = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('CORSAIR ROLLS: %s', tostring(self.enabled)))
-
-        end
-
-    end
-
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -618,11 +597,51 @@ function rolls.new()
 
     end
 
-    events.prerender = windower.register_event('prerender', function()
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local a = T{...}
+        local c = a[1] or false
+    
+        if c and c == 'rolls' then
+            local command = a[2] or false
+
+            if command then
+                command = command:lower()
+
+                if command == 'cap' and a[3] then
+                    local cap = tonumber(a[3])
+
+                    if cap and cap >= 1 and cap <= 11 then
+                        bp.helpers['rolls'].setCap(cap)
+                    end
+
+                elseif (command == 'crook' or command == 'crooked') then
+                    self.toggleCrooked()
+
+                elseif command == 'pos' and a[3] then
+                    self.pos(a[3], a[4] or false)
+
+                elseif command then
+                    bp.helpers['rolls'].setRoll(self.getRoll(command), self.getRoll(a[3]))
+
+                end
+
+            elseif not command then
+                self.enabled = self.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('CORSAIR ROLLS: %s.', tostring(self.enabled)))
+
+            end
+
+        end
+        
+
+    end)
+
+    private.events.prerender = windower.register_event('prerender', function()
         self.render()
         
-        if bp.common.pingReady() then
-            local buffs = T(windower.ffxi.get_player().buffs)
+        if bp and bp.player and (os.clock()-private.timer) > bp.settings['Ping Delay'] then
+            local buffs = T(bp.player.buffs)
 
             if buffs:contains(308) then
 
@@ -657,12 +676,13 @@ function rolls.new()
             if self.active and self.active[self.last] and self.active[self.last].roll and self.active[self.last].roll.en == 'Bust' and not buffs:contains(309) then
                 self.active[self.last] = false
             end
+            private.timer = os.clock()
         
         end
-    
+
     end)
 
-    events.losebuff = windower.register_event('lose buff', function(id)
+    private.events.losebuff = windower.register_event('lose buff', function(id)
         local roll1 = self.rolls[1]
         local roll2 = self.rolls[2]
         local buff1 = self.getBuff(roll1.en)

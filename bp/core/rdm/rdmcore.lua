@@ -374,7 +374,7 @@ function core.get()
 
         if bp then
             local helpers = bp.helpers
-            local player = windower.ffxi.get_player()
+            local player = bp.player
             
             if helpers['queue'].ready and not helpers['actions'].moving and bp.settings['Enabled'] then
                 bp.helpers['cures'].handleCuring(bp)
@@ -518,22 +518,8 @@ function core.get()
                             end
                            
                         end
-
-                        -- /RDM.
-                        if player.sub_job == "RDM" then
-                            
-                            -- CONVERT LOGIC.
-                            if self.getSetting('CONVERT') and player['vitals'].hpp >= self.getSetting('CONVERT HPP') and player['vitals'].mpp <= self.getSetting('CONVERT MPP') then
-                                
-                                if helpers['actions'].isReady('JA', "Convert") then
-                                    helpers['queue'].add(bp.JA["Convert"], player)
-                                    helpers['queue'].add(bp.MA["Cure IV"], player)
-                                    
-                                end
-                                
-                            end
                         
-                        elseif player.sub_job == "SCH" then
+                        if player.sub_job == "SCH" then
                             
                             -- SUBLIMATION LOGIC.
                             if self.getSetting('SUBLIMATION') then
@@ -581,11 +567,8 @@ function core.get()
                            
                         end
                         
-                        -- /RDM.
-                        if player.sub_job == "RDM" then
-                        
                         -- /WAR.
-                        elseif player.sub_job == "WAR" then
+                        if player.sub_job == "WAR" then
                             
                             -- PROVOKE.
                             if target and helpers['actions'].canAct() and helpers['actions'].isReady('JA', "Provoke") then
@@ -722,24 +705,43 @@ function core.get()
                                 end
 
                             -- HASTE II.
-                            elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady('JA', 'haste II') then
+                            elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady('MA', 'Haste II') then
                                 helpers['queue'].add(bp.MA['Haste II'], player)
 
                             -- PHALANX.
-                            elseif not helpers['buffs'].buffActive(116) and helpers['actions'].isReady('JA', 'Phalanx') then
+                            elseif not helpers['buffs'].buffActive(116) and helpers['actions'].isReady('MA', 'Phalanx') then
                                 helpers['queue'].add(bp.MA['Phalanx'], player)
 
                             -- TEMPER II.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', 'Temper II') and self.getSetting('JOB POINTS') > 1199 then
+                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('MA', 'Temper II') and self.getSetting('JOB POINTS') > 1199 then
                                 helpers['queue'].add(bp.MA['Temper II'], player)
 
                             -- TEMPER.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', 'Temper') and self.getSetting('JOB POINTS') < 1200 then
+                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('MA', 'Temper') and self.getSetting('JOB POINTS') < 1200 then
                                 helpers['queue'].add(bp.MA['Temper'], player)
 
-                            -- ENSPELL.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', self.getSetting('ENSPELL')) then
-                                helpers['queue'].add(bp.MA[self.getSetting('ENSPELL')], player)
+                            -- ENSPELLS.
+                            elseif self.getSetting('ENSPELL') ~= 'None' then
+                                        
+                                if self.getSetting('ENSPELL') == 'Enfire' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(94) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enblizzard' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(95) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enaero' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(96) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enstone' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(97) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enthunder' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(98) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enwater' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(99) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                end
 
                             -- GAINS.
                             elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', self.getSetting('GAINS')) then
@@ -829,54 +831,6 @@ function core.get()
                                 end
 
                             end
-                        
-                        -- /RDM.
-                        elseif player.sub_job == "RDM" and helpers['actions'].canCast() then
-                            
-                            -- HASTE.
-                            if helpers['actions'].isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
-                                helpers['queue'].addToFront(bp.MA["Haste"], player)
-                            
-                            -- PHALANX.
-                            elseif helpers['actions'].isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
-                                helpers['queue'].addToFront(bp.MA["Phalanx"], player)
-                                
-                            -- REFRESH.
-                            elseif not self.getSetting('SUBLIMATION') and helpers['actions'].isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
-                                helpers['queue'].addToFront(bp.MA["Refresh"], player)
-
-                            -- ENSPELLS.
-                            elseif self.getSetting('ENSPELL') ~= 'None' then
-                                    
-                                if self.getSetting('ENSPELL') == 'Enfire' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(94) then
-                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
-
-                                elseif self.getSetting('ENSPELL') == 'Enblizzard' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(95) then
-                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
-
-                                elseif self.getSetting('ENSPELL') == 'Enaero' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(96) then
-                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
-
-                                elseif self.getSetting('ENSPELL') == 'Enstone' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(97) then
-                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
-
-                                elseif self.getSetting('ENSPELL') == 'Enthunder' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(98) then
-                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
-
-                                elseif self.getSetting('ENSPELL') == 'Enwater' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(99) then
-                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
-
-                                end
-                                
-                            -- STONESKIN.
-                            elseif self.getSetting('STONESKIN') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Stoneskin") then
-                                helpers['queue'].add(bp.MA["Stoneskin"], player)
-                                
-                            -- SPIKES.
-                            elseif helpers['actions'].isReady('MA', self.getSetting('SPIKES')) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
-                                helpers['queue'].add(bp.MA[self.getSetting('SPIKES')], player)
-                                
-                            end                            
                                 
                         -- /WAR.
                         elseif player.sub_job == "WAR" and helpers['actions'].canAct() then
@@ -954,7 +908,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -977,7 +931,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            bp.helpers['rolls'].roll(bp)
+                            bp.helpers['rolls'].roll()
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then
@@ -1211,22 +1165,8 @@ function core.get()
                             end
                            
                         end
-
-                        -- /RDM.
-                        if player.sub_job == "RDM" then
-                            
-                            -- CONVERT LOGIC.
-                            if self.getSetting('CONVERT') and player['vitals'].hpp >= self.getSetting('CONVERT HPP') and player['vitals'].mpp <= self.getSetting('CONVERT MPP') then
-                                
-                                if helpers['actions'].isReady('JA', "Convert") then
-                                    helpers['queue'].add(bp.JA["Convert"], player)
-                                    helpers['queue'].add(bp.MA["Cure IV"], player)
-                                    
-                                end
-                                
-                            end
                         
-                        elseif player.sub_job == "SCH" then
+                        if player.sub_job == "SCH" then
                             
                             -- SUBLIMATION LOGIC.
                             if self.getSetting('SUBLIMATION') then
@@ -1274,11 +1214,8 @@ function core.get()
                            
                         end
                         
-                        -- /RDM.
-                        if player.sub_job == "RDM" then
-                        
                         -- /WAR.
-                        elseif player.sub_job == "WAR" then
+                        if player.sub_job == "WAR" then
                             
                             -- PROVOKE.
                             if target and helpers['actions'].canAct() and helpers['actions'].isReady('JA', "Provoke") then
@@ -1402,11 +1339,12 @@ function core.get()
 
                             -- REFRESH.
                             if not helpers['buffs'].buffActive(43) then
-
-                                if self.getSetting('JOB POINTS') > 1199 and helpers['actions'].isReady('JA', 'Refresh III') then
+                                
+                                if self.getSetting('JOB POINTS') > 1199 and helpers['actions'].isReady('MA', 'Refresh III') then
+                                    print('refreshing')
                                     helpers['queue'].add(bp.MA['Refresh III'], player)
 
-                                elseif self.getSetting('JOB POINTS') < 1200 and helpers['actions'].isReady('JA', 'Refresh II') then
+                                elseif self.getSetting('JOB POINTS') < 1200 and helpers['actions'].isReady('MA', 'Refresh II') then
                                     helpers['queue'].add(bp.MA['Refresh II'], player)
 
                                 elseif player.main_job_level < 50 then
@@ -1415,34 +1353,53 @@ function core.get()
                                 end
 
                             -- HASTE II.
-                            elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady('JA', 'haste II') then
+                            elseif not helpers['buffs'].buffActive(33) and helpers['actions'].isReady('MA', 'Haste II') then
                                 helpers['queue'].add(bp.MA['Haste II'], player)
 
                             -- PHALANX.
-                            elseif not helpers['buffs'].buffActive(116) and helpers['actions'].isReady('JA', 'Phalanx') then
+                            elseif not helpers['buffs'].buffActive(116) and helpers['actions'].isReady('MA', 'Phalanx') then
                                 helpers['queue'].add(bp.MA['Phalanx'], player)
 
                             -- TEMPER II.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', 'Temper II') and self.getSetting('JOB POINTS') > 1199 then
+                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('MA', 'Temper II') and self.getSetting('JOB POINTS') > 1199 then
                                 helpers['queue'].add(bp.MA['Temper II'], player)
 
                             -- TEMPER.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', 'Temper') and self.getSetting('JOB POINTS') < 1200 then
+                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('MA', 'Temper') and self.getSetting('JOB POINTS') < 1200 then
                                 helpers['queue'].add(bp.MA['Temper'], player)
 
-                            -- ENSPELL.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', self.getSetting('ENSPELL')) then
-                                helpers['queue'].add(bp.MA[self.getSetting('ENSPELL')], player)
+                            -- ENSPELLS.
+                            elseif self.getSetting('ENSPELL') ~= 'None' then
+                                        
+                                if self.getSetting('ENSPELL') == 'Enfire' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(94) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enblizzard' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(95) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enaero' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(96) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enstone' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(97) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enthunder' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(98) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                elseif self.getSetting('ENSPELL') == 'Enwater' and helpers['actions'].isReady('MA', self.getSetting('ENSPELL')) and not helpers['buffs'].buffActive(99) then
+                                    helpers['queue'].addToFront(bp.MA[self.getSetting('ENSPELL')], player)
+
+                                end
 
                             -- GAINS.
-                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('JA', self.getSetting('GAINS')) then
+                            elseif not helpers['buffs'].buffActive(432) and helpers['actions'].isReady('MA', self.getSetting('GAINS')) then
 
                                 if (not helpers['buffs'].buffActive(542) or not helpers['buffs'].buffActive(543) or not helpers['buffs'].buffActive(545) or not helpers['buffs'].buffActive(546) or not helpers['buffs'].buffActive(547) or not helpers['buffs'].buffActive(548)) then
                                     helpers['queue'].add(bp.MA[self.getSetting('GAINS')], player)
                                 end
 
                             -- SPIKES.
-                            elseif self.getSetting('SPIKES') ~= 'None' and helpers['actions'].isReady('JA', self.getSetting('SPIKES')) then
+                            elseif self.getSetting('SPIKES') ~= 'None' and helpers['actions'].isReady('MA', self.getSetting('SPIKES')) then
 
                                 if (not helpers['buffs'].buffActive(34) and not helpers['buffs'].buffActive(35) and not helpers['buffs'].buffActive(38)) then
                                     helpers['queue'].add(bp.MA[self.getSetting('SPIKES')], player)
@@ -1647,7 +1604,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -1670,7 +1627,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            bp.helpers['rolls'].roll(bp)
+                            bp.helpers['rolls'].roll()
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then

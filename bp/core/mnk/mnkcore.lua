@@ -621,7 +621,7 @@ function core.get()
                         bp.helpers['buffer'].cast()
                         
                         -- MNK/.
-                        if player.main_job == 'MNK' and helpers['actions'].canCast() and target then
+                        if player.main_job == 'MNK' and helpers['actions'].canCast() and target and bp.helpers['target'].canEngage(target) and target.status == 1 then
 
                             -- FOCUS.
                             if not helpers['buffs'].buffActive(59) and helpers['actions'].isReady('JA', "Focus") then
@@ -838,7 +838,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -861,7 +861,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            bp.helpers['rolls'].roll(bp)
+                            bp.helpers['rolls'].roll()
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then
@@ -1142,7 +1142,7 @@ function core.get()
                     if self.getSetting('HATE') and target then
                         
                         -- MNK/.
-                        if player.main_job == 'MNK' and helpers['actions'].canCast() then
+                        if player.main_job == 'MNK' and helpers['actions'].canCast() and target and bp.helpers['target'].canEngage(target) and target.status == 1 then
                            
                         end
                         
@@ -1482,7 +1482,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -1505,7 +1505,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            bp.helpers['rolls'].roll(bp)
+                            bp.helpers['rolls'].roll()
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then

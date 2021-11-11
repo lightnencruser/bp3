@@ -19,6 +19,7 @@ function assist.new()
 
     -- Private Variables.
     local bp            = false
+    local private       = {events={}}
     local assistance    = false
     local timer         = {last=0, delay=0.75}
 
@@ -74,7 +75,7 @@ function assist.new()
 
     end
     
-    self.assist = function()
+    private.assist = function()
         
         if bp and assistance and player.status == 0 and assistance.status == 1 then
             local ally = windower.ffxi.get_mob_by_id(assistance.id) or false
@@ -96,67 +97,81 @@ function assist.new()
 
     end
 
-    self.set = function(target)
-        local bp        = bp or false
-        local target    = target or false
-        local player    = windower.ffxi.get_player()
+    private.set = function(target)
+        local target = target or false
 
-        if bp and player and player.status == 0 and target and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) then
-            
-            if (os.clock()-timer.last) < timer.delay then
-                windower.send_ipc_message(string.format('assist:::%s', target.id))
-                bp.helpers['popchat'].pop(string.format('EVERYONE NOW ASSISTING: %s!', target.name))
+        if bp and bp.player and target then
+            local player = bp.player
 
-            
-            else
-                assistance = target
-                bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+            if player.status == 0 and target and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) then
+                
+                if (os.clock()-timer.last) < timer.delay then
+                    windower.send_ipc_message(string.format('assist:::%s', target.id))
+                    bp.helpers['popchat'].pop(string.format('EVERYONE NOW ASSISTING: %s!', target.name))
 
-            end
-
-        elseif bp and target and target.id and target.id == player.id then
-            assistance = false
-
-        elseif bp and not target then
-            assistance = false
-
-        end
-        timer.last = os.clock()
-
-    end
-
-    self.catch = function(message)
-        local bp        = bp or false
-        local message   = string.split(message, ':::') or false
-        local player    = windower.ffxi.get_player()
-
-        if bp and message and player and message[1] and message[1] == 'assist' then
-            local target = windower.ffxi.get_mob_by_id(message[2])
-
-            if target then
-
-                if player.status == 0 and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) and (target.distance):sqrt() < 15 then
+                
+                else
                     assistance = target
                     bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
 
-                elseif target.id and target.id == player.id then
+                end
+
+            elseif bp and target and target.id and target.id == player.id then
+                assistance = false
+
+            elseif bp and not target then
+                assistance = false
+
+            end
+            timer.last = os.clock()
+
+        end
+
+    end
+
+    private.catch = function(message)
+
+        if bp and bp.player and message then
+            local player = bp.player
+            local message = string.split(message, ':::') or false
+
+            if message and player and message[1] and message[1] == 'assist' then
+                local target = windower.ffxi.get_mob_by_id(message[2])
+
+                if target then
+
+                    if player.status == 0 and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) and (target.distance):sqrt() < 15 then
+                        assistance = target
+                        bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+
+                    elseif target.id and target.id == player.id then
+                        assistance = false
+
+                    end
+
+                elseif not target then
                     assistance = false
 
                 end
 
-            elseif not target then
-                assistance = false
-
             end
-
+            
         end
 
     end
 
-    self.render = function()
-        local bp = bp or false
+    private.render = function()
 
         if bp then
+            
+            if bp.hideUI then
+            
+                if self.display:visible() then
+                    self.display:hide()
+                end
+                return
+    
+            end
 
             if assistance then
                 self.display:text(string.format('[ Assisting: \\cs(%s)%s\\cr ]', self.important, assistance.name))
@@ -179,9 +194,8 @@ function assist.new()
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
@@ -195,6 +209,25 @@ function assist.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
+
+    private.events.ipc = windower.register_event('ipc message', function(message)
+            
+        if message and message:sub(1,6) == 'assist' then
+            private.catch(message)    
+        end
+    
+    end)
+
+    private.events.timechange = windower.register_event('time change', function(new, old)
+        private.assist()
+    
+    end)
 
     return self
 

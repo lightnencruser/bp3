@@ -117,6 +117,15 @@ function stratagems.new()
 
     self.render = function()
 
+        if bp and bp.hideUI then
+            
+            if self.display:visible() then
+                self.display:hide()
+            end
+            return
+
+        end
+
         if self.display:visible() then
             local timer = windower.ffxi.get_ability_recasts()[231] or 0
 

@@ -63,6 +63,15 @@ function target.new()
         local player = bp.player
         local update = {[1]='',[2]=''}
 
+        if bp.hideUI then
+            
+            if self.display:visible() then
+                self.display:hide()
+            end
+            return
+
+        end
+
         -- Handle Player Target.
         if self.targets.player then
             update[1] = string.format('Player:  \\cs(%s)[ %s ]\\cr ', self.important, self.targets.player.name)
@@ -187,8 +196,7 @@ function target.new()
     end
     
     self.setTarget = function(target)
-        local bp        = bp or false
-        local target    = target or false
+        local target = target or false
 
         if bp and target then
             local helpers = bp.helpers
@@ -234,8 +242,7 @@ function target.new()
     end
 
     self.setLuopan = function(target)
-        local bp        = bp or false
-        local target    = target or false
+        local target = target or false
 
         if target then
 
@@ -269,9 +276,8 @@ function target.new()
     end
 
     self.setEntrust = function(target)
-        local bp        = bp or false
-        local target    = target or false
-        local player    = windower.ffxi.get_player()
+        local target = target or false
+        local player = bp.player
 
         if target and target ~= '' then
 
@@ -308,12 +314,10 @@ function target.new()
     end
 
     self.canEngage = function(mob)
-        local bp    = bp or false
-        local mob   = mob or false
 
-        if bp and mob and mob.spawn_type == 16 and not mob.charmed and (mob.status ~= 2 or mob.status ~= 3) then
-            local player    = windower.ffxi.get_player() or false
-            local party     = windower.ffxi.get_party()
+        if bp and mob and mob.spawn_type == 16 and not mob.charmed and not T{2,3}:contains(mob.status) then
+            local player    = bp.player or false
+            local party     = bp.party or false
             local helpers   = bp.helpers
 
             if player and party then
@@ -330,8 +334,7 @@ function target.new()
     end
 
     self.isEnemy = function(target)
-        local bp        = bp or false
-        local target    = target or false
+        local target = target or false
 
         if bp and target then
             local helpers = bp.helpers
@@ -361,22 +364,19 @@ function target.new()
     end
 
     self.castable = function(target, spell)
-        local bp        = bp or false
-        local target    = target or false
-        local targets   = spell.targets
+        local targets = spell.targets
 
         if bp and target and targets then
-            local helpers = bp.helpers
 
             for i,v in pairs(targets) do
 
-                if i == 'Self' and target.name == windower.ffxi.get_player().name then
+                if i == 'Self' and target.name == bp.player.name then
                     return v
 
-                elseif i == 'Party' and helpers['party'].isInParty(target, false) then
+                elseif i == 'Party' and bp.helpers['party'].isInParty(target, false) then
                     return v
 
-                elseif i == 'Ally' and helpers['party'].isInParty(target, true) then
+                elseif i == 'Ally' and bp.helpers['party'].isInParty(target, true) then
                     return v
 
                 elseif i == 'Player' and not target.is_npc then
@@ -398,7 +398,6 @@ function target.new()
     end
 
     self.onlySelf = function(spell)
-        local bp    = bp or false
         local spell = spell or false
 
         if spell then
@@ -444,8 +443,7 @@ function target.new()
     end
 
     self.validSpellTarget = function(id, target)
-        local bp        = bp or false
-        local player    = windower.ffxi.get_player() or false
+        local player    = bp.player or false
         local target    = target or false
         local id        = id or false
         
@@ -604,10 +602,9 @@ function target.new()
     end
 
     self.allowed = function(target)
-        local bp        = bp or false
-        local target    = target or false
+        local target = bp.helpers['target'].getValidTarget(target)
 
-        if bp and target and type(target) == 'table' then
+        if target and type(target) == 'table' then
             local helpers   = bp.helpers
             local target    = windower.ffxi.get_mob_by_id(target.id) or false
 
@@ -667,13 +664,29 @@ function target.new()
 
     end
 
-    self.findHomepoint = function()
+    self.distance = function(c1, c2)
+        if c1 and c2 then
+            return ( (c2.x-c1.x)^2 + (c2.y-c1.y)^2 ):sqrt()
+        end
+        return 0
+    
+    end
+
+    self.findHomepoint = function(range)
         local mobs = windower.ffxi.get_mob_array()
         
         for _,v in pairs(mobs) do
             
             if type(v) == 'table' and (v.name):match("Home Point") then
-                return v
+
+                if range and (v.distance):sqrt() <= 6 then
+                    return v
+
+                elseif not range then
+                    return v
+
+                end
+                
             end
     
         end
@@ -695,9 +708,8 @@ function target.new()
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)

@@ -907,7 +907,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -1625,7 +1625,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             

@@ -3,6 +3,47 @@ local res = require('resources')
 
 function inventory.new()
     local self = {}
+    local bp   = false
+
+    -- Private Variables.
+    local private = {events={}}
+
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
+    self.sellItems = function(name)
+        local appraise = bp.packets.new('outgoing', 0x084)
+
+        if name and type(name) == 'string' then
+            local item = self.findItemByName(name, 0)
+            local n = self.getSlotCount(name, 0)
+        
+            if item and n then
+                
+                bp.helpers['popchat'].pop(string.format('SELLING %s %s', self.getItemCount('name'), item.en))
+                for i=1, n do
+                    local index = self.findItemIndexByName(name)
+                    local count = self.getCountByIndex(index)
+
+                    do
+                        bp.packets.inject(bp.packets.new('outgoing', 0x084, {['Count']=count, ['Item']=item.id, ['Inventory Index']=index}))
+                        coroutine.sleep(math.random())
+                        bp.packets.inject(bp.packets.new('outgoing', 0x085))
+                        coroutine.sleep(1+math.random())
+                    end
+
+                end
+                bp.helpers['popchat'].pop('SELLING FINISHED!')
+
+            end
+
+        end
+
+    end
 
     self.findItemByName = function(name, bag)
         local items = windower.ffxi.get_items(bag or 0)
@@ -10,10 +51,10 @@ function inventory.new()
         if name and (name ~= '' or name ~= 'None') then
             
             for index, item in ipairs(items) do
-
+                
                 if item and index and item.id then
                     local found = res.items[item.id]
-                    
+
                     if found and found.en then
                         
                         if name:sub(1, #name):lower() == (found.en):sub(1, #name):lower() then
@@ -31,19 +72,19 @@ function inventory.new()
 
     end
 
-    self.findItemIndexByName = function(name, bag)
-        local bag = bag or 0
-        local items = windower.ffxi.get_items(bag)
+    self.findItemIndexByName = function(name, bag, amount)
+        local items = windower.ffxi.get_items(bag or 0)
 
         for index, item in ipairs(items) do
+            local amount = amount or 1
 
-            if item and index and item.id then
-                local found_item  = res.items[item.id]
-
+            if item and index and amount and item.id and item.count and item.count >= amount then
+                local found_item = res.items[item.id]
+                
                 if found_item and found_item.name then
 
                     if name:sub(1, #name):lower() == found_item.name:lower() then
-                        return index
+                        return index, id
                     end
 
                 end
@@ -56,8 +97,7 @@ function inventory.new()
     end
 
     self.findItemById = function(id, bag)
-        local bag = bag or 0
-        local items = windower.ffxi.get_items(bag)
+        local items = windower.ffxi.get_items(bag or 0)
 
         for index, item in ipairs(items) do
 
@@ -71,8 +111,7 @@ function inventory.new()
     end
 
     self.findItemByIndex = function(i_index, bag)
-        local bag = bag or 0
-        local items = windower.ffxi.get_items(bag)
+        local items = windower.ffxi.get_items(bag or 0)
 
         for index, item in ipairs(items) do
 
@@ -91,18 +130,17 @@ function inventory.new()
     end
 
     self.getItemCount = function(name, bag)
+        local items = windower.ffxi.get_items(bag or 0)
         local count = 0
-        local bag   = bag or 0
-        local items = windower.ffxi.get_items(bag)
 
         if name and items then
 
             for index, item in ipairs(items) do
+                
+                if item and type(item) == 'table' then
+                    local found = self.findItemByName(name, bag)
 
-                if item and type(item) == "table" then
-                    local new = self.findItemByName(name) or false
-
-                    if new and new.id == item.id then
+                    if found and found.id == item.id then
                         count = (count + item.count)
                     end
 
@@ -115,9 +153,38 @@ function inventory.new()
 
     end
 
+    self.getTotalCount = function(name)
+        local bags = {0,6,7}
+        local count = 0
+
+        for i=1, #bags do
+            local items = windower.ffxi.get_items(bags[i])
+            local bag = bags[i]
+
+            if name and items then
+
+                for index, item in ipairs(items) do
+                    
+                    if item and type(item) == 'table' then
+                        local found = self.findItemByName(name, bag)
+
+                        if found and found.id == item.id then
+                            count = (count + item.count)
+                        end
+
+                    end
+
+                end
+
+            end
+
+        end
+        return count
+
+    end
+
     self.getCountByIndex = function(index, bag)
-        local bag = bag or 0
-        local items = windower.ffxi.get_items(bag)
+        local items = windower.ffxi.get_items(bag or 0)
 
         for i, item in ipairs(items) do
 
@@ -131,9 +198,8 @@ function inventory.new()
     end
 
     self.getSlotCount = function(name, bag)
+        local items = windower.ffxi.get_items(bag or 0)
         local count = 0
-        local bag   = bag or 0
-        local items = windower.ffxi.get_items(bag)
 
         if name and items then
 
@@ -198,6 +264,22 @@ function inventory.new()
         return 0
 
     end
+
+    -- Private Events.
+    private.events.inventory = windower.register_event('incoming chunk', function(id, original, modified, blocked, injected)
+        
+        if id == 0x020 then
+            local parsed = bp.packets.parse('incoming', original)
+            local bags = bp.res.bags
+
+            if parsed then
+
+            end
+
+        end
+
+    end)
+    private.inventory = {}
 
     return self
 

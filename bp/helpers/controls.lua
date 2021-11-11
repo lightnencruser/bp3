@@ -228,7 +228,7 @@ function controls.new()
     end
 
     self.stop = function()
-        windower.send_command("setkey numpad7 down; wait 0.2; setkey numpad7 up")
+        windower.ffxi.run(false)
     end
 
     return self

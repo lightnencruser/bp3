@@ -555,9 +555,8 @@ function queue.new()
     end
 
     self.handle = function()
-        local bp = bp or false
 
-        if bp and self.queue and self.queue:length() > 0 and (os.clock()-protection) > 1 and self.checkReady(bp) then
+        if bp and self.queue and self.queue:length() > 0 and (os.clock()-protection) > 1 and self.checkReady() then
             local player    = bp.player
             local helpers   = bp.helpers
             local action    = self.queue[1].action
@@ -566,7 +565,7 @@ function queue.new()
             local attempts  = self.queue[1].attempts
             local type      = self.getType(action)
             local special   = T{'Raise','Raise II','Raise III','Arise'}
-            local ranges    = helpers['actions'].getRanges(bp)
+            local ranges    = helpers['actions'].getRanges()
 
             if player and action and target and priority and attempts and type and ranges then
 
@@ -590,7 +589,7 @@ function queue.new()
 
                                 if distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                                    helpers['queue'].attempt(bp)
+                                    helpers['queue'].attempt()
                                     helpers['coms'].send(action, player.name, attempts)
 
                                 elseif distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
@@ -603,7 +602,7 @@ function queue.new()
 
                                 if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (mob.distance):sqrt() < 21 then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                                    helpers['queue'].attempt(bp)
+                                    helpers['queue'].attempt()
                                     helpers['coms'].send(action, player.name, attempts)
 
                                 elseif pet and distance > (ranges[action.range]+target.model_size+pet.model_size) or (mob.distance):sqrt() > 21 then
@@ -623,18 +622,18 @@ function queue.new()
 
                             if distance < (ranges[action.range]+target.model_size) and action.type ~= 'Rune' then
                                 windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                                helpers['queue'].attempt(bp)
+                                helpers['queue'].attempt()
                                 helpers['coms'].send(action, player.name, attempts)
 
                             elseif distance < (ranges[action.range]+target.model_size) and action.type == 'Rune' then
 
                                 if helpers['actions'].isReady('JA', action.en) then
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                                    helpers['queue'].attempt(bp)
+                                    helpers['queue'].attempt()
                                     helpers['coms'].send(action, player.name, attempts)
                                 
                                 else
-                                    helpers['queue'].attempt(bp)
+                                    helpers['queue'].attempt()
                                     helpers['coms'].send(action, player.name, attempts)
 
                                 end
@@ -662,18 +661,31 @@ function queue.new()
                         if attempts == 15 then
                             helpers['queue'].remove(res.spells[action.id], target)
                           
-                          elseif action.prefix ~= '/song' and (not helpers['actions'].canCast() or not helpers['actions'].isReady('MA', action.en) or player['vitals'].mp < action.mp_cost) then
+                        elseif action.prefix ~= '/song' and (not helpers['actions'].canCast() or not helpers['actions'].isReady('MA', action.en) or player['vitals'].mp < action.mp_cost) then
                             helpers['queue'].remove(res.spells[action.id], target)
                           
-                          elseif distance < (ranges[action.range]+size) then
+                        elseif distance < (ranges[action.range]+size) then
                                                       
                             if T{'Carbuncle','Ifrit','Ramuh','Shiva','Garuda','Cait Sith','Leviathan','Titan','Siren','Atomos','Odin','Alexander','Fenrir','Diabolos'}:contains(action.en) and pet then
                               helpers['queue'].remove(res.spells[action.id], target)
+
+                            elseif bp.helpers['status'].isSpellRemoval(action.id) then
+
+                                if not bp.helpers['status'].checkStatus(target, action.id) then
+                                    helpers['queue'].remove(res.spells[action.id], target)
+
+                                else
+                                    bp.helpers['actions'].locked = {flag=true, x=bp.me.x, y=bp.me.y, z=bp.me.z}
+                                    windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
+                                    helpers['queue'].attempt()
+                                    helpers['coms'].send(action, player.name, attempts)
+
+                                end
                                                       
                             else
-                              bp.helpers['actions'].locked = {flag=true, x=windower.ffxi.get_mob_by_target('me').x, y=windower.ffxi.get_mob_by_target('me').y, z=windower.ffxi.get_mob_by_target('me').z}
+                              bp.helpers['actions'].locked = {flag=true, x=bp.me.x, y=bp.me.y, z=bp.me.z}
                               windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                              helpers['queue'].attempt(bp)
+                              helpers['queue'].attempt()
                               helpers['coms'].send(action, player.name, attempts)
                           
                             end
@@ -702,7 +714,7 @@ function queue.new()
 
                         elseif distance < (ranges[action.range]+target.model_size) then
                             windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                            helpers['queue'].attempt(bp)
+                            helpers['queue'].attempt()
                             helpers['coms'].send(action, player.name, attempts)
 
                         elseif distance > (ranges[action.range]+target.model_size) then
@@ -729,7 +741,7 @@ function queue.new()
 
                         else
                             windower.send_command(string.format('input /item "%s" <me>', action.en))
-                            helpers['queue'].attempt(bp)
+                            helpers['queue'].attempt()
                             helpers['coms'].send(action, player.name, attempts)
 
                         end
@@ -751,7 +763,7 @@ function queue.new()
 
                         elseif distance < (ranges[action.range]+target.model_size) then
                             windower.send_command(string.format("input %s %s", action.prefix, target.id))
-                            helpers['queue'].attempt(bp)
+                            helpers['queue'].attempt()
                             helpers['coms'].send(action, player.name, attempts)
                             helpers['equipment'].update()
 

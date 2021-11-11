@@ -24,6 +24,7 @@ function status.new()
     local priority  = self.settings.priorities or {}
     local debug     = false
     local timer     = {last=0, delay=1}
+    local spells    = T{14,15,16,17,18,19,20,143}
     local allowed   = T{15,14,17,2,19,193,7,9,20,144,145,134,135,186,13,21,146,147,148,149,167,174,175,194,217,223,404,557,558,559,560,561,562,563,564,3,4,5,6,8,31,566,11,12,128,129,130,131,132,133,136,137,138,139,140,141,142,567}
     local map       = {
 
@@ -45,7 +46,7 @@ function status.new()
             remove={[7]=18},
         },
         {
-            list={9,20,144,145},
+            list={9,20,144,145}, 
             remove={[9]=20,[20]=20,[144]=143,[145]=143},
         },
         {
@@ -425,6 +426,50 @@ function status.new()
 
     end
 
+    self.isSpellRemoval = function(id)
+        return spells:contains(id)
+
+    end
+
+    self.checkStatus = function(target, spell)
+        local target = bp.helpers['target'].getValidTarget(target)
+        local removeable = {
+
+            [014] = {3},
+            [015] = {4,566},
+            [016] = {5},
+            [017] = {6},
+            [018] = {7},
+            [019] = {8,31},
+            [020] = {9,15,20},
+            [143] = {11,12,13,21,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,144,145,146,147,148,149,167,174,175,186,194,217,223,404,557,558,559,560,561,562,563,564,567},
+
+        }
+        
+        if target and target.id and removeable[spell] and #private.statuses > 1 then
+            
+            for _,v in ipairs(private.statuses) do
+
+                if v.id and v.id == target.id then
+
+                    for _,status in ipairs(removeable[spell]) do
+
+                        if T(v.list):contains(status) then
+                            return true
+                        end
+
+                    end
+                    return false
+
+                end
+
+            end
+
+        end
+        return false
+
+    end
+
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
@@ -460,6 +505,9 @@ function status.new()
                     debug = true
 
                 end
+
+            elseif command == 'test' then
+                self.hasDebuff(windower.ffxi.get_player(), 1)
 
             elseif not commands[2] then
                 bp.core.nextSetting('STATUS')

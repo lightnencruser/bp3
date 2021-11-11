@@ -106,12 +106,11 @@ function debuffs.new()
     end
     
     self.cast = function()
-        local bp = bp or false
 
         if bp then
-            local player = windower.ffxi.get_player()
+            local player = bp.player
 
-            if self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
+            if self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
                 
                 for _,v in pairs(self.debuffs[player.main_job_id]) do
                     local spell     = v

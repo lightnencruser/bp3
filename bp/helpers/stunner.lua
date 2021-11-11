@@ -67,8 +67,6 @@ function stunner.new()
     end
     
     self.add = function(action)
-        local bp        = bp or false
-        local action    = action or false
 
         if bp and action then
             local helpers = bp.helpers
@@ -194,8 +192,6 @@ function stunner.new()
     end
 
     self.stunnable = function(id)
-        local bp = bp or false
-        local id = id or false
 
         if bp and id and self.stuns[id] then
             return true
@@ -205,9 +201,7 @@ function stunner.new()
     end
 
     self.stun = function(id, target)
-        local bp        = bp or false
-        local id        = id or false
-        local target    = windower.ffxi.get_mob_by_id(target) or false
+        local target = bp.helpers['target'].getValidTarget(target)
 
         if bp and id and target then
             local helpers = bp.helpers

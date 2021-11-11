@@ -77,10 +77,18 @@ function distance.new()
     end
 
     self.render = function()
-        local bp        = bp or false
         local target    = windower.ffxi.get_mob_by_target('t') or false
         local color     = {string.format('%s,%s,%s', 25, 165, 200), string.format('%s,%s,%s', 25, 165, 200)}
         local update    = ''
+
+        if bp.hideUI then
+            
+            if self.display:visible() then
+                self.display:hide()
+            end
+            return
+
+        end
 
         if target and target.distance then
             self.distance = (target.distance):sqrt()
@@ -108,9 +116,8 @@ function distance.new()
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)

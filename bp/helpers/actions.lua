@@ -160,9 +160,6 @@ function actions.new()
     end
 
     self.buyItem = function(slot, quantity)
-        local slot      = slot or false
-        local quantity  = quantity or 1
-
         if slot and quantity > 0 then
             windower.packets.inject_outgoing(0x083, ('iIHCCI'):pack(0x00008308, quantity, 0, slot, 0, 0))
         end
@@ -478,13 +475,12 @@ function actions.new()
     end
 
     self.useItem = function(item, target, bag)
-        local target  = target or windower.ffxi.get_player()
+        local target  = target or bp.player
         local bag     = bag or 0
 
         if bp and target and item and not self.midaction then
-            local helpers = bp.helpers
-            local temp    = helpers['inventory'].findItemByName(item)
-            local index   = select(1, helpers['inventory'].findItemById(temp.id))
+            local temp    = bp.helpers['inventory'].findItemByName(item)
+            local index   = select(1, bp.helpers['inventory'].findItemById(temp.id))
 
             if type(index) == 'number' then
                 windower.packets.inject_outgoing(0x037, ('iIIHCCCCCC'):pack(0x00003700, target.id, 1, target.index, index, bag, 0, 0, 0, 0))
@@ -547,7 +543,6 @@ function actions.new()
     end
 
     self.move = function(x, y)
-        local bp = bp or false
         local me = windower.ffxi.get_mob_by_target("me") or false
         
         if bp and me then

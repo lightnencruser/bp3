@@ -8,8 +8,8 @@ bootstrap.load = function()
     local events    = {}
     local helpers   = {
         
-        'accolades','actions','aftermath','alias','autoload','assist','bits','bubbles','buffer','buffs','burst','chests','ciphers','commands','coms','console','controls','cures','dax','debuffs','debug','distance','enmity','equipment',
-        'inventory','items','keybinds','maintenance','maps','menus','merits','noknock','party','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','stratagems','stunner','target','trust',
+        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffer','buffs','burst','chests','ciphers','commands','coms','console','controls','cures','dax','debuffs','debug','distance','enmity','equipment',
+        'inventory','items','keybinds','maintenance','maps','menus','merits','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
     local directory = string.format('bp/settings/%s', player.name)
@@ -21,6 +21,7 @@ bootstrap.load = function()
     self.target     = false
     self.debug      = false
     self.core       = false
+    self.hideUI     = false
     self.settings   = {}
     self.helpers    = {}
     self.commands   = {}
@@ -40,6 +41,7 @@ bootstrap.load = function()
     self.queues     = require('queues')
     self.extdata    = require('extdata')
     self.json       = require('/bp/resources/JSON')
+    self.lzw        = require('/bp/resources/lualzw')
                     require('actions')
                     require('strings')
                     require('lists')
@@ -283,21 +285,6 @@ bootstrap.load = function()
     end
     buildResources()
 
-    -- Common Functions.
-    self.common.pingReady = function(town)
-        local town = town or false
-
-        if not town and self.settings['Enabled'] and not self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.settings['Ping Delay'] then
-            return true
-
-        elseif town and self.settings['Enabled'] and self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.settings['Ping Delay'] then
-            return true
-
-        end
-        return false
-
-    end
-
     -- Private Events.
     events.commands = windower.register_event('addon command', function(...)
         local a = T{...}
@@ -311,6 +298,9 @@ bootstrap.load = function()
     
             elseif c == 'mode' then
                 self.helpers['maintenance'].toggle(self)
+
+            elseif c == 'music' then
+                windower.send_command(('setbgm %s'):format(math.random(1,255)))
     
             elseif c == 'follow' then
                 local player = windower.ffxi.get_player()
@@ -329,15 +319,14 @@ bootstrap.load = function()
                 local target = windower.ffxi.get_mob_by_target('t') or false
 
                 if target then
-                    print(target.id, target.index)
+                    print(target.id, target.index, target.claim_id, target.x, target.y, target.z)
                 end
     
             elseif c == 'trade' and a[2] then
-                local player    = windower.ffxi.get_player() or false
-                local target    = windower.ffxi.get_mob_by_target('t') or false
-                local items     = {}
+                local target = windower.ffxi.get_mob_by_target('t') or false
+                local items = {}
     
-                if player and target and target.id and target.id ~= player.id then
+                if bp.player and target and target.id and target.id ~= player.id then
                     
                     for i=2, #a do
                         
@@ -376,6 +365,7 @@ bootstrap.load = function()
         self.player = windower.ffxi.get_player() or false
         self.info = windower.ffxi.get_info() or false
         self.me = windower.ffxi.get_mob_by_target('me') or false
+        self.hideUI = (bp.info.mog_house or bp.info.chat_open) or (bp.info.menu_open and self.player.status ~= 1 and not windower.ffxi.get_mob_by_target('t')) and true or false
 
         if self.player then
             local player = self.player
@@ -386,9 +376,6 @@ bootstrap.load = function()
             self.helpers['popchat'].render(self)
             self.helpers['debuffs'].render(self)
             self.helpers['runes'].render(self)
-            self.helpers['songs'].render(self)
-            self.helpers['speed'].render(self)
-            self.helpers['assist'].render(self)
 
             if self.settings['Enabled'] and not self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.settings['Ping Delay'] then
                 
@@ -421,7 +408,7 @@ bootstrap.load = function()
         
         if id == 0x028 then
             local pack      = self.packets.parse('incoming', original)
-            local player    = windower.ffxi.get_player()
+            local player    = bp.player
             local actor     = windower.ffxi.get_mob_by_id(pack['Actor'])
             local target    = windower.ffxi.get_mob_by_id(pack['Target 1 ID'])
             local count     = pack['Target Count']
@@ -432,6 +419,10 @@ bootstrap.load = function()
                 
                 -- Melee Attacks.
                 if pack['Category'] == 1 then
+
+                    if actor.id == bp.player.id then
+
+                    end
     
                 -- Finish Ranged Attack.
                 elseif pack['Category'] == 2 then
@@ -466,7 +457,6 @@ bootstrap.load = function()
     
                             self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)[spell.type] or 1)
                             self.helpers['queue'].remove(spell, actor)
-                            self.helpers['buffer'].updateDelay(target, spell)
     
                             -- Check for Utsusemi, and protect from over casting.
                             if (player.main_job == 'NIN' or player.sub_job == 'NIN') and (spell.en):match('Utsusemi') then
@@ -533,8 +523,8 @@ bootstrap.load = function()
     
                     elseif actor.name ~= player.name and actor.spawn_type == 16 and self.res.monster_abilities[param] then
     
-                        if helpers['stunner'].stunnable(param) then
-                            helpers['stunner'].stun(param, actor)
+                        if self.helpers['stunner'].stunnable(param) then
+                            self.helpers['stunner'].stun(param, actor)
                         end
     
                     end
@@ -885,18 +875,6 @@ bootstrap.load = function()
     
     end)
 
-    events.ipc = windower.register_event('ipc message', function(message)
-    
-        if message then
-            
-            if message:sub(1,6) == 'assist' then
-                self.helpers['assist'].catch(message)    
-            end
-    
-        end
-    
-    end)
-
     events.shortcuts = windower.register_event('unhandled command', function(command, ...)
         self.helpers['console'].handle(command, T{...})
 
@@ -906,12 +884,10 @@ bootstrap.load = function()
         self.helpers['commands'].captureChat(message, sender, mode, gm)
     
     end)
-
-    events.timechange = windower.register_event('time change', function(new, old)
-        self.helpers['assist'].assist()
+    
+    events.load = windower.register_event('load', function()
     
     end)
-    
 
     return self
 

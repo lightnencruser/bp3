@@ -372,7 +372,7 @@ function cures.new()
                     
                     if cure and target and not bp.helpers['queue'].inQueue(bp.MA[cure.en], target) then
 
-                        if (target.distance):sqrt() <= 21 and not dead:contains(target.status) then
+                        if (target.distance):sqrt() <= 20 and not dead:contains(target.status) then
                             private.updateCure(cure, target)
                         end
                     
@@ -405,7 +405,7 @@ function cures.new()
                     
                     if cure and target and not bp.helpers['queue'].inQueue(bp.MA[cure.en], target) then
 
-                        if (target.distance):sqrt() <= 21 and not dead:contains(target.status) then
+                        if (target.distance):sqrt() <= 20 and not dead:contains(target.status) then
                             private.updateCure(cure, target)
                         end
                     

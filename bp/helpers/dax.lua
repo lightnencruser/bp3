@@ -100,30 +100,35 @@ function dax.new()
     end
 
     private.render = function()
-        
-        if bp then
+
+        if bp.hideUI then
             
-            if bp.core and bp.core.settings and bp.player and T(allowed[bp.player.main_job]):length() > 0 and self.enabled then
-                local update = {}
-                
-                for _, name in pairs(allowed[bp.player.main_job]) do
-                    table.insert(update, string.format('%s%s : \\cs(%s)%s\\cr', name:upper(), (''):rpad(' ', (15-name:len())), self.important, tostring(bp.core.getSetting(name:upper())):upper()))        
-                end
-                self.display:text(table.concat(update, '\n'))
-                self.display:update()
-
-                if not self.display:visible() then
-                    self.display:show()
-                end
-
-            elseif bp.player and (T(allowed[bp.player.main_job]):length() < 1 or self.display:visible()) then
-                self.display:text('')
-                self.display:update()
+            if self.display:visible() then
                 self.display:hide()
+            end
+            return
 
+        end
+            
+        if bp and bp.core and bp.core.settings and bp.player and T(allowed[bp.player.main_job]):length() > 0 and self.enabled then
+            local update = {}
+            
+            for _, name in pairs(allowed[bp.player.main_job]) do
+                table.insert(update, string.format('%s%s : \\cs(%s)%s\\cr', name:upper(), (''):rpad(' ', (15-name:len())), self.important, tostring(bp.core.getSetting(name:upper())):upper()))        
+            end
+            self.display:text(table.concat(update, '\n'))
+            self.display:update()
+
+            if not self.display:visible() then
+                self.display:show()
             end
 
-        end        
+        elseif bp.player and (T(allowed[bp.player.main_job]):length() < 1 or self.display:visible()) then
+            self.display:text('')
+            self.display:update()
+            self.display:hide()
+
+        end
 
     end
 

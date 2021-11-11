@@ -16,15 +16,12 @@ function buffer.new()
     -- Static Variables.
     self.settings       = dofile(string.format('%sbp/helpers/settings/buffer/%s_settings.lua', windower.addon_path, player.name))
     self.layout         = self.settings.layout or {pos={x=100, y=100}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=10}, padding=5, stroke_width=2, draggable=false}
-    self.display        = { {id=1, display=texts.new('--{ BUFFING }--', {flags={draggable=self.layout.draggable}})} }
+    self.display        = {}
     self.important      = string.format('%s,%s,%s', 25, 165, 200)
 
     -- Private Variables.
     local bp            = false
-    local private       = {events={}}
-    local buffs         = {}
-    local icons         = {}
-    local list          = {}
+    local private       = {events={}, buffs=T{}, time={last=0, delay=1}}
     local allowed       = {}
     local conversion    = {
 
@@ -62,28 +59,6 @@ function buffer.new()
     end
     persist()
 
-    local resetDisplay = function(n)
-
-        if n and type(n) == 'number' then
-            self.display[n].display:pos(self.layout.pos.x, self.layout.pos.y + (n * (self.layout.font.size + self.layout.padding)))
-            self.display[n].display:font(self.layout.font.name)
-            self.display[n].display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
-            self.display[n].display:alpha(self.layout.colors.text.alpha)
-            self.display[n].display:size(self.layout.font.size)
-            self.display[n].display:pad(self.layout.padding)
-            self.display[n].display:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
-            self.display[n].display:bg_alpha(self.layout.colors.bg.alpha)
-            self.display[n].display:stroke_width(self.layout.stroke_width)
-            self.display[n].display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
-            self.display[n].display:stroke_alpha(self.layout.colors.stroke.alpha)
-            self.display[n].display:show()
-            self.display[n].display:update()
-
-        end
-
-    end
-    resetDisplay(1)
-
     -- Static Functions.
     self.writeSettings = function()
         persist()
@@ -99,6 +74,270 @@ function buffer.new()
     end
     self.writeSettings()
 
+    -- Private Functions.
+    private.add = function(target, spell, delay)
+        local spell = private.getSpell(spell)
+        local delay = delay or 120
+
+        if bp and spell and target then
+            local exists = private.exists(target.id)
+
+            if not exists and bp.helpers['target'].castable(target, spell) then
+                table.insert(private.buffs, {
+
+                    player  = target,
+                    spells  = {[spell.id]={last=0, delay=delay, icon=images.new({color={alpha = 255}, texture={fit=false}, draggable=false})}},
+                    text    = texts.new('', {flags={draggable=false}}),
+
+                })
+
+                do -- ADJUST TEXT AND IMAGE SETTINGS.
+                    local text = private.buffs[#private.buffs].text
+                    local time = private.buffs[#private.buffs].spells[spell.id].time
+                    local icon = private.buffs[#private.buffs].spells[spell.id].icon
+
+                    text:font(self.layout.font.name)
+                    text:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
+                    text:alpha(self.layout.colors.text.alpha)
+                    text:size(self.layout.font.size)
+                    text:pad(self.layout.padding)
+                    text:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
+                    text:bg_alpha(self.layout.colors.bg.alpha)
+                    text:stroke_width(self.layout.stroke_width)
+                    text:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
+                    text:stroke_alpha(self.layout.colors.stroke.alpha)
+                    text:update()
+
+                    icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, conversion[spell.id]))
+                    icon:transparency(0)
+                    icon:update()
+
+                end
+
+            elseif private.buffs[exists] and not private.buffs[exists].spells[spell.id] and bp.helpers['target'].castable(target, spell) then
+                private.buffs[exists].spells[spell.id] = {last=0, delay=delay, icon=images.new({color={alpha = 255}, texture={fit=false}, draggable=false})}
+
+                do -- ADJUST TEXT AND IMAGE SETTINGS.
+                    local text = private.buffs[exists].text
+                    local time = private.buffs[exists].spells[spell.id].time
+                    local icon = private.buffs[exists].spells[spell.id].icon
+
+                    text:font(self.layout.font.name)
+                    text:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
+                    text:alpha(self.layout.colors.text.alpha)
+                    text:size(self.layout.font.size)
+                    text:pad(self.layout.padding)
+                    text:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
+                    text:bg_alpha(self.layout.colors.bg.alpha)
+                    text:stroke_width(self.layout.stroke_width)
+                    text:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
+                    text:stroke_alpha(self.layout.colors.stroke.alpha)
+                    text:update()
+
+                    icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, conversion[spell.id]))
+                    icon:transparency(0)
+                    icon:update()
+
+                end
+
+            end
+            private.update()
+
+        end
+
+    end
+
+    private.remove = function(target, spell)
+        local spell = private.getSpell(spell)
+
+        if bp and spell and target then
+            local exists = private.exists(target.id)
+            
+            if exists and spell and spell.id and private.buffs[exists] and private.buffs[exists].spells[spell.id] then
+                private.buffs[exists].spells[spell.id].time:destroy()
+                private.buffs[exists].spells[spell.id].icon:destroy()
+                private.buffs[exists].spells[spell.id] = nil
+
+            end
+            private.update()
+
+        end
+
+    end
+
+    private.clear = function()
+
+        for _,data in ipairs(private.buffs) do
+
+            if data.spells then
+                
+                for _,spell in pairs(data.spells) do
+                    spell.icon:destroy()
+                end
+
+            end
+            data.text:destroy()
+
+        end
+
+    end
+
+    private.reset = function(target, spell)
+
+        if bp and spell and target then
+            local exists = private.exists(target.id)
+            
+            if exists and spell and spell.id and private.buffs[exists] and private.buffs[exists].spells[spell.id] then
+                private.buffs[exists].spells[spell.id].last = os.time()
+            end
+
+        end
+
+    end
+
+    private.update = function()
+            
+        if bp and #private.buffs > 0 then
+
+            for index, data in ipairs(private.buffs) do
+                local player = windower.ffxi.get_mob_by_id(data.player.id) or false
+
+                if player and bp.helpers['target'].distance(bp.me, player) < 30 and (bp.helpers['target'].distance(bp.me, player) ~= 0 or bp.player.id == player.id) then
+                    local spells = data.spells
+                    local text = data.text
+
+                    do -- CALCULATE ALL THE TEXT & IMAGES FOR THE PLAYER.
+                        local adjusted  = (15 - (#player.name:sub(1, #player.name)))
+                        local length    = #player.name <= 15 and 15 or #player.name
+                        local x         = index == 1 and self.layout.pos.x or 0
+                        local y         = index == 1 and self.layout.pos.y or 0
+
+                        text:text(('%s%s►'):format(player.name:sub(1, length), (''):rpad('-', adjusted)))
+                        if index == 1 then
+                            text:pos(x, y)
+
+                        else
+                            local offset_x, offset_y = private.buffs[index-1].text:extents()
+
+                            do -- CALCULATE POSITION.
+                                text:pos(text:pos(private.buffs[index-1].text:pos_x(), private.buffs[index-1].text:pos_y() + (offset_y + 1)))
+                            end
+
+                        end
+                        text:update()
+
+                        if not text:visible() then
+                            text:show()
+                        end
+
+                        coroutine.schedule(function()
+                            local track = false
+
+                            for id, spell in pairs(data.spells) do
+                                local xx, yy = text:extents()
+
+                                if not track then
+                                    spell.icon:pos((text:pos_x() + xx) + 2, text:pos_y())
+                                    spell.icon:size(yy, yy)
+                                    spell.icon:update()
+
+                                    if not spell.icon:visible() then
+                                        spell.icon:show()
+                                    end
+
+                                else
+                                    spell.icon:pos((data.spells[track].icon:pos_x() + yy) + 1, text:pos_y())
+                                    spell.icon:size(yy, yy)
+                                    spell.icon:update()
+
+                                    if not spell.icon:visible() then
+                                        spell.icon:show()
+                                    end
+
+                                end
+                                track = id
+
+                            end
+
+                        end, 0.1)
+
+                    end                        
+
+                else
+                    local spells = data.spells
+                    local text = data.text
+
+                    for _,spell in pairs(data.spells) do
+                        spell.icon:hide()
+                        text:hide()
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
+    private.exists = function(id)
+
+        if id then
+
+            for index, data in ipairs(private.buffs) do
+
+                if data.player.id == id then
+                    return index
+                end
+
+            end
+
+        end
+        return false
+
+    end
+
+    private.getSpell = function(name)
+        local name = windower.convert_auto_trans(name)
+        local orders = {
+
+            ['Protect']         = {47,46,45,44,43},
+            ['Shell']           = {52,51,50,49,48},
+            ['Haste']           = {511,57},
+            ['Flurry']          = {846,845},
+            ['Phalanx']         = {107},
+            ['Regen']           = {504,477,111,110,108},
+            ['Refresh']         = {894,473,109},
+            ['Adloquium']       = {495},
+            ['Animus Augeo']    = {308},
+            ['Animus Minuo']    = {309},
+
+        }
+
+        if bp and name and tostring(name) ~= nil then
+
+            for spell, spells in pairs(orders) do
+
+                if spell:lower() == name:lower() then
+                    
+                    for _,id in ipairs(spells) do
+
+                        if allowed[id] and bp.helpers['actions'].isReady('MA', allowed[id].en) then
+                            return allowed[id]
+                        end
+
+                    end
+
+                end
+
+            end
+
+        end
+        return false
+
+    end
+
     -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
@@ -106,316 +345,28 @@ function buffer.new()
         end
 
     end
-    
-    self.reset = function()
-
-        if bp then
-
-            for _,v in pairs(buffs) do
-                local player = v
-                
-                for i=1, #player do
-                    local buff = player[i] or false
-                    
-                    if buff and buff.last then
-                        buff.last = 0
-                    end
-
-                end
-
-            end
-
-        end
-
-    end
-
-    self.add = function(target, spell, delay)
-        local target    = target or false
-        local spell     = spell or false
-        local delay     = delay or 2
-
-        if bp and target and spell then
-
-            if type(target) == 'table' and target.id and self.valid(spell) then
-                local spell = self.valid(spell)
-
-                if not self.exists(target, spell) and bp.helpers['actions'].isReady('MA', spell.en) then
-                
-                    if buffs[target.id] then
-                        table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
-
-                        for _,v in ipairs(self.display) do
-                            local list = {}
-
-                            for _,v in ipairs(buffs[target.id]) do
-                                table.insert(list, bp.res.spells[v.id].en)
-                            end
-
-                            if v.id and v.display and v.id == target.id then
-                                v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
-                                v.display:show()
-                                v.display:update()
-
-                            end
-
-                        end
-
-                    
-                    else
-                        buffs[target.id] = {}
-                        table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
-                        table.insert(self.display, {id=target.id, display=texts.new('', {flags={draggable=self.layout.draggable}})})
-
-                        resetDisplay(#self.display)
-                        self.display[#self.display].display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, bp.res.spells[spell.id].en))
-                        self.display[#self.display].display:show()
-                        self.display[#self.display].display:update()
-
-                    end
-
-                end
-
-            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(target, spell) then
-                local target    = windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
-                local spell     = self.valid(spell)
-
-                if target and not self.exists(target, spell) then
-                    
-                    if buffs[target.id] then
-                        table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
-
-                        for _,v in ipairs(self.display) do
-                            local list = {}
-
-                            for _,v in ipairs(buffs[target.id]) do
-                                table.insert(list, bp.res.spells[v.id].en)
-                            end
-
-                            if v.id and v.display and v.id == target.id then
-                                v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
-                                v.display:show()
-                                v.display:update()
-
-                            end
-
-                        end
-
-                    
-                    else
-                        buffs[target.id] = {}
-                        table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
-                        table.insert(self.display, {id=target.id, display=texts.new('', {flags={draggable=self.layout.draggable}})})
-
-                        resetDisplay(#self.display)
-                        self.display[#self.display].display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, bp.res.spells[spell.id].en))
-                        self.display[#self.display].display:show()
-                        self.display[#self.display].display:update()
-
-                    end
-
-                end
-
-            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(target, spell) then
-                local target    = windower.ffxi.get_mob_by_name(target) or false
-                local spell     = self.valid(spell)
-
-                if target and not self.exists(target, spell) then
-                    
-                    if buffs[target.id] then
-                        table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
-
-                        for _,v in ipairs(self.display) do
-                            local list = {}
-
-                            for _,v in ipairs(buffs[target.id]) do
-                                table.insert(list, bp.res.spells[v.id].en)
-                            end
-
-                            if v.id and v.display and v.id == target.id then
-                                v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
-                                v.display:show()
-                                v.display:update()
-
-                            end
-
-                        end
-
-                    
-                    else
-                        buffs[target.id] = {}
-                        table.insert(buffs[target.id], {target=target.id, id=spell.id, last=0, delay=delay*60})
-                        table.insert(self.display, {id=target.id, display=texts.new('', {flags={draggable=self.layout.draggable}})})
-
-                        resetDisplay(#self.display)
-                        self.display[#self.display].display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, bp.res.spells[spell.id].en))
-                        self.display[#self.display].display:show()
-                        self.display[#self.display].display:update()
-
-                    end
-
-                end
-
-            end
-
-        end        
-
-    end
-
-    self.remove = function(target, spell)
-        local bp        = bp or false
-        local target    = target or false
-        local spell     = spell or false
-
-        if bp and target and spell and target.id and buffs[target.id] then
-
-            if type(target) == 'table' and target.id and self.valid(spell) then
-                local spell = self.valid(spell)
-
-                if self.exists(target, spell) then
-                
-                    for i,v in ipairs(buffs[target.id]) do
-
-                        if v.id and v.id == spell.id then
-                            table.remove(buffs[target.id], i)
-                            break
-
-                        end
-
-                    end
-                    self.updateBuffs(target)
-
-                end
-
-            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(target, spell) then
-                local target    = windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
-                local spell     = self.valid(spell)                
-
-                if target and self.exists(target, spell) then
-
-                    for i,v in ipairs(buffs[target.id]) do
-
-                        if v.id and v.id == spell.id then
-                            table.remove(buffs[target.id], i)
-                            break
-
-                        end
-
-                    end
-                    self.updateBuffs(target)
-                    
-                end
-
-            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(target, spell) then
-                local target    = windower.ffxi.get_mob_by_name(target) or false
-                local spell     = self.valid(spell)
-
-                if target and self.exists(target, spell) then
-
-                    for i,v in ipairs(buffs[target.id]) do
-
-                        if v.id and v.id == spell.id then
-                            table.remove(buffs[target.id], i)
-                            break
-
-                        end
-
-                    end
-                    self.updateBuffs(target)
-                    
-                end
-
-            end
-
-        end
-
-    end
-
-    self.updateBuffs = function(target)
-
-        if target then
-
-            for _,v in ipairs(self.display) do
-                local list = {}
-
-                for _,v in ipairs(buffs[target.id]) do
-                    table.insert(list, bp.res.spells[v.id].en)
-                end
-
-                if v.id and v.display and v.id == target.id then
-                    v.display:text(string.format('%s%s[ \\cs(%s)%s\\cr ]', target.name, (' '):rpad(' ', 20-tostring(target.name):len()), self.important, table.concat(list, ' | ')))
-                    v.display:show()
-                    v.display:update()
-
-                end
-
-            end
-
-        end
-
-    end
-
-    self.valid = function(spell)
-        local bp    = bp or false
-        local spell = spell or false
-
-        if bp and spell then
-
-            if type(spell) == 'table' and spell.id and allowed[spell.id] then
-                return allowed[spell.id]
-
-            elseif (type(spell) == 'number' or type(spell) == 'string' and tonumber(spell) ~= nil) and allowed[spell] then
-                return allowed[spell]
-
-            elseif type(spell) == 'string' and tonumber(spell) == nil then
-                
-                for _,v in pairs(allowed) do
-
-                    if v.en and spell:lower() == v.en:lower() then
-                        return v
-                    end
-
-                end
-
-            end
-
-        end
-        return false
-
-    end
-
-    self.exists = function(target, spell)
-        local bp        = bp or false
-        local target    = target or false
-        local spell     = spell or false
-
-        if bp and target and spell and target.id and buffs[target.id] and spell.id then
-
-            for _,v in ipairs(buffs[target.id]) do
-
-                if v.id and v.id == spell.id then
-                    return true
-                end
-
-            end
-
-        end
-        return false
-
-    end
 
     self.cast = function()
+        
+        for _,data in ipairs(private.buffs) do
+            local target = data.player
 
-        if bp then
+            for id, spell in pairs(data.spells) do
+                
+                if (spell.delay - (os.time() - spell.last)) > 0 then
+                    spell.icon:color(75,75,75)
+                    spell.icon:transparency(100)
 
-            for i in pairs(buffs) do
-                local player = windower.ffxi.get_mob_by_id(i) or false
+                else
+                    spell.icon:color(255,255,255)
+                    spell.icon:transparency(255)
+                    
+                    if bp.res.spells[id] then
+                        local cast = bp.res.spells[id]
 
-                if player and buffs[player.id] then
+                        do
+                            bp.helpers['queue'].add(cast, target)
 
-                    for index,buff in ipairs(buffs[player.id]) do
-
-                        if (os.clock()-buff.last) > buff.delay and bp.res.spells[buff.id] and bp.helpers['actions'].isReady('MA', bp.res.spells[buff.id].en) and not bp.helpers['queue'].inQueue(bp.res.spells[buff.id]) then
-                            bp.helpers['queue'].add(bp.res.spells[buff.id], player)
                         end
 
                     end
@@ -425,90 +376,12 @@ function buffer.new()
             end
 
         end
-
-    end
-
-    self.updateDelay = function(target, spell)
-        local target    = target or false
-        local spell     = spell or false
-
-        if bp and target and spell and target.id and buffs[target.id] then
-
-            if type(target) == 'table' and target.id and self.valid(spell) then
-                local spell = self.valid(spell)
-
-                if self.exists(target, spell) then
-
-                    for i,v in ipairs(buffs[target.id]) do
-                        
-                        if v.id and v.id == spell.id then
-                            
-                            buffs[target.id][i].last = os.clock()
-                            break
-
-                        end
-
-                    end
-
-                end
-
-            elseif type(target) == 'number' or (type(target) == 'string' and tonumber(target) ~= nil) and not self.exists(target, spell) then
-                local target    = windower.ffxi.get_mob_by_id(target) or windower.ffxi.get_mob_by_index(target) or false
-                local spell     = self.valid(spell)                
-
-                if target and self.exists(target, spell) then
-
-                    for i,v in ipairs(buffs[target.id]) do
-
-                        if v.id and v.id == spell.id then
-                            buffs[target.id][i].last = os.clock()
-                            break
-
-                        end
-
-                    end
-                    
-                end
-
-            elseif type(target) == 'string' and tonumber(target) == nil and not self.exists(target, spell) then
-                local target    = windower.ffxi.get_mob_by_name(target) or false
-                local spell     = self.valid(spell)
-
-                if target and self.exists(target, spell) then
-
-                    for i,v in ipairs(buffs[target.id]) do
-
-                        if v.id and v.id == spell.id then
-                            buffs[target.id][i].last = os.clock()
-                            break
-
-                        end
-
-                    end
-                    
-                end
-
-            end
-
-        end
-
-    end
-
-    self.convert = function(id)
-        local bp = bp or false
-        local id = id or false
-
-        if bp and id and conversion[id] then
-            return conversion[id]
-        end
-        return false
 
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.layout.pos.x = x
@@ -525,6 +398,58 @@ function buffer.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local a = T{...}
+        local c = a[1] or false
+
+        if c == 'buff' and a[2] then
+            local command = a[2]:lower()
+            local target = windower.ffxi.get_mob_by_target('t') or false
+
+            if (command == '+' or command == 'a') and target and a[3] then
+                private.add(target, a[3])
+
+            elseif (command == '-' or command == 'r') and target and a[3] then
+                private.remove(target, a[3])
+
+            elseif (command == 'clear' or command == 'c') then
+                private.reset()
+
+            end
+
+        end
+
+    end)
+
+    private.events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+        
+        if id == 0x028 and bp then
+            local parsed    = bp.packets.parse('incoming', original)
+            local actor     = windower.ffxi.get_mob_by_id(parsed['Actor'])
+            local target    = windower.ffxi.get_mob_by_id(parsed['Target 1 ID'])
+            local category  = parsed['Category']
+            local param     = parsed['Param']
+
+            if parsed['Category'] == 4 then
+        
+                if actor.id == bp.player.id then
+                    local spell = bp.res.spells[param] or false
+
+                    print(actor.name, target.name, spell)
+
+                    if spell and type(spell) == 'table' and spell.type then
+                        private.reset(target, spell)
+                    end
+
+                end
+
+            end
+
+        end
+
+    end)
 
     return self
 

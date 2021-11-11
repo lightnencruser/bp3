@@ -507,7 +507,7 @@ function core.get()
                     end
 
                     -- SUMMONING LOGIC.
-                    if self.getSetting('PET') and helpers['actions'].canCast() then
+                    if self.getSetting('PET') then
                         local pet = windower.ffxi.get_mob_by_target('pet') or false
                         
                         if not pet then
@@ -521,7 +521,7 @@ function core.get()
                             local ward      = pacts['WARD'][self.getSetting('SUMMON')][self.getSetting('WARD')] or pacts['WARD'][self.getSetting('SUMMON')][1]
                             local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
-                            if pet.status == 1 and helpers['actions'].canAct() and helpers['actions'].isReady('JA', 'Blood Pact: Rage') then
+                            if self.getSetting('BPRAGE') and pet.status == 1 and helpers['actions'].canAct() and helpers['actions'].isReady('JA', 'Blood Pact: Rage') then
 
                                 if self.getSetting('1HR') and helpers['actions'].isReady('JA', 'Astral Flow') and helpers['actions'].isReady('JA', 'Astral Conduit') then
 
@@ -544,7 +544,7 @@ function core.get()
                                 end
                                 helpers['queue'].add(bp.JA[rage], target)
 
-                            elseif pet.status == 1 and helpers['actions'].canAct() and helpers['actions'].isReady('JA', 'Blood Pact: Ward') then
+                            elseif self.getSetting('BPWARD') and pet.status == 1 and helpers['actions'].canAct() and helpers['actions'].isReady('JA', 'Blood Pact: Ward') then
                                 helpers['queue'].add(bp.JA[ward], target)
 
                                 if self.getSetting('ROTATE WARDS') then
@@ -970,7 +970,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -993,7 +993,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            bp.helpers['rolls'].roll(bp)
+                            bp.helpers['rolls'].roll()
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then
@@ -1230,7 +1230,7 @@ function core.get()
                             local rage      = pacts['RAGE'][self.getSetting('SUMMON')][self.getSetting('RAGE')] or pacts['RAGE'][self.getSetting('SUMMON')][1]
                             local ward      = pacts['WARD'][self.getSetting('SUMMON')][self.getSetting('WARD')] or pacts['WARD'][self.getSetting('SUMMON')][1]
                             local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
-
+                            
                             if self.getSetting('BPRAGE') and pet.status == 1 and helpers['actions'].canAct() and helpers['actions'].isReady('JA', 'Blood Pact: Rage') then
 
                                 if self.getSetting('1HR') and helpers['actions'].isReady('JA', 'Astral Flow') and helpers['actions'].isReady('JA', 'Astral Conduit') then
@@ -1255,6 +1255,26 @@ function core.get()
                                 helpers['queue'].add(bp.JA[rage], target)
 
                             elseif self.getSetting('BPWARD') and pet.status == 1 and helpers['actions'].canAct() and helpers['actions'].isReady('JA', 'Blood Pact: Ward') then
+
+                                if not self.getSetting('BPRAGE') and ward == 'Mewing Lullaby' then
+
+                                    if self.getSetting('1HR') and helpers['actions'].isReady('JA', 'Astral Flow') and helpers['actions'].isReady('JA', 'Astral Conduit') then
+
+                                        if not helpers['buffs'].buffActive(55) and not helpers['buffs'].buffActive(504) and not helpers['queue'].inQueue(bp.JA['Astral Flow']) and not helpers['queue'].inQueue(bp.JA['Astral Conduit']) then
+                                            helpers['queue'].addToFront(bp.JA['Astral Conduit'], player)
+                                            helpers['queue'].addToFront(bp.JA['Astral Flow'], player)
+    
+                                        end
+    
+                                    else
+
+                                        if helpers['actions'].isReady('JA', 'Apogee') and not helpers['buffs'].buffActive(55) and not helpers['buffs'].buffActive(504) and not helpers['queue'].inQueue(bp.JA['Astral Flow']) and not helpers['queue'].inQueue(bp.JA['Astral Conduit']) then
+                                            helpers['queue'].addToFront(bp.JA['Apogee'], player)
+                                        end
+
+                                    end
+
+                                end
                                 helpers['queue'].add(bp.JA[ward], target)
 
                                 if self.getSetting('ROTATE WARDS') then
@@ -1288,8 +1308,8 @@ function core.get()
 
                             if pet then
 
-                                if not helpers['buffs'].buffActive(431) and helpers['actions'].isReady('JA', 'Avatar\'s Favor') then
-                                    helpers['queue'].add(bp.JA['Avatar\'s Favor'], player)
+                                if not helpers['buffs'].buffActive(431) and helpers['actions'].isReady('JA', "Avatar's Favor") then
+                                    helpers['queue'].add(bp.JA["Avatar's Favor"], player)
                                 end
 
                             elseif not pet then
@@ -1653,7 +1673,7 @@ function core.get()
                         elseif player.sub_job == "DRG" then
                             
                             -- ANCIENT CIRCLE.
-                            if target and not helpers['buffs'].buffaActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                            if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
                                 helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
                             end
                             
@@ -1676,7 +1696,7 @@ function core.get()
                         
                         -- /COR.
                         elseif player.sub_job == "COR" and helpers['actions'].canAct() and helpers['rolls'].enabled then
-                            bp.helpers['rolls'].roll(bp)
+                            bp.helpers['rolls'].roll()
                         
                         -- /DNC.
                         elseif player.sub_job == "DNC" and helpers['actions'].canAct() then

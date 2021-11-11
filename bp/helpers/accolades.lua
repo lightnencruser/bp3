@@ -89,8 +89,6 @@ function accolades.new()
     end
 
     self.purchase = function(data)
-        local bp = bp or false
-        local data = data or false
 
         if bp and data and self.busy then
             local packed    = bp.packets.parse('incoming', data) or false
@@ -105,7 +103,7 @@ function accolades.new()
 
                     else
                         purchase.quantity = math.floor((purchase.buy+((quantity-1) * 8192))%65536)
-                        purchase.unknown1 = math.floor((purchase.buy+(quantity * 8192))/65536)-1
+                        purchase.unknown1 = math.floor((purchase.buy+((quantity-1) * 8192))/65536)
 
                     end
 
@@ -134,9 +132,9 @@ function accolades.new()
         local item      = bp.helpers['inventory'].findItemByName('Prize Powder', 0)
         local appraise  = bp.packets.new('outgoing', 0x084)
         
-        if appraise and item and n then
+        if item and n then
             self.busy = true
-            
+
             bp.helpers['popchat'].pop(string.format('SELLING PRIZE POWDERS!', n, item.en))
             for i=1, n do
                 local selling = bp.helpers['inventory'].findItemIndexByName('Prize Powder', 0) or false

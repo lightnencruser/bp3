@@ -103,7 +103,7 @@ function bubbles.new()
         self.display:stroke_alpha(self.layout.colors.stroke.alpha)
         self.display:update()
 
-        if windower.ffxi.get_player() and windower.ffxi.get_player().main_job == 'GEO' then
+        if bp and bp.player and bp.player.main_job == 'GEO' then
             self.display:show()
 
         else
@@ -121,6 +121,15 @@ function bubbles.new()
             local entrust   = bp.helpers['target'].targets.entrust
             local target    = bp.helpers['target'].getTarget()
             local update    = {}
+
+            if bp.hideUI then
+            
+                if self.display:visible() then
+                    self.display:hide()
+                end
+                return
+    
+            end
 
             for i,v in ipairs(self.bubbles) do
 
@@ -155,6 +164,17 @@ function bubbles.new()
             end
             self.display:text(table.concat(update, '\n'))
             self.display:update()
+
+        elseif bp and bp.player.main_job == 'GEO' and not self.display:visible() then
+            
+            if not bp.hideUI then
+            
+                if not self.display:visible() then
+                    self.display:show()
+                end
+                return
+    
+            end
 
         end
 

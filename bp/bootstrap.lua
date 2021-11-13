@@ -406,7 +406,7 @@ bootstrap.load = function()
 
     events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
         
-        if id == 0x028 then
+        if bp and id == 0x028 then
             local pack      = self.packets.parse('incoming', original)
             local player    = bp.player
             local actor     = windower.ffxi.get_mob_by_id(pack['Actor'])
@@ -415,7 +415,7 @@ bootstrap.load = function()
             local category  = pack['Category']
             local param     = pack['Param']
             
-            if actor and target then
+            if player and actor and target then
                 
                 -- Melee Attacks.
                 if pack['Category'] == 1 then

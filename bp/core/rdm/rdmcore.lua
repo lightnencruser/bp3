@@ -1341,7 +1341,6 @@ function core.get()
                             if not helpers['buffs'].buffActive(43) then
                                 
                                 if self.getSetting('JOB POINTS') > 1199 and helpers['actions'].isReady('MA', 'Refresh III') then
-                                    print('refreshing')
                                     helpers['queue'].add(bp.MA['Refresh III'], player)
 
                                 elseif self.getSetting('JOB POINTS') < 1200 and helpers['actions'].isReady('MA', 'Refresh II') then

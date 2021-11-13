@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '2.20211110'
+_addon.version  = '2.20211113'
 _addon.command  = 'bp'
 local bp = require('bp/bootstrap')
 --[[ From all your friends on Lakshmi, RIP Kanobrown, and you will be forever missed in the FFXI Community. ]]--

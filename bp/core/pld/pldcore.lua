@@ -21,6 +21,7 @@ function core.get()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local timers    = {hate=0, steps=0}
 
     -- Public Variables
@@ -1917,6 +1918,16 @@ function core.get()
         end
 
     end
+
+    -- Private Events.
+    private.events.statuschange = windower.register_event('status change', function(new, old)
+
+        if bp and new == 0 then
+            bp.helpers['queue'].clear()
+
+        end        
+
+    end)
 
     return self
 

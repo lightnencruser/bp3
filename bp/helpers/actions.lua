@@ -95,6 +95,14 @@ function actions.new()
 
     end
 
+    self.engage = function(target)
+
+        if bp and target then
+            self.doAction(target, 1, 'engage')
+        end
+
+    end
+
     self.synthItem = function(crystal, ingredients, materials)
         local crystal       = bp.helpers['inventory'].findItemByName(crystal) or false
         local materials     = T(materials) or false

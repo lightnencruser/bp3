@@ -77,7 +77,6 @@ function bubbles.new()
 
     -- Private Functions
     private.persist = function()
-        local next = next
 
         if self.settings then
             self.settings.bubbles       = self.bubbles
@@ -165,7 +164,7 @@ function bubbles.new()
             self.display:text(table.concat(update, '\n'))
             self.display:update()
 
-        elseif bp and bp.player.main_job == 'GEO' and not self.display:visible() then
+        elseif bp and bp.player and bp.player.main_job == 'GEO' and not self.display:visible() then
             
             if not bp.hideUI then
             

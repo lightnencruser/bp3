@@ -154,7 +154,7 @@ function buffer.new()
             local exists = private.exists(target.id)
             
             if exists and spell and spell.id and private.buffs[exists] and private.buffs[exists].spells[spell.id] then
-                private.buffs[exists].spells[spell.id].time:destroy()
+                private.buffs[exists].spells[spell.id].text:destroy()
                 private.buffs[exists].spells[spell.id].icon:destroy()
                 private.buffs[exists].spells[spell.id] = nil
 
@@ -362,13 +362,7 @@ function buffer.new()
                     spell.icon:transparency(255)
                     
                     if bp.res.spells[id] then
-                        local cast = bp.res.spells[id]
-
-                        do
-                            bp.helpers['queue'].add(cast, target)
-
-                        end
-
+                        bp.helpers['queue'].hardAdd(bp.res.spells[id], target)
                     end
 
                 end
@@ -409,7 +403,7 @@ function buffer.new()
             local target = windower.ffxi.get_mob_by_target('t') or false
 
             if (command == '+' or command == 'a') and target and a[3] then
-                private.add(target, a[3])
+                private.add(target, a[3], a[4] or false)
 
             elseif (command == '-' or command == 'r') and target and a[3] then
                 private.remove(target, a[3])
@@ -432,9 +426,9 @@ function buffer.new()
             local category  = parsed['Category']
             local param     = parsed['Param']
 
-            if parsed['Category'] == 4 then
+            if bp and parsed['Category'] == 4 then
         
-                if actor.id == bp.player.id then
+                if actor and bp.player and actor.id == bp.player.id then
                     local spell = bp.res.spells[param] or false
 
                     if spell and type(spell) == 'table' and spell.type then

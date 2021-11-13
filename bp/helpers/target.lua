@@ -187,6 +187,11 @@ function target.new()
 
     end
 
+    self.clear = function()
+        private.clear()
+
+    end
+
     -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
@@ -315,14 +320,13 @@ function target.new()
 
     self.canEngage = function(mob)
 
-        if bp and mob and mob.spawn_type == 16 and not mob.charmed and not T{2,3}:contains(mob.status) then
+        if bp and mob and mob.spawn_type == 16 and not mob.charmed and not self.isDead(mob) then
             local player    = bp.player or false
             local party     = bp.party or false
-            local helpers   = bp.helpers
 
             if player and party then
-
-                if (mob.claim_id == 0 or helpers['party'].isInParty(mob.claim_id, true) or helpers['buffs'].buffActive(603) or helpers['buffs'].buffActive(511) or helpers['buffs'].buffActive(257) or helpers['buffs'].buffActive(267)) then
+                print(mob.spawn_type, mob.charmed, self.isDead(mob), bp.helpers['party'].isInParty(mob.claim_id, true))
+                if (mob.claim_id == 0 or bp.helpers['party'].isInParty(mob.claim_id, true) or bp.helpers['buffs'].buffActive(603) or bp.helpers['buffs'].buffActive(511) or bp.helpers['buffs'].buffActive(257) or bp.helpers['buffs'].buffActive(267)) then
                     return true
                 end
 
@@ -423,11 +427,14 @@ function target.new()
             elseif windower.ffxi.get_mob_by_name(target) then
                 return windower.ffxi.get_mob_by_name(target)
 
+            elseif tonumber(target) ~= nil and windower.ffxi.get_mob_by_id(target) then
+                return windower.ffxi.get_mob_by_id(target)
+
             end
 
         elseif type(target) == 'number' then
 
-            if windower.ffxi.get_mob_by_id(target) then
+            if tonumber(target) ~= nil and windower.ffxi.get_mob_by_id(target) then
                 return windower.ffxi.get_mob_by_id(target)
             end
 
@@ -590,7 +597,6 @@ function target.new()
     end
 
     self.isDead = function(target)
-        local bp        = bp or false
         local target    = target or false
         local dead      = T{2,3}
 
@@ -695,14 +701,7 @@ function target.new()
     end
 
     self.changeMode = function()
-
-        if self.mode == 1 then
-            self.mode = 2
-
-        else
-            self.mode = 1
-
-        end
+        self.mode = self.mode ~= 2 and 2 or 1
         bp.helpers['popchat'].pop(string.format('TARGETING MODE NOW SET TO: %s', modes[self.mode]))
 
     end

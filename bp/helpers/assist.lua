@@ -2,6 +2,7 @@ local assist   = {}
 local player    = windower.ffxi.get_player()
 local files     = require('files')
 local texts     = require('texts')
+local images    = require('images')
 local f = files.new(string.format('bp/helpers/settings/assist/%s_settings.lua', player.name))
 
 if not f:exists() then
@@ -19,8 +20,7 @@ function assist.new()
 
     -- Private Variables.
     local bp            = false
-    local private       = {events={}}
-    local assistance    = false
+    local private       = {events={}, assist=false, engage=false, icon=images.new({color={alpha = 255}, texture={fit=false}, draggable=false})}
     local timer         = {last=0, delay=0.75}
 
     -- Private Functions
@@ -28,12 +28,22 @@ function assist.new()
         local next = next
 
         if self.settings then
-            self.settings.layout        = self.layout
+            self.settings.layout = self.layout
 
         end
 
     end
     persist()
+    private.icon:path(string.format("%sbp/resources/icons/buffs/532.png", windower.addon_path))
+
+    -- Update Icon Color.
+    if private.engage then
+        private.icon:color(255,255,255)
+
+    else
+        private.icon:color(100,100,100)
+
+    end
 
     local resetDisplay = function()
         self.display:pos(self.layout.pos.x, self.layout.pos.y)
@@ -75,16 +85,16 @@ function assist.new()
 
     end
     
-    private.assist = function()
+    private.act = function()
         
-        if bp and assistance and player.status == 0 and assistance.status == 1 then
-            local ally = windower.ffxi.get_mob_by_id(assistance.id) or false
+        if bp and bp.player and private.assist and bp.player.status == 0 and private.assist.status == 1 then
+            local ally = windower.ffxi.get_mob_by_id(private.assist.id) or false
 
-            if ally and not bp.helpers['target'].getTarget() and (ally.distance):sqrt() < 25 and (ally.distance):sqrt() ~= 0 then
+            if ally and (ally.distance):sqrt() < 25 and (ally.distance):sqrt() ~= 0 then
 
                 if ally.target_index then
                     local mob = windower.ffxi.get_mob_by_index(ally.target_index)
-
+                    
                     if mob and bp.helpers['target'].canEngage(mob) then
                         bp.helpers['target'].setTarget(mob)
                     end
@@ -103,24 +113,21 @@ function assist.new()
         if bp and bp.player and target then
             local player = bp.player
 
-            if player.status == 0 and target and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) then
+            if target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) then
                 
                 if (os.clock()-timer.last) < timer.delay then
                     windower.send_ipc_message(string.format('assist:::%s', target.id))
-                    bp.helpers['popchat'].pop(string.format('EVERYONE NOW ASSISTING: %s!', target.name))
-
                 
                 else
-                    assistance = target
-                    bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+                    private.assist = target
 
                 end
 
-            elseif bp and target and target.id and target.id == player.id then
-                assistance = false
+            elseif target.id and target.id == player.id then
+                private.assist = false
 
             elseif bp and not target then
-                assistance = false
+                private.assist = false
 
             end
             timer.last = os.clock()
@@ -140,17 +147,16 @@ function assist.new()
 
                 if target then
 
-                    if player.status == 0 and target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) and (target.distance):sqrt() < 15 then
-                        assistance = target
-                        bp.helpers['popchat'].pop(string.format('NOW ASSISTING: %s!', target.name))
+                    if target.id and target.id ~= player.id and bp.helpers['party'].isInParty(target, true) and (target.distance):sqrt() < 15 then
+                        private.assist = target
 
                     elseif target.id and target.id == player.id then
-                        assistance = false
+                        private.assist = false
 
                     end
 
                 elseif not target then
-                    assistance = false
+                    private.assist = false
 
                 end
 
@@ -168,24 +174,48 @@ function assist.new()
             
                 if self.display:visible() then
                     self.display:hide()
+                    private.icon:hide()
                 end
                 return
     
             end
 
-            if assistance then
-                self.display:text(string.format('[ Assisting: \\cs(%s)%s\\cr ]', self.important, assistance.name))
+            if private.assist then
+                self.display:text(string.format('[ ASSISTING: \\cs(%s)%s\\cr ]', self.important, private.assist.name:upper()))
+                self.display:update()
+
+                local x, y = self.display:extents()
+                if not self.display:visible() then
+                    self.display:show()
+                    private.icon:show()
+                    private.icon:size(y*2,y*2)
+                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
+                    private.icon:update()
+
+                elseif private.icon:visible() then
+                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
+                    private.icon:update()
+
+                end
+
+            elseif not private.assist then
+                local x, y = self.display:extents()
+
+                self.display:text(string.format('[ ASSISTING: \\cs(%s)NONE\\cr ]', self.important))
                 self.display:update()
 
                 if not self.display:visible() then
                     self.display:show()
+                    private.icon:show()
+                    private.icon:size(y*2,y*2)
+                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
+                    private.icon:update()
+
+                elseif private.icon:visible() then
+                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
+                    private.icon:update()
 
                 end
-
-            elseif not assistance then
-                self.display:text('[ Assisting: None ]')
-                self.display:update()
-                self.display:hide()
 
             end
 
@@ -223,6 +253,18 @@ function assist.new()
             
                 if command == 'pos' and a[3] then
                     private.pos(a[3], a[4] or false)
+
+                elseif command == 'engage' then
+                    private.engage = private.engage ~= true and true or false
+
+                    if private.engage then
+                        private.icon:color(255,255,255)
+
+                    else
+                        private.icon:color(100,100,100)
+
+                    end
+
                 end
             
             elseif not command then
@@ -249,7 +291,16 @@ function assist.new()
     end)
 
     private.events.timechange = windower.register_event('time change', function(new, old)
-        private.assist()
+        private.act()
+
+        if bp then
+            local target = bp.helpers['target'].getTarget()
+
+            if private.engage and private.assist and target and bp.player.status == 0 and bp.helpers['target'].canEngage(target) then
+                bp.helpers['actions'].engage(target)
+            end
+
+        end
     
     end)
 

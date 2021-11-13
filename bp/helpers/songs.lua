@@ -353,7 +353,7 @@ function songs.new()
 
             end
 
-            -- Determine if NiTro should CAN used.
+            -- Determine if NiTro CAN used.
             if bp.core.getSetting('JA') and helpers['actions'].isReady('JA', 'Nightingale') and helpers['actions'].isReady('JA', 'Troubadour') then
                 flags.ja = true
             end

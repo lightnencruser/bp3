@@ -156,13 +156,13 @@ function rolls.new()
     end
     self.writeSettings()
 
-    self.zoneChange = function()
+    private.zoneChange = function()
         self.writeSettings()
         self.active = {false, false}
         self.enabled = false
     end
 
-    self.jobChange = function()
+    private.jobChange = function()
         self.writeSettings()
         self.active = {false, false}
         resetDisplay()
@@ -178,7 +178,6 @@ function rolls.new()
     end
     
     self.setRoll = function(dice1, dice2)
-        local bp    = bp or false
         local dice1 = dice1 or false
         local dice2 = dice2 or false
 
@@ -242,19 +241,12 @@ function rolls.new()
     end
 
     self.toggleCrooked = function()
-
+        self.crooked = self.crooked ~= true and true or false
+        
         if bp then
-
-            if self.crooked then
-                self.crooked = false
-                bp.helpers['popchat'].pop(string.format('CROOKED ROLLS: %s', tostring(self.crooked):upper()))
-            else
-                self.crooked = true
-                bp.helpers['popchat'].pop(string.format('CROOKED ROLLS: %s', tostring(self.crooked):upper()))
-            end
-            self.writeSettings()
-
+            bp.helpers['popchat'].pop(string.format('CROOKED ROLLS: %s', tostring(self.crooked)))
         end
+        self.writeSettings()
 
     end
 
@@ -622,7 +614,7 @@ function rolls.new()
                     self.pos(a[3], a[4] or false)
 
                 elseif command then
-                    bp.helpers['rolls'].setRoll(self.getRoll(command), self.getRoll(a[3]))
+                    self.setRoll(self.getRoll(command), self.getRoll(a[3]))
 
                 end
 
@@ -708,6 +700,16 @@ function rolls.new()
 
         end
 
+    end)
+
+    private.events.jobchange = windower.register_event('job change', function(new, old)
+        private.jobChange()
+    
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function(new, old)
+        private.zoneChange()
+    
     end)
 
     return self

@@ -325,7 +325,7 @@ function target.new()
             local party     = bp.party or false
 
             if player and party then
-                print(mob.spawn_type, mob.charmed, self.isDead(mob), bp.helpers['party'].isInParty(mob.claim_id, true))
+
                 if (mob.claim_id == 0 or bp.helpers['party'].isInParty(mob.claim_id, true) or bp.helpers['buffs'].buffActive(603) or bp.helpers['buffs'].buffActive(511) or bp.helpers['buffs'].buffActive(257) or bp.helpers['buffs'].buffActive(267)) then
                     return true
                 end

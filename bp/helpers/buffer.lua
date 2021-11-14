@@ -361,7 +361,7 @@ function buffer.new()
                     spell.icon:color(255,255,255)
                     spell.icon:transparency(255)
                     
-                    if bp.res.spells[id] then
+                    if bp.res.spells[id] and not bp.helpers['queue'].inQueue(bp.res.spells[id], target) then
                         bp.helpers['queue'].hardAdd(bp.res.spells[id], target)
                     end
 

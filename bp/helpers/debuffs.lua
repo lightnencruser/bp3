@@ -19,6 +19,7 @@ function debuffs.new()
     self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
 
     local bp            = false
+    local private       = {events={}}
 
     -- Public Variables.
     self.debuffs        = self.settings.debuffs or {}
@@ -526,6 +527,12 @@ function debuffs.new()
         end
 
     end
+
+    private.events.statuschange = windower.register_event('status change', function(new, old)
+        if new == 0 then
+            self.reset()
+        end
+    end)
 
     return self
 

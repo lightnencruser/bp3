@@ -693,10 +693,10 @@ function core.get()
                             -- REFRESH.
                             if not helpers['buffs'].buffActive(43) then
 
-                                if self.getSetting('JOB POINTS') > 1199 and helpers['actions'].isReady('JA', 'Refresh III') then
+                                if self.getSetting('JOB POINTS') > 1199 and helpers['actions'].isReady('MA', 'Refresh III') then
                                     helpers['queue'].add(bp.MA['Refresh III'], player)
 
-                                elseif self.getSetting('JOB POINTS') < 1200 and helpers['actions'].isReady('JA', 'Refresh II') then
+                                elseif self.getSetting('JOB POINTS') < 1200 and helpers['actions'].isReady('MA', 'Refresh II') then
                                     helpers['queue'].add(bp.MA['Refresh II'], player)
 
                                 elseif player.main_job_level < 50 then

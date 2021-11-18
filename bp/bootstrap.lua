@@ -9,7 +9,7 @@ bootstrap.load = function()
     local helpers   = {
         
         'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffer','buffs','burst','chests','ciphers','commands','coms','console','controls','cures','dax','debuffs','debug','distance','enmity','equipment',
-        'inventory','items','keybinds','maintenance','maps','menus','merits','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
+        'inventory','items','invites','keybinds','maintenance','maps','menus','merits','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
     local directory = string.format('bp/settings/%s', player.name)
@@ -374,7 +374,6 @@ bootstrap.load = function()
             self.helpers['stratagems'].render(self)
             self.helpers['distance'].render(self)
             self.helpers['popchat'].render(self)
-            self.helpers['debuffs'].render(self)
             self.helpers['runes'].render(self)
 
             if self.settings['Enabled'] and not self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.settings['Ping Delay'] then
@@ -683,7 +682,6 @@ bootstrap.load = function()
                     self.helpers['queue'].ready = (os.clock() + 1)
     
                 end
-                self.helpers['burst'].registerSkillchain(original)
     
             end
     

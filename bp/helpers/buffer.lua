@@ -353,7 +353,7 @@ function buffer.new()
 
             for id, spell in pairs(data.spells) do
                 
-                if (spell.delay - (os.time() - spell.last)) > 0 then
+                if spell.delay and (spell.delay - (os.time() - spell.last)) > 0 then
                     spell.icon:color(75,75,75)
                     spell.icon:transparency(100)
 

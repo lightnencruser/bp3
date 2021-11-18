@@ -26,7 +26,7 @@ commands.new = function()
         
         if core and commands and commands[1] then
             local command   = windower.convert_auto_trans(commands[1])
-            local player    = windower.ffxi.get_player()
+            local player    = bp.player
             
             if command == 'toggle' then
                 
@@ -730,31 +730,31 @@ commands.new = function()
                     end
                 
                 elseif command == "holla" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Teleport-Holla"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Teleport-Holla"], player)
                     
                 elseif command == "dem" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Teleport-Dem"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Teleport-Dem"], player)
                     
                 elseif command == "mea" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Teleport-Mea"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Teleport-Mea"], player)
                     
                 elseif command == "yhoat" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Teleport-Yhoat"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Teleport-Yhoat"], player)
                     
                 elseif command == "altepa" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Teleport-Altepa"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Teleport-Altepa"], player)
                     
                 elseif command == "vazhl" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Teleport-Vahzl"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Teleport-Vahzl"], player)
                     
                 elseif command == "jugner" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Recall-Jugner"], player)
+                    bp.helpers['queue'].ahardAdddd(bp.MA["Recall-Jugner"], player)
                     
                 elseif command == "pash" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Recall-Pashh"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Recall-Pashh"], player)
                     
                 elseif command == "meriph" and bp.helpers["party"].isInParty(target, false) then
-                    bp.helpers['queue'].add(bp.MA["Recall-Meriph"], player)
+                    bp.helpers['queue'].hardAdd(bp.MA["Recall-Meriph"], player)
                 
                 end
                 

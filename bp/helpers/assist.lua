@@ -107,6 +107,19 @@ function assist.new()
 
     end
 
+    private.engaging = function()
+        private.engage = private.engage ~= true and true or false
+
+        if private.engage then
+            private.icon:color(255,255,255)
+
+        else
+            private.icon:color(100,100,100)
+
+        end
+
+    end
+
     private.set = function(target)
         local target = target or false
         
@@ -188,34 +201,45 @@ function assist.new()
                 if not self.display:visible() then
                     self.display:show()
                     private.icon:show()
-                    private.icon:size(y*2,y*2)
-                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
-                    private.icon:update()
+                    private.icon:pos((self.display:pos_x()-1) - y, self.display:pos_y())
+
+                    if private.icon:height() ~= y then
+                        private.icon:size(y, y)
+                    end
 
                 elseif private.icon:visible() then
-                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
-                    private.icon:update()
+                    private.icon:pos((self.display:pos_x()-1) - y, self.display:pos_y())
+
+                    if private.icon:height() ~= y then
+                        private.icon:size(y, y)
+                    end
 
                 end
+                private.icon:update()
 
             elseif not private.assist then
-                local x, y = self.display:extents()
-
                 self.display:text(string.format('[ ASSISTING: \\cs(%s)NONE\\cr ]', self.important))
                 self.display:update()
 
+                local x, y = self.display:extents()
                 if not self.display:visible() then
                     self.display:show()
                     private.icon:show()
-                    private.icon:size(y*2,y*2)
-                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
-                    private.icon:update()
+                    private.icon:pos((self.display:pos_x()-1) - y, self.display:pos_y())
+
+                    if private.icon:height() ~= y then
+                        private.icon:size(y, y)
+                    end
 
                 elseif private.icon:visible() then
-                    private.icon:pos(self.display:pos_x() - y, self.display:pos_y())
-                    private.icon:update()
+                    private.icon:pos((self.display:pos_x()-1) - y, self.display:pos_y())
+
+                    if private.icon:height() ~= y then
+                        private.icon:size(y, y)
+                    end
 
                 end
+                private.icon:update()
 
             end
 
@@ -255,15 +279,7 @@ function assist.new()
                     private.pos(a[3], a[4] or false)
 
                 elseif command == 'engage' then
-                    private.engage = private.engage ~= true and true or false
-
-                    if private.engage then
-                        private.icon:color(255,255,255)
-
-                    else
-                        private.icon:color(100,100,100)
-
-                    end
+                    private.engaging()
 
                 end
             
@@ -302,6 +318,23 @@ function assist.new()
 
         end
     
+    end)
+
+    private.events.mouse = windower.register_event('mouse', function(param, x, y, delta, blocked)
+        
+        if private.icon:hover(x, y) then
+
+            if param == 1 then
+                private.engaging()
+                return true
+
+            elseif param == 2 then
+                return true
+
+            end
+
+        end
+
     end)
 
     return self

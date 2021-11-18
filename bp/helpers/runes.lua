@@ -169,10 +169,6 @@ function runes.new()
     
 
     self.setRune = function(r1, r2, r3)
-        local bp = bp or false
-        local r1 = r1 or false
-        local r2 = r2 or false
-        local r3 = r3 or false
         
         if bp and r1 then
 
@@ -237,7 +233,6 @@ function runes.new()
     end
 
     self.getShort = function(short)
-        local short = short or false
         
         if short and type(short) == 'string' then
             
@@ -255,17 +250,13 @@ function runes.new()
     end
     
     self.getRune = function(name)
-        local bp    = bp or false
-        local name  = name or false
         
         if bp and name and type(name) == 'string' then
-            local helpers   = bp.helpers
-            local list      = self.allowed
-            local name      = name:lower()
+            local name = name:lower()
             
-            for _,v in pairs(list) do
+            for _,v in pairs(self.allowed) do
                 
-                if v and (v.en):lower() == (name):lower() then
+                if v and (v.en):lower() == name then
                     return v
                     
                 elseif v and (v.en):lower() == self.getShort(name) then
@@ -281,11 +272,8 @@ function runes.new()
     end
     
     self.getBuff = function(name)
-        local bp    = bp or false
-        local name  = name or false
         
         if bp and name and type(name) == 'string' then
-            local helpers = bp.helpers
             
             for _,v in pairs(valid) do
                 local buff = res.buffs[v]
@@ -302,13 +290,10 @@ function runes.new()
     end
     
     self.getActive = function()
-        local bp        = bp or false
-        local player    = windower.ffxi.get_player() or false
     
-        if bp and player then
-            local helpers   = bp.helpers
-            local buffs     = windower.ffxi.get_player().buffs
-            local count     = 0
+        if bp and bp.player then
+            local buffs = bp.player.buffs
+            local count = 0
             
             for _,v in ipairs(buffs) do
                 
@@ -325,8 +310,6 @@ function runes.new()
     end
     
     self.validBuff = function(id)
-        local bp = bp or false
-        local id = id or false
         
         if bp and id then
             
@@ -391,9 +374,8 @@ function runes.new()
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)

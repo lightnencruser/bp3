@@ -4,6 +4,7 @@ function menus.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local allowed   = {
 
         assaults    = S{'Yahsra','Isdebaaq','Famad','Lageegee','Bhoy Yhupplo'},
@@ -23,10 +24,9 @@ function menus.new()
     end
     
     self.capture = function(original)
-        local bp        = bp or false
         local original  = original or false
 
-        if self.enabled and bp and original then
+        if bp and self.enabled and original then
             local packed    = bp.packets.parse('incoming', original)
             local npc       = windower.ffxi.get_mob_by_id(original:sub(5,8):unpack('I')) or false
             local menu      = { original:sub(9,40):unpack('C32') }
@@ -176,23 +176,24 @@ function menus.new()
 
     end
 
-    self.toggle = function()
-        local bp = bp or false
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local a = T{...}
+        local c = a[1] or false
+    
+        if c and c == 'menus' then
+            local command = a[2] or false
 
-        if bp then
-
-            if self.enabled then
-                self.enabled = false
-
-            else
-                self.enabled = true
+            if not command then
+                self.enabled = self.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('MENU HACKS: %s!', tostring(self.enabled)))
 
             end
-            bp.helpers['popchat'].pop(string.format('MENU HACKS: %s!', tostring(self.enabled)))
 
         end
+        
 
-    end
+    end)
 
     return self
 

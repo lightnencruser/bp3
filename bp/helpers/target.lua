@@ -252,16 +252,32 @@ function target.new()
         if target then
 
             if type(target) == 'number' then
-                target = windower.ffxi.get_mob_by_id(target) or false
+                local t = windower.ffxi.get_mob_by_id(target) or false
+
+                if self.allowed(t) and self.canEngage(t) then
+                    target = t
+                end
 
             elseif type(target) == 'table' then
-                target = windower.ffxi.get_mob_by_id(target.id) or false
+                local t = windower.ffxi.get_mob_by_id(target.id) or false
+
+                if self.allowed(t) and self.canEngage(t) then
+                    target = t
+                end
 
             elseif type(target) == 'string' and windower.ffxi.get_mob_by_name(target) then
-                target = windower.ffxi.get_mob_by_name(target) or false
+                local t = windower.ffxi.get_mob_by_name(target) or false
+
+                if self.allowed(t) and self.canEngage(t) then
+                    target = t
+                end
 
             elseif windower.ffxi.get_mob_by_target('t') then
-                target = windower.ffxi.get_mob_by_target('t')
+                local t = windower.ffxi.get_mob_by_target('t')
+
+                if self.allowed(t) and self.canEngage(t) then
+                    target = t
+                end
 
             else
                 target = false

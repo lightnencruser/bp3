@@ -4,6 +4,7 @@ function burst.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local elements  = T{'Fire','Blizzard','Stone','Aero','Water','Thunder'}
     local tiers     = T{'I','II','III','IV','V','VI'}
     local messages  = {
@@ -47,18 +48,9 @@ function burst.new()
 
     }
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-    
-    self.registerSkillchain = function(data)
-        local bp        = bp or false
-        local data      = data or false
-        local enabled   = bp.core.getSetting('BURST')
+    -- Private Functions.
+    private.registerSkillchain = function(data)
+        local enabled = bp.core.getSetting('BURST')
 
         if bp and data and enabled and bp.settings['Enabled'] then
             local packed = bp.packets.parse('incoming', data)
@@ -80,6 +72,14 @@ function burst.new()
 
             end
 
+        end
+
+    end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
         end
 
     end
@@ -288,34 +288,47 @@ function burst.new()
     end
 
     self.isNuke = function(name)
-        local name = name or false
+        local list = T{
+
+            'Fire','Fire II','Fire III','Fire IV','Fire V','Fire VI','Fira','Fira II','Fira III','Firaga','Firaga II','Firaga III','Firaga IV','Firaja',
+            'Water','Water II','Water III','Water IV','Water V','Water VI','Watera','Watera II','Watera III','Waterga','Waterga II','Waterga III','Waterga IV','Waterja',
+            'Thunder','Thunder II','Thunder III','Thunder IV','Thunder V','Thunder VI','Thundara','Thundara II','Thundara III','Thundaga','Thundaga II','Thundaga III','Thundaga IV','Thundaja',
+            'Stone','Stone II','Stone III','Stone IV','Stone V','Stone VI','Stonera','Stonera II','Stonera III','Stonega','Stonega II','Stonega III','Stonega IV','Stoneja',
+            'Aero','Aero II','Aero III','Aero IV','Aero V','Aero VI','Aera','Aera II','Aera III','Aeroga','Aeroga II','Aeroga III','Aeroga IV','Aeroja',
+            'Blizzard','Blizzard II','Blizzard III','Blizzard IV','Blizzard V','Blizzard VI','Blizzara','Blizzara II','Blizzara III','Blizzaga','Blizzaga II','Blizzaga III','Blizzaga IV','Blizzaja',
+
+        }
 
         if name then
 
-            if T{'Fire','Fire II','Fire III','Fire IV','Fire V','Fire VI','Fira','Fira II','Fira III','Firaga','Firaga II','Firaga III','Firaga IV','Firaja'}:contains(name) then
+            if list:contains(name) then
                 return true
-
-            elseif T{'Water','Water II','Water III','Water IV','Water V','Water VI','Watera','Watera II','Watera III','Waterga','Waterga II','Waterga III','Waterga IV','Waterja'}:contains(name) then
-                return true
-
-            elseif T{'Thunder','Thunder II','Thunder III','Thunder IV','Thunder V','Thunder VI','Thundara','Thundara II','Thundara III','Thundaga','Thundaga II','Thundaga III','Thundaga IV','Thundaja'}:contains(name) then
-                return true
-
-            elseif T{'Stone','Stone II','Stone III','Stone IV','Stone V','Stone VI','Stonera','Stonera II','Stonera III','Stonega','Stonega II','Stonega III','Stonega IV','Stoneja'}:contains(name) then
-                return true
-
-            elseif T{'Aero','Aero II','Aero III','Aero IV','Aero V','Aero VI','Aera','Aera II','Aera III','Aeroga','Aeroga II','Aeroga III','Aeroga IV','Aeroja'}:contains(name) then
-                return true
-
-            elseif T{'Blizzard','Blizzard II','Blizzard III','Blizzard IV','Blizzard V','Blizzard VI','Blizzara','Blizzara II','Blizzara III','Blizzaga','Blizzaga II','Blizzaga III','Blizzaga IV','Blizzaja'}:contains(name) then
-                return true
-
             end
 
         end
         return false
 
     end
+
+    -- Private Events.
+    private.events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+        
+        if bp and id == 0x028 then
+            local pack      = bp.packets.parse('incoming', original)
+            local player    = bp.player
+            local actor     = windower.ffxi.get_mob_by_id(pack['Actor'])
+            local target    = windower.ffxi.get_mob_by_id(pack['Target 1 ID'])
+            local count     = pack['Target Count']
+            local category  = pack['Category']
+            local param     = pack['Param']
+            
+            if player and actor and target then
+                private.registerSkillchain(original)
+            end
+
+        end
+
+    end)
 
     return self
 

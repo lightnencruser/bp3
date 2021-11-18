@@ -141,28 +141,27 @@ function stratagems.new()
     end
 
     self.calculate = function()
-        local player = windower.ffxi.get_player()
+
+        if bp and bp.player and bp.player.main_job == 'SCH' then
             
-        if player.main_job == "SCH" then
-            
-            if (player.main_job_level >= 10 and player.main_job_level <= 29) then
+            if (bp.player.main_job_level >= 10 and bp.player.main_job_level <= 29) then
                 self.gems.max, recharge = 1, 240
 
-            elseif (player.main_job_level >= 30 and player.main_job_level <= 49) then
+            elseif (bp.player.main_job_level >= 30 and bp.player.main_job_level <= 49) then
                 self.gems.max, recharge = 2, 120
 
-            elseif (player.main_job_level >= 50 and player.main_job_level <= 69) then
+            elseif (bp.player.main_job_level >= 50 and bp.player.main_job_level <= 69) then
                 self.gems.max, recharge = 3, 80
 
-            elseif (player.main_job_level >= 70 and player.main_job_level <= 89) then
+            elseif (bp.player.main_job_level >= 70 and bp.player.main_job_level <= 89) then
                 self.gems.max, recharge = 4, 60
 
-            elseif (player.main_job_level >= 90 and player.main_job_level < 99) then
+            elseif (bp.player.main_job_level >= 90 and bp.player.main_job_level < 99) then
                 self.gems.max, recharge = 5, 48
                     
-            elseif player.main_job_level == 99 then
+            elseif bp.player.main_job_level == 99 then
 
-                if windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent >= 550 then
+                if bp.player["job_points"][bp.player.main_job:lower()].jp_spent >= 550 then
                     self.gems.max, recharge = 5, 33
 
                 else
@@ -172,8 +171,18 @@ function stratagems.new()
                     
             end
                 
-        elseif player.sub_job == "SCH" then
-            self.gems.max, recharge = 2, 120
+        elseif bp and bp.player and bp.player.sub_job == "SCH" then
+
+            if (bp.player.sub_job_level >= 10 and bp.player.sub_job_level <= 29) then
+                self.gems.max, recharge = 1, 240
+
+            elseif (bp.player.sub_job_level >= 30 and bp.player.sub_job_level <= 49) then
+                self.gems.max, recharge = 2, 120
+
+            elseif (bp.player.sub_job_level >= 50 and bp.player.sub_job_level <= 69) then
+                self.gems.max, recharge = 3, 80
+
+            end            
                 
         else
             self.gems.max, recharge = 0, 255

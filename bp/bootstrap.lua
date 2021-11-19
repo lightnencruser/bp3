@@ -370,8 +370,7 @@ bootstrap.load = function()
         if self.player then
             local player = self.player
             local zone = self.info.zone
-
-            self.helpers['stratagems'].render(self)
+            
             self.helpers['distance'].render(self)
             self.helpers['popchat'].render(self)
             self.helpers['runes'].render(self)

@@ -100,7 +100,7 @@ function debuffs.new()
 
             if bp and bp.player and self.debuffs[bp.player.main_job_id] then
 
-                if spell and spell.id then
+                if type(spell) == 'table' and spell.id then
 
                     for _,v in pairs(self.debuffs[bp.player.main_job_id]) do
                         
@@ -112,7 +112,7 @@ function debuffs.new()
 
                     end
 
-                elseif spell and tonumber(spell) ~= nil then
+                elseif tonumber(spell) ~= nil then
 
                     for _,v in pairs(self.debuffs[bp.player.main_job_id]) do
                         

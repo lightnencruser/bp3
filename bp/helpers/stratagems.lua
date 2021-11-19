@@ -21,6 +21,7 @@ function stratagems.new()
 
     -- Private Variables.
     local bp            = false
+    local private       = {events={}}
     local icon          = images.new({color={alpha = 255},texture={fit = false},draggable=false})
     local recharge      = 0
     local math          = math
@@ -58,11 +59,11 @@ function stratagems.new()
         self.display:update()
 
         if icon then
-            icon:path(string.format("%sbp/resources/icons/stratagems/stratagems.png", windower.addon_path))
-            icon:size(50, 50)
+            icon:path(string.format("%sbp/resources/icons/buffs/62.png", windower.addon_path))
+            icon:size(32, 32)
             icon:transparency(0)
-            icon:pos_x(self.layout.pos.x-icon_offset.x)
-            icon:pos_y(self.layout.pos.y-icon_offset.y)
+            icon:pos_x(self.layout.pos.x-7)
+            icon:pos_y(self.layout.pos.y+2)
             icon:show()
 
         end
@@ -104,23 +105,23 @@ function stratagems.new()
     end
     self.writeSettings()
 
-    self.zoneChange = function()
+    private.zoneChange = function()
         self.writeSettings()
     end
 
-    self.jobChange = function()
+    private.jobChange = function()
         self.writeSettings()
-        persist()
         resetDisplay()
 
     end
 
-    self.render = function()
+    private.render = function()
 
         if bp and bp.hideUI then
             
             if self.display:visible() then
                 self.display:hide()
+                icon:hide()
             end
             return
 
@@ -128,69 +129,90 @@ function stratagems.new()
 
         if self.display:visible() then
             local timer = windower.ffxi.get_ability_recasts()[231] or 0
+            local current = ((self.gems.max-math.ceil(timer/recharge)))
 
             do  
-                self.gems.current = ((self.gems.max-math.ceil(timer/recharge)))
+                self.gems.current = current > -math.huge and current < math.huge and current or 0
                 self.display:text(tostring(self.gems.current))
                 self.display:update()
 
             end
 
+        elseif not self.display:visible() then
+            self.display:show()
+
+            if not icon:visible() then
+                icon:show()
+            end
+
         end
 
     end
 
-    self.calculate = function()
+    private.calculate = function()
 
-        if bp and bp.player and bp.player.main_job == 'SCH' then
+        if bp and bp.player and bp.player.main_job and bp.player.sub_job then
+            local main = {job=bp.player.main_job, lvl=bp.player.main_job_level}
+            local sub = {job=bp.player.sub_job, lvl=bp.player.sub_job_level}
+
+            if main.job == 'SCH' then
             
-            if (bp.player.main_job_level >= 10 and bp.player.main_job_level <= 29) then
-                self.gems.max, recharge = 1, 240
+                if (main.lvl >= 10 and main.lvl <= 29) then
+                    self.gems.max, recharge = 1, 240
 
-            elseif (bp.player.main_job_level >= 30 and bp.player.main_job_level <= 49) then
-                self.gems.max, recharge = 2, 120
+                elseif (main.lvl >= 30 and main.lvl <= 49) then
+                    self.gems.max, recharge = 2, 120
 
-            elseif (bp.player.main_job_level >= 50 and bp.player.main_job_level <= 69) then
-                self.gems.max, recharge = 3, 80
+                elseif (main.lvl >= 50 and main.lvl <= 69) then
+                    self.gems.max, recharge = 3, 80
 
-            elseif (bp.player.main_job_level >= 70 and bp.player.main_job_level <= 89) then
-                self.gems.max, recharge = 4, 60
+                elseif (main.lvl >= 70 and main.lvl <= 89) then
+                    self.gems.max, recharge = 4, 60
 
-            elseif (bp.player.main_job_level >= 90 and bp.player.main_job_level < 99) then
-                self.gems.max, recharge = 5, 48
-                    
-            elseif bp.player.main_job_level == 99 then
-
-                if bp.player["job_points"][bp.player.main_job:lower()].jp_spent >= 550 then
-                    self.gems.max, recharge = 5, 33
-
-                else
+                elseif (main.lvl >= 90 and main.lvl < 99) then
                     self.gems.max, recharge = 5, 48
+                        
+                elseif main.lvl == 99 then
 
+                    if bp.player['job_points'][main.job:lower()].jp_spent >= 550 then
+                        self.gems.max, recharge = 5, 33
+
+                    else
+                        self.gems.max, recharge = 5, 48
+
+                    end
+                        
                 end
+                
+            elseif sub.job == 'SCH' then
+                
+                if (sub.lvl >= 10 and sub.lvl <= 29) then
+                    self.gems.max, recharge = 1, 240
+
+                elseif (sub.lvl >= 30 and sub.lvl <= 49) then
+                    self.gems.max, recharge = 2, 120
+
+                elseif (sub.lvl >= 50 and sub.lvl <= 69) then
+                    self.gems.max, recharge = 3, 80
+
+                end            
+                    
+            else
+                self.gems.max, recharge = 0, 255
                     
             end
-                
-        elseif bp and bp.player and bp.player.sub_job == "SCH" then
 
-            if (bp.player.sub_job_level >= 10 and bp.player.sub_job_level <= 29) then
-                self.gems.max, recharge = 1, 240
-
-            elseif (bp.player.sub_job_level >= 30 and bp.player.sub_job_level <= 49) then
-                self.gems.max, recharge = 2, 120
-
-            elseif (bp.player.sub_job_level >= 50 and bp.player.sub_job_level <= 69) then
-                self.gems.max, recharge = 3, 80
-
-            end            
-                
-        else
-            self.gems.max, recharge = 0, 255
-                
         end
     
     end
-    self.calculate()
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
 
     self.updatePosition = function(x, y)
         self.display:pos(x, y)
@@ -201,6 +223,60 @@ function stratagems.new()
         icon:update()
         
     end
+
+    -- Private Events.
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+
+    end)
+
+    private.events.login = windower.register_event('login', function()
+        coroutine.schedule(function()
+            private.calculate()
+
+        end, 1)
+
+    end)
+
+    private.events.load = windower.register_event('load', function()
+        coroutine.schedule(function()
+            private.calculate()
+            
+        end, 0.25)
+
+    end)
+
+    private.events.jobchange = windower.register_event('job change', function(new, old)
+        private.jobChange()
+    
+    end)
+
+    private.events.zonechange = windower.register_event('zone change', function(new, old)
+        private.zoneChange()
+    
+    end)
+
+    private.events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+        
+        if bp and id == 0x028 then
+            local parsed    = bp.packets.parse('incoming', original)
+            local player    = bp.player
+            local actor     = windower.ffxi.get_mob_by_id(parsed['Actor'])
+            local target    = windower.ffxi.get_mob_by_id(parsed['Target 1 ID'])
+            local category  = parsed['Category']
+            local param     = parsed['Param']
+            
+            if player and actor and target then
+
+                if parsed['Category'] == 6 and actor.id == player.id then
+                    private.calculate()
+                end
+    
+            end
+    
+        end
+        
+    end)
 
     return self
 

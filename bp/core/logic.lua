@@ -7,7 +7,7 @@ function core.get()
     -- Private Variables.
     local bp        = false
     local private   = {events={}, core={}, subs={}, settings=dofile(string.format('%sbp/core/core.lua', windower.addon_path, player.name))}
-    local timers    = {hate=0, steps=0}
+    local timers    = {hate=0, steps=0, utsusemi={last=0, delay=1.5}}
 
     -- Public Variables.
     self.settings   = private.settings.getFlags()
@@ -80,10 +80,10 @@ function core.get()
                     end
 
                 end
-                private.core.automate(bp, self.settings)
+                --private.core.automate(bp, self.settings)
 
                 if private.subs[player.sub_job] then
-                    private.subs[player.sub_job]()
+                    --private.subs[player.sub_job]()
                 end
 
             end
@@ -109,6 +109,28 @@ function core.get()
     end
 
     private.subs['RDM'] = function()
+        local player = bp.player
+
+        do -- Get all of RDM's settings. 
+            --[[
+            local convert       = private.settings.get('convert')
+            local spikes        = private.settings.get('spikes')
+            local gain          = private.settings.get('gain')
+            local blink         = private.settings.get('blink')
+            local aquaveil      = private.settings.get('aquaveil')
+            local enspells      = private.settings.get('en')
+            local dia           = private.settings.get('dia')
+            local bio           = private.settings.get('bio')
+            local sanguineblade = private.settings.get('sanguine blade')
+            ]]
+
+        end
+
+        if player.status == 0 then
+
+        elseif player.status == 1 then
+
+        end
 
     end
 
@@ -179,6 +201,39 @@ function core.get()
     private.subs['RUN'] = function()
 
     end
+
+    -- Private Events.
+    private.events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if bp and id == 0x028 then
+            local pack      = bp.packets.parse('incoming', original)
+            local player    = bp.player
+            local actor     = windower.ffxi.get_mob_by_id(pack['Actor'])
+            local target    = windower.ffxi.get_mob_by_id(pack['Target 1 ID'])
+            local category  = pack['Category']
+            local param     = pack['Param']
+            
+            if player and actor and target and player.id == actor.id and actor.id == target.id then
+
+                if pack['Category'] == 4 then
+                    local spell = bp.res.spells[param] or false
+
+                    if spell and type(spell) == 'table' and spell.type then
+                        local is_nin = (player.main_job == 'NIN' or player.sub_job == 'NIN') and true or false
+
+                        if is_nin and (spell.en):match('Utsusemi') then
+                            timers.utsusemi.last = os.clock()
+                        end
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end)
 
     return self
 

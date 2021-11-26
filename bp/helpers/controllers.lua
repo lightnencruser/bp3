@@ -112,12 +112,16 @@ function controllers.new()
 
     end
 
+    self.getControllers = function()
+        return controllers
+    end
+
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local a = T{...}
         local c = a[1] or false
 
-        if c == 'invites' and a[2] then
+        if c == 'controllers' and a[2] then
             local command = a[2]:lower()
             local target = windower.ffxi.get_mob_by_target('t') or false
                 

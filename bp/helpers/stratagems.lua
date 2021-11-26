@@ -230,7 +230,7 @@ function stratagems.new()
         coroutine.schedule(function()
             private.calculate()
             
-        end, 0.5)
+        end, 1)
 
     end)
 

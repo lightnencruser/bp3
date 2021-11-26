@@ -4,21 +4,15 @@ function ciphers.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local npc       = {'Clarion Star','Gondebaud','Wetata'}
 
     -- Public Variables.
     self.busy       = false
     self.cipher     = false
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-
-    self.poke = function()
+    -- Private Functions.
+    private.poke = function()
         local item = bp.helpers['inventory'].findItemByName('Cipher') or false
         local target
 
@@ -52,6 +46,14 @@ function ciphers.new()
 
         end
         
+    end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
     end
 
     self.build = function(data)
@@ -108,6 +110,29 @@ function ciphers.new()
         return false
         
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+
+        if commands[1] and commands[1]:lower() == 'ciphers' then
+            private.poke()
+        end
+
+    end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+    
+        if id == 0x034 then
+            local menu_hacks = bp.helpers['menus'].enabled
+    
+            if not menu_hacks and self.busy then
+                return self.build(original)
+            end
+
+        end
+
+    end)
 
     return self
 

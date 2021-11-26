@@ -12,18 +12,19 @@ end
 function debuffs.new()
     local self = {}
 
+    -- Private Variables.
+    local bp            = false
+    local private       = {events={}}
+
     -- Static Variables.
     self.settings       = dofile(string.format('%sbp/helpers/settings/debuffs/%s_settings.lua', windower.addon_path, player.name))
     self.layout         = self.settings.layout or {pos={x=300, y=400}, colors={text={alpha=255, r=100, g=215, b=0}, bg={alpha=0, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=25, b=15}}, font={name='Lucida Console', size=8}, padding=2, stroke_width=2, draggable=false}
     self.update         = self.settings.update or {delay=2, last=0}
     self.display        = texts.new('', {flags={draggable=self.layout.draggable}})
 
-    local bp            = false
-    local private       = {events={}}
-
     -- Public Variables.
     self.debuffs        = self.settings.debuffs or {}
-    self.active         = {}
+    self.enabled        = self.settings.enabled or false
     self.update.last    = 0
 
     -- Private Functions
@@ -143,7 +144,7 @@ function debuffs.new()
     
     self.cast = function()
 
-        if bp then
+        if bp and self.enabled then
             local player = bp.player
 
             if self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
@@ -541,6 +542,60 @@ function debuffs.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        
+        if commands[1] and commands[1]:lower() == 'debuffs' then
+            
+            if commands[2] then
+                local command = commands[2]:lower()
+                local target = windower.ffxi.get_mob_by_target('t') or false
+
+                if command == '+' and commands[3] then
+                    local spell = {}
+                    local delay = tonumber(commands[#commands]) or 180
+                    
+                    for i=3, #commands do
+
+                        if commands[i] and tonumber(commands[i]) == nil then
+                            table.insert(spell, commands[i])
+                        end
+
+                    end
+                    bp.helpers['debuffs'].add(table.concat(spell, ' '), delay)
+
+                elseif command == '-' and commands[3] then
+                    bp.helpers['debuffs'].remove(table.concat(commands, ' '):sub(11))
+
+                elseif command == 'reset' then
+                    bp.helpers['debuffs'].reset()
+
+                elseif command == 'clear' then
+                    bp.helpers['debuffs'].clear()
+
+                elseif command == 'show' then
+                    bp.helpers['debuffs'].display:show()
+
+                elseif command == 'hide' then
+                    bp.helpers['debuffs'].display:hide()
+
+                elseif command == 'pos' and commands[3] then
+                    bp.helpers['debuffs'].pos(commands[3], commands[4] or false)
+
+                end
+
+            elseif not commands[2] then
+                self.enabled = self.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTU-DEBUFFING SET TO: %s.', tostring(self.enabled)))
+
+            end
+            self.writeSettings()
+
+        end
+        
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         self.render()
     
@@ -574,6 +629,14 @@ function debuffs.new()
     
         end
         
+    end)
+
+    private.events.commands = windower.register_event('time change', function(new, old)
+
+        if self.enabled then
+            self.cast()
+        end
+
     end)
 
     return self

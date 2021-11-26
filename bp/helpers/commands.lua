@@ -78,12 +78,6 @@ commands.new = function()
             elseif command == 'ja' then
                 core.nextSetting('JA')
 
-            elseif command == 'buffs' then
-                core.nextSetting('BUFFS')
-
-            elseif command == 'debuff' then
-                core.nextSetting('DEBUFF')
-
             elseif command == 'hate' then
                 core.nextSetting('HATE')
 
@@ -98,12 +92,6 @@ commands.new = function()
 
             elseif command == 'sc' then
                 core.nextSetting('SC')
-
-            elseif command == 'status' and not commands[2] then
-                core.nextSetting('STATUS')
-
-            elseif command == 'status' and commands[2] and commands[2] == 'pos' and commands[3] then
-                bp.helpers['status'].pos(commands[3], commands[4] or false)
 
             elseif command == 'burst' then
                 core.nextSetting('BURST')
@@ -167,6 +155,9 @@ commands.new = function()
 
             elseif command == 'sanguine' then
                 core.nextSetting('SANGUINE')
+
+            elseif command == 'sic' then
+                core.nextSetting('SIC')
 
             elseif command == 'pet' then
                 core.nextSetting('PET')

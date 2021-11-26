@@ -24,37 +24,34 @@ function core.get()
     local timers    = {hate=0, steps=0}
 
     -- Public Variables
-    self["JOB POINTS"]          = windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent
-    self["AM"]                  = self.settings["AM"] or {{false,true}, false}
-    self["AM LEVEL"]            = self.settings["AM LEVEL"] or {{3,2,1}, 3}
-    self["1HR"]                 = self.settings["1HR"] or {{false,true}, false}
-    self["JA"]                  = self.settings["JA"] or {{false,true}, true}
-    self["RA"]                  = self.settings["RA"] or {{false,true}, false}
+    --self["JOB POINTS"]          = windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent
+    --self["AM"]                  = self.settings["AM"] or {{false,true}, false}
+    --self["AM LEVEL"]            = self.settings["AM LEVEL"] or {{3,2,1}, 3}
+    --self["1HR"]                 = self.settings["1HR"] or {{false,true}, false}
+    --self["JA"]                  = self.settings["JA"] or {{false,true}, true}
+    --self["RA"]                  = self.settings["RA"] or {{false,true}, false}
     self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
-    self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
-    self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
-    self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
-    self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
-    self["WS"]                  = self.settings["WS"] or {{false,true}, false}
-    self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
-    self["RANGED WS"]           = self.settings["RANGED WS"] or "Leaden Salute"
-    self["TP THRESHOLD"]        = self.settings["TP THRESHOLD"] or 1000
-    self["SC"]                  = self.settings["SC"] or {{false,true}, false}
-    self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
-    self["ELEMENT"]             = self.settings["ELEMENT"] or {{"Fire","Ice","Wind","Earth","Lightning","Water","Light","Dark","Random"}, "Fire"}
-    self["NUKE TIER"]           = self.settings["NUKE TIER"] or {{"I","II","III","IV","V","Random"}, "I"}
-    self["NUKE ONLY"]           = self.settings["NUKE ONLY"] or {{true,false}, false}
-    self["MULTINUKE"]           = self.settings["MULTINUKE"] or {{1,2,3}, 1}
-    self["ALLOW AOE"]           = self.settings["ALLOW AOE"] or {{false,true}, false}
-    self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
-    self["TANK MODE"]           = self.settings["TANK MODE"] or {{false,true}, false}
-    self["SEKKA"]               = self.settings["SEKKA"] or "Evisceration"
-    self["SHADOWS"]             = self.settings["SHADOWS"] or {{false,true}, false}
+    --self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
+    --self["WS"]                  = self.settings["WS"] or {{false,true}, false}
+    --self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
+    --self["RANGED WS"]           = self.settings["RANGED WS"] or "Leaden Salute"
+    --self["TP THRESHOLD"]        = self.settings["TP THRESHOLD"] or 1000
+    --!self["SC"]                  = self.settings["SC"] or {{false,true}, false}
+    --!self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
+    --!self["ELEMENT"]             = self.settings["ELEMENT"] or {{"Fire","Ice","Wind","Earth","Lightning","Water","Light","Dark","Random"}, "Fire"}
+    --!self["NUKE TIER"]           = self.settings["NUKE TIER"] or {{"I","II","III","IV","V","Random"}, "I"}
+    --!self["NUKE ONLY"]           = self.settings["NUKE ONLY"] or {{true,false}, false}
+    --!self["MULTINUKE"]           = self.settings["MULTINUKE"] or {{1,2,3}, 1}
+    --!self["ALLOW AOE"]           = self.settings["ALLOW AOE"] or {{false,true}, false}
+    --!self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
+    --self["TANK MODE"]           = self.settings["TANK MODE"] or {{false,true}, false}
+    --@self["SEKKA"]               = self.settings["SEKKA"] or "Evisceration"
+    --@self["SHADOWS"]             = self.settings["SHADOWS"] or {{false,true}, false}
     self["FOOD"]                = self.settings["FOOD"] or {{"Sublime Sushi","Sublime Sushi +1","None"}, "Sublime Sushi"}
     self["SAMBAS"]              = self.settings["SAMBAS"] or {{"Drain Samba II","Haste Samba"}, "Haste Samba"}
     self["STEPS"]               = self.settings["STEPS"] or {{"Quickstep","Box Step","Stutter Step"}, "Quickstep"}
-    self["SKILLUP"]             = self.settings["SKILLUP"] or {{false,true}, false}
-    self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing","Divine","Enfeebling","Elemental","Dark","Singing","Summoning","Blue","Geomancy"}, "Enhancing"}
+    --self["SKILLUP"]             = self.settings["SKILLUP"] or {{false,true}, false}
+    --self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing","Divine","Enfeebling","Elemental","Dark","Singing","Summoning","Blue","Geomancy"}, "Enhancing"}
     self["COMPOSURE"]           = self.settings["COMPOSURE"] or {{true,false}, true}
     self["CONVERT"]             = self.settings["CONVERT"] or {{true,false}, false}
     self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater","None"}, "None"}
@@ -145,9 +142,6 @@ function core.get()
             self.settings["RA"]                 = self["RA"]            
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
-            self.settings["BUFFS"]              = self["BUFFS"]
-            self.settings["DEBUFF"]             = self["DEBUFF"]
-            self.settings["STATUS"]             = self["STATUS"]
             self.settings["WS"]                 = self["WS"]
             self.settings["WSNAME"]             = self["WSNAME"]
             self.settings["RANGED WS"]          = self["RANGED WS"]
@@ -332,20 +326,20 @@ function core.get()
 
         if bp then
             local helpers = bp.helpers
-            local player = windower.ffxi.get_player()
+            local player = bp.player
             
             if helpers['queue'].ready and not helpers['actions'].moving and bp.settings['Enabled'] then
                 bp.helpers['cures'].handleCuring(bp)
                 self.handleItems(bp)
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
                 if player.status == 1 then
-                    local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target("t") or false
+                    local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
                     
                     -- SKILLUP LOGIC.
                     if self.getSetting('SKILLUP') then
@@ -643,8 +637,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- BLM/.
                         if player.main_job == 'BLM' then
@@ -914,8 +907,7 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFF') and target then
-                        bp.helpers['debuffs'].cast(bp)
+                    if bp.helpers['debuffs'].enabled and target then
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
@@ -1270,8 +1262,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- BLM/.
                         if player.main_job == 'BLM' then
@@ -1541,8 +1532,7 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFF') and target then
-                        bp.helpers['debuffs'].cast(bp)
+                    if bp.helpers['debuffs'].enabled and target then
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then

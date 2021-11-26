@@ -73,6 +73,7 @@ function roboto.new()
             private.bot = private.bot.kill()
         end
 
+
     end
 
     private.stamp = function()
@@ -80,6 +81,7 @@ function roboto.new()
         if private.bot and self.settings[private.bot.identity] then
             self.settings[private.bot.identity] = {timestamp=timestamp}
         end
+        private.writeSettings()
 
     end
     

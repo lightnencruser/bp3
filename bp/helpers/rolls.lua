@@ -632,7 +632,7 @@ function rolls.new()
     private.events.prerender = windower.register_event('prerender', function()
         self.render()
         
-        if bp and bp.player and (os.clock()-private.timer) > bp.settings['Ping Delay'] then
+        if bp and bp.player and (os.clock()-private.timer) > bp.delay then
             local buffs = T(bp.player.buffs)
 
             if buffs:contains(308) then
@@ -670,6 +670,43 @@ function rolls.new()
             end
             private.timer = os.clock()
         
+        end
+
+    end)
+
+    private.events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+        
+        if bp and id == 0x028 then
+            local pack      = bp.packets.parse('incoming', original)
+            local player    = bp.player
+            local actor     = windower.ffxi.get_mob_by_id(pack['Actor'])
+            local target    = windower.ffxi.get_mob_by_id(pack['Target 1 ID'])
+            local count     = pack['Target Count']
+            local category  = pack['Category']
+            local param     = pack['Param']
+            
+            if player and actor and target then
+                
+                if pack['Category'] == 6 then
+                    local rolls = bp.res.job_abilities:type('CorsairRoll')
+
+                    if actor.name == player.name then
+                        local action = bp.helpers['actions'].buildAction(category, param)
+    
+                        if action then
+                            
+                            if action.type == 'CorsairRoll' and rolls[param] then
+                                self.add(rolls[param], pack['Target 1 Action 1 Param'])
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            end
+
         end
 
     end)

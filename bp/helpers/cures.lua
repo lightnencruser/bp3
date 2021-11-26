@@ -172,12 +172,12 @@ function cures.new()
         if bp and bp.player and missing then
             local player = bp.player
             
-            for _,v in ipairs(allowed['Curaga']) do
+            for i,v in ipairs(allowed['Curaga']) do
                 
                 if v.id and v.min and not T{11}:contains(v.id) and bp.res.spells[v.id] and (v.min + (v.min * (self.power / 100))) <= missing then
                     spell = bp.res.spells[v.id]
 
-                elseif i == #allowed['Curaga'] then
+                elseif i == #allowed['Curaga'] then --???
                     spell = bp.res.spells[v.id]
 
                 end
@@ -362,8 +362,11 @@ function cures.new()
         if bp and self.party and self.alliance and self.mode ~= 1 and bp.helpers['queue'].checkReady() then
             local player = bp.player
             local selected = private.getCuragaWeight()
+            local cure_only = S{'RDM','SCH','PLD'}:contains(player.main_job) or S{'RDM','SCH','PLD'}:contains(player.sub_job) and true or false
+            local is_whm = (player.main_job == 'WHM' or player.sub_job) and true or false
+            local is_dancer = player.main_job == 'DNC' and true or false
             
-            if selected.count <= 2 and (T{'WHM','RDM','SCH','PLD'}:contains(player.main_job) or T{'WHM','RDM','SCH','PLD'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
+            if ((selected.count <= 2 and is_whm) or cure_only) and not is_dancer then
                 
                 for _,v in ipairs(self.party) do
                     local cure = private.estimateCure(v.missing) or false
@@ -382,7 +385,7 @@ function cures.new()
 
             end
 
-            if selected.count > 2 and (T{'WHM'}:contains(player.main_job) or T{'WHM'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
+            if selected.count > 2 and is_whm and not is_dancer then
                 local selected = private.getCuragaWeight()
 
                 if selected and selected.target and selected.count and selected.missing and selected.count > 2 then
@@ -396,7 +399,7 @@ function cures.new()
 
             end
 
-            if self.mode == 3 and (T{'WHM','RDM','SCH','PLD'}:contains(player.main_job) or T{'WHM','RDM','SCH','PLD'}:contains(player.sub_job)) and player.main_job ~= 'DNC' then
+            if self.mode == 3 and (is_whm or cure_only) and not is_dancer then
                 
                 for _,v in ipairs(self.alliance) do
                     local cure = private.estimateCure(v.missing) or false

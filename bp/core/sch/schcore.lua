@@ -623,8 +623,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- SCH/.
                         if player.main_job == 'SCH' then
@@ -898,8 +897,7 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFF') and target then
-                        bp.helpers['debuffs'].cast(bp)
+                    if bp.helpers['debuffs'].enabled and target then
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
@@ -1245,8 +1243,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- SCH/.
                         if player.main_job == 'SCH' then
@@ -1520,8 +1517,7 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFF') and target then
-                        bp.helpers['debuffs'].cast(bp)
+                    if bp.helpers['debuffs'].enabled and target then
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then

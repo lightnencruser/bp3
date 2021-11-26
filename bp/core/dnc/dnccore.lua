@@ -308,8 +308,8 @@ function core.get()
                 self.handleItems(bp)
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
@@ -612,8 +612,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- DNC/.
                         if player.main_job == 'DNC' then
@@ -1238,8 +1237,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- DNC/.
                         if player.main_job == 'DNC' then

@@ -68,6 +68,9 @@ function status.new()
 
     }
 
+    -- Public Variables.
+    self.enabled = self.settings.enabled or false
+
     -- Private Functions
     private.persist = function()
         local next = next
@@ -75,6 +78,7 @@ function status.new()
         if self.settings then
             self.settings.layout = self.layout
             self.settings.priorities = priority
+            self.settings.enabled = self.enabled
         end
 
     end
@@ -111,50 +115,6 @@ function status.new()
     end
     self.writeSettings()
 
-    private.render = function()
-
-        if debug then
-
-            if #private.statuses > 0 then
-                local update = {}
-                local spells = {}
-
-                for i,v in ipairs(private.statuses) do
-                    local player = windower.ffxi.get_mob_by_id(v.id)
-
-                    if player then
-                    
-                        if i == 1 then
-                            table.insert(update, string.format('%s--{ STATUS DEBUFFS }--\n', (''):lpad(' ', 20)))
-                        end
-                        table.insert(update, string.format('%s%s [%02d]: --> {%02d}', (''):lpad(' ', (15-#player.name)), player.name, v.priority, #v.list))
-
-                    else
-                        
-                        if i == 1 then
-                            table.insert(update, string.format('%s--{ STATUS DEBUFFS }--\n', (''):lpad(' ', 20)))
-                        end
-                        table.insert(update, '??? [0]: --> {00}')
-
-                    end
-
-                end
-                self.display:text(table.concat(update, '\n'))
-                self.display:update()
-
-                if not self.display:visible() then
-                    self.display:show()
-                end
-
-            elseif #private.statuses == 0 and self.display:visible() then
-                self.display:hide()
-
-            end
-
-        end
-
-    end
-
     private.parseParty = function(data) -- Credit: Byrth.
         local parsed = bp.packets.parse('incoming', data)
         local buffs = {}
@@ -163,7 +123,7 @@ function status.new()
             table.insert(buffs, {id=parsed[string.format('ID %s', i)], priority=priority[parsed[string.format('ID %s', i)]] or 1, list={}})
 
             for ii=1,32 do
-                local buff = data:byte((i-1)*48+5+16+ii-1) + 256*( math.floor( data:byte((i-1)*48+5+8+ math.floor((ii-1)/4)) / 4^((ii-1)%4) )%4)
+                local buff = data:byte((i-1)*48+5+16+ii-1) + 256 * (math.floor( data:byte((i-1)*48+5+8 + math.floor((ii-1)/4)) / 4^((ii-1)%4) )%4)
 
                 if buff > 0 and buff ~= 255 and allowed:contains(buff) then
                     table.insert(buffs[i].list, buff)
@@ -181,7 +141,7 @@ function status.new()
         local buffs = {}
 
         if bp and bp.player then
-            table.insert(buffs, {id=bp.player.id, priority=priority[player.id] or 1, list={}})
+            table.insert(buffs, {id=bp.player.id, priority=priority[bp.player.id] or 1, list={}})
 
             for i=1, 32 do
                 local buff = tonumber(parsed[string.format('Buffs %s', i)]) or 0
@@ -473,46 +433,26 @@ function status.new()
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
-        if commands[1] and commands[2] and commands[1] == 'status' then
-            local command = commands[2]:lower()
 
-            if command == 'pos' and commands[3] then
-                private.pos(commands[3], commands[4] or false)
+        if commands[1] and commands[1]:lower() == 'status' then
 
-            elseif (command == 'priority' or command == 'p') and commands[3] and windower.ffxi.get_mob_by_target('t') then
-                private.setPriority(tonumber(commands[3]), windower.ffxi.get_mob_by_target('t'))
+            if commands[2] then
+                local command = commands[2]:lower()
 
-            elseif command == 'list' then
+                if command == 'pos' and commands[3] then
+                    private.pos(commands[3], commands[4] or false)
 
-                for i,v in ipairs(private.statuses) do
-                    local player = windower.ffxi.get_mob_by_id(v.id)
-
-                    if player then
-                        print(string.format('[%03d] %s: %s', v.priority, player.name, table.concat(v.list, ' + ')))
-                    end
+                elseif (command == 'priority' or command == 'p') and commands[3] and windower.ffxi.get_mob_by_target('t') then
+                    private.setPriority(tonumber(commands[3]), windower.ffxi.get_mob_by_target('t'))
 
                 end
-
-            elseif command == 'debug' then
-
-                if debug then
-                    debug = false
-                    self.display:text('')
-                    self.display:update()
-                    self.display:hide()
-
-                else
-                    debug = true
-
-                end
-
-            elseif command == 'test' then
-                self.hasDebuff(windower.ffxi.get_player(), 1)
 
             elseif not commands[2] then
-                bp.core.nextSetting('STATUS')
+                self.enabled = self.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-STATUS REMOVAL SET TO: %s.', tostring(self.enabled)))
 
             end
+            self.writeSettings()
 
         end
 
@@ -538,11 +478,6 @@ function status.new()
             private.receive(message)
         end
     
-    end)
-
-    private.events.prerender = windower.register_event('prerender', function()
-        private.render()
-
     end)
 
     return self

@@ -8,12 +8,14 @@ bootstrap.load = function()
     local events    = {}
     local helpers   = {
         
-        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffer','buffs','burst','chests','ciphers','commands','coms','console','controls','cures','dax','debuffs','debug','distance','enmity','equipment',
+        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','dax','debuffs','debug','distance','enmity','equipment',
         'inventory','items','invites','keybinds','maintenance','maps','menus','merits','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
     local directory = string.format('bp/settings/%s', player.name)
 
+    self.enabled    = true
+    self.delay      = 0.6
     self.party      = false
     self.player     = false
     self.me         = false
@@ -31,6 +33,7 @@ bootstrap.load = function()
     self.MA         = {}
     self.WS         = {}
     self.IT         = {}
+    self.BUFFS      = {}
     self.toggles    = {enmity={}, abilities={}, buffs={}, weaponskills={}}
     self.res        = require('resources')
     self.files      = require('files')
@@ -122,31 +125,6 @@ bootstrap.load = function()
         end
 
     end
-
-    self.buildCore = function(update)
-        local player = windower.ffxi.get_player() or false
-
-        if player then
-            local dir = string.format('bp/core/%s/%score.lua', player.main_job:lower(), player.main_job:lower())
-            local f   = self.files.new(dir)
-
-            if f:exists() then
-
-                if update and self.helpers ~= nil then
-                    self.helpers['popchat'].pop(string.format('Core loaded for %s!', player.main_job_full))
-                end
-                self.core = dofile(string.format('%s%s', windower.addon_path, dir))
-
-                if self.core.setSystem then
-                    self.core.setSystem(self)
-                end
-
-            end
-
-        end
-
-    end
-    self.buildCore(false)
 
     self.buildSkills = function()
         local JA = windower.ffxi.get_abilities().job_abilities
@@ -282,8 +260,35 @@ bootstrap.load = function()
             end
         end
 
+        for _,v in pairs(self.res.buffs) do
+            if v.en then
+                self.BUFFS[v.en] = v
+            end
+        end
+
     end
     buildResources()
+
+    self.buildCore = function()
+        local player = windower.ffxi.get_player() or false
+
+        if player then
+            --local dir = string.format('bp/core/%s/%score.lua', player.main_job:lower(), player.main_job:lower())
+            --local f = self.files.new('bp/core/logic.lua')
+
+            if self.files.new('bp/core/logic.lua'):exists() then
+                self.core = dofile(string.format('%sbp/core/logic.lua', windower.addon_path))
+
+                if self.core.setSystem then
+                    self.core.setSystem(self)
+                end
+
+            end
+
+        end
+
+    end
+    self.buildCore()
 
     -- Private Events.
     events.commands = windower.register_event('addon command', function(...)
@@ -349,9 +354,14 @@ bootstrap.load = function()
     
             elseif (c == 'r' or c == 'reload') then
                 windower.send_command('lua r bp3')
-    
-            else
-                self.core.handleCommands(a)
+
+            elseif c == 'test' then
+                local player = self.me or false
+                local target = windower.ffxi.get_mob_by_target('t') or false
+
+                if player and target then
+                    local behind = math.abs(math.abs(player.facing) - math.abs(target.facing-6.28318501)) < 0.2 and true or false
+                end
     
             end
     
@@ -370,28 +380,27 @@ bootstrap.load = function()
         if self.player then
             local player = self.player
             local zone = self.info.zone
-            
-            self.helpers['distance'].render(self)
-            self.helpers['popchat'].render(self)
-            self.helpers['runes'].render(self)
 
-            if self.settings['Enabled'] and not self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.settings['Ping Delay'] then
+            self.helpers['distance'].render()
+            self.helpers['runes'].render()
+
+            if self.settings['Enabled'] and not self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.delay then
                 
                 if not self.helpers['buffs'].buffActive(69) and not self.helpers['buffs'].buffActive(71) then
-                    self.helpers['controls'].checkFacing(self)
-                    self.helpers['controls'].checkDistance(self)
-                    self.helpers['controls'].checkAssisting(self)
-                    self.helpers['items'].queueItems(self)
-                    self.core.handleAutomation(self)
+                    self.helpers['controls'].checkFacing()
+                    self.helpers['controls'].checkDistance()
+                    self.helpers['controls'].checkAssisting()
+                    --self.helpers['items'].queueItems()
+                    self.core.handleAutomation()
 
                 end            
                 self.pinger = os.clock()
 
-            elseif self.settings['Enabled'] and self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.settings['Ping Delay'] then
+            elseif self.settings['Enabled'] and self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.delay then
 
                 if not self.helpers['buffs'].buffActive(69) and not self.helpers['buffs'].buffActive(71) then
-                    self.helpers['items'].queueItems(self)
-                    self.helpers['queue'].handle(self)
+                    --self.helpers['items'].queueItems()
+                    --self.helpers['queue'].handle()
 
                 end            
                 self.pinger = os.clock()
@@ -414,21 +423,12 @@ bootstrap.load = function()
             local param     = pack['Param']
             
             if player and actor and target then
-                
-                -- Melee Attacks.
-                if pack['Category'] == 1 then
-
-                    if actor.id == bp.player.id then
-
-                    end
     
                 -- Finish Ranged Attack.
-                elseif pack['Category'] == 2 then
+                if pack['Category'] == 2 then
     
                     if actor.name == player.name then
                         self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)['Ranged'])
-                        
-                        -- Remove from action from queue.
                         self.helpers['queue'].remove(self.helpers['actions'].unique.ranged, actor)
     
                     end
@@ -438,8 +438,6 @@ bootstrap.load = function()
     
                     if actor.name == player.name then
                         self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)['WeaponSkill'])
-                        
-                        -- Remove from action from queue.
                         self.helpers['queue'].remove(self.res.weapon_skills[param], actor)
     
                     end
@@ -450,29 +448,13 @@ bootstrap.load = function()
                     if actor.name == player.name then
                         local spell = self.res.spells[param] or false
     
-                        if spell and type(spell) == 'table' and spell.type then
-                            local debuffs = self.helpers['debuffs'].debuffs
-    
+                        if spell and type(spell) == 'table' and spell.type then    
                             self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)[spell.type] or 1)
                             self.helpers['queue'].remove(spell, actor)
     
                             -- Check for Utsusemi, and protect from over casting.
                             if (player.main_job == 'NIN' or player.sub_job == 'NIN') and (spell.en):match('Utsusemi') then
                                 self.core['UTSU BLOCK'].last = os.clock()
-                            end
-    
-                            -- Handle updating debuffs delay.
-                            if debuffs and debuffs[player.main_job_id] then
-                                
-                                for i,v in ipairs(debuffs[player.main_job_id]) do
-    
-                                    if v.id == spell.id then
-                                        debuffs[player.main_job_id][i].last = os.clock()
-                                        break
-                                    
-                                    end
-    
-                                end
                             end
                         
                         else
@@ -486,16 +468,13 @@ bootstrap.load = function()
                 elseif pack['Category'] == 5 then
     
                     if actor.name == player.name then
-                        self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)['Item'] or 1)
-    
-                        -- Remove from action from queue.
+                        self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays()['Item'] or 1)
                         self.helpers['queue'].remove(self.res.items[param], actor)
     
                     end
     
                 -- Use Job Ability.
                 elseif pack['Category'] == 6 then
-                    local rolls = self.res.job_abilities:type('CorsairRoll')
                     local runes = self.res.job_abilities:type('Rune')
     
                     if actor.name == player.name then
@@ -503,16 +482,8 @@ bootstrap.load = function()
                         local delay  = self.helpers['actions'].getActionDelay(action) or 1
     
                         if action then
-                            --self.helpers['actions'].midaction = false
                             self.helpers['queue'].ready = (os.clock() + delay)
-    
-                            -- Remove from action from queue.
                             self.helpers['queue'].remove(self.res.job_abilities[param], actor)
-                            
-                            -- Handle Rolls.
-                            if action.type == 'CorsairRoll' and rolls[param] then
-                                self.helpers['rolls'].add(rolls[param], pack['Target 1 Action 1 Param'])
-                            end
     
                         else
                             self.helpers['queue'].ready = (os.clock() + 1)
@@ -544,8 +515,7 @@ bootstrap.load = function()
                         else
                             self.helpers['queue'].ready = (os.clock() + 1)
     
-                        end
-    
+                        end    
     
                     end
     
@@ -707,9 +677,6 @@ bootstrap.load = function()
                 elseif self.helpers['accolades'].busy then
                     self.helpers['accolades'].purchase(original)
     
-                elseif self.helpers['ciphers'].busy then
-                    return self.helpers['ciphers'].build(original)
-    
                 elseif self.helpers['chests'].busy then
                     return self.helpers['chests'].handleChest(original)
     
@@ -838,29 +805,7 @@ bootstrap.load = function()
     end)
 
     events.zonechange = windower.register_event('zone change', function(new, old)
-        self.pinger = (os.clock() + 10)
-    
-        for _,helper in pairs(self.helpers) do
-    
-            if helper.zoneChange then
-                helper.zoneChange()        
-            end
-    
-        end
-    
-    end)
-
-    events.jobchange = windower.register_event('job change', function(...)
-        self.buildCore(true)
-    
-        for _,helper in pairs(self.helpers) do
-    
-            if helper.jobChange then
-                helper.jobChange()        
-            end
-    
-        end
-    
+        self.pinger = (os.clock() + 10)    
     end)
 
     events.party = windower.register_event('party invite', function(sender, id)

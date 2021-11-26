@@ -32,7 +32,7 @@ function core.get()
     self["RA"]                  = self.settings["RA"] or {{false,true}, false}
     self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
     self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
-    self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
+    --self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
     self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
     self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
     self["WS"]                  = self.settings["WS"] or {{false,true}, false}
@@ -118,7 +118,7 @@ function core.get()
             self.settings["RA"]                 = self["RA"]            
             self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
             self.settings["HATE"]               = self["HATE"]
-            self.settings["BUFFS"]              = self["BUFFS"]
+            --self.settings["BUFFS"]              = self["BUFFS"]
             self.settings["DEBUFF"]             = self["DEBUFF"]
             self.settings["STATUS"]             = self["STATUS"]
             self.settings["WS"]                 = self["WS"]
@@ -308,8 +308,8 @@ function core.get()
                 self.handleItems(bp)
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
@@ -617,8 +617,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- MNK/.
                         if player.main_job == 'MNK' and helpers['actions'].canCast() and target and bp.helpers['target'].canEngage(target) and target.status == 1 then
@@ -1261,8 +1260,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- MNK/.
                         if player.main_job == 'MNK' and helpers['actions'].canCast() and target then

@@ -308,8 +308,8 @@ function core.get()
                 self.handleItems(bp)
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
@@ -693,8 +693,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- SAM/.
                         if player.main_job == 'SAM' and helpers['actions'].canAct() then
@@ -703,7 +702,7 @@ function core.get()
                             if self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(354) and helpers['actions'].isReady('JA', "Seigan") then
                                 helpers['queue'].add(bp.JA["Seigan"], player)
 
-                            --HASSO.
+                            -- HASSO.
                             elseif not self.getSetting('TANK MODE') and not helpers['buffs'].buffActive(353) and helpers['actions'].isReady('JA', "Hasso") then
                                 helpers['queue'].add(bp.JA["Hasso"], player)
 
@@ -1415,8 +1414,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- SAM/.
                         if player.main_job == 'SAM' and helpers['actions'].canAct() then

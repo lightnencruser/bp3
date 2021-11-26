@@ -313,8 +313,8 @@ function core.get()
                 end
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
@@ -677,8 +677,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- PLD/.
                         if player.main_job == 'PLD' then
@@ -1360,11 +1359,11 @@ function core.get()
                             
                             -- JETTATURA.
                             if target and helpers['actions'].isReady('MA', "Jettatura") then
-                                helpers['queue'].addToFront(bp.MA["Jettatura"], target)
+                                helpers['queue'].add(bp.MA["Jettatura"], target)
                                 
                             -- BLANK GAZE.
                             elseif target and helpers['actions'].isReady('MA', "Blank Gaze") then
-                                helpers['queue'].addToFront(bp.MA["Blank Gaze"], target)
+                                helpers['queue'].add(bp.MA["Blank Gaze"], target)
                                 
                             end
                             
@@ -1372,17 +1371,17 @@ function core.get()
                                 
                                 -- SOPORIFIC.
                                 if target and helpers['actions'].isReady('MA', "Soporific") then
-                                    helpers['queue'].addToFront(bp.MA["Soporific"], target)
+                                    helpers['queue'].add(bp.MA["Soporific"], target)
                                     timers.hate = os.clock()
                                 
                                 -- GEIST WALL.
                                 elseif target and helpers['actions'].isReady('MA', "Geist Wall") then
-                                    helpers['queue'].addToFront(bp.MA["Geist Wall"], target)
+                                    helpers['queue'].add(bp.MA["Geist Wall"], target)
                                     timers.hate = os.clock()
                                 
-                                -- JETTATURA.
+                                -- SHEEP SONG.
                                 elseif target and helpers['actions'].isReady('MA', "Sheep Song") then
-                                    helpers['queue'].addToFront(bp.MA["Sheep Song"], target)
+                                    helpers['queue'].add(bp.MA["Sheep Song"], target)
                                     timers.hate = os.clock()
                                 
                                 end
@@ -1402,8 +1401,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- PLD/.
                         if player.main_job == 'PLD' then

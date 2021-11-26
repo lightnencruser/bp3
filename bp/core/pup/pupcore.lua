@@ -1,269 +1,26 @@
 local core = {}
-local player    = windower.ffxi.get_player()
-local files     = require('files')
-local texts     = require('texts')
-local res       = require('resources')
-local f         = files.new(string.format('bp/core/%s/settings/%s.lua', player.main_job, player.name))
-
-if not f:exists() then
-    f:write(string.format('return %s', T({}):tovstring()))
-end
-
+local player = windower.ffxi.get_player()
 function core.get()
     local self = {}
 
-    -- Static Variables
-    self.settings   = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job, player.name))
-    self.layout     = self.settings.layout or {pos={x=5, y=5}, colors={text={alpha=255, r=245, g=200, b=20}, bg={alpha=245, r=0, g=0, b=0}, stroke={alpha=255, r=0, g=0, b=0}}, font={name='Lucida Console', size=9}, padding=8, stroke_width=1, draggable=false}
-    self.display    = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.config     = texts.new('', {flags={draggable=self.layout.draggable}})
-    self.important  = string.format('%s,%s,%s', 25, 200, 200)
-
     -- Private Variables.
     local bp        = false
+    local private   = {events={}, settings=dofile(string.format('%sbp/core/core.lua', windower.addon_path, player.name))}
     local timers    = {hate=0, steps=0}
 
-    -- Public Variables
-    self["JOB POINTS"]          = windower.ffxi.get_player()["job_points"][windower.ffxi.get_player().main_job:lower()].jp_spent
-    self["AM"]                  = self.settings["AM"] or {{false,true}, false}
-    self["AM LEVEL"]            = self.settings["AM LEVEL"] or {{3,2,1}, 3}
-    self["1HR"]                 = self.settings["1HR"] or {{false,true}, false}
-    self["JA"]                  = self.settings["JA"] or {{false,true}, true}
-    self["RA"]                  = self.settings["RA"] or {{false,true}, false}
-    self["SUBLIMATION"]         = self.settings["SUBLIMATION"] or {{true,false}, true}
-    self["HATE"]                = self.settings["HATE"] or {{false,true}, true}
-    self["BUFFS"]               = self.settings["BUFFS"] or {{false,true}, true}
-    self["DEBUFF"]              = self.settings["DEBUFF"] or {{false,true}, false}
-    self["STATUS"]              = self.settings["STATUS"] or {{false,true}, false}
-    self["WS"]                  = self.settings["WS"] or {{false,true}, false}
-    self["WSNAME"]              = self.settings["WSNAME"] or "Evisceration"
-    self["RANGED WS"]           = self.settings["RANGED WS"] or "Leaden Salute"
-    self["TP THRESHOLD"]        = self.settings["TP THRESHOLD"] or 1000
-    self["SC"]                  = self.settings["SC"] or {{false,true}, false}
-    self["BURST"]               = self.settings["BURST"] or {{false,true}, false}
-    self["ELEMENT"]             = self.settings["ELEMENT"] or {{"Fire","Ice","Wind","Earth","Lightning","Water","Light","Dark","Random"}, "Fire"}
-    self["NUKE TIER"]           = self.settings["NUKE TIER"] or {{"I","II","III","IV","V","Random"}, "I"}
-    self["ALLOW AOE"]           = self.settings["ALLOW AOE"] or {{false,true}, false}
-    self["DRAINS"]              = self.settings["DRAINS"] or {{false,true}, false}
-    self["STUNS"]               = self.settings["STUNS"] or {{false,true}, false}
-    self["TANK MODE"]           = self.settings["TANK MODE"] or {{false,true}, false}
-    self["SEKKA"]               = self.settings["SEKKA"] or "Evisceration"
-    self["SHADOWS"]             = self.settings["SHADOWS"] or {{false,true}, false}
-    self["FOOD"]                = self.settings["FOOD"] or {{"Sublime Sushi","Sublime Sushi +1","None"}, "Sublime Sushi"}
-    self["SAMBAS"]              = self.settings["SAMBAS"] or {{"Drain Samba II","Haste Samba"}, "Haste Samba"}
-    self["STEPS"]               = self.settings["STEPS"] or {{"Quickstep","Box Step","Stutter Step"}, "Quickstep"}
-    self["SKILLUP"]             = self.settings["SKILLUP"] or {{false,true}, false}
-    self["SKILLS"]              = self.settings["SKILLS"] or {{"Enhancing","Divine","Enfeebling","Elemental","Dark","Singing","Summoning","Blue","Geomancy"}, "Enhancing"}
-    self["COMPOSURE"]           = self.settings["COMPOSURE"] or {{true,false}, true}
-    self["CONVERT"]             = self.settings["CONVERT"] or {{true,false}, false}
-    self["ENSPELL"]             = self.settings["ENSPELL"] or {{"Enfire","Enblizzard","Enaero","Enstone","Enthunder","Enwater","None"}, "None"}
-    self["GAINS"]               = self.settings["GAINS"] or {{"Gain-DEX","Gain-STR","Gain-MND","Gain-INT","Gain-AGI","Gain-VIT","Gain-CHR","None"}, "Gain-DEX"}
-    self["SPIKES"]              = self.settings["SPIKES"] or {{"None","Blaze Spikes","Ice Spikes","Shock Spikes","None"}, "None"}
-    self["DIA"]                 = self.settings["DIA"] or {{"Dia","Bio"}, "Dia"}
-    self["SANGUINE"]            = self.settings["SANGUINE"] or {{false,true}, false}
-    self["COR SHOTS"]           = self.settings["SHOTS"] or {{"Fire Shot","Ice Shot","Wind Shot","Earth Shot","Thunder Shot","Water Shot","Light Shot","Dark Shot","None"}, "Fire Shot"}
-    self["BOOST"]               = self.settings["BOOST"] or {{false,true}, false}
-    self["PET"]                 = self.settings["PET"] or {{false,true}, false}
-    self["SUMMON"]              = self.settings["SUMMON"] or {{"Carbuncle","Cait Sith","Ifrit","Shiva","Garuda","Titan","Ramuh","Leviathan","Fenrir","Diabolos","Siren"}, "Ifrit"}
-    self["BPRAGE"]              = self.settings["BPRAGE"] or {{false,true}, false}
-    self["BPWARD"]              = self.settings["BPWARD"] or {{false,true}, false}
-    self["AOEHATE"]             = self.settings["AOEHATE"] or {{false,true}, false}
-    self["EMBOLDEN"]            = self.settings["EMBOLDEN"] or {{"Palanx","Temper","Regen IV"}, "Phalanx"}
-    self["BLU MODE"]            = self.settings["BLU MODE"] or {{"DPS","NUKE"}, "DPS"}
-    self["MIGHTY GUARD"]        = self.settings["MIGHTY GUARD"] or {{true,false}, true}
-    self["CHIVALRY"]            = self.settings["CHIVALRY"] or {{1000,1500,2000,2500,3000}, 2000}
-    self["WEATHER"]             = self.settings["WEATHER"] or {{"Firestorm","Hailstorm","Windstorm","Sandstorm","Thunderstorm","Rainstorm","Voidstorm","Aurorastorm","None"}, "Aurorastorm"}
-    self["ARTS"]                = self.settings["ARTS"] or {{"Light Arts","Dark Arts"}, "Light Arts"}
-    self["ADDENDUM"]            = self.settings["ADDENDUM"] or {{"Addendum: White","Addendum: Black","None"}, "Addendum: White"}
-    self["MISERY"]              = self.settings["MISERY"] or {{false,true}, false}
-    self["IMPETUS WS"]          = self.settings["IMPETUS WS"] or "Raging Fists"
-    self["FOOTWORK WS"]         = self.settings["FOOTWORK WS"] or "Tornado Kick"
-    self["DEFAULT WS"]          = self.settings["DEFAULT WS"] or "Howling Fist"
-    self["SANGUINE HPP"]        = self.settings["SANGUINE HPP"] or 45
-    self["MOONLIGHT MPP"]       = self.settings["MOONLIGHT MPP"] or 30
-    self["MYRKR MPP"]           = self.settings["MYRKR MPP"] or 30
-    self["VPULSE HPP"]          = self.settings["VPULSE HPP"] or 65
-    self["VPULSE MPP"]          = self.settings["VPULSE MPP"] or 65
-    self["HATE DELAY"]          = self.settings["HATE DELAY"] or 25
-    self["STEPS DELAY"]         = self.settings["HATE DELAY"] or 20
-    self["CONVERT HPP"]         = self.settings["CONVERT HPP"] or 40
-    self["CONVERT MPP"]         = self.settings["CONVERT MPP"] or 35
-    self["NIN TOOLS"]           = self.settings["NIN TOOLS"] or {{false,true}, false}
-    self["STONESKIN"]           = self.settings["STONESKIN"] or {{false,true}, false}
-    self["UTSU BLOCK"]          = {last=0, delay=3}
-
-    -- MAGIC BURST SPELLS.
-    self["MAGIC BURST"]={
-
-        ["Transfixion"]   = {{}, {}},
-        ["Compression"]   = {{}, {}},
-        ["Liquefaction"]  = {{}, {}},
-        ["Scission"]      = {{}, {}},
-        ["Reverberation"] = {{}, {}},
-        ["Detonation"]    = {{}, {}},
-        ["Induration"]    = {{}, {}},
-        ["Impaction"]     = {{}, {}},
-
-    }
-
-    -- Private Functions.
-    local persist = function()
-
-        if self.settings then
-            self.settings.layout                = self.layout
-            self.settings["AM"]                 = self["AM"]
-            self.settings["AM LEVEL"]           = self["AM LEVEL"]
-            self.settings["1HR"]                = self["1HR"]
-            self.settings["JA"]                 = self["JA"]
-            self.settings["RA"]                 = self["RA"]            
-            self.settings["SUBLIMATION"]        = self["SUBLIMATION"]
-            self.settings["HATE"]               = self["HATE"]
-            self.settings["BUFFS"]              = self["BUFFS"]
-            self.settings["DEBUFF"]             = self["DEBUFF"]
-            self.settings["STATUS"]             = self["STATUS"]
-            self.settings["WS"]                 = self["WS"]
-            self.settings["WSNAME"]             = self["WSNAME"]
-            self.settings["RANGED WS"]          = self["RANGED WS"]
-            self.settings["TP THRESHOLD"]       = self["TP THRESHOLD"]
-            self.settings["SC"]                 = self["SC"]
-            self.settings["BURST"]              = self["BURST"]
-            self.settings["ELEMENT"]            = self["ELEMENT"]
-            self.settings["NUKE TIER"]          = self["NUKE TIER"]
-            self.settings["ALLOW AOE"]          = self["ALLOW AOE"]
-            self.settings["DRAINS"]             = self["DRAINS"]
-            self.settings["STUNS"]              = self["STUNS"]
-            self.settings["TANK MODE"]          = self["TANK MODE"]
-            self.settings["SEKKA"]              = self["SEKKA"]
-            self.settings["SHADOWS"]            = self["SHADOWS"]
-            self.settings["FOOD"]               = self["FOOD"]
-            self.settings["SAMBAS"]             = self["SAMBAS"]
-            self.settings["STEPS"]              = self["STEPS"]
-            self.settings["SKILLUP"]            = self["SKILLUP"]
-            self.settings["SKILLS"]             = self["SKILLS"]
-            self.settings["COMPOSURE"]          = self["COMPOSURE"]
-            self.settings["CONVERT"]            = self["CONVERT"]
-            self.settings["ENSPELL"]            = self["ENSPELL"]
-            self.settings["GAINS"]              = self["GAINS"]
-            self.settings["SPIKES"]             = self["SPIKES"]
-            self.settings["DIA"]                = self["DIA"]
-            self.settings["SANGUINE"]           = self["SANGUINE"]
-            self.settings["COR SHOTS"]          = self["COR SHOTS"]
-            self.settings["BOOST"]              = self["BOOST"]
-            self.settings["PET"]                = self["PET"]
-            self.settings["SPIRITS"]            = self["SPIRITS"]
-            self.settings["SUMMON"]             = self["SUMMON"]
-            self.settings["BPRAGE"]             = self["BPRAGE"]
-            self.settings["BPWARD"]             = self["BPWARD"]
-            self.settings["AOEHATE"]            = self["AOEHATE"]
-            self.settings["EMBOLDEN"]           = self["EMBOLDEN"]
-            self.settings["BLU MODE"]           = self["BLU MODE"]
-            self.settings["MIGHTY GUARD"]       = self["MIGHTY GUARD"]
-            self.settings["CHIVALRY"]           = self["CHIVALRY"]
-            self.settings["WEATHER"]            = self["WEATHER"]
-            self.settings["ARTS"]               = self["ARTS"]
-            self.settings["ADDENDUM"]           = self["ADDENDUM"]
-            self.settings["MISERY"]             = self["MISERY"]
-            self.settings["IMPETUS WS"]         = self["IMPETUS WS"]
-            self.settings["FOOTWORK WS"]        = self["FOOTWORK WS"]
-            self.settings["DEFAULT WS"]         = self["DEFAULT WS"]
-            self.settings["SANGUINE HPP"]       = self["SANGUINE HPP"]
-            self.settings["MOONLIGHT MPP"]      = self["MOONLIGHT MPP"]
-            self.settings["MYRKR MPP"]          = self["MYRKR MPP"]
-            self.settings["VPULSE HPP"]         = self["VPULSE HPP"]
-            self.settings["VPULSE MPP"]         = self["VPULSE MPP"]
-            self.settings["HATE DELAY"]         = self["HATE DELAY"]
-            self.settings["STEPS DELAY"]        = self["HATE DELAY"]
-            self.settings["CONVERT HPP"]        = self["CONVERT HPP"]
-            self.settings["CONVERT MPP"]        = self["CONVERT MPP"]
-            self.settings["NIN TOOLS"]          = self["NIN TOOLS"]
-
-        end
-
-    end
-    persist()
-
-    -- Static Functions
-    local resetDisplay = function()
-        self.display:pos(self.layout.pos.x, self.layout.pos.y)
-        self.display:font(self.layout.font.name)
-        self.display:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
-        self.display:alpha(self.layout.colors.text.alpha)
-        self.display:size(self.layout.font.size)
-        self.display:pad(self.layout.padding)
-        self.display:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
-        self.display:bg_alpha(self.layout.colors.bg.alpha)
-        self.display:stroke_width(self.layout.stroke_width)
-        self.display:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
-        self.display:stroke_alpha(self.layout.colors.stroke.alpha)
-        self.display:hide()
-        self.display:update()
-
-        self.config:pos(10, 10)
-        self.config:font(self.layout.font.name)
-        self.config:color(self.layout.colors.text.r, self.layout.colors.text.g, self.layout.colors.text.b)
-        self.config:alpha(self.layout.colors.text.alpha)
-        self.config:size(self.layout.font.size + 1)
-        self.config:pad(self.layout.padding)
-        self.config:bg_color(self.layout.colors.bg.r, self.layout.colors.bg.g, self.layout.colors.bg.b)
-        self.config:bg_alpha(self.layout.colors.bg.alpha)
-        self.config:stroke_width(self.layout.stroke_width)
-        self.config:stroke_color(self.layout.colors.stroke.r, self.layout.colors.stroke.g, self.layout.colors.stroke.b)
-        self.config:stroke_alpha(self.layout.colors.stroke.alpha)
-        self.config:hide()
-        self.config:update()
-
-    end
-    resetDisplay()
-
-    self.writeSettings = function()
-        persist()
-
-        if f:exists() then
-            f:write(string.format('return %s', T(self.settings):tovstring()))
-
-        elseif not f:exists() then
-            f:write(string.format('return %s', T({}):tovstring()))
-
-        end
-
-    end
-    self.writeSettings()
-
-    self.reload = function()
-        self.writeSettings()
-        self.display:destroy()
-        self.config:destroy()
-
-    end
+    -- Public Variables.
+    self.settings   = private.settings.getFlags()
 
     -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
             bp = buddypal
-        end
-
-    end
-    
-    self.handleCommands = function(commands)
-        local bp = bp or false
-
-        if commands and commands[1] then
-            local command = commands[1]
-
-            if command == 'config' then
-                self.renderConfig()
-
-            else
-                bp.helpers['commands'].captureCore(commands)
-                persist()
-                bp.core.writeSettings()
-
-            end
-
+            private.settings.setSystem(bp)            
         end
 
     end
 
+    --[[
     self.handleItems = function()
         local bp = bp or false
 
@@ -308,8 +65,8 @@ function core.get()
                 self.handleItems(bp)
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
@@ -614,8 +371,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- PUP/.
                         if player.main_job == 'PUP' then
@@ -1061,7 +817,27 @@ function core.get()
                         
                         -- PUP/.
                         if player.main_job == 'PUP' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
+                            
+                            if self.getSetting('SUMMON') and not pet then
+                                    
+                                if helpers['actions'].isReady('JA', 'Activate') and helpers['actions'].canAct() then
+                                    helpers['queue'].add(bp.JA['Activate'], player)
+                                end
+
+                            elseif pet and self.getSetting('SIC') and target then
+                                
+                                if pet.status == 0 then
+
+                                    if helpers['actions'].isReady('JA', 'Deploy') and helpers['actions'].canAct() then
+                                        helpers['queue'].add(bp.JA['Deploy'], target)
+                                    end
+
+                                elseif pet.status == 1 then
+
+                                end
+
+                            end
                            
                         end
 
@@ -1124,7 +900,7 @@ function core.get()
                         
                         -- PUP/.
                         if player.main_job == 'PUP' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
                            
                         end
                         
@@ -1243,12 +1019,28 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- PUP/.
                         if player.main_job == 'PUP' then
-                            local pet = windower.ffxi.get_mob_by_target('t') or false
+                            local pet = windower.ffxi.get_mob_by_target('pet') or false
+
+                            if pet then
+                                local maneuvers = 0
+
+                                for i,v in ipairs(bp.player.buffs) do
+                                    
+                                    if v >= 300 and v <= 307 then
+                                        maneuvers = (maneuvers + 1)
+                                    end
+                                    
+                                end
+
+                                if maneuvers < 1 then
+                                    helpers['queue'].add(bp.JA["Light Maneuver"], player)
+                                end
+
+                            end
                            
                         end
                         
@@ -1580,139 +1372,7 @@ function core.get()
         end
 
     end
-
-    self.render = function()
-        local bp = bp or false
-
-    end
-
-    self.renderConfig = function()
-
-        if not self.config:visible() then
-            self.updateConfig()
-            self.config:show()
-
-        elseif self.config:visible() then
-            self.config:hide()
-
-        end
-
-    end
-
-    self.updateConfig = function()
-        local color = self.important
-        local s     = {}
-
-        for name, settings in pairs(self) do
-
-            if type(settings) == 'table' and name ~= 'important' then
-
-                if settings[2] and (type(settings[2]) == 'string' or type(settings[2]) == 'number' or type(settings[2]) == 'boolean') and type(settings[2]) ~= 'function' then
-                    table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings[2]):upper():lpad(' ', (25-#name))))
-
-                elseif not settings[2] and type(settings[2]) == 'boolean' then
-                    table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings[2]):upper():lpad(' ', (25-#name))))
-
-                end
-
-            elseif type(settings) ~= 'table' and name ~= 'important' then
-
-                if (type(settings) == 'string' or type(settings) == 'number' or type(settings) == 'boolean') then
-                    table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings):upper():lpad(' ', (25-#name))))
-
-                elseif not settings and type(settings) == 'boolean' then
-                    table.insert(s, string.format('%s: \\cs(%s)%s\\cr\n', name:upper(), color, tostring(settings[2]):upper():lpad(' ', (25-#name))))
-
-                end
-
-
-            end
-
-        end
-        self.config:text(table.concat(s, ''))
-        self.config:update()
-
-    end
-
-    self.getSetting = function(name)
-        local name  = name or false
-
-        if name then
-            local setting = self[name]
-            
-            if setting and type(setting) == 'table' then
-                return setting[2]
-
-            elseif setting then
-                return setting
-
-            end
-
-        end
-        return false
-
-    end
-
-    self.setSetting = function(name, value)
-        local bp    = bp or false
-        local name  = name or false
-        local value = value or false
-
-        if bp and name and value then
-            local helpers = bp.helpers
-            local setting = self[name]
-
-            if setting and type(self[name]) == 'table' then
-                self[name][2] = value
-                helpers['popchat'].pop(string.format('%s is now set to: %s', tostring(name), tostring(self[name][2])))
-                self.updateConfig()
-
-            elseif setting and (type(self[name]) == 'number' or type(self[name]) == 'string') then
-                self[name] = value
-                helpers['popchat'].pop(string.format('%s is now set to: %s', tostring(name), tostring(self[name])))
-                self.updateConfig()
-
-            end
-
-        end
-
-    end
-
-    self.nextSetting = function(name)
-        local bp    = bp or false
-        local name  = name or false
-
-        if bp and name then
-            local helpers = bp.helpers
-            local setting = self[name]
-
-            if setting then
-                local options = setting[1]
-                local current = setting[2]
-
-                for i,v in ipairs(options) do
-                    
-                    if v == current and i < #options then
-                        self[name][2] = self[name][1][i+1]
-                        helpers['popchat'].pop(string.format('%s is now set to: %s', tostring(name), tostring(self[name][2])))
-                        self.updateConfig()
-                        break
-
-                    elseif v == current and i == #options then
-                        self[name][2] = self[name][1][1]
-                        helpers['popchat'].pop(string.format('%s is now set to: %s', tostring(name), tostring(self[name][2])))
-                        self.updateConfig()
-                        break
-
-                    end
-
-                end
-
-            end
-
-        end
-
-    end
+    ]]
 
     return self
 

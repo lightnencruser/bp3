@@ -336,8 +336,8 @@ function core.get()
                 self.handleItems(bp)
 
                 -- HANDLES ALL STATUS DEBUFFS.
-                if self.getSetting('STATUS') then
-                    bp.helpers['status'].fixStatus(bp)
+                if bp.helpers['status'].enabled then
+                    bp.helpers['status'].fixStatus()
                 end
 
                 -- PLAYER IS ENGAGED.
@@ -620,7 +620,7 @@ function core.get()
                                     helpers['queue'].add(bp.MA["Geist Wall"], target)
                                     timers.hate = os.clock()
                                 
-                                -- JETTATURA.
+                                -- SHEEP SONG.
                                 elseif target and helpers['actions'].isReady('MA', "Sheep Song") then
                                     helpers['queue'].add(bp.MA["Sheep Song"], target)
                                     timers.hate = os.clock()
@@ -642,8 +642,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
@@ -919,8 +918,7 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFF') and target then
-                        bp.helpers['debuffs'].cast(bp)
+                    if bp.helpers['debuffs'].enabled and target then
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then
@@ -1277,8 +1275,7 @@ function core.get()
                     end
 
                     -- BUFF LOGIC.
-                    if self.getSetting('BUFFS') then
-                        bp.helpers['buffer'].cast()
+                    if bp.helpers['buffs'].enabled then
                         
                         -- GEO/.
                         if player.main_job == 'GEO' then
@@ -1554,8 +1551,7 @@ function core.get()
                     end
 
                     -- DEBUFF LOGIC.
-                    if self.getSetting('DEBUFF') and target then
-                        bp.helpers['debuffs'].cast(bp)
+                    if bp.helpers['debuffs'].enabled and target then
                         
                         -- /DNC.
                         if (player.main_job == 'DNC' or player.sub_job == 'DNC') and helpers['actions'].canAct() then

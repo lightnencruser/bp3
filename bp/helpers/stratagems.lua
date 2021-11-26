@@ -64,22 +64,6 @@ function stratagems.new()
             icon:transparency(0)
             icon:pos_x(self.layout.pos.x-7)
             icon:pos_y(self.layout.pos.y+2)
-            icon:show()
-
-        end
-
-        do -- Handle job sepcifics.
-            local player = windower.ffxi.get_player()
-
-            if (player.main_job == 'SCH' or player.sub_job == 'SCH') then
-                self.display:show()
-                icon:show()
-
-            else
-                self.display:hide()
-                icon:hide()
-
-            end
 
         end
 
@@ -127,22 +111,26 @@ function stratagems.new()
 
         end
 
-        if self.display:visible() then
-            local timer = windower.ffxi.get_ability_recasts()[231] or 0
-            local current = ((self.gems.max-math.ceil(timer/recharge)))
+        if bp and bp.player then
 
-            do  
-                self.gems.current = current > -math.huge and current < math.huge and current or 0
-                self.display:text(tostring(self.gems.current))
-                self.display:update()
+            if self.display:visible() then
+                local timer = windower.ffxi.get_ability_recasts()[231] or 0
+                local current = ((self.gems.max-math.ceil(timer/recharge)))
 
-            end
+                do  
+                    self.gems.current = current > -math.huge and current < math.huge and current or 0
+                    self.display:text(tostring(self.gems.current))
+                    self.display:update()
 
-        elseif not self.display:visible() then
-            self.display:show()
+                end
 
-            if not icon:visible() then
-                icon:show()
+            elseif not self.display:visible() and (bp.player.main_job == 'SCH' or bp.player.sub_job == 'SCH') then
+                self.display:show()
+
+                if not icon:visible() then
+                    icon:show()
+                end
+
             end
 
         end
@@ -242,7 +230,7 @@ function stratagems.new()
         coroutine.schedule(function()
             private.calculate()
             
-        end, 0.25)
+        end, 0.5)
 
     end)
 

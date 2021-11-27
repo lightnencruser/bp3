@@ -1,29 +1,23 @@
-local pup = {}
-function pup.get()
+local whm = {}
+function whm.get()
     local self = {}
 
     local private = {}
 
-    self.automate = function(bp)
-        local get = bp.core.get
+    self.automate = function(bp, settings)
+        private.items(bp, settings)
 
-        print(get('repair').enabled)
-        do
-            private.items(bp, settings)
+        if bp and bp.player and bp.player.status == 1 then
+            
 
-            if bp and bp.player and bp.player.status == 1 then
-                
-
-            elseif bp and bp.player and bp.player.status == 0 then
-                
-
-            end
+        elseif bp and bp.player and bp.player.status == 0 then
+            
 
         end
         
     end
 
-    private.items = function(bp)
+    private.items = function(bp, settings)
     
         if bp and bp.helpers['actions'].canItem() then
 
@@ -52,4 +46,4 @@ function pup.get()
     return self
 
 end
-return pup.get()
+return whm.get()

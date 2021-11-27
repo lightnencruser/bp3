@@ -32,9 +32,9 @@ function core.new()
         ['am']                      = {enabled=false, tp=3000},
         ['ra']                      = {enabled=false, ws="Hot Shot", tp=1000},
         ['ws']                      = {enabled=false, ws="Combo", tp=1000},
+        ['hate']                    = {enabled=false, delay=2, aoe=false},
         ['skillup']                 = {enabled=false, skill="Enhancing Magic"},
         ['food']                    = {enabled=false, name=""},
-        ['hate']                    = {enabled=false, delay=2},
         ['items']                   = false,
         ['buffs']                   = false,
         ['debuffs']                 = false,
@@ -399,15 +399,19 @@ function core.new()
         set['am'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and commands[1] then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if value and T{1,2,3}:contains(value) then
-                    flags.tp = (value*1000)
-                    bp.helpers['popchat'].pop(string.format('AUTO-AFTERMATH LEVEL SET TO: %s.', flags.tp))
+                    if type(value) == 'number' and T{1,2,3}:contains(value) then
+                        flags.tp = (value*1000)
+                        bp.helpers['popchat'].pop(string.format('AUTO-AFTERMATH LEVEL SET TO: %s.', flags.tp))
 
-                else
-                    bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1 & 3!')
+                    else
+                        bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1 & 3!')
+
+                    end
 
                 end
 
@@ -422,39 +426,41 @@ function core.new()
         set['ra'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if #commands > 0 then
+            if flags and #commands > 0 then
 
-                if commands[1] then
-                    local weaponskills = bp.res.weapon_skills
-                    local value = windower.convert_auto_trans(commands[1])
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                    for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                    if type(value) == 'number' then    
+
+                        if value >= 1000 and value <= 3000 then
+                            flags.tp = value
+                            bp.helpers['popchat'].pop(string.format('AUTO-RANGED WEAPONSKILL TP THRESHOLD SET TO: %s.', flags.tp))
+
+                        else
+                            bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1000 & 3000!')
+
+                        end
+
+                    else
+                        local weaponskills = bp.res.weapon_skills
+                        local value = windower.convert_auto_trans(value)
+
+                        for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                                    
+                            if weaponskills[v] and weaponskills[v].en then
+                                local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
                                 
-                        if weaponskills[v] and weaponskills[v].en then
-                            local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
-                            
-                            if value:sub(1,8):lower() == match:sub(1,8):lower() then
-                                flags.ws = weaponskills[v].en
-                                bp.helpers['popchat'].pop(string.format('AUTO-RANGED WEAPONSKILL SET TO: %s.', flags.ws))
-                                break
+                                if value:sub(1,8):lower() == match:sub(1,8):lower() then
+                                    flags.ws = weaponskills[v].en
+                                    bp.helpers['popchat'].pop(string.format('AUTO-RANGED WEAPONSKILL SET TO: %s.', flags.ws))
+                                    break
 
+                                end
+                                
                             end
                             
                         end
-                        
-                    end
-                
-                end
-
-                if commands[2] and tonumber(commands[2]) ~= nil then
-                    local value = tonumber(commands[2])
-
-                    if value >= 1000 and value <= 3000 then
-                        flags.tp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-RANGED WEAPONSKILL TP THRESHOLD SET TO: %s.', flags.tp))
-
-                    else
-                        bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1000 & 3000!')
 
                     end
 
@@ -471,39 +477,41 @@ function core.new()
         set['ws'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if #commands > 0 then
+            if flags and #commands > 0 then
 
-                if commands[1] then
-                    local weaponskills = bp.res.weapon_skills
-                    local value = windower.convert_auto_trans(commands[1])
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                    for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                    if type(value) == 'number' then
+
+                        if value >= 1000 and value <= 3000 then
+                            flags.tp = value
+                            bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL TP THRESHOLD SET TO: %s.', flags.tp))
+
+                        else
+                            bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1000 & 3000!')
+
+                        end
+
+                    else
+                        local weaponskills = bp.res.weapon_skills
+                        local value = windower.convert_auto_trans(value)
+
+                        for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                                    
+                            if weaponskills[v] and weaponskills[v].en then
+                                local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
                                 
-                        if weaponskills[v] and weaponskills[v].en then
-                            local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
-                            
-                            if value:sub(1,8):lower() == match:sub(1,8):lower() then
-                                flags.ws = weaponskills[v].en
-                                bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL SET TO: %s.', flags.ws))
-                                break
+                                if value:sub(1,8):lower() == match:sub(1,8):lower() then
+                                    flags.ws = weaponskills[v].en
+                                    bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL SET TO: %s.', flags.ws))
+                                    break
 
+                                end
+                                
                             end
                             
                         end
-                        
-                    end
-                
-                end
-
-                if commands[2] and tonumber(commands[2]) ~= nil then
-                    local value = tonumber(commands[2])
-
-                    if value >= 1000 and value <= 3000 then
-                        flags.tp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL TP THRESHOLD SET TO: %s.', flags.tp))
-
-                    else
-                        bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1000 & 3000!')
 
                     end
 
@@ -520,15 +528,24 @@ function core.new()
         set['skillup'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if #commands > 0 then
-                local skill = windower.convert_auto_trans(table.concat(commands, ' '))
+            if flags and #commands > 0 then
 
-                if S{"Enhancing Magic","Divine Magic","Enfeebling Magic","Elemental Magic","Dark Magic","Singing","Summoning","Blue Magic","Geomancy"}:contains(skill) then 
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-SKILLUP SPELL SET TO: %s.', flags.name))
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                else
-                    bp.helpers['popchat'].pop('INVALID SKILL NAME!')
+                    if value then
+                        local value = windower.convert_auto_trans(value)
+
+                        if S{"Enhancing Magic","Divine Magic","Enfeebling Magic","Elemental Magic","Dark Magic","Singing","Summoning","Blue Magic","Geomancy"}:contains(value) then 
+                            flags.name = value
+                            bp.helpers['popchat'].pop(string.format('AUTO-SKILLUP SPELL SET TO: %s.', flags.name))
+
+                        else
+                            bp.helpers['popchat'].pop('INVALID SKILL NAME!')
+
+                        end
+
+                    end
 
                 end
             
@@ -543,15 +560,24 @@ function core.new()
         set['food'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and commands[1] then
-                local food = bp.helpers['inventory'].findItemByName(commands[1])
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if food and bp.IT[food.en] then
-                    flags.name = food.en
-                    bp.helpers['popchat'].pop(string.format('AUTO-FOOD SET TO: %s.', flags.name))
+                    if value then
+                        local food = bp.helpers['inventory'].findItemByName(windower.convert_auto_trans(value))
 
-                else
-                    bp.helpers['popchat'].pop('ENMITY DELAY VALUE MUST BE A NUMBER BETWEEN 0 & 30!')
+                        if food and bp.IT[food.en] then
+                            flags.name = food.en
+                            bp.helpers['popchat'].pop(string.format('AUTO-FOOD SET TO: %s.', flags.name))
+        
+                        else
+                            bp.helpers['popchat'].pop('UNABLE TO FIND THAT FOOD IN YOUR INVENTORY!')
+        
+                        end
+
+                    end
 
                 end
 
@@ -566,15 +592,35 @@ function core.new()
         set['hate'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and commands[1] then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
 
-                if value and value >= 0 and value <= 30 then
-                    flags.delay = value
-                    bp.helpers['popchat'].pop(string.format('AUTO-ENMITY DELAY SET TO: %s.', flags.delay))
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                else
-                    bp.helpers['popchat'].pop('ENMITY DELAY VALUE MUST BE A NUMBER BETWEEN 0 & 30!')
+                    if value then
+
+                        if type(value) == 'string' then
+
+                            if value == 'aoe' then
+                                flags.aoehate = flags.aoehate ~= true and true or false
+                                bp.helpers['popchat'].pop(string.format('AOE HATE SPELLS: %s.', tostring(flags.enabled)))
+
+                            end
+
+                        elseif type(value) == 'number' then
+                            
+                            if value >= 0 and value <= 30 then
+                                flags.delay = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-ENMITY DELAY SET TO: %s.', flags.delay))
+
+                            else
+                                bp.helpers['popchat'].pop('ENMITY DELAY VALUE MUST BE A NUMBER BETWEEN 0 & 30!')
+
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -589,15 +635,27 @@ function core.new()
         set['sanguine blade'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and commands[1] then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if value ~= nil and value >= 25 and value <= 75 then
-                    flags.hpp = value
-                    bp.helpers['popchat'].pop(string.format('AUTO-SANGUINE HP%% SET TO: %s.', tostring(flags.hpp)))
+                    if value then
 
-                else
-                    bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 25 & 75!')
+                        if type(value) == 'number' then
+                            
+                            if value >= 25 and value <= 75 then
+                                flags.hpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-SANGUINE HP%% SET TO: %s.', tostring(flags.hpp)))
+            
+                            else
+                                bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 25 & 75!')
+            
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -612,15 +670,27 @@ function core.new()
         set['chakra'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
 
-                if value ~= nil and value >= 25 and value <= 75 then
-                    flags.hpp = value
-                    bp.helpers['popchat'].pop(string.format('AUTO-CHAKRA HP%% SET TO: %s.', flags.hpp))
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                else
-                    bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 25 & 75!')
+                    if value then
+
+                        if type(value) == 'number' then
+                            
+                            if value >= 25 and value <= 75 then
+                                flags.hpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-CHAKRA HP%% SET TO: %s.', flags.hpp))
+            
+                            else
+                                bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 25 & 75!')
+            
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -637,38 +707,65 @@ function core.new()
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if commands[1] then
-                    local value = tonumber(commands[1])
+                    if (value or target) then
+                        
+                        if type(value) == 'number' then
+                            
+                            if value >= 25 and value <= 75 then
+                                flags.mpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION MP%% SET TO: %s.', flags.mpp))
+        
+                            else
+                                bp.helpers['popchat'].pop('ENTER A MP% VALUE BETWEEN 25 & 75!')
+        
+                            end
 
-                    if value and value >= 25 and value <= 75 then
-                        flags.mpp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION MP%% SET TO: %s.', flags.mpp))
+                        end
+                        
+                        if target and target.name ~= bp.player.name then
+                            local target = value ~= nil and windower.ffxi.get_mob_by_name(value) or target
 
-                    else
-                        bp.helpers['popchat'].pop('ENTER A MP% VALUE BETWEEN 25 & 75!')
+                            if target and bp.helpers['party'].isInParty(target) then
+                                flags.target = target.name
+                                bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION TARGET SET TO: %s.', flags.target))
 
-                    end
+                            else
+                                bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
 
-                end
+                            end
 
-                if (commands[2] or target) then
-                    local target = commands[2] ~= nil and windower.ffxi.get_mob_by_name(commands[2]) or target or false
-
-                    if target and bp.helpers['party'].isInParty(target) and target.name ~= bp.player.name then
-                        flags.target = target.name
-                        bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION TARGET SET TO: %s.', flags.target))
-
-                    else
-                        bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+                        end
 
                     end
 
                 end
 
             elseif #commands == 0 then
-                flags.enabled = flags.enabled ~= true and true or false
-                bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION: %s.', tostring(flags.enabled)))
+                
+                if not target then
+                    flags.enabled = flags.enabled ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION: %s.', tostring(flags.enabled)))
+
+                else
+
+                    if target and target.name ~= bp.player.name then
+
+                        if target and bp.helpers['party'].isInParty(target) then
+                            flags.target = target.name
+                            bp.helpers['popchat'].pop(string.format('AUTO-DEVOTION TARGET SET TO: %s.', flags.target))
+
+                        else
+                            bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+
+                        end
+
+                    end
+
+                end
 
             end
 
@@ -677,15 +774,28 @@ function core.new()
         set['boost'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
-                local spell = windower.convert_auto_trans(commands[1])
-                
-                if S{'Boost-STR','Boost-DEX','Boost-INT','Boost-CHR','Boost-AGI','Boost-VIT','Boost-MND'}:contains(spell) then
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-WHM BOOST SPELL SET TO: %s.', flags.name))
+            if flags and #commands > 0 then
 
-                else
-                    bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if value then
+
+                        if type(value) == 'string' then            
+                            local spell = windower.convert_auto_trans(value)
+                
+                            if S{'Boost-STR','Boost-DEX','Boost-INT','Boost-CHR','Boost-AGI','Boost-VIT','Boost-MND'}:contains(spell) then
+                                flags.name = spell
+                                bp.helpers['popchat'].pop(string.format('AUTO-WHM BOOST SPELL SET TO: %s.', flags.name))
+
+                            else
+                                bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -700,15 +810,27 @@ function core.new()
         set['cascade'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if value ~= nil and value > 1000 and value < 3000 then
-                    flags.tp = value
-                    bp.helpers['popchat'].pop(string.format('AUTO-CASCADE TP%% SET TO: %s.', flags.tp))
+                    if value then
 
-                else
-                    bp.helpers['popchat'].pop('ENTER A TP% VALUE BETWEEN 1000 & 3000!')
+                        if type(value) == 'number' then
+                            
+                            if value >= 1000 and value <= 3000 then
+                                flags.tp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-CASCADE TP%% SET TO: %s.', flags.tp))
+            
+                            else
+                                bp.helpers['popchat'].pop('ENTER A TP% VALUE BETWEEN 1000 & 3000!')
+            
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -723,28 +845,41 @@ function core.new()
         set['spikes'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
-                local spell = windower.convert_auto_trans(commands[1])
+            if flags and #commands > 0 then
 
-                if (S{'BLM','RDM','SCH','RUN'}:contains(bp.player.main_job) or S{'BLM','RDM','SCH','RUN'}:contains(bp.player.sub_job)) then
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if value then
+
+                        if type(value) == 'string' then            
+                            local spell = windower.convert_auto_trans(value)
                 
-                    if S{'Blaze Spikes','Ice Spikes','Shock Spikes'}:contains(spell) then
-                        flags.name = spell
-                        bp.helpers['popchat'].pop(string.format('AUTO-SPIKES SPELL SET TO: %s.', flags.name))
+                            if (S{'BLM','RDM','SCH','RUN'}:contains(bp.player.main_job) or S{'BLM','RDM','SCH','RUN'}:contains(bp.player.sub_job)) then
+                
+                                if S{'Blaze Spikes','Ice Spikes','Shock Spikes'}:contains(spell) then
+                                    flags.name = spell
+                                    bp.helpers['popchat'].pop(string.format('AUTO-SPIKES SPELL SET TO: %s.', flags.name))
+            
+                                else
+                                    bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+            
+                                end
+            
+                            elseif S{'DRK'}:contains(bp.player.main_job) then
+            
+                                if spell == 'Dread Spikes' then
+                                    flags.name = spell
+                                    bp.helpers['popchat'].pop(string.format('AUTO-SPIKES SPELL SET TO: %s.', flags.name))
+            
+                                else
+                                    bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+            
+                                end
+            
+                            end
 
-                    else
-                        bp.helpers['popchat'].pop('INVALID SPELL NAME!')
-
-                    end
-
-                elseif S{'DRK'}:contains(bp.player.main_job) then
-
-                    if spell == 'Dread Spikes' then
-                        flags.name = spell
-                        bp.helpers['popchat'].pop(string.format('AUTO-SPIKES SPELL SET TO: %s.', flags.name))
-
-                    else
-                        bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+                        end
 
                     end
 
@@ -761,15 +896,27 @@ function core.new()
         set['drain'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if #commands == 1 then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if value and value > 1 and value < 75 then
-                    flags.hpp = value
-                    bp.helpers['popchat'].pop(string.format('AUTO-DRAIN HP%% SET TO: %s.', flags.hpp))
+                    if value then
 
-                else
-                    bp.helpers['popchat'].pop('AUTO-DRAIN HP%% VALUE NEEDS TO BE A NUMBER BETWEEN 1 & 75!')
+                        if type(value) == 'number' then
+                            
+                            if value >= 1 and value <= 75 then
+                                flags.hpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-DRAIN HP%% SET TO: %s.', flags.hpp))
+            
+                            else
+                                bp.helpers['popchat'].pop('AUTO-DRAIN HP%% VALUE NEEDS TO BE A NUMBER BETWEEN 1 & 75!')
+            
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -784,15 +931,27 @@ function core.new()
         set['aspir'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if #commands == 1 then
-                local value = tonumber(commands[1])
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if value and value > 1 and value < 75 then
-                    flags.mpp = value
-                    bp.helpers['popchat'].pop(string.format('AUTO-ASPIR MP%% SET TO: %s.', flags.mpp))
+                    if value then
 
-                else
-                    bp.helpers['popchat'].pop('AUTO-ASPIR MP%% VALUE NEEDS TO BE A NUMBER BETWEEN 1 & 75!')
+                        if type(value) == 'number' then
+                            
+                            if value > 1 and value < 75 then
+                                flags.mpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-ASPIR MP%% SET TO: %s.', flags.mpp))
+            
+                            else
+                                bp.helpers['popchat'].pop('AUTO-ASPIR MP%% VALUE NEEDS TO BE A NUMBER BETWEEN 1 & 75!')
+            
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -848,15 +1007,28 @@ function core.new()
         set['gain'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
-                local spell = windower.convert_auto_trans(commands[1])
+            if flags and #commands > 0 then
 
-                if S{'Gain-VIT','Gain-DEX','Gain-CHR','Gain-MND','Gain-AGI','Gain-STR','Gain-INT'}:contains(spell) then
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-GAIN SPELL SET TO: %s.', flags.name))
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                else
-                    bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+                    if value then
+
+                        if type(value) == 'string' then
+                            local spell = windower.convert_auto_trans(value)
+
+                            if S{'Gain-VIT','Gain-DEX','Gain-CHR','Gain-MND','Gain-AGI','Gain-STR','Gain-INT'}:contains(spell) then
+                                flags.name = spell
+                                bp.helpers['popchat'].pop(string.format('AUTO-GAIN SPELL SET TO: %s.', flags.name))
+
+                            else
+                                bp.helpers['popchat'].pop('INVALID SPELL NAME!')
+
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -917,13 +1089,13 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
-            if flags and (commands[1] or target) then
+            if flags and (commands[1] or target) and target.name ~= bp.player.name then
                 local value = commands[1]
 
                 if (value or target) then
                     local target = value ~= nil and windower.ffxi.get_mob_by_name(value) or target or false
 
-                    if target and bp.helpers['party'].isInParty(target) and target.name ~= bp.player.name then
+                    if target and bp.helpers['party'].isInParty(target) then
                         flags.target = target.name
                         bp.helpers['popchat'].pop(string.format('AUTO-COVER TARGET SET TO: %s.', flags.target))
 
@@ -934,7 +1106,7 @@ function core.new()
 
                 end
 
-            elseif #commands == 0 then
+            elseif #commands == 0 and (not target or (target.name == bp.player.name)) then
                 flagsflags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-COVER: %s.', tostring(flags.enabled)))
 
@@ -946,30 +1118,39 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
-                
-                if commands[1] then
-                    local value = tonumber(commands[1])
 
-                    if value and value >= 25 and value <= 75 then
-                        flags.mpp = value
-                        bp.helpers['popchat'].pop(string.format('CHIVALRY MP%% SET TO: %s.', flags.mpp))
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                    else
-                        bp.helpers['popchat'].pop('MP%% MUST BE A NUMBER BETWEEN 25 & 75!')
+                    if value then
 
-                    end
+                        if type(value) == 'number' then
+                            
+                            if value < 1000 then
+                                
+                                if value >= 25 and value <= 75 then
+                                    flags.mpp = value
+                                    bp.helpers['popchat'].pop(string.format('CHIVALRY MP%% SET TO: %s.', flags.mpp))
 
-                end
+                                else
+                                    bp.helpers['popchat'].pop('MP%% MUST BE A NUMBER BETWEEN 25 & 75!')
 
-                if commands[2] then
-                    local value = tonumber(commands[2])
+                                end
 
-                    if value and value >= 1000 and value <= 3000 then
-                        flags.tp = value
-                        bp.helpers['popchat'].pop(string.format('CHIVALRY TP%% SET TO: %s.', flags.tp))
+                            else
 
-                    else
-                        bp.helpers['popchat'].pop('TP%% MUST BE A NUMBER BETWEEN 1000 & 3000!')
+                                if value >= 1000 and value <= 3000 then
+                                    flags.tp = value
+                                    bp.helpers['popchat'].pop(string.format('CHIVALRY TP%% SET TO: %s.', flags.tp))
+
+                                else
+                                    bp.helpers['popchat'].pop('TP%% MUST BE A NUMBER BETWEEN 1000 & 3000!')
+
+                                end
+
+                            end
+
+                        end
 
                     end
 
@@ -986,7 +1167,7 @@ function core.new()
         set['absorb'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
+            if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
 
                 if S{'Absorb-VIT','Absorb-DEX','Absorb-CHR','Absorb-MND','Absorb-AGI','Absorb-STR','Absorb-INT','Absorb-ACC','Absorb-TP','Absorb-Attri'}:contains(spell) then
@@ -1037,13 +1218,13 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
-            if flags and (#commands > 0 or target) then
+            if flags and (#commands > 0 or target) and target.name ~= bp.player.name then
                 local value = commands[1]
 
                 if (value or target) then
                     local target = value ~= nil and windower.ffxi.get_mob_by_name(value) or target or false
 
-                    if target and bp.helpers['party'].isInParty(target) and target.name ~= bp.player.name then
+                    if target and bp.helpers['party'].isInParty(target) then
                         flags.target = target.name
                         bp.helpers['popchat'].pop(string.format('AUTO-DECOY SHOT TARGET SET TO: %s.', flags.target))
 
@@ -1054,7 +1235,7 @@ function core.new()
 
                 end
 
-            elseif #commands == 0 then
+            elseif #commands == 0 and (not target or (target.name == bp.player.name)) then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-COVER: %s.', tostring(flags.enabled)))
 
@@ -1092,7 +1273,7 @@ function core.new()
         set['summon'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
+            if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
 
                 if S{'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}:contains(spell) then
@@ -1127,38 +1308,65 @@ function core.new()
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                if commands[1] then
-                    local value = tonumber(commands[1])
+                    if (value or target) then
+                        
+                        if type(value) == 'number' then
+                            
+                            if value >= 1000 and value <= 3000 then
+                                flags.tp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO TP%% SET TO: %s.', flags.tp))
+        
+                            else
+                                bp.helpers['popchat'].pop('ENTER A TP% VALUE BETWEEN 1000 & 3000!')
+        
+                            end
 
-                    if value and value >= 1000 and value <= 3000 then
-                        flags.tp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO TP%% SET TO: %s.', flags.tp))
+                        end
+                        
+                        if target and target.name ~= bp.player.name then
+                            local target = value ~= nil and windower.ffxi.get_mob_by_name(value) or target
 
-                    else
-                        bp.helpers['popchat'].pop('ENTER A TP% VALUE BETWEEN 1000 & 3000!')
+                            if target and bp.helpers['party'].isInParty(target) then
+                                flags.target = target.name
+                                bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO TARGET SET TO: %s.', flags.target))
+        
+                            else
+                                bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+        
+                            end
 
-                    end
-
-                end
-
-                if (commands[2] or target) then
-                    local target = commands[2] ~= nil and windower.ffxi.get_mob_by_name(commands[2]) or target or false
-
-                    if target and bp.helpers['party'].isInParty(target) and target.name ~= bp.player.name then
-                        flags.target = target.name
-                        bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO TARGET SET TO: %s.', flags.target))
-
-                    else
-                        bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+                        end
 
                     end
 
                 end
 
             elseif #commands == 0 then
-                flags.enabled = flags.enabled ~= true and true or false
-                bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO: %s.', tostring(flags.enabled)))
+                
+                if not target then
+                    flags.enabled = flags.enabled ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO: %s.', tostring(flags.enabled)))
+
+                else
+
+                    if target and target.name ~= bp.player.name then
+
+                        if target and bp.helpers['party'].isInParty(target) then
+                            flags.target = target.name
+                            bp.helpers['popchat'].pop(string.format('AUTO-SHIKIKOYO TARGET SET TO: %s.', flags.target))
+    
+                        else
+                            bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+    
+                        end
+
+                    end
+
+                end
 
             end
 
@@ -1167,7 +1375,7 @@ function core.new()
         set['quick draw'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
+            if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
 
                 if S{'Fire Shot','Water Shot','Thunder Shot','Earth Shot','Wind SHot','Ice SHot','Light Shot','Dark Shot'}:contains(spell) then
@@ -1217,7 +1425,7 @@ function core.new()
         set['sambas'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
+            if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
 
                 if S{'Drain Samba','Aspir Samba','Haste Samba','Drain Samba II','Aspir Samba II','Drain Samba III'}:contains(spell) then
@@ -1240,7 +1448,7 @@ function core.new()
         set['steps'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
+            if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
 
                 if S{'Quickstep','Box Step','Stutter Step','Feather Step'}:contains(spell) then
@@ -1264,44 +1472,36 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
+                local cat1 = S{'Animated Flourish','Desperate Flourish','Violent Flourish'}
+                local cat2 = S{'Reverse Flourish','Building Flourish','Wild Flourish'}
+                local cat3 = S{'Climactic Flourish','Striking Flourish','Ternary Flourish'}
 
-                if commands[1] then
-                    local spell = windower.convert_auto_trans(commands[1])
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                    if S{'Animated Flourish','Desperate Flourish','Violent Flourish'}:contains(spell) then
-                        flags.name = spell
-                        bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY I) SET TO: %s.', flags.name))
+                    if value then
+                        
+                        if type(value) == 'string' then
+                            local spell = windower.convert_auto_trans(value)
 
-                    else
-                        bp.helpers['popchat'].pop('INVALID (CATEGORY I) FLOURISH NAME!')
+                            if cat1:contains(spell) then
+                                flags.cat_1 = spell
+                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY I) SET TO: %s.', flags.cat_1))
 
-                    end
+                            elseif cat2:contains(spell) then
+                                flags.cat_2 = spell
+                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY II) SET TO: %s.', flags.cat_2))
 
-                end
+                            elseif cat3:contains(spell) then
+                                flags.cat_3 = spell
+                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY III) SET TO: %s.', flags.cat_3))
+        
+                            else
+                                bp.helpers['popchat'].pop(string.format('INVALID OPTION (#%s) - FLOURISH NAME NOT FOUND!', i))
+        
+                            end
 
-                if commands[2] then
-                    local spell = windower.convert_auto_trans(commands[2])
-
-                    if S{'Reverse Flourish','Building Flourish','Wild Flourish'}:contains(spell) then
-                        flags.name = spell
-                        bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY II) SET TO: %s.', flags.name))
-
-                    else
-                        bp.helpers['popchat'].pop('INVALID (CATEGORY II) FLOURISH NAME!')
-
-                    end
-
-                end
-
-                if commands[3] then
-                    local spell = windower.convert_auto_trans(commands[3])
-
-                    if S{'Climactic Flourish','Striking Flourish','Ternary Flourish'}:contains(spell) then
-                        flags.name = spell
-                        bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY III) SET TO: %s.', flags.name))
-
-                    else
-                        bp.helpers['popchat'].pop('INVALID (CATEGORY III) FLOURISH NAME!')
+                        end
 
                     end
 
@@ -1318,7 +1518,7 @@ function core.new()
         set['jigs'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands == 1 then
+            if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
 
                 if S{'Spectral Jig','Chocobo Jig','Chocobo Jig II'}:contains(spell) then

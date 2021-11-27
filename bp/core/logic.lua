@@ -71,7 +71,7 @@ function logic.get()
 
                                 for _,v in pairs(selected.list) do
                                     
-                                    if helpers['actions'].isReady('MA', v) and not helpers['queue'].inQueue(bp.MA[v]) then
+                                    if isReady('MA', v) and not helpers['queue'].inQueue(bp.MA[v]) then
 
                                         if selected.target == 't' and target then
                                             helpers['queue'].add(bp.MA[v], target)
@@ -97,7 +97,7 @@ function logic.get()
                     end
 
                 end
-                private.core.automate(bp, self.settings)
+                private.core.automate(bp)
 
                 if private.subs[player.sub_job] then
                     private.subs[player.sub_job]()
@@ -113,6 +113,7 @@ function logic.get()
     private.subs['WAR'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -120,39 +121,78 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
             if get('hate').enabled and target then
 
                 -- PROVOKE.
-                if target and get('provoke') and helpers['actions'].canAct() and helpers['actions'].isReady('JA', "Provoke") then
+                if target and get('provoke') and _act and isReady('JA', "Provoke") then
                     helpers['queue'].add(bp.JA["Provoke"], target)
                 end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and target and _act then
 
-            end
+                -- BERSERK.
+                if target and not get('tank') and get('berserk') and isReady('JA', "Berserk") and not helpers['queue'].inQueue(bp.JA["Defender"]) then
+                    helpers['queue'].add(bp.JA["Berserk"], player)
 
-            if get('debuffs') and target then
+                -- DEFENDER.
+                elseif target and get('tank') and get('defender') and isReady('JA', "Defender") and not helpers['queue'].inQueue(bp.JA["Berserk"]) then
+                    helpers['queue'].add(bp.JA["Defender"], player)
+
+                -- WARCRY.
+                elseif target and get('warcry') and isReady('JA', "Warcry") then
+                    helpers['queue'].add(bp.JA["Warcry"], player)
+
+                -- AGGRESSOR.
+                elseif target and get('aggressor') and isReady('JA', "Aggressor") then
+                    helpers['queue'].add(bp.JA["Aggressor"], player)
+
+                -- RETALIATION.
+                elseif target and get('retaliation') and isReady('JA', "Retaliation") then
+                    helpers['queue'].add(bp.JA["Retaliation"], player)
+
+                end
 
             end
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('hate').enabled then
+
+                -- PROVOKE.
+                if get('provoke') and _act and isReady('JA', "Provoke") then
+                    helpers['queue'].add(bp.JA["Provoke"], target)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act then
 
-            end
+                -- BERSERK.
+                if not get('tank') and get('berserk') and isReady('JA', "Berserk") and not helpers['queue'].inQueue(bp.JA["Defender"]) then
+                    helpers['queue'].add(bp.JA["Berserk"], player)
 
-            if get('debuffs') and target then
+                -- DEFENDER.
+                elseif get('tank') and get('defender') and isReady('JA', "Defender") and not helpers['queue'].inQueue(bp.JA["Berserk"]) then
+                    helpers['queue'].add(bp.JA["Defender"], player)
+
+                -- WARCRY.
+                elseif get('warcry') and isReady('JA', "Warcry") then
+                    helpers['queue'].add(bp.JA["Warcry"], player)
+
+                -- AGGRESSOR.
+                elseif get('aggressor') and isReady('JA', "Aggressor") then
+                    helpers['queue'].add(bp.JA["Aggressor"], player)
+
+                -- RETALIATION.
+                elseif get('retaliation') and isReady('JA', "Retaliation") then
+                    helpers['queue'].add(bp.JA["Retaliation"], player)
+
+                end
 
             end
 
@@ -163,6 +203,7 @@ function logic.get()
     private.subs['MNK'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -172,32 +213,78 @@ function logic.get()
 
             if get('ja') and _act then
 
+                -- CHAKRA.
+                if get('chakra').enabled and isReady('JA', "Chakra") and player['vitals'].hpp <= get('chakra').hpp then
+                    helpers['queue'].add(bp.JA["Chakra"], player)
+
+                -- CHI BLAST.
+                elseif target and get('chi blast') and isReady('JA', "Chi Blast") then
+                    helpers['queue'].add(bp.JA["Chi Blast"], target)
+
+                end
+
             end
 
-            if get('hate').enabled and target then
+            if get('buffs') and target and _act then
 
-            end
+                -- FOCUS.
+                if get('focus') and isReady('JA', "Focus") then
+                    helpers['queue'].add(bp.JA["Focus"], player)
 
-            if get('buffs') and target then
+                -- DODGE.
+                elseif get('dodge') and isReady('JA', "Dodge") then
+                    helpers['queue'].add(bp.JA["Dodge"], player)
 
-            end
+                -- COUNTERSTANCE.
+                elseif get('counterstance') and isReady('JA', "Counterstance") then
+                    helpers['queue'].add(bp.JA["Counterstance"], player)
 
-            if get('debuffs') and target then
+                -- FOOTWORK.
+                elseif get('footwork') and isReady('JA', "Footwork") then
+                    helpers['queue'].add(bp.JA["Footwork"], player)
+
+                end
 
             end
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- CHAKRA.
+                if get('chakra').enabled and isReady('JA', "Chakra") and player['vitals'].hpp <= get('chakra').hpp then
+                    helpers['queue'].add(bp.JA["Chakra"], player)
+
+                -- CHI BLAST.
+                elseif get('chi blast') and isReady('JA', "Chi Blast") then
+                    helpers['queue'].add(bp.JA["Chi Blast"], target)
+
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act then
 
-            end
+                -- FOCUS.
+                if get('focus') and isReady('JA', "Focus") then
+                    helpers['queue'].add(bp.JA["Focus"], player)
 
-            if get('debuffs') and target then
+                -- DODGE.
+                elseif get('dodge') and isReady('JA', "Dodge") then
+                    helpers['queue'].add(bp.JA["Dodge"], player)
+
+                -- COUNTERSTANCE.
+                elseif get('counterstance') and isReady('JA', "Counterstance") then
+                    helpers['queue'].add(bp.JA["Counterstance"], player)
+
+                -- FOOTWORK.
+                elseif get('footwork') and isReady('JA', "Footwork") then
+                    helpers['queue'].add(bp.JA["Footwork"], player)
+
+                end
 
             end
 
@@ -208,6 +295,7 @@ function logic.get()
     private.subs['WHM'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -237,6 +325,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -257,6 +347,7 @@ function logic.get()
     private.subs['BLM'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -282,6 +373,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -302,6 +395,7 @@ function logic.get()
     private.subs['RDM'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -313,7 +407,7 @@ function logic.get()
 
                 if get('convert').enabled and player['vitals'].hpp >= get('convert').hpp and player['vitals'].mpp <= get('convert').mpp then
                                 
-                    if helpers['actions'].isReady('JA', "Convert") then
+                    if isReady('JA', "Convert") then
                         helpers['queue'].add(bp.JA["Convert"], player)
                         helpers['queue'].add(bp.MA["Cure IV"], player)
                         
@@ -339,38 +433,38 @@ function logic.get()
                 end
                 
                 -- HASTE.
-                if helpers['actions'].isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
+                if isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
                     helpers['queue'].add(bp.MA["Haste"], player)
                 
                 -- PHALANX.
-                elseif helpers['actions'].isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
+                elseif isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
                     helpers['queue'].add(bp.MA["Phalanx"], player)
                     
                 -- REFRESH.
-                elseif not get('sublimation') and helpers['actions'].isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
+                elseif not get('sublimation') and isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
                     helpers['queue'].add(bp.MA["Refresh"], player)
 
                 -- ENSPELLS.
                 elseif get('en').enabled and not enspell_active then
                         
-                    if helpers['actions'].isReady('MA', get('en').name) and not helpers['buffs'].buffActive(94) then
+                    if isReady('MA', get('en').name) and not helpers['buffs'].buffActive(94) then
                         helpers['queue'].add(bp.MA[get('en').name], player)
                     end
                     
                 -- STONESKIN.
-                elseif get('stoneskin') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Stoneskin") then
+                elseif get('stoneskin') and not helpers['buffs'].buffActive(37) and isReady('MA', "Stoneskin") then
                     helpers['queue'].add(bp.MA["Stoneskin"], player)
 
                 -- AQUAVEIL.
-                elseif get('aquaveil') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Aquaveil") then
+                elseif get('aquaveil') and not helpers['buffs'].buffActive(37) and isReady('MA', "Aquaveil") then
                     helpers['queue'].add(bp.MA["Aquaveil"], player)
 
                 -- BLINK.
-                elseif get('blink') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Blink") then
+                elseif get('blink') and not helpers['buffs'].buffActive(37) and isReady('MA', "Blink") then
                     helpers['queue'].add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif helpers['actions'].isReady('MA', get('spikes').name) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
+                elseif isReady('MA', get('spikes').name) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
                     helpers['queue'].add(bp.MA[get('spikes')], player)
                     
                 end 
@@ -388,7 +482,7 @@ function logic.get()
 
                 if get('convert').enabled and player['vitals'].hpp >= get('convert').hpp and player['vitals'].mpp <= get('convert').mpp then
                                 
-                    if helpers['actions'].isReady('JA', "Convert") then
+                    if isReady('JA', "Convert") then
                         helpers['queue'].add(bp.JA["Convert"], player)
                         helpers['queue'].add(bp.MA["Cure IV"], player)
                         
@@ -414,38 +508,38 @@ function logic.get()
                 end
                 
                 -- HASTE.
-                if helpers['actions'].isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
+                if isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
                     helpers['queue'].add(bp.MA["Haste"], player)
                 
                 -- PHALANX.
-                elseif helpers['actions'].isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
+                elseif isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
                     helpers['queue'].add(bp.MA["Phalanx"], player)
                     
                 -- REFRESH.
-                elseif not get('sublimation') and helpers['actions'].isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
+                elseif not get('sublimation') and isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
                     helpers['queue'].add(bp.MA["Refresh"], player)
 
                 -- ENSPELLS.
                 elseif get('en').enabled and not enspell_active then
                         
-                    if helpers['actions'].isReady('MA', get('en').name) and not helpers['buffs'].buffActive(94) then
+                    if isReady('MA', get('en').name) and not helpers['buffs'].buffActive(94) then
                         helpers['queue'].add(bp.MA[get('en').name], player)
                     end
                     
                 -- STONESKIN.
-                elseif get('stoneskin') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Stoneskin") then
+                elseif get('stoneskin') and not helpers['buffs'].buffActive(37) and isReady('MA', "Stoneskin") then
                     helpers['queue'].add(bp.MA["Stoneskin"], player)
 
                 -- AQUAVEIL.
-                elseif get('aquaveil') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Aquaveil") then
+                elseif get('aquaveil') and not helpers['buffs'].buffActive(37) and isReady('MA', "Aquaveil") then
                     helpers['queue'].add(bp.MA["Aquaveil"], player)
 
                 -- BLINK.
-                elseif get('blink') and not helpers['buffs'].buffActive(37) and helpers['actions'].isReady('MA', "Blink") then
+                elseif get('blink') and not helpers['buffs'].buffActive(37) and isReady('MA', "Blink") then
                     helpers['queue'].add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif helpers['actions'].isReady('MA', get('spikes').name) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
+                elseif isReady('MA', get('spikes').name) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
                     helpers['queue'].add(bp.MA[get('spikes')], player)
                     
                 end 
@@ -463,6 +557,7 @@ function logic.get()
     private.subs['THF'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -471,16 +566,6 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
-
-                if get('convert').enabled and player['vitals'].hpp >= get('convert').hpp and player['vitals'].mpp <= get('convert').mpp then
-                                
-                    if helpers['actions'].isReady('JA', "Convert") then
-                        helpers['queue'].add(bp.JA["Convert"], player)
-                        helpers['queue'].add(bp.MA["Cure IV"], player)
-                        
-                    end
-                    
-                end
 
             end
 
@@ -498,6 +583,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -518,6 +605,7 @@ function logic.get()
     private.subs['PLD'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -543,6 +631,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -563,6 +653,7 @@ function logic.get()
     private.subs['DRK'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -577,14 +668,14 @@ function logic.get()
             if get('hate').enabled and target then
 
                 -- STUN.
-                if target and helpers['actions'].canCast() and helpers['actions'].isReady('MA', "Stun") then
+                if target and helpers['actions'].canCast() and isReady('MA', "Stun") then
                     helpers['queue'].addToFront(bp.MA["Stun"], target)                            
                 end
                 
                 if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
                 
                     -- SOULEATER.
-                    if target and not helpers['buffs'].buffActive(64) and helpers['actions'].isReady('JA', "Souleater") then
+                    if target and not helpers['buffs'].buffActive(64) and isReady('JA', "Souleater") then
                         helpers['queue'].addToFront(bp.JA["Souleater"], player)
                         timers.hate = os.clock()
                         
@@ -593,7 +684,7 @@ function logic.get()
                         end
                         
                     -- LAST RESORT.
-                    elseif target and not helpers['buffs'].buffActive(64) and helpers['actions'].isReady('JA', "Last Resort") then
+                    elseif target and not helpers['buffs'].buffActive(64) and isReady('JA', "Last Resort") then
                         helpers['queue'].addToFront(bp.JA["Last Resort"], player)
                         timers.hate = os.clock()
                         
@@ -617,6 +708,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -637,6 +730,7 @@ function logic.get()
     private.subs['BST'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -662,6 +756,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -682,6 +778,7 @@ function logic.get()
     private.subs['BRD'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -707,6 +804,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -727,6 +826,7 @@ function logic.get()
     private.subs['RNG'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -752,6 +852,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -772,6 +874,7 @@ function logic.get()
     private.subs['SMN'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -797,6 +900,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -817,6 +922,7 @@ function logic.get()
     private.subs['SAM'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -842,6 +948,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -862,6 +970,7 @@ function logic.get()
     private.subs['NIN'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -887,6 +996,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -907,6 +1018,7 @@ function logic.get()
     private.subs['DRG'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -917,11 +1029,11 @@ function logic.get()
             if get('ja') and _act then
 
                 -- JUMP.
-                if target and get('jump') and helpers['actions'].isReady('JA', "Jump") then
+                if target and get('jump') and isReady('JA', "Jump") then
                     helpers['queue'].add(bp.JA["Jump"], target)
                     
                 -- HIGH JUMP.
-                elseif target and get('high jump') and helpers['actions'].isReady('JA', "High Jump") then
+                elseif target and get('high jump') and isReady('JA', "High Jump") then
                     helpers['queue'].add(bp.JA["High Jump"], target)
                     
                 end
@@ -942,6 +1054,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -962,6 +1076,7 @@ function logic.get()
     private.subs['BLU'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -975,6 +1090,37 @@ function logic.get()
 
             if get('hate').enabled and target then
 
+                -- JETTATURA.
+                if target and isReady('MA', "Jettatura") then
+                    helpers['queue'].add(bp.MA["Jettatura"], target)
+                    
+                -- BLANK GAZE.
+                elseif target and isReady('MA', "Blank Gaze") then
+                    helpers['queue'].add(bp.MA["Blank Gaze"], target)
+                    
+                end
+                
+                if self.getSetting('AOEHATE') and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
+                    
+                    -- SOPORIFIC.
+                    if target and isReady('MA', "Soporific") then
+                        helpers['queue'].add(bp.MA["Soporific"], target)
+                        timers.hate = os.clock()
+                    
+                    -- GEIST WALL.
+                    elseif target and isReady('MA', "Geist Wall") then
+                        helpers['queue'].add(bp.MA["Geist Wall"], target)
+                        timers.hate = os.clock()
+                    
+                    -- JETTATURA.
+                    elseif target and isReady('MA', "Sheep Song") then
+                        helpers['queue'].add(bp.MA["Sheep Song"], target)
+                        timers.hate = os.clock()
+                    
+                    end
+                    
+                end
+
             end
 
             if get('buffs') and target then
@@ -987,6 +1133,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -1007,6 +1155,7 @@ function logic.get()
     private.subs['COR'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1032,6 +1181,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -1052,6 +1203,7 @@ function logic.get()
     private.subs['PUP'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1077,6 +1229,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -1097,6 +1251,7 @@ function logic.get()
     private.subs['DNC'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1129,6 +1284,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -1149,6 +1306,7 @@ function logic.get()
     private.subs['SCH'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1161,10 +1319,10 @@ function logic.get()
                 -- SUBLIMATION LOGIC.
                 if get('sublimation') then --UPDATE**
                             
-                    if not helpers['buffs'].buffActive(187) and not helpers['buffs'].buffActive(188) and helpers['actions'].isReady('JA', "Sublimation") then
+                    if not helpers['buffs'].buffActive(187) and not helpers['buffs'].buffActive(188) and isReady('JA', "Sublimation") then
                         helpers['queue'].add(bp.JA["Sublimation"], player)
                     
-                    elseif not helpers['buffs'].buffActive(187) and helpers['buffs'].buffActive(188) and helpers['actions'].isReady('JA', "Sublimation") then
+                    elseif not helpers['buffs'].buffActive(187) and helpers['buffs'].buffActive(188) and isReady('JA', "Sublimation") then
                         helpers['queue'].add(bp.JA["Sublimation"], player)
 
                     end
@@ -1187,6 +1345,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -1207,6 +1367,7 @@ function logic.get()
     private.subs['GEO'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1232,6 +1393,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 
@@ -1252,6 +1415,7 @@ function logic.get()
     private.subs['RUN'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1267,7 +1431,7 @@ function logic.get()
             if get('hate').enabled and target then
 
                 -- FLASH.
-                if _cast and helpers['actions'].isReady('MA', "Flash") then
+                if _cast and isReady('MA', "Flash") then
                     helpers['queue'].addToFront(bp.MA["Flash"], target)                            
                 end
                 
@@ -1275,12 +1439,12 @@ function logic.get()
                 if _act and (os.clock()-timers.hate) > get('hate').delay and active > 0 then
                 
                     -- VALLATION.
-                    if get('vallation') and helpers['actions'].isReady('JA', "Vallation") then
+                    if get('vallation') and isReady('JA', "Vallation") then
                         helpers['queue'].addToFront(bp.JA["Vallation"], player)
                         timers.hate = os.clock()
                         
                     -- PFLUG.
-                    elseif get('pflug') and helpers['actions'].isReady('JA', "Pflug") then
+                    elseif get('pflug') and isReady('JA', "Pflug") then
                         helpers['queue'].addToFront(bp.JA["Pflug"], player)
                         timers.hate = os.clock()
                         
@@ -1300,6 +1464,8 @@ function logic.get()
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
             if get('hate').enabled and target then
 

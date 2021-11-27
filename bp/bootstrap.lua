@@ -323,13 +323,8 @@ bootstrap.load = function()
             elseif (c == 'r' or c == 'reload') then
                 windower.send_command('lua r bp3')
 
-            elseif c == 'test' then
-                local player = self.me or false
-                local target = windower.ffxi.get_mob_by_target('t') or false
-
-                if player and target then
-                    local behind = math.abs(math.abs(player.facing) - math.abs(target.facing-6.28318501)) < 0.2 and true or false
-                end
+            else
+                -- DO CORE COMMANDS.
     
             end
     

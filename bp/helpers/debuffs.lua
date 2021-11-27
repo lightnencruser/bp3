@@ -24,7 +24,6 @@ function debuffs.new()
 
     -- Public Variables.
     self.debuffs        = self.settings.debuffs or {}
-    self.enabled        = self.settings.enabled or false
     self.update.last    = 0
 
     -- Private Functions
@@ -144,7 +143,7 @@ function debuffs.new()
     
     self.cast = function()
 
-        if bp and self.enabled then
+        if bp and bp.core.get('debuffs') then
             local player = bp.player
 
             if self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
@@ -584,10 +583,6 @@ function debuffs.new()
 
                 end
 
-            elseif not commands[2] then
-                self.enabled = self.enabled ~= true and true or false
-                bp.helpers['popchat'].pop(string.format('AUTU-DEBUFFING SET TO: %s.', tostring(self.enabled)))
-
             end
             self.writeSettings()
 
@@ -633,7 +628,7 @@ function debuffs.new()
 
     private.events.commands = windower.register_event('time change', function(new, old)
 
-        if self.enabled then
+        if bp and bp.core and bp.core.get('debuffs') then
             self.cast()
         end
 

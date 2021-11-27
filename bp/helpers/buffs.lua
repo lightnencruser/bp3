@@ -44,8 +44,6 @@ function buffs.new()
     self.buffs      = {}
     self.alliance   = {}
     self.count      = 0
-    self.enabled    = self.settings.enabled or false
-
 
     -- Build Allowed resources.
     for i,v in pairs(res) do
@@ -80,8 +78,7 @@ function buffs.new()
     private.persist = function()
 
         if self.settings then
-            self.settings.layout    = self.layout
-            self.settings.enabled   = self.enabled
+            self.settings.layout = self.layout
         end
 
     end
@@ -639,10 +636,6 @@ function buffs.new()
 
                 end
 
-            elseif not commands[2] then
-                self.enabled = self.enabled ~= true and true or false
-                bp.helpers['popchat'].pop(string.format('AUTU-BUFFING SET TO: %s.', tostring(self.enabled)))
-
             end
             private.writeSettings()
 
@@ -705,8 +698,8 @@ function buffs.new()
     end)
 
     private.events.commands = windower.register_event('time change', function(new, old)
-
-        if self.enabled then
+        
+        if bp and bp.core and bp.core.get('buffs') then
             self.cast()
         end
 

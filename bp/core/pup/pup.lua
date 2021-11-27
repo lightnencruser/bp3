@@ -8,10 +8,10 @@ function pup.get()
         private.items(bp, settings)
 
         if bp and bp.player and bp.player.status == 1 then
-            print('engaged status')
+            
 
         elseif bp and bp.player and bp.player.status == 0 then
-            print('disengaged status')
+            
 
         end
         

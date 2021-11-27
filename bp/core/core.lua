@@ -37,6 +37,7 @@ function core.new()
         ['hate']                    = {enabled=false, delay=2},
         ['items']                   = false,
         ['buffs']                   = false,
+        ['debuffs']                 = false,
         ['tank']                    = false,
         ['1hr']                     = false,
         ['ja']                      = false,
@@ -73,7 +74,7 @@ function core.new()
             ["boost"]               = {enabled=false, name="Boost-STR"},
             ["aquaveil"]            = false,
             ["blink"]               = false,
-            ["dia"]                 = false,
+            ["stoneskin"]           = false,
         },
 
         ['BLM'] = {
@@ -85,7 +86,6 @@ function core.new()
             ["spikes"]              = {enabled=false, name="Blaze Spikes"},
             ['drain']               = {enabled=false, hpp=55},
             ['aspir']               = {enabled=false, mpp=55},
-            ["bio"]                 = false,
         },
 
         ['RDM'] = {
@@ -98,9 +98,8 @@ function core.new()
             ["blink"]               = false,
             ["aquaveil"]            = false,
             ["en"]                  = {enabled=false, name="Enfire", tier=1},
-            ["dia"]                 = false,
-            ["bio"]                 = false,
             ['sanguine blade']      = {enabled=false, hpp=55},
+            ["stoneskin"]           = false,
         },
 
         ['THF'] = {
@@ -148,7 +147,6 @@ function core.new()
             ['drain']               = {enabled=false, hpp=55},
             ['aspir']               = {enabled=false, mpp=55},
             ['sanguine blade']      = {enabled=false, hpp=55},
-            ["bio"]                 = false,
         },
 
         ['BST'] = {
@@ -282,6 +280,7 @@ function core.new()
             ['aspir']               = {enabled=false, mpp=55},
             ["aquaveil"]            = false,
             ["blink"]               = false,
+            ["stoneskin"]           = false,
         },
 
         ['GEO'] = {
@@ -308,6 +307,7 @@ function core.new()
             ['sanguine blade']      = {enabled=false, hpp=55},
             ["aquaveil"]            = false,
             ["blink"]               = false,
+            ["stoneskin"]           = false,
         },        
 
     }
@@ -880,6 +880,10 @@ function core.new()
                         flags.tier = tier
                         bp.helpers['popchat'].pop(string.format('AUTO-ENSPELL TIER SET TO: %s.', flags.tier))
 
+                        do -- Set the new name value if the tier changed.
+                            flags.name = flags.tier < 2 and spell or string.format('%s II', spell)
+                        end
+
                     else
                         bp.helpers['popchat'].pop('SPELL TIER MUST BE 1 OR 2!')
 
@@ -1393,8 +1397,29 @@ function core.new()
         return private.flags
     end
 
-    self.get = function(name, subjob)
-        return subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name] or false
+    self.get = function(name)
+        return private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+    end
+
+    self.set = function(name, value)
+        local flag = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+
+        if flag ~= nil and type(value) == 'table' and type(flag) == 'table' then
+
+            for i,v in pairs(value) do
+                
+                if flag[i] ~= nil then
+                    flag[i] = v
+                end
+
+            end
+
+        elseif flag ~= nil and type(flag) == type(value) then
+            private.flags[name] = value
+
+        end
+        private.writeSettings()
+
     end
 
     -- Private Events.

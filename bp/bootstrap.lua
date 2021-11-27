@@ -746,7 +746,7 @@ bootstrap.load = function()
     end)
 
     events.status = windower.register_event('status change', function(new, old)
-        self.pinger = (new == 0 and (old == 2 or old == 3)) and (os.clock() + 30) or self.pinger    
+        self.pinger = (new == 0 and (old == 2 or old == 3)) and (os.clock() + 15) or self.pinger    
     end)
 
     events.zonechange = windower.register_event('zone change', function(new, old)

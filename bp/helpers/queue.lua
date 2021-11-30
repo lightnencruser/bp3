@@ -383,6 +383,18 @@ function queue.new()
 
                             end
 
+                        elseif action.en == 'Ready' and bp.helpers['charges'].current > 0 then
+
+                            if action.prefix == '/pet' then
+                                local pet = windower.ffxi.get_mob_by_target('pet') or false
+                                local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
+                                
+                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(action) and player['vitals'].mp >= action.mp_cost then
+                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                end
+                            
+                            end
+
                         end
 
                     elseif action_type == 'Magic' and helpers['actions'].canCast() and not self.inQueue(action, target) then

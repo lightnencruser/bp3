@@ -138,6 +138,15 @@ function enmity.new()
 
     end
 
+    self.hasEnmity = function(target)
+
+        if target and has_enmity and target.id and has_enmity.id and target.id == has_enmity.id then
+            return true
+        end
+        return false
+        
+    end
+
     self.pos = function(x, y)
         local x = tonumber(x) or self.layout.pos.x
         local y = tonumber(y) or self.layout.pos.y

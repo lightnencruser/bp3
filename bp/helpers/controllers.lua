@@ -112,8 +112,12 @@ function controllers.new()
 
     end
 
-    self.getControllers = function()
-        return controllers
+    self.isAllowed = function(name)
+
+        if name and type(name) == 'string' then
+            return T(controllers):contains(name)
+        end
+        
     end
 
     -- Private Events.

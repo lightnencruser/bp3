@@ -51,14 +51,14 @@ function cures.new()
             {id=191,    priority=false, min=400},
             {id=192,    priority=false, min=700},
             {id=193,    priority=true,  min=900},
-            {id=311,    priority=true,  min=1200}
+            {id=311,    priority=true,  min=1200},
 
         },
         
         ['Waltzga'] = {
 
             {id=195,    priority=false, min=100},
-            {id=262,    priority=true,  min=400}
+            {id=262,    priority=true,  min=400},
 
         },
         

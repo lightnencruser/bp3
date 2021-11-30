@@ -267,7 +267,40 @@ bootstrap.load = function()
             c = c:lower()
             
             if self.commands[c] then
-                self.commands[c].capture(a)
+                --self.commands[c].capture(a)
+
+            elseif c == 'toggle' then
+                self.enabled = self.enabled ~= true and true or false
+
+                if not self.enabled then
+                    self.helpers['queue'].clear()
+                end
+                self.helpers['popchat'].pop(string.format('BUDDYPAL AUTOMATION ENABLED: %s.', tostring(self.enabled)))
+
+            elseif c == 'on' then
+                self.enabled = true
+                self.helpers['popchat'].pop('BUDDYPAL AUTOMATION NOW ENABLED!')
+
+            elseif c == 'off' then
+                self.enabled = false
+                self.helpers['queue'].clear()
+                self.helpers['popchat'].pop('BUDDYPAL AUTOMATION NOW DISABLED!')
+
+            elseif c == 'wring' then
+                self.pinger = os.clock() + 15
+
+                do -- Equip Warp Ring then delay the command for 12 seconds.
+                    windower.send_command("equip L.Ring 'Warp Ring'; wait 12; input /item 'Warp Ring' <me>")
+                    self.helpers['popchat'].pop('ATTEMPTING TO USE WARP RING...')
+                end
+
+            elseif c == 'demring' then
+                self.pinger = os.clock() + 15
+
+                do -- Equip Warp Ring then delay the command for 12 seconds.
+                    windower.send_command("equip L.Ring 'Dimensional Ring (Dem)'; wait 12; input /item 'Dimensional Ring (Dem)' <me>")
+                    self.helpers['popchat'].pop('ATTEMPTING TO USE DIMENSIONAL RING...')
+                end
     
             elseif c == 'mode' then
                 self.helpers['maintenance'].toggle(self)
@@ -322,9 +355,6 @@ bootstrap.load = function()
     
             elseif (c == 'r' or c == 'reload') then
                 windower.send_command('lua r bp3')
-
-            else
-                -- DO CORE COMMANDS.
     
             end
     
@@ -339,13 +369,10 @@ bootstrap.load = function()
         self.info = windower.ffxi.get_info() or false
         self.me = windower.ffxi.get_mob_by_target('me') or false
         self.hideUI = (bp.info.mog_house or bp.info.chat_open) or (bp.info.menu_open and self.player.status ~= 1 and not windower.ffxi.get_mob_by_target('t')) and true or false
-        
+
         if self.player then
             local player = self.player
             local zone = self.info.zone
-
-            self.helpers['distance'].render()
-            self.helpers['runes'].render()
 
             if self.enabled and not self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.delay then
                 
@@ -692,7 +719,7 @@ bootstrap.load = function()
 
     local drag = 1
     events.mouse = windower.register_event('mouse', function(param, x, y, delta, blocked)
-        local player = windower.ffxi.get_player()
+        local player = self.player
         
         if player then
     
@@ -754,10 +781,6 @@ bootstrap.load = function()
 
     events.chat = windower.register_event('chat message', function(message, sender, mode, gm)
         self.helpers['commands'].captureChat(message, sender, mode, gm)    
-    end)
-    
-    events.load = windower.register_event('load', function()
-        self.controllers = self.helpers.controllers.getControllers()
     end)
 
     return self

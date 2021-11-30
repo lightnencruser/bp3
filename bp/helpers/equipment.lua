@@ -50,13 +50,13 @@ function equipment.new()
     private.events.outgoing = windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)
 
         if id == 50 then
-            coroutine.schedule(self.update, 4)
+            coroutine.schedule(self.update, 5)
         end
     
     end)
 
     private.events.login = windower.register_event('login', function()
-        coroutine.schedule(self.update, 5)
+        coroutine.schedule(self.update, 8)
     
     end)
 

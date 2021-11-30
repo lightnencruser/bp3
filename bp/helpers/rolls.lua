@@ -418,9 +418,9 @@ function rolls.new()
     end
 
     self.roll = function()
-        local player = bp.player
 
         if bp and #self.active <= 2 then
+            local player = bp.player
 
             if not self.rolling then
                 

@@ -115,7 +115,7 @@ function stratagems.new()
 
             if self.display:visible() then
                 local timer = windower.ffxi.get_ability_recasts()[231] or 0
-                local current = ((self.gems.max-math.ceil(timer/recharge)))
+                local current = ((self.gems.max-math.floor(timer/recharge)))
 
                 do  
                     self.gems.current = current > -math.huge and current < math.huge and current or 0

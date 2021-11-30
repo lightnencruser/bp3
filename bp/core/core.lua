@@ -20,18 +20,20 @@ function core.new()
     private.flags   = settings or {}
     private.naming  = {
 
+        ['debuffs']     = "AUTO-DEBUFFING",
         ['buffs']       = "AUTO-SELF BUFFING",
         ['tank']        = "DEFENSIVE MODE",
         ['1hr']         = "AUTO-1HRs",
         ['ja']          = "AUTO-JOB ABILITIES",
+        ['items']       = "AUTO-ITEMS",
         ['nuke']        = "NUKE MODE",
 
     }
     private.default = {
 
         ['am']                      = {enabled=false, tp=3000},
-        ['ra']                      = {enabled=false, ws="Hot Shot", tp=1000},
-        ['ws']                      = {enabled=false, ws="Combo", tp=1000},
+        ['ra']                      = {enabled=false, tp=1000, name="Hot Shot"},
+        ['ws']                      = {enabled=false, tp=1000, name="Combo"},
         ['hate']                    = {enabled=false, delay=2, aoe=false},
         ['skillup']                 = {enabled=false, skill="Enhancing Magic"},
         ['food']                    = {enabled=false, name=""},
@@ -155,7 +157,7 @@ function core.new()
             ["bestial loyalty"]     = false,
             ["killer instinct"]     = false,
             ["fight"]               = false,
-            ["ready"]               = false,
+            ["ready"]               = {enabled=false, ""},
             ["snarl"]               = false,
             ["spur"]                = false,
             ["run wild"]            = false,
@@ -184,8 +186,8 @@ function core.new()
             ["blood pact: rage"]    = false,
             ["blood pact: ward"]    = false,
             ['summon']              = {enabled=false, name="Carbuncle"},
-            ["bpr"]                 = {}, -- NEEDS EXTRA DATA
-            ["bpw"]                 = {}, -- NEEDS EXTRA DATA
+            ["bpr"]                 = {enabled=false, pacts={}},
+            ["bpw"]                 = {enabled=false, pacts={}},
         },
 
         ['SAM'] = {
@@ -209,7 +211,7 @@ function core.new()
             ["sange"]               = false,
             ["futae"]               = false,
             ["issekigan"]           = false,
-            ["nuke"]                = false,
+            ["utsusemi"]            = false,
         },
 
         ['DRG'] = {
@@ -237,7 +239,6 @@ function core.new()
             ["diffusion"]           = false,
             ["efflux"]              = false,
             ["unbridled learning"]  = false,
-            ["nuke"]                = false,
             ['sanguine blade']      = {enabled=false, hpp=55},
         },
 
@@ -271,10 +272,12 @@ function core.new()
         ['SCH'] = {
             ["light arts"]          = false,
             ["dark arts"]           = false,
-            ["sublimation"]         = false,
+            ["sublimation"]         = {enabled=false, mpp=65},
             ["modus veritas"]       = false,
             ["enlightenment"]       = false,
             ["libra"]               = false,
+            ["helix"]               = {enabled=false, name="Pyrohelix"},
+            ["storms"]              = {enabled=false, name="Firestorm"},
             ["spikes"]              = {enabled=false, name="Blaze Spikes"},
             ['drain']               = {enabled=false, hpp=55},
             ['aspir']               = {enabled=false, mpp=55},
@@ -290,13 +293,14 @@ function core.new()
         },
 
         ['RUN'] = {
+            ["runes"]               = false,
             ["vallation"]           = false,
             ["swordplay"]           = false,
             ["swipe"]               = false,
             ["lunge"]               = false,
             ["pflug"]               = false,
             ["valiance"]            = false,
-            ["embolden"]            = false,
+            ["embolden"]            = {enabled=false, name=""},
             ["vivacious pulse"]     = {enabled=false, hpp=55, mpp=55},
             ["gambit"]              = false,
             ["battuta"]             = false,
@@ -425,6 +429,7 @@ function core.new()
 
         set['ra'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+            local set = false
 
             if flags and #commands > 0 then
 
@@ -442,24 +447,37 @@ function core.new()
 
                         end
 
-                    else
-                        local weaponskills = bp.res.weapon_skills
-                        local value = windower.convert_auto_trans(value)
+                    elseif not set then
+                        local value = {}
+                        for i,v in ipairs(commands) do
 
-                        for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                            if not tonumber(v) then
+                                table.insert(value, windower.convert_auto_trans(v))
+                            end
+
+                        end
+                        set = true
+
+                        do
+                            local value = table.concat(value, ' ')
+                            local weaponskills = bp.res.weapon_skills
+
+                            for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                                        
+                                if weaponskills[v] and weaponskills[v].en then
+                                    local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
                                     
-                            if weaponskills[v] and weaponskills[v].en then
-                                local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
-                                
-                                if value:sub(1,8):lower() == match:sub(1,8):lower() then
-                                    flags.ws = weaponskills[v].en
-                                    bp.helpers['popchat'].pop(string.format('AUTO-RANGED WEAPONSKILL SET TO: %s.', flags.ws))
-                                    break
+                                    if value:sub(1,8):lower() == match:sub(1,8):lower() then
+                                        flags.name = weaponskills[v].en
+                                        bp.helpers['popchat'].pop(string.format('AUTO-RANGED WEAPONSKILL SET TO: %s.', flags.name))
+                                        break
 
+                                    end
+                                    
                                 end
                                 
                             end
-                            
+
                         end
 
                     end
@@ -476,12 +494,13 @@ function core.new()
 
         set['ws'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+            local set = false
 
             if flags and #commands > 0 then
 
                 for i in ipairs(commands) do
                     local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
-
+                    
                     if type(value) == 'number' then
 
                         if value >= 1000 and value <= 3000 then
@@ -492,25 +511,39 @@ function core.new()
                             bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1000 & 3000!')
 
                         end
+                        table.remove(commands)
 
-                    else
-                        local weaponskills = bp.res.weapon_skills
-                        local value = windower.convert_auto_trans(value)
+                    elseif not set then
+                        local value = {}
+                        for i,v in ipairs(commands) do
 
-                        for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                            if not tonumber(v) then
+                                table.insert(value, windower.convert_auto_trans(v))
+                            end
+
+                        end
+                        set = true
+
+                        do
+                            local value = table.concat(value, ' ')
+                            local weaponskills = bp.res.weapon_skills
+
+                            for _,v in pairs(windower.ffxi.get_abilities().weapon_skills) do
+                                        
+                                if weaponskills[v] and weaponskills[v].en then
+                                    local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
                                     
-                            if weaponskills[v] and weaponskills[v].en then
-                                local match = (weaponskills[v].en):match(("[%a%s%'%:]+"))
-                                
-                                if value:sub(1,8):lower() == match:sub(1,8):lower() then
-                                    flags.ws = weaponskills[v].en
-                                    bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL SET TO: %s.', flags.ws))
-                                    break
+                                    if value:sub(1,8):lower() == match:sub(1,8):lower() then
+                                        flags.name = weaponskills[v].en
+                                        bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL SET TO: %s.', flags.name))
+                                        break
 
+                                    end
+                                    
                                 end
                                 
                             end
-                            
+
                         end
 
                     end
@@ -1214,6 +1247,24 @@ function core.new()
 
         end
 
+        set['ready'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                
+                if commands[1] then
+                    local value = windower.convert_auto_trans(commands[1])
+
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-REWARD: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
         set['decoy shot'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
@@ -1274,14 +1325,26 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
+                local options = {'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}
                 local spell = windower.convert_auto_trans(commands[1])
+                local error = true
 
-                if S{'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}:contains(spell) then
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-SUMMON SET TO: %s.', flags.name))
+                for _,summon in ipairs(options) do
+
+                    if summon:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                        flags.pacts = summon
+                        error = false
+                        break                        
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID AVATAR NAME!')
 
                 else
-                    bp.helpers['popchat'].pop('INVALID AVATAR NAME!')
+                    bp.helpers['popchat'].pop(string.format('AUTO-SUMMON SET TO: %s.', flags.name))
 
                 end
 
@@ -1295,6 +1358,77 @@ function core.new()
 
         set['bpr'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+            local pacts = {
+
+                rage = {
+        
+                    ['Carbuncle']   = {'Poison Nails','Meteorite','Holy Mist'},
+                    ['Cait Sith']   = {'Regal Scratch','Level ? Holy', 'Regal Gash'},
+                    ['Ifrit']       = {'Flaming Crush','Meteor Strike','Conflag Strike'},
+                    ['Shiva']       = {'Double Slap','Rush','Heavenly Strike'},
+                    ['Garuda']      = {'Claw','Predator Claws','Wind Blade'},
+                    ['Titan']       = {'Mountain Buster','Geocrush','Crag Throw'},
+                    ['Ramuh']       = {'Thunderspark','Thunderstorm','Volt Strike'},
+                    ['Leviathan']   = {'Spinning Dive','Grand Fall'},
+                    ['Fenrir']      = {'Eclipse Bite','Lunar Bay','Impact'},
+                    ['Diabolos']    = {'Nether Blast','Night Terror'},
+                    ['Siren']       = {'Sonic Buffet','Hysteric Assault'},
+        
+                },
+                
+                ward = {
+        
+                    ['Carbuncle']   = {'Shining Ruby','Glittering Ruby','Healing Ruby II','Soothing Ruby'},
+                    ['Cait Sith']   = {'Mewing Lullaby'},
+                    ['Ifrit']       = {'Crimson Howl','Inferno Howl'},
+                    ['Shiva']       = {'Crystal Blessing'},
+                    ['Garuda']      = {'Whispering Wind','Hastega II'},
+                    ['Titan']       = {'Earthen Armor'},
+                    ['Ramuh']       = {'Rolling Thunder','Shock Squall'},
+                    ['Leviathan']   = {'Spring Water'},
+                    ['Fenrir']      = {'Ecliptic Growl','Ecliptic Howl'},
+                    ['Diabolos']    = {'Dream Shroud'},
+                    ['Siren']       = {'Bitter Elegy','Wind\'s Blessing'},
+        
+                },
+        
+            }
+
+            if flags and commands[1] and commands[2] then
+                local summons = {'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}
+                local pet = windower.convert_auto_trans(commands[1])
+                local pact = windower.convert_auto_trans(commands[2])
+                local error = true
+
+                for _,summon in ipairs(summons) do
+
+                    if pet:lower():sub(1, #pet) == summon:lower():sub(1, #pet) and pacts.rage[summon] and pacts.ward[summon] then
+
+                        for avatar, rage in pairs(pacts.rage[summon]) do
+
+                            if pact:lower():sub(1, #pact) == rage:lower():sub(1, #pact) then
+                                flags.pacts[avatar] = rage
+                                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT: RAGE SET TO: %s.', flags.pacts[avatar]))
+                                error = false
+                                break
+
+                            end
+
+                        end
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID BLOOD PACT: RAGE NAME!')
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-SUMMON: %s.', tostring(flags.enabled)))
+
+            end
 
         end
 
@@ -1376,14 +1510,26 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
+                local options = {'Fire Shot','Water Shot','Thunder Shot','Earth Shot','Wind SHot','Ice SHot','Light Shot','Dark Shot'}
                 local spell = windower.convert_auto_trans(commands[1])
+                local error = true
 
-                if S{'Fire Shot','Water Shot','Thunder Shot','Earth Shot','Wind SHot','Ice SHot','Light Shot','Dark Shot'}:contains(spell) then
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-QUICK DRAW SET TO: %s.', flags.name))
+                for _,shot in ipairs(options) do
+
+                    if shot:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                        flags.name = shot
+                        error = false
+                        break                        
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID QUICK DRAW NAME!')
 
                 else
-                    bp.helpers['popchat'].pop('INVALID QUICK DRAW NAME!')
+                    bp.helpers['popchat'].pop(string.format('AUTO-QUICK DRAW SET TO: %s.', flags.name))
 
                 end
 
@@ -1449,14 +1595,26 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
+                local options = {'Quickstep','Box Step','Stutter Step','Feather Step'}
                 local spell = windower.convert_auto_trans(commands[1])
+                local error = true
 
-                if S{'Quickstep','Box Step','Stutter Step','Feather Step'}:contains(spell) then
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-STEPS SET TO: %s.', flags.name))
+                for _,steps in ipairs(options) do
+
+                    if steps:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                        flags.name = steps
+                        error = false
+                        break                        
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID STEPS NAME!')
 
                 else
-                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID STEPS NAME!')
+                    bp.helpers['popchat'].pop(string.format('AUTO-STEPS SET TO: %s.', flags.name))
 
                 end
 
@@ -1472,33 +1630,83 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
-                local cat1 = S{'Animated Flourish','Desperate Flourish','Violent Flourish'}
-                local cat2 = S{'Reverse Flourish','Building Flourish','Wild Flourish'}
-                local cat3 = S{'Climactic Flourish','Striking Flourish','Ternary Flourish'}
+                local cat1 = T{'Animated Flourish','Desperate Flourish','Violent Flourish'}
+                local cat2 = T{'Reverse Flourish','Building Flourish','Wild Flourish'}
+                local cat3 = T{'Climactic Flourish','Striking Flourish','Ternary Flourish'}
 
                 for i in ipairs(commands) do
                     local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
                     if value then
-                        
-                        if type(value) == 'string' then
-                            local spell = windower.convert_auto_trans(value)
+                        local spell = windower.convert_auto_trans(value)
 
-                            if cat1:contains(spell) then
-                                flags.cat_1 = spell
+                        if cat1:contains(spell) then
+                            local options = cat1
+                            local spell = windower.convert_auto_trans(value)
+                            local error = true
+
+                            for _,flourish in ipairs(options) do
+
+                                if flourish:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                                    flags.cat_1 = flourish
+                                    error = false
+
+                                end
+
+                            end
+
+                            if error then
+                                bp.helpers['popchat'].pop(string.format('INVALID OPTION (#%s) - FLOURISH NAME NOT FOUND!', i))
+
+                            else
                                 bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY I) SET TO: %s.', flags.cat_1))
 
-                            elseif cat2:contains(spell) then
-                                flags.cat_2 = spell
-                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY II) SET TO: %s.', flags.cat_2))
+                            end
 
-                            elseif cat3:contains(spell) then
-                                flags.cat_3 = spell
-                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY III) SET TO: %s.', flags.cat_3))
-        
-                            else
+                        elseif cat2:contains(spell) then
+                            local options = cat2
+                            local spell = windower.convert_auto_trans(value)
+                            local error = true
+
+                            for _,flourish in ipairs(options) do
+
+                                if flourish:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                                    flags.cat_2 = flourish
+                                    error = false
+
+                                end
+
+                            end
+
+                            if error then
                                 bp.helpers['popchat'].pop(string.format('INVALID OPTION (#%s) - FLOURISH NAME NOT FOUND!', i))
-        
+
+                            else
+                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY I) SET TO: %s.', flags.cat_1))
+
+                            end
+
+                        elseif cat3:contains(spell) then
+                            local options = cat3
+                            local spell = windower.convert_auto_trans(value)
+                            local error = true
+
+                            for _,flourish in ipairs(options) do
+
+                                if flourish:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                                    flags.cat_3 = flourish
+                                    error = false
+
+                                end
+
+                            end
+
+                            if error then
+                                bp.helpers['popchat'].pop(string.format('INVALID OPTION (#%s) - FLOURISH NAME NOT FOUND!', i))
+
+                            else
+                                bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES (CATEGORY I) SET TO: %s.', flags.cat_1))
+
                             end
 
                         end
@@ -1519,20 +1727,94 @@ function core.new()
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
             if flags and #commands > 0 then
+                local options = {'Spectral Jig','Chocobo Jig','Chocobo Jig II'}
                 local spell = windower.convert_auto_trans(commands[1])
+                local error = true
 
-                if S{'Spectral Jig','Chocobo Jig','Chocobo Jig II'}:contains(spell) then
-                    flags.name = spell
-                    bp.helpers['popchat'].pop(string.format('AUTO-JIGS SET TO: %s.', flags.name))
+                for _,jig in ipairs(options) do
+
+                    if jig:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                        flags.name = jig
+                        error = false
+                        break                        
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('UNABLE TO FIND A JIG BY THAT NAME!')
 
                 else
-                    bp.helpers['popchat'].pop('INVALID JIG NAME!')
+                    bp.helpers['popchat'].pop(string.format('AUTO-JIGS SET TO: %s.', flags.name))
 
                 end
 
             else
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-JIG: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
+        set['sublimation'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                
+                if commands[1] then
+                    local value = tonumber(commands[1]) ~= nil and tonumber(commands[1]) or commands[1]
+
+                    if type(value) == 'number' and value >= 1 and value <= 60 then
+                        flags.mpp = value
+                        bp.helpers['popchat'].pop(string.format('AUTO-SUBLIMATION MP%% SET TO: %s.', flags.mpp))
+
+                    else
+                        bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1 & 60!')
+
+                    end
+
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-SUBLIMATION: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
+        set['storms'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                local options = {'Sandstorm','Rainstorm','Windstorm','Firestorm','Hailstorm','Thunderstorm','Voidstorm','Aurorastorm'}
+                local spell = windower.convert_auto_trans(commands[1])
+                local error = true
+
+                for _,storm in ipairs(options) do
+
+                    if storm:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                        flags.name = storm
+                        error = false
+                        break                        
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('UNABLE TO FIND A SPELL BY THAT NAME!')
+
+                else
+                    bp.helpers['popchat'].pop(string.format('AUTO-STORMS SPELL SET TO: %s.', flags.name))
+
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-STORMS: %s.', tostring(flags.enabled)))
 
             end
 
@@ -1578,6 +1860,50 @@ function core.new()
             end
 
         end
+
+        set['embolden'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                local options = {'Protect','Crusade','Temper','Phalanx','Foil'}
+                local spell = windower.convert_auto_trans(commands[1])
+                local error = true
+
+                for _,v in ipairs(options) do
+
+                    if v:lower():sub(1, #spell) == spell:lower():sub(1, #spell) then
+                        
+                        if spell:lower() == 'protect' then
+                            flags.name = string.format('%s IV', v)
+                            error = false
+                            break
+
+                        else
+                            flags.name = v
+                            error = false
+                            break
+
+                        end
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('SPELL OPTIONS ARE: PROTECT, CRUSADE, TEMPER, PHALANX, FOIL!')
+
+                else
+                    bp.helpers['popchat'].pop(string.format('AUTO-EMBOLDEN SPELL SET TO: %s.', flags.name))
+
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-EMBOLDEN: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
         
         if bp and bp.player and name and commands and set[name] then
             set[name](name, commands, subjob or false)
@@ -1598,7 +1924,12 @@ function core.new()
     end
 
     self.get = function(name)
-        return private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+
+        if bp and bp.player and bp.player.sub_job then
+            return private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+        end
+        return nil
+
     end
 
     self.set = function(name, value)
@@ -1626,8 +1957,8 @@ function core.new()
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
         local helper = table.remove(commands, 1)
-        
-        if bp and bp.player and helper and helper:lower() == 'core' then
+
+        if bp and bp.player and helper and helper:lower() == 'set' then
             local flag = windower.convert_auto_trans(table.remove(commands, 1)):lower()
             
             if private.flags[flag] ~= nil and type(private.flags[flag]) ~= 'boolean' then
@@ -1636,18 +1967,16 @@ function core.new()
             else
                 
                 if private.flags[bp.player.sub_job] and private.flags[bp.player.sub_job][flag] ~= nil then
-                    
-                    if private.flags[bp.player.sub_job][flag] ~= 'boolean' then
+
+                    if type(private.flags[bp.player.sub_job][flag]) ~= 'boolean' then
                         private.set(flag, commands, true)
                         
                     elseif type(private.flags[bp.player.sub_job][flag]) == 'boolean' then    
-                        private.flags[bp.player.sub_job][flag] = private.flags[bp.player.sub_job][flag] ~= true and true or false
-                    
-                        if private.naming[bp.player.sub_job][flag] then
-                            bp.helpers['popchat'].pop(string.format('%s: %s.', private.naming[flag], tostring(private.flags[flag])))
+                        local message = private.naming[flag] ~= nil and private.naming[flag] or flag
                         
-                        else
-                            bp.helpers['popchat'].pop(string.format('%s: %s.', flag, tostring(private.flags[flag])))
+                        if private.flags[bp.player.sub_job][flag] ~= nil then
+                            private.flags[bp.player.sub_job][flag] = private.flags[bp.player.sub_job][flag] ~= true and true or false
+                            bp.helpers['popchat'].pop(string.format('%s: %s.', message, tostring(private.flags[bp.player.sub_job][flag])))
 
                         end
 

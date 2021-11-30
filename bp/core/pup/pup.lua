@@ -7,10 +7,8 @@ function pup.get()
     self.automate = function(bp)
         local get = bp.core.get
 
-        print(get('repair').enabled)
         do
             private.items(bp, settings)
-
             if bp and bp.player and bp.player.status == 1 then
                 
 

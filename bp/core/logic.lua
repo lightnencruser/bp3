@@ -7,7 +7,7 @@ function logic.get()
     -- Private Variables.
     local bp        = false
     local private   = {events={}, core={}, subs={}, settings=dofile(string.format('%sbp/core/core.lua', windower.addon_path, player.name))}
-    local timers    = {hate=0, steps=0, utsusemi={last=0, delay=1.5}}
+    local timers    = {hate=0, steps=0, sublimation=0, meditate=0, konzen=0, utsusemi=0}
 
     -- Public Variables.
     self.settings   = private.settings.getFlags()
@@ -21,6 +21,78 @@ function logic.get()
 
     end
     loadJob(player.main_job)
+
+    local hasShadows = function()
+        local shadows = T{444,445,446}
+
+        if bp and bp.player then
+        
+            for _,v in ipairs(bp.player.buffs) do
+                        
+                if shadows:contains(v) then
+                    return true
+                end
+                
+            end
+        
+        end
+        return false
+
+    end
+
+    local hasEnspell = function()
+        local enspells = T{94,95,96,97,98,99,277,278,279,280,281,282}
+
+        if bp and bp.player then
+        
+            for _,v in ipairs(bp.player.buffs) do
+                        
+                if enspells:contains(v) then
+                    return true
+                end
+                
+            end
+        
+        end
+        return false
+
+    end
+
+    local hasSpikes = function()
+        local spikes = T(34,35,38,173)
+
+        if bp and bp.player then
+        
+            for _,v in ipairs(bp.player.buffs) do
+                        
+                if spikes:contains(v) then
+                    return true
+                end
+                
+            end
+        
+        end
+        return false
+
+    end
+
+    local hasStorm = function()
+        local storms = T(178,179,180,181,182,183,184,185)
+
+        if bp and bp.player then
+        
+            for _,v in ipairs(bp.player.buffs) do
+                        
+                if storms:contains(v) then
+                    return true
+                end
+                
+            end
+        
+        end
+        return false
+
+    end
 
     -- Public Functions.
     self.setSystem = function(buddypal)
@@ -114,6 +186,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -125,7 +199,7 @@ function logic.get()
 
                 -- PROVOKE.
                 if target and get('provoke') and _act and isReady('JA', "Provoke") then
-                    helpers['queue'].add(bp.JA["Provoke"], target)
+                    add(bp.JA["Provoke"], target)
                 end
 
             end
@@ -133,24 +207,24 @@ function logic.get()
             if get('buffs') and target and _act then
 
                 -- BERSERK.
-                if target and not get('tank') and get('berserk') and isReady('JA', "Berserk") and not helpers['queue'].inQueue(bp.JA["Defender"]) then
-                    helpers['queue'].add(bp.JA["Berserk"], player)
+                if target and not get('tank') and get('berserk') and isReady('JA', "Berserk") and not inQueue(bp.JA["Defender"]) then
+                    add(bp.JA["Berserk"], player)
 
                 -- DEFENDER.
-                elseif target and get('tank') and get('defender') and isReady('JA', "Defender") and not helpers['queue'].inQueue(bp.JA["Berserk"]) then
-                    helpers['queue'].add(bp.JA["Defender"], player)
+                elseif target and get('tank') and get('defender') and isReady('JA', "Defender") and not inQueue(bp.JA["Berserk"]) then
+                    add(bp.JA["Defender"], player)
 
                 -- WARCRY.
                 elseif target and get('warcry') and isReady('JA', "Warcry") then
-                    helpers['queue'].add(bp.JA["Warcry"], player)
+                    add(bp.JA["Warcry"], player)
 
                 -- AGGRESSOR.
                 elseif target and get('aggressor') and isReady('JA', "Aggressor") then
-                    helpers['queue'].add(bp.JA["Aggressor"], player)
+                    add(bp.JA["Aggressor"], player)
 
                 -- RETALIATION.
                 elseif target and get('retaliation') and isReady('JA', "Retaliation") then
-                    helpers['queue'].add(bp.JA["Retaliation"], player)
+                    add(bp.JA["Retaliation"], player)
 
                 end
 
@@ -165,7 +239,7 @@ function logic.get()
 
                 -- PROVOKE.
                 if get('provoke') and _act and isReady('JA', "Provoke") then
-                    helpers['queue'].add(bp.JA["Provoke"], target)
+                    add(bp.JA["Provoke"], target)
                 end
 
             end
@@ -173,24 +247,24 @@ function logic.get()
             if get('buffs') and _act then
 
                 -- BERSERK.
-                if not get('tank') and get('berserk') and isReady('JA', "Berserk") and not helpers['queue'].inQueue(bp.JA["Defender"]) then
-                    helpers['queue'].add(bp.JA["Berserk"], player)
+                if not get('tank') and get('berserk') and isReady('JA', "Berserk") and not inQueue(bp.JA["Defender"]) then
+                    add(bp.JA["Berserk"], player)
 
                 -- DEFENDER.
-                elseif get('tank') and get('defender') and isReady('JA', "Defender") and not helpers['queue'].inQueue(bp.JA["Berserk"]) then
-                    helpers['queue'].add(bp.JA["Defender"], player)
+                elseif get('tank') and get('defender') and isReady('JA', "Defender") and not inQueue(bp.JA["Berserk"]) then
+                    add(bp.JA["Defender"], player)
 
                 -- WARCRY.
                 elseif get('warcry') and isReady('JA', "Warcry") then
-                    helpers['queue'].add(bp.JA["Warcry"], player)
+                    add(bp.JA["Warcry"], player)
 
                 -- AGGRESSOR.
                 elseif get('aggressor') and isReady('JA', "Aggressor") then
-                    helpers['queue'].add(bp.JA["Aggressor"], player)
+                    add(bp.JA["Aggressor"], player)
 
                 -- RETALIATION.
                 elseif get('retaliation') and isReady('JA', "Retaliation") then
-                    helpers['queue'].add(bp.JA["Retaliation"], player)
+                    add(bp.JA["Retaliation"], player)
 
                 end
 
@@ -204,6 +278,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -215,11 +291,11 @@ function logic.get()
 
                 -- CHAKRA.
                 if get('chakra').enabled and isReady('JA', "Chakra") and player['vitals'].hpp <= get('chakra').hpp then
-                    helpers['queue'].add(bp.JA["Chakra"], player)
+                    add(bp.JA["Chakra"], player)
 
                 -- CHI BLAST.
                 elseif target and get('chi blast') and isReady('JA', "Chi Blast") then
-                    helpers['queue'].add(bp.JA["Chi Blast"], target)
+                    add(bp.JA["Chi Blast"], target)
 
                 end
 
@@ -229,19 +305,19 @@ function logic.get()
 
                 -- FOCUS.
                 if get('focus') and isReady('JA', "Focus") then
-                    helpers['queue'].add(bp.JA["Focus"], player)
+                    add(bp.JA["Focus"], player)
 
                 -- DODGE.
                 elseif get('dodge') and isReady('JA', "Dodge") then
-                    helpers['queue'].add(bp.JA["Dodge"], player)
+                    add(bp.JA["Dodge"], player)
 
                 -- COUNTERSTANCE.
                 elseif get('counterstance') and isReady('JA', "Counterstance") then
-                    helpers['queue'].add(bp.JA["Counterstance"], player)
+                    add(bp.JA["Counterstance"], player)
 
                 -- FOOTWORK.
                 elseif get('footwork') and isReady('JA', "Footwork") then
-                    helpers['queue'].add(bp.JA["Footwork"], player)
+                    add(bp.JA["Footwork"], player)
 
                 end
 
@@ -256,11 +332,11 @@ function logic.get()
 
                 -- CHAKRA.
                 if get('chakra').enabled and isReady('JA', "Chakra") and player['vitals'].hpp <= get('chakra').hpp then
-                    helpers['queue'].add(bp.JA["Chakra"], player)
+                    add(bp.JA["Chakra"], player)
 
                 -- CHI BLAST.
                 elseif get('chi blast') and isReady('JA', "Chi Blast") then
-                    helpers['queue'].add(bp.JA["Chi Blast"], target)
+                    add(bp.JA["Chi Blast"], target)
 
                 end
 
@@ -270,19 +346,19 @@ function logic.get()
 
                 -- FOCUS.
                 if get('focus') and isReady('JA', "Focus") then
-                    helpers['queue'].add(bp.JA["Focus"], player)
+                    add(bp.JA["Focus"], player)
 
                 -- DODGE.
                 elseif get('dodge') and isReady('JA', "Dodge") then
-                    helpers['queue'].add(bp.JA["Dodge"], player)
+                    add(bp.JA["Dodge"], player)
 
                 -- COUNTERSTANCE.
                 elseif get('counterstance') and isReady('JA', "Counterstance") then
-                    helpers['queue'].add(bp.JA["Counterstance"], player)
+                    add(bp.JA["Counterstance"], player)
 
                 -- FOOTWORK.
                 elseif get('footwork') and isReady('JA', "Footwork") then
-                    helpers['queue'].add(bp.JA["Footwork"], player)
+                    add(bp.JA["Footwork"], player)
 
                 end
 
@@ -296,6 +372,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -303,23 +381,21 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
+            if get('buffs') and _cast then
 
-                if get('convert').enabled and player['vitals'].hpp >= get('convert').hpp and player['vitals'].mpp <= get('convert').mpp then
-                    
+                -- STONESKIN.
+                if get('stoneskin') and not helpers['buffs'].buffActive(37) and isReady('MA', "Stoneskin") then
+                    add(bp.MA["Stoneskin"], player)
+
+                -- BLNK.
+                elseif get('blink') and not get('utsusemi') and not helpers['buffs'].buffActive(36) and isReady('MA', "Blink") and target then
+                    add(bp.MA["Blink"], player)
+
+                -- AQUAVEIL.
+                elseif get('aquaveil') and isReady('MA', "Aquaveil") then
+                    add(bp.MA["Aquaveil"], player)
+
                 end
-
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
 
             end
 
@@ -328,15 +404,21 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('buffs') and _cast then
 
-            end
+                -- STONESKIN.
+                if get('stoneskin') and not helpers['buffs'].buffActive(37) and isReady('MA', "Stoneskin") then
+                    add(bp.MA["Stoneskin"], player)
 
-            if get('buffs') and target then
+                -- BLNK.
+                elseif get('blink') and not get('utsusemi') and not helpers['buffs'].buffActive(36) and isReady('MA', "Blink") then
+                    add(bp.MA["Blink"], player)
 
-            end
+                -- AQUAVEIL.
+                elseif get('aquaveil') and isReady('MA', "Aquaveil") then
+                    add(bp.MA["Aquaveil"], player)
 
-            if get('debuffs') and target then
+                end
 
             end
 
@@ -348,6 +430,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -355,20 +439,23 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
+            if get('buffs') and _cast then
+
+                -- SPIKES.
+                if get('spikes').enabled and not hasSpikes() and isReady('MA', get('spikes').name) then
+                    add(bp.MA[get('spikes').name], player)
+                end
 
             end
 
-            if get('hate').enabled and target then
-
+            -- DRAIN.
+            if target and get('drain').enabled and _cast and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") then
+                add(bp.MA["Drain"], target)
             end
 
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
+            -- ASPIR.
+            if target and get('aspir').enabled and _cast and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") then
+                add(bp.MA["Aspir"], target)
             end
 
         elseif player.status == 1 then
@@ -376,16 +463,23 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            -- SPIKES.
+            if get('buffs') and _cast then
+
+                if get('spikes').enabled and not hasSpikes() and isReady('MA', get('spikes').name) then
+                    add(bp.MA[get('spikes').name], player)
+                end
 
             end
 
-            if get('buffs') and target then
-
+            -- DRAIN.
+            if target and get('drain').enabled and _cast and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") then
+                add(bp.MA["Drain"], target)
             end
 
-            if get('debuffs') and target then
-
+            -- ASPIR.
+            if target and get('aspir').enabled and _cast and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") then
+                add(bp.MA["Aspir"], target)
             end
 
         end
@@ -396,6 +490,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -403,151 +499,117 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
             
-            if get('ja') and helpers['actions'].canAct() then
+            if get('ja') and _act then
 
+                -- CONVERT.
                 if get('convert').enabled and player['vitals'].hpp >= get('convert').hpp and player['vitals'].mpp <= get('convert').mpp then
                                 
                     if isReady('JA', "Convert") then
-                        helpers['queue'].add(bp.JA["Convert"], player)
-                        helpers['queue'].add(bp.MA["Cure IV"], player)
-                        
+                        add(bp.JA["Convert"], player)                        
                     end
                     
                 end
 
             end
 
-            if get('buffs') and helpers['actions'].canCast() then
-                local enspells = T{94,95,96,97,98,99,277,278,279,280,281,282}
-                local enspell_active = false
-
-                -- Check to see if we have any Enspells active.
-                for _,v in ipairs(bp.player.buffs) do
-                    
-                    if enspells:contains(v) then
-                        enspell_active = true
-                        break
-
-                    end
-                    
-                end
+            if get('buffs') and _cast then
                 
                 -- HASTE.
                 if isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
-                    helpers['queue'].add(bp.MA["Haste"], player)
+                    add(bp.MA["Haste"], player)
                 
                 -- PHALANX.
                 elseif isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
-                    helpers['queue'].add(bp.MA["Phalanx"], player)
+                    add(bp.MA["Phalanx"], player)
                     
                 -- REFRESH.
-                elseif not get('sublimation') and isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
-                    helpers['queue'].add(bp.MA["Refresh"], player)
+                elseif isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) and (not helpers['buffs'].buffActive(187) or not helpers['buffs'].buffActive(188)) then
+                    add(bp.MA["Refresh"], player)
 
                 -- ENSPELLS.
-                elseif get('en').enabled and not enspell_active then
+                elseif get('en').enabled and not hasEnspell() then
                         
-                    if isReady('MA', get('en').name) and not helpers['buffs'].buffActive(94) then
-                        helpers['queue'].add(bp.MA[get('en').name], player)
+                    if isReady('MA', get('en').name) then
+                        add(bp.MA[get('en').name], player)
                     end
                     
                 -- STONESKIN.
-                elseif get('stoneskin') and not helpers['buffs'].buffActive(37) and isReady('MA', "Stoneskin") then
-                    helpers['queue'].add(bp.MA["Stoneskin"], player)
+                elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
+                    add(bp.MA["Stoneskin"], player)
 
                 -- AQUAVEIL.
-                elseif get('aquaveil') and not helpers['buffs'].buffActive(37) and isReady('MA', "Aquaveil") then
-                    helpers['queue'].add(bp.MA["Aquaveil"], player)
+                elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) then
+                    add(bp.MA["Aquaveil"], player)
 
                 -- BLINK.
-                elseif get('blink') and not helpers['buffs'].buffActive(37) and isReady('MA', "Blink") then
-                    helpers['queue'].add(bp.MA["Blink"], player)
+                elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) then
+                    add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif isReady('MA', get('spikes').name) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
-                    helpers['queue'].add(bp.MA[get('spikes')], player)
+                elseif isReady('MA', get('spikes').name) and not hasSpikes() then
+                    add(bp.MA[get('spikes')], player)
                     
                 end 
 
-            end
-
-            if get('debuffs') and helpers['actions'].canAct() and target then
-                helpers['debufs'].cast()
             end
 
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windowr.ffxi.get_mob_by_target('t') or false
+            local _cast  = helpers['actions'].canCast()
+            local _act   = helpers['actions'].canAct()
 
-            if get('ja') and helpers['actions'].canAct() then
+            if get('ja') and _act then
 
+                -- CONVERT.
                 if get('convert').enabled and player['vitals'].hpp >= get('convert').hpp and player['vitals'].mpp <= get('convert').mpp then
                                 
                     if isReady('JA', "Convert") then
-                        helpers['queue'].add(bp.JA["Convert"], player)
-                        helpers['queue'].add(bp.MA["Cure IV"], player)
-                        
+                        add(bp.JA["Convert"], player)                        
                     end
                     
                 end
 
             end
 
-            if get('buffs') and helpers['actions'].canCast() then
-                local enspells = T{94,95,96,97,98,99,277,278,279,280,281,282}
-                local enspell_active = false
-
-                -- Check to see if we have any Enspells active.
-                for _,v in ipairs(bp.player.buffs) do
-                    
-                    if enspells:contains(v) then
-                        enspell_active = true
-                        break
-
-                    end
-                    
-                end
+            if get('buffs') and _cast then
                 
                 -- HASTE.
                 if isReady('MA', "Haste") and not helpers['buffs'].buffActive(33) then
-                    helpers['queue'].add(bp.MA["Haste"], player)
+                    add(bp.MA["Haste"], player)
                 
                 -- PHALANX.
                 elseif isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) then
-                    helpers['queue'].add(bp.MA["Phalanx"], player)
+                    add(bp.MA["Phalanx"], player)
                     
                 -- REFRESH.
-                elseif not get('sublimation') and isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) then
-                    helpers['queue'].add(bp.MA["Refresh"], player)
+                elseif isReady('MA', "Refresh") and not helpers['buffs'].buffActive(43) and (not helpers['buffs'].buffActive(187) or not helpers['buffs'].buffActive(188)) then
+                    add(bp.MA["Refresh"], player)
 
                 -- ENSPELLS.
-                elseif get('en').enabled and not enspell_active then
+                elseif get('en').enabled and not hasEnspell() then
                         
-                    if isReady('MA', get('en').name) and not helpers['buffs'].buffActive(94) then
-                        helpers['queue'].add(bp.MA[get('en').name], player)
+                    if isReady('MA', get('en').name) then
+                        add(bp.MA[get('en').name], player)
                     end
                     
                 -- STONESKIN.
-                elseif get('stoneskin') and not helpers['buffs'].buffActive(37) and isReady('MA', "Stoneskin") then
-                    helpers['queue'].add(bp.MA["Stoneskin"], player)
+                elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
+                    add(bp.MA["Stoneskin"], player)
 
                 -- AQUAVEIL.
-                elseif get('aquaveil') and not helpers['buffs'].buffActive(37) and isReady('MA', "Aquaveil") then
-                    helpers['queue'].add(bp.MA["Aquaveil"], player)
+                elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) then
+                    add(bp.MA["Aquaveil"], player)
 
                 -- BLINK.
-                elseif get('blink') and not helpers['buffs'].buffActive(37) and isReady('MA', "Blink") then
-                    helpers['queue'].add(bp.MA["Blink"], player)
+                elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) then
+                    add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif isReady('MA', get('spikes').name) and (not helpers['buffs'].buffActive(34) or not helpers['buffs'].buffActive(35) or not helpers['buffs'].buffActive(38)) then
-                    helpers['queue'].add(bp.MA[get('spikes')], player)
+                elseif isReady('MA', get('spikes').name) and hasSpikes() then
+                    add(bp.MA[get('spikes')], player)
                     
                 end 
 
-            end
-
-            if get('debuffs') and helpers['actions'].canAct() and target then
-                helpers['debufs'].cast()
             end
 
         end
@@ -558,26 +620,26 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
-
+        
         if player.status == 0 then
             local target = helpers['target'].getTarget() or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
+            if get('ja') and target and _act then
 
-            end
+                -- STEAL.
+                if target and get('steal') and isReady('JA', "Steal") then
+                    add(bp.JA["Steal"], target)
 
-            if get('hate').enabled and target then
+                -- MUG.
+                elseif target and get('mug') and isReady('JA', "Mug") then
+                    add(bp.JA["Mug"], target)
 
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
+                end
 
             end
 
@@ -585,16 +647,45 @@ function logic.get()
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
+            
+            if get('ja') and target and _act then
+                
+                -- STEAL.
+                if target and get('steal') and isReady('JA', "Steal") then
+                    add(bp.JA["Steal"], target)
 
-            if get('hate').enabled and target then
+                -- MUG.
+                elseif target and get('mug') and isReady('JA', "Mug") then
+                    add(bp.JA["Mug"], target)
+
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and target and _act then
+                local behind = helpers['actions'].isBehind(target)
+                local facing = helpers['actions'].isFacing(target)
+                
+                -- SNEAK ATTACK.
+                if get('sneak attack') and isReady('JA', 'Sneak Attack') and player['vitals'].tp < 1000 then
+                    
+                    if isReady('JA', 'Hide') then
+                        add(bp.JA["Hide"], player)
+                        add(bp.MA["Sneak Attack"], player)
 
-            end
+                    elseif behind then
+                        add(bp.JA["Sneak Attack"], player)
 
-            if get('debuffs') and target then
+                    end
+
+                -- TRICK ATTACK.
+                elseif get('trick attack') and isReady('JA', 'Trick Attack') and player['vitals'].tp < 1000 then
+
+                    if behind then
+                        add(bp.JA["Trick Attack"], player)
+                    end
+
+                end
 
             end
 
@@ -606,6 +697,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -615,17 +708,47 @@ function logic.get()
 
             if get('ja') and _act then
 
+                -- COVER.
+                if get('cover').enabled and isReady('JA', "Cover") and helpers['party'].isInParty(windower.ffxi.get_mob_by_name(get('cover').target)) and helpers['enmity'].hasEnmity(windower.ffxi.get_mob_by_name(get('cover').target)) then
+                    add(bp.MA["Cover"], windower.ffxi.get_mob_by_name(get('cover').target))
+
+                -- SHIELD BASH.
+                elseif target and get('shield bash') and isReady('JA', "Shield Bash") then
+                    add(bp.JA["Shield Bash"], target)
+
+                end
+
             end
 
             if get('hate').enabled and target then
 
+                -- FLASH.
+                if isReady('MA', "Flash") and _cast then
+                    addToFront(bp.MA["Flash"], target)
+
+                -- SHIELD BASH.
+                elseif get('shield bash') and isReady('JA', "Shield Bash") and _act then
+                    add(bp.JA["Shield Bash"], target)
+
+                end
+
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act and target then
 
-            end
+                -- REPRISAL.
+                if isReady('MA', "Reprisal") and not helpers['buffs'].buffActive(403) then
+                    add(bp.MA["Reprisal"], player)
 
-            if get('debuffs') and target then
+                -- SENTINEL.
+                elseif get('sentinel') and isReady('JA', "Sentinel") and not helpers['buffs'].buffActive(62) and (get('hate') or helpers['enmity'].hasEnmity(player)) then
+                    add(bp.JA["Sentinel"], player)
+
+                -- RAMPART.
+                elseif get('rampart') and isReady('JA', "Rampart") and not helpers['buffs'].buffActive(623) then
+                    add(bp.MA["Rampart"], player)
+
+                end
 
             end
 
@@ -634,15 +757,49 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- COVER.
+                if get('cover').enabled and isReady('JA', "Cover") and helpers['party'].isInParty(windower.ffxi.get_mob_by_name(get('cover').target)) and helpers['enmity'].hasEnmity(windower.ffxi.get_mob_by_name(get('cover').target)) then
+                    add(bp.MA["Cover"], windower.ffxi.get_mob_by_name(get('cover').target))
+
+                -- SHIELD BASH.
+                elseif get('shield bash') and isReady('JA', "Shield Bash") then
+                    add(bp.JA["Shield Bash"], target)
+
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('hate').enabled then
+
+                -- FLASH.
+                if isReady('MA', "Flash") and _cast then
+                    addToFront(bp.MA["Flash"], target)
+
+                -- SHIELD BASH.
+                elseif get('shield bash') and isReady('JA', "Shield Bash") and _act then
+                    add(bp.JA["Shield Bash"], target)
+
+                end
 
             end
 
-            if get('debuffs') and target then
+            if get('buffs') and _act then
+
+                -- REPRISAL.
+                if isReady('MA', "Reprisal") and not helpers['buffs'].buffActive(403) then
+                    add(bp.MA["Reprisal"], player)
+
+                -- SENTINEL.
+                elseif get('sentinel') and isReady('JA', "Sentinel") and not helpers['buffs'].buffActive(62) and (get('hate') or helpers['enmity'].hasEnmity(player)) then
+                    add(bp.JA["Sentinel"], player)
+
+                -- RAMPART.
+                elseif get('rampart') and isReady('JA', "Rampart") and not helpers['buffs'].buffActive(623) then
+                    add(bp.MA["Rampart"], player)
+
+                end
 
             end
 
@@ -654,6 +811,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -661,36 +820,29 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
+            if get('tank') and ((bp.player.buffs):contains(63) or (bp.player.buffs):contains(64)) then
+                windower.send_command("cancel 63")
+                windower.send_command("cancel 64")
             end
 
             if get('hate').enabled and target then
 
                 -- STUN.
-                if target and helpers['actions'].canCast() and isReady('MA', "Stun") then
-                    helpers['queue'].addToFront(bp.MA["Stun"], target)                            
+                if isReady('MA', "Stun") and _cast then
+                    addToFront(bp.MA["Stun"], target)                            
                 end
                 
-                if helpers['actions'].canAct() and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
+                if (os.clock()-timers.hate) > get('hate').delay then
                 
                     -- SOULEATER.
-                    if target and not helpers['buffs'].buffActive(64) and isReady('JA', "Souleater") then
-                        helpers['queue'].addToFront(bp.JA["Souleater"], player)
+                    if get('souleater') and isReady('JA', "Souleater") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                        add(bp.JA["Souleater"], player)
                         timers.hate = os.clock()
-                        
-                        if self.getSetting('TANK MODE') then
-                            windower.send_command("wait 1; cancel 63")
-                        end
                         
                     -- LAST RESORT.
-                    elseif target and not helpers['buffs'].buffActive(64) and isReady('JA', "Last Resort") then
-                        helpers['queue'].addToFront(bp.JA["Last Resort"], player)
+                    elseif get('last resort') and isReady('JA', "Last Resort") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                        add(bp.JA["Last Resort"], player)
                         timers.hate = os.clock()
-                        
-                        if self.getSetting('TANK MODE') then
-                            windower.send_command("wait 1; cancel 64")
-                        end
                         
                     end
                     
@@ -700,9 +852,19 @@ function logic.get()
 
             if get('buffs') and target then
 
-            end
+                -- SOULEATER.
+                if get('souleater') and not get('hate').enabled and isReady('JA', "Souleater") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                    add(bp.JA["Souleater"], player)
+                
+                -- LAST RESORT.
+                elseif get('last resort') and not get('hate').enabled and isReady('JA', "Last Resort") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                    add(bp.JA["Last Resort"], player)
 
-            if get('debuffs') and target then
+                -- CONSUME MANA.
+                elseif get('consume mana') and isReady('JA', "Consume Mana") and not helpers['buffs'].buffActive(599) then
+                    add(bp.JA["Consume Mana"], player)
+
+                end
 
             end
 
@@ -711,15 +873,51 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
+            if get('tank') and ((bp.player.buffs):contains(63) or (bp.player.buffs):contains(64)) then
+                windower.send_command("cancel 63")
+                windower.send_command("cancel 64")
+            end
+
             if get('hate').enabled and target then
+
+                -- STUN.
+                if isReady('MA', "Stun") and _cast then
+                    addToFront(bp.MA["Stun"], target)                            
+                end
+                
+                if (os.clock()-timers.hate) > get('hate').delay then
+                
+                    -- SOULEATER.
+                    if get('souleater') and isReady('JA', "Souleater") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                        add(bp.JA["Souleater"], player)
+                        timers.hate = os.clock()
+                        
+                    -- LAST RESORT.
+                    elseif get('last resort') and isReady('JA', "Last Resort") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                        add(bp.JA["Last Resort"], player)
+                        timers.hate = os.clock()
+                        
+                    end
+                    
+                end
 
             end
 
             if get('buffs') and target then
 
-            end
+                -- SOULEATER.
+                if get('souleater') and not get('hate').enabled and isReady('JA', "Souleater") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                    add(bp.JA["Souleater"], player)
+                
+                -- LAST RESORT.
+                elseif get('last resort') and not get('hate').enabled and isReady('JA', "Last Resort") and not helpers['buffs'].buffActive(63) and not helpers['buffs'].buffActive(64) then
+                    add(bp.JA["Last Resort"], player)
 
-            if get('debuffs') and target then
+                -- CONSUME MANA.
+                elseif get('consume mana') and isReady('JA', "Consume Mana") and not helpers['buffs'].buffActive(599) then
+                    add(bp.JA["Consume Mana"], player)
+
+                end
 
             end
 
@@ -731,6 +929,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -738,38 +938,10 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
-
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
 
         end
 
@@ -779,6 +951,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -786,38 +960,10 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
-
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
 
         end
 
@@ -827,6 +973,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -836,17 +984,40 @@ function logic.get()
 
             if get('ja') and _act then
 
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
+                -- SCAVENGE.
+                if get('scavenge') and isready('JA', "Scavenge") then
+                    add(bp.JA["Scavenge"], player)
+                end
 
             end
 
-            if get('debuffs') and target then
+            if get('buffs') and target and _act then
+
+                -- SHARPSHOT.
+                if get('sharpshot') and isready('JA', "Sharpshot") then
+                    add(bp.JA["Sharpshot"], player)
+
+                -- BARRAGE.
+                elseif get('barrage') and isready('JA', "Barrage") then
+
+                    if get('camouflage') and isReady('JA', "Camouflage") then
+                        add(bp.JA["Camouflage"], player)
+                        add(bp.JA["Barrage"], player)
+
+                    else
+                        add(bp.JA["Barrage"], player)
+
+                    end
+
+                -- VELOCITY SHOT.
+                elseif get('velocity shot') and isready('JA', "Velocity Shot") then
+                    add(bp.JA["Velocity Shot"], player)
+
+                -- UNLIMITED SHOT.
+                elseif get('unlimited shot') and isready('JA', "Unlimited Shot") then
+                    add(bp.JA["Unlimited Shot"], player)
+
+                end
 
             end
 
@@ -855,15 +1026,42 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- SCAVENGE.
+                if get('scavenge') and isready('JA', "Scavenge") then
+                    add(bp.JA["Scavenge"], player)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act then
 
-            end
+                -- SHARPSHOT.
+                if get('sharpshot') and isready('JA', "Sharpshot") then
+                    add(bp.JA["Sharpshot"], player)
 
-            if get('debuffs') and target then
+                -- BARRAGE.
+                elseif get('barrage') and isready('JA', "Barrage") then
+
+                    if get('camouflage') and isReady('JA', "Camouflage") then
+                        add(bp.JA["Camouflage"], player)
+                        add(bp.JA["Barrage"], player)
+
+                    else
+                        add(bp.JA["Barrage"], player)
+
+                    end
+
+                -- VELOCITY SHOT.
+                elseif get('velocity shot') and isready('JA', "Velocity Shot") then
+                    add(bp.JA["Velocity Shot"], player)
+
+                -- UNLIMITED SHOT.
+                elseif get('unlimited shot') and isready('JA', "Unlimited Shot") then
+                    add(bp.JA["Unlimited Shot"], player)
+
+                end
 
             end
 
@@ -875,6 +1073,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -923,6 +1123,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -931,18 +1133,53 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
+                local sekka = windower.ffxi.get_mob_by_name(get('sekkanoki').target) or false
+
+                -- MEDITATE
+                if get('meditate') and isReady('JA', "Meditate") and (os.clock()-timers.meditate) > 30 then
+                    add(bp.JA["Meditate"], player)
+                    timers.meditate = os.clock()
+                    
+                end
+
+                -- SEKKANOKI.
+                if get('sekkanoki').enabled and sekka and isReady('JA', "Sekkanoki") and helpers['buffs'].buffActive(408) and helpers['party'].isInParty(sekka) and target then
+                    add(bp.JA["Sekkanoki"], sekka)
+                end
 
             end
 
-            if get('hate').enabled and target then
+            if get('buffs') and _act then
+                local weapon = bp.helpers['equipment'].main
+                            
+                -- HASSO & SEIGAN.
+                if (get('hasso') or get('seigan')) and weapon then
 
-            end
+                    if get('hasso') and isReady('JA', "Hasso") and not helpers['buffs'].buffActive(353) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
+                        add(bp.JA["Hasso"], player)
 
-            if get('buffs') and target then
+                    elseif get('hasso') and isReady('JA', "Seigan") and not helpers['buffs'].buffActive(354) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
+                        add(bp.JA["Seigan"], player)
 
-            end
+                    end
 
-            if get('debuffs') and target then
+                end
+
+                if (not get('hasso') and not get('seigan')) or (helpers['buffs'].buffActive(353) or helpers['buffs'].buffActive(354)) then
+
+                    -- THIRD EYE.
+                    if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and target and not hasShadows() then
+                        add(bp.JA["Third Eye"], player)
+                    end
+
+                    -- KONZEN-ITTAI.
+                    if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= 400 and player['vitals'].tp <= 750 and (os.clock()-timers.konzen) > 60 and target then
+                        add(bp.JA["Konzen-Ittai"])
+                        timers.konzen = os.clock()
+
+                    end
+
+                end
 
             end
 
@@ -951,15 +1188,54 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+                local sekka = windower.ffxi.get_mob_by_name(get('sekkanoki').target) or false
+
+                -- MEDITATE
+                if get('meditate') and isReady('JA', "Meditate") and (os.clock()-timers.meditate) > 30 then
+                    add(bp.JA["Meditate"], player)
+                    timers.meditate = os.clock()
+                    
+                end
+
+                -- SEKKANOKI.
+                if get('sekkanoki').enabled and sekka and isReady('JA', "Sekkanoki") and helpers['buffs'].buffActive(408) and helpers['party'].isInParty(sekka) then
+                    add(bp.JA["Sekkanoki"], sekka)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act then
+                local weapon = bp.helpers['equipment'].main
+                            
+                -- HASSO & SEIGAN.
+                if (get('hasso') or get('seigan')) and weapon then
 
-            end
+                    if get('hasso') and isReady('JA', "Hasso") and not helpers['buffs'].buffActive(353) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
+                        add(bp.JA["Hasso"], player)
 
-            if get('debuffs') and target then
+                    elseif get('hasso') and isReady('JA', "Seigan") and not helpers['buffs'].buffActive(354) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
+                        add(bp.JA["Seigan"], player)
+
+                    end
+
+                end
+
+                if (not get('hasso') and not get('seigan')) or (helpers['buffs'].buffActive(353) or helpers['buffs'].buffActive(354)) then
+
+                    -- THIRD EYE.
+                    if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and not hasShadows() then
+                        add(bp.JA["Third Eye"], player)
+                    end
+
+                    -- KONZEN-ITTAI.
+                    if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= 400 and player['vitals'].tp <= 750 and (os.clock()-timers.konzen) > 60 then
+                        add(bp.JA["Konzen-Ittai"])
+                        timers.konzen = os.clock()
+
+                    end
+
+                end
 
             end
 
@@ -971,6 +1247,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -978,19 +1256,58 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
             if get('buffs') and target then
 
-            end
+                -- INNIN & YONIN.
+                if get('tank') and get('yonin') and isReady('JA', "Yonin") and not helpers['buffs'].buffActive(420) and helpers['actions'].isFacing() and _act then
+                    add(bp.JA["Yonin"], player)
 
-            if get('debuffs') and target then
+                elseif not get('tank') and get('innin') and isReady('JA', "Innin") and not helpers['buffs'].buffActive(421) and helpers['actions'].isBehind() and _act then
+                    add(bp.JA["Innin"], player)
+
+                end
+
+                -- UTSUSEMI.
+                if get('utsusemi') and (os.clock()-timers.utsusemi) > 1.5 and _cast then
+                    local tools = helpers['inventory'].findItemByName("Shihei")
+
+                    if tools and not hasShadows() then
+                        local queue = helpers['queue'].queue
+                        local check = false
+                        
+                        for _,v in ipairs(queue) do
+                            if v.action.en:match('Utsusemi') then
+                                check = true
+                                break
+
+                            end
+                        end
+
+                        if not check then
+                            
+                            if helpers['actions'].isReady('MA', "Utsusemi: San") then
+                                helpers['queue'].addToFront(bp.MA["Utsusemi: San"], player)
+
+                            elseif helpers['actions'].isReady('MA', "Utsusemi: Ni") then
+                                helpers['queue'].addToFront(bp.MA["Utsusemi: Ni"], player)
+                                    
+                            elseif helpers['actions'].isReady('MA', "Utsusemi: Ichi") then
+                                helpers['queue'].addToFront(bp.MA["Utsusemi: Ichi"], player)
+                                    
+                            end
+                        
+                        end
+
+                    elseif not tools then
+                        local toolbag = helpers['inventory'].findItemByName("Toolbag (Shihe)")
+
+                        if toolbag and helpers['inventory'].hasSpace() and helpers['actions'].canItem() then
+                            helpers['queue'].addToFront(bp.IT["Toolbag (Shihe)"], player)
+                        end
+
+                    end
+
+                end
 
             end
 
@@ -999,15 +1316,58 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('buffs') then
 
-            end
+                -- INNIN & YONIN.
+                if get('tank') and get('yonin') and isReady('JA', "Yonin") and not helpers['buffs'].buffActive(420) and helpers['actions'].isFacing() and _act then
+                    add(bp.JA["Yonin"], player)
 
-            if get('buffs') and target then
+                elseif not get('tank') and get('innin') and isReady('JA', "Innin") and not helpers['buffs'].buffActive(421) and helpers['actions'].isBehind() and _act then
+                    add(bp.JA["Innin"], player)
 
-            end
+                end
 
-            if get('debuffs') and target then
+                -- UTSUSEMI.
+                if get('utsusemi') and (os.clock()-timers.utsusemi) > 1.5 and _cast then
+                    local tools = helpers['inventory'].findItemByName("Shihei")
+
+                    if tools and not hasShadows() then
+                        local queue = helpers['queue'].queue.data
+                        local check = false
+                        
+                        for _,v in ipairs(queue) do
+                            if v.action.en:match('Utsusemi') then
+                                check = true
+                                break
+
+                            end
+                        end
+
+                        if not check then
+                            
+                            if helpers['actions'].isReady('MA', "Utsusemi: San") then
+                                helpers['queue'].addToFront(bp.MA["Utsusemi: San"], player)
+
+                            elseif helpers['actions'].isReady('MA', "Utsusemi: Ni") then
+                                helpers['queue'].addToFront(bp.MA["Utsusemi: Ni"], player)
+                                    
+                            elseif helpers['actions'].isReady('MA', "Utsusemi: Ichi") then
+                                helpers['queue'].addToFront(bp.MA["Utsusemi: Ichi"], player)
+                                    
+                            end
+                        
+                        end
+
+                    elseif not tools then
+                        local toolbag = helpers['inventory'].findItemByName("Toolbag (Shihe)")
+
+                        if toolbag and helpers['inventory'].hasSpace() and helpers['actions'].canItem() then
+                            helpers['queue'].addToFront(bp.IT["Toolbag (Shihe)"], player)
+                        end
+
+                    end
+
+                end
 
             end
 
@@ -1019,6 +1379,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1026,29 +1388,31 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
+            if get('ja') and target and _act then
 
                 -- JUMP.
-                if target and get('jump') and isReady('JA', "Jump") then
-                    helpers['queue'].add(bp.JA["Jump"], target)
+                if get('jump') and isReady('JA', "Jump") then
+                    add(bp.JA["Jump"], target)
                     
                 -- HIGH JUMP.
-                elseif target and get('high jump') and isReady('JA', "High Jump") then
-                    helpers['queue'].add(bp.JA["High Jump"], target)
+                elseif get('high jump') and isReady('JA', "High Jump") then
+                    add(bp.JA["High Jump"], target)
                     
+                end
+
+                -- SUPER JUMP.
+                if get('super jump') and isReady('JA', "Super Jump") and helpers['enmity'].hasEnmity(player) then
+                    add(bp.JA["Super Jump"], target)
                 end
 
             end
 
-            if get('hate').enabled and target then
+            if get('buffs') and _act and target then
 
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
+                -- ANCIENT CIRCLE.
+                --if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                    --helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
+                --end
 
             end
 
@@ -1057,15 +1421,31 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- JUMP.
+                if get('jump') and isReady('JA', "Jump") then
+                    add(bp.JA["Jump"], target)
+                    
+                -- HIGH JUMP.
+                elseif get('high jump') and isReady('JA', "High Jump") then
+                    add(bp.JA["High Jump"], target)
+                    
+                end
+
+                -- SUPER JUMP.
+                if get('super jump') and isReady('JA', "Super Jump") and helpers['enmity'].hasEnmity(player) then
+                    add(bp.JA["Super Jump"], target)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act then
 
-            end
-
-            if get('debuffs') and target then
+                -- ANCIENT CIRCLE.
+                --if target and not helpers['buffs'].buffActive(118) and helpers['actions'].isReady('JA', "Ancient Circle") then
+                    --helpers['queue'].add(bp.JA["Ancient Circle"], player)                            
+                --end
 
             end
 
@@ -1077,6 +1457,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1084,37 +1466,38 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
-            if get('hate').enabled and target then
+            if get('hate').enabled and target and _cast then
 
                 -- JETTATURA.
-                if target and isReady('MA', "Jettatura") then
-                    helpers['queue'].add(bp.MA["Jettatura"], target)
+                if isReady('MA', "Jettatura") then
+                    add(bp.MA["Jettatura"], target)
                     
                 -- BLANK GAZE.
-                elseif target and isReady('MA', "Blank Gaze") then
-                    helpers['queue'].add(bp.MA["Blank Gaze"], target)
+                elseif isReady('MA', "Blank Gaze") then
+                    add(bp.MA["Blank Gaze"], target)
                     
                 end
                 
-                if self.getSetting('AOEHATE') and (os.clock()-timers.hate) > self.getSetting('HATE DELAY') then
+                if get('hate').aoe and (os.clock()-timers.hate) > get('hate').delay then
                     
                     -- SOPORIFIC.
-                    if target and isReady('MA', "Soporific") then
-                        helpers['queue'].add(bp.MA["Soporific"], target)
+                    if isReady('MA', "Soporific") then
+                        add(bp.MA["Soporific"], target)
                         timers.hate = os.clock()
                     
                     -- GEIST WALL.
-                    elseif target and isReady('MA', "Geist Wall") then
-                        helpers['queue'].add(bp.MA["Geist Wall"], target)
+                    elseif isReady('MA', "Geist Wall") then
+                        add(bp.MA["Geist Wall"], target)
                         timers.hate = os.clock()
                     
-                    -- JETTATURA.
-                    elseif target and isReady('MA', "Sheep Song") then
-                        helpers['queue'].add(bp.MA["Sheep Song"], target)
+                    -- SHEEP SONG.
+                    elseif isReady('MA', "Sheep Song") then
+                        add(bp.MA["Sheep Song"], target)
+                        timers.hate = os.clock()
+
+                    -- STINKING GAS.
+                    elseif isReady('MA', "Stinking Gas") then
+                        add(bp.MA["Stinking Gas"], target)
                         timers.hate = os.clock()
                     
                     end
@@ -1123,11 +1506,12 @@ function logic.get()
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and target and _cast then
 
-            end
-
-            if get('debuffs') and target then
+                -- COCOON.
+                if isReady('MA', "Cocoon") and helpers['buffs'].buffActive(93) then
+                    add(bp.MA["Cocoon"], player)
+                end
 
             end
 
@@ -1136,15 +1520,52 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('hate').enabled and _cast then
+
+                -- JETTATURA.
+                if isReady('MA', "Jettatura") then
+                    add(bp.MA["Jettatura"], target)
+                    
+                -- BLANK GAZE.
+                elseif isReady('MA', "Blank Gaze") then
+                    add(bp.MA["Blank Gaze"], target)
+                    
+                end
+                
+                if get('hate').aoe and (os.clock()-timers.hate) > get('hate').delay then
+                    
+                    -- SOPORIFIC.
+                    if isReady('MA', "Soporific") then
+                        add(bp.MA["Soporific"], target)
+                        timers.hate = os.clock()
+                    
+                    -- GEIST WALL.
+                    elseif isReady('MA', "Geist Wall") then
+                        add(bp.MA["Geist Wall"], target)
+                        timers.hate = os.clock()
+                    
+                    -- SHEEP SONG.
+                    elseif isReady('MA', "Sheep Song") then
+                        add(bp.MA["Sheep Song"], target)
+                        timers.hate = os.clock()
+
+                    -- STINKING GAS.
+                    elseif isReady('MA', "Stinking Gas") then
+                        add(bp.MA["Stinking Gas"], target)
+                        timers.hate = os.clock()
+                    
+                    end
+                    
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _cast then
 
-            end
-
-            if get('debuffs') and target then
+                -- COCOON.
+                if isReady('MA', "Cocoon") and helpers['buffs'].buffActive(93) then
+                    add(bp.MA["Cocoon"], player)
+                end
 
             end
 
@@ -1156,6 +1577,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1165,17 +1588,30 @@ function logic.get()
 
             if get('ja') and _act then
 
+                -- QUICK DRAW.
+                if get('quick draw').enabled and isReady('JA', get('quick draw').name) then
+                    add(bp.JA[get('quick draw').name], player)
+
+                -- RANDOM DEAL.
+                elseif get('random deal') and isReady('JA', "Random Deal") then
+                    add(bp.JA["Random Deal"], player)
+
+                end
+
             end
 
-            if get('hate').enabled and target then
+            if get('buffs') and _act then
+                local active = bp.helpers['rolls'].getActive()
 
-            end
+                -- ROLLS.
+                if bp.helpers['rolls'].enabled and active < 1 then
+                    bp.helpers['rolls'].roll()
 
-            if get('buffs') and target then
+                -- TRIPLE SHOT.
+                elseif get('ra').enabled and isReady('JA', "Triple Shot") and helpers['buffs'].buffActive(467) and target then
+                    add(bp.JA["Triple Shot"], player)
 
-            end
-
-            if get('debuffs') and target then
+                end
 
             end
 
@@ -1184,15 +1620,32 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- QUICK DRAW.
+                if get('quick draw').enabled and isReady('JA', get('quick draw').name) then
+                    add(bp.JA[get('quick draw').name], player)
+
+                -- RANDOM DEAL.
+                elseif get('random deal') and isReady('JA', "Random Deal") then
+                    add(bp.JA["Random Deal"], player)
+
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act then
+                local active = bp.helpers['rolls'].getActive()
 
-            end
+                -- ROLLS.
+                if bp.helpers['rolls'].enabled and active < 1 then
+                    bp.helpers['rolls'].roll()
 
-            if get('debuffs') and target then
+                -- TRIPLE SHOT.
+                elseif get('ra').enabled and isReady('JA', "Triple Shot") and helpers['buffs'].buffActive(467) and target then
+                    add(bp.JA["Triple Shot"], player)
+
+                end
 
             end
 
@@ -1204,6 +1657,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1211,38 +1666,10 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
-
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
 
         end
 
@@ -1252,6 +1679,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1307,6 +1736,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1316,31 +1747,95 @@ function logic.get()
 
             if get('ja') and _act then
 
-                -- SUBLIMATION LOGIC.
-                if get('sublimation') then --UPDATE**
+                -- SUBLIMATION.
+                if get('sublimation').enabled and _act then
                             
-                    if not helpers['buffs'].buffActive(187) and not helpers['buffs'].buffActive(188) and isReady('JA', "Sublimation") then
-                        helpers['queue'].add(bp.JA["Sublimation"], player)
-                    
-                    elseif not helpers['buffs'].buffActive(187) and helpers['buffs'].buffActive(188) and isReady('JA', "Sublimation") then
-                        helpers['queue'].add(bp.JA["Sublimation"], player)
+                    if player['vitals'].mpp <= get('sublimation').mpp and isReady('JA', "Sublimation") and helpers['buffs'].buffActive(188) and (os.clock()-timers.sublimation) > 60 then
+                        add(bp.JA["Sublimation"], player)
+                        timers.sublimation = os.clock()
+
+                    elseif player['vitals'].mpp <= 20 and isReady('JA', "Sublimation") and (helpers['buffs'].buffActive(187) or helpers['buffs'].buffActive(188)) and (os.clock()-timers.sublimation) > 60 then
+                        add(bp.JA["Sublimation"], player)
+                        timers.sublimation = os.clock()
+
+                    elseif isReady('JA', "Sublimation") and not helpers['buffs'].buffActive(187) and not helpers['buffs'].buffActive(188) then
+                        add(bp.JA["Sublimation"], player)
+                        timers.sublimation = os.clock()
 
                     end
                     
                 end
 
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
+                -- LIBRA.
+                if get('libra') and isReady('JA', "Libra") and target then
+                    add(bp.JA["Libra"], target)
+                end
 
             end
 
-            if get('debuffs') and target then
+            if get('buffs') then
 
+                if (not helpers['buffs'].buffActive(358) or not helpers['buffs'].buffActive(359)) and (get('light arts') or get('dark arts')) then
+
+                    -- LIGHT ARTS.
+                    if get('light arts') and isReady('JA', "Light Arts") and not helpers['buffs'].buffActive(358) and _act then
+                        add(bp.JA["Light Arts"], player)
+
+                    -- DARK ARTS.
+                    elseif get('dark arts') and isReady('JA', "Dark Arts") and not helpers['buffs'].buffActive(359) and _act then
+                        add(bp.JA["Light Arts"], player)
+
+                    end
+
+                elseif (not get('light arts') and not get('dark arts')) or (not helpers['buffs'].buffActive(358) or not helpers['buffs'].buffActive(359)) and _cast then
+
+                    -- STORMS.
+                    if get('storms').enabled and _cast then
+
+                        if helpers['buffs'].buffActive(358) and not hasStorm() then
+                            add(bp.MA["Aurorastorm"], player)
+
+                        elseif helpers['buffs'].buffActive(359) and not hasStorm() then
+                            add(bp.MA[get('storms').name], player)
+
+                        end
+
+                    end
+
+                    -- KLIMAFORM
+                    if get('dark arts') and isReady('MA', "Klimaform") and not helpers['buffs'].buffActive(407) and target then
+                        add(bp.MA["Klimaform"], player)
+
+                    -- STONESKIN.
+                    elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
+                        add(bp.MA["Stoneskin"], player)
+
+                    -- AQUAVEIL.
+                    elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) then
+                        add(bp.MA["Aquaveil"], player)
+
+                    -- BLINK.
+                    elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) then
+                        add(bp.MA["Blink"], player)
+                        
+                    -- SPIKES.
+                    elseif isReady('MA', get('spikes').name) and hasSpikes() and target then
+                        add(bp.MA[get('spikes')], player)
+                        
+                    end
+
+                end
+
+            end
+
+            -- DRAIN.
+            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast and target then
+                add(bp.MA["Drain"], target)
+            end
+
+            -- ASPIR.
+            if get('aspir').enabled and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") and _cast and target then
+                add(bp.MA["Aspir"], target)
             end
 
         elseif player.status == 1 then
@@ -1348,16 +1843,97 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- SUBLIMATION.
+                if get('sublimation').enabled and _act then
+                            
+                    if player['vitals'].mpp <= get('sublimation').mpp and isReady('JA', "Sublimation") and helpers['buffs'].buffActive(188) and (os.clock()-timers.sublimation) > 60 then
+                        add(bp.JA["Sublimation"], player)
+                        timers.sublimation = os.clock()
+
+                    elseif player['vitals'].mpp <= 20 and isReady('JA', "Sublimation") and (helpers['buffs'].buffActive(187) or helpers['buffs'].buffActive(188)) and (os.clock()-timers.sublimation) > 60 then
+                        add(bp.JA["Sublimation"], player)
+                        timers.sublimation = os.clock()
+
+                    elseif isReady('JA', "Sublimation") and not helpers['buffs'].buffActive(187) and not helpers['buffs'].buffActive(188) then
+                        add(bp.JA["Sublimation"], player)
+                        timers.sublimation = os.clock()
+
+                    end
+                    
+                end
+
+                -- LIBRA.
+                if get('libra') and isReady('JA', "Libra") then
+                    add(bp.JA["Libra"], target)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') then
+
+                if (not helpers['buffs'].buffActive(358) or not helpers['buffs'].buffActive(359)) and (get('light arts') or get('dark arts')) then
+
+                    -- LIGHT ARTS.
+                    if get('light arts') and isReady('JA', "Light Arts") and not helpers['buffs'].buffActive(358) and _act then
+                        add(bp.JA["Light Arts"], player)
+
+                    -- DARK ARTS.
+                    elseif get('dark arts') and isReady('JA', "Dark Arts") and not helpers['buffs'].buffActive(359) and _act then
+                        add(bp.JA["Light Arts"], player)
+
+                    end
+
+                elseif (not get('light arts') and not get('dark arts')) or (not helpers['buffs'].buffActive(358) or not helpers['buffs'].buffActive(359)) and _cast then
+
+                    -- STORMS.
+                    if get('storms').enabled and _cast then
+
+                        if helpers['buffs'].buffActive(358) and not hasStorm() then
+                            add(bp.MA["Aurorastorm"], player)
+
+                        elseif helpers['buffs'].buffActive(359) and not hasStorm() then
+                            add(bp.MA[get('storms').name], player)
+
+                        end
+
+                    end
+
+                    -- KLIMAFORM
+                    if get('dark arts') and isReady('MA', "Klimaform") and not helpers['buffs'].buffActive(407) then
+                        add(bp.MA["Klimaform"], player)
+
+                    -- STONESKIN.
+                    elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
+                        add(bp.MA["Stoneskin"], player)
+
+                    -- AQUAVEIL.
+                    elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) then
+                        add(bp.MA["Aquaveil"], player)
+
+                    -- BLINK.
+                    elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) then
+                        add(bp.MA["Blink"], player)
+                        
+                    -- SPIKES.
+                    elseif isReady('MA', get('spikes').name) and hasSpikes() then
+                        add(bp.MA[get('spikes')], player)
+                        
+                    end
+
+                end
 
             end
 
-            if get('debuffs') and target then
+            -- DRAIN.
+            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
+                add(bp.MA["Drain"], target)
+            end
 
+            -- ASPIR.
+            if get('aspir').enabled and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") and _cast then
+                add(bp.MA["Aspir"], target)
             end
 
         end
@@ -1368,6 +1944,8 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
 
         if player.status == 0 then
@@ -1375,38 +1953,10 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and _act then
-
-            end
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
-
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
-
-            if get('hate').enabled and target then
-
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
-
-            end
 
         end
 
@@ -1416,36 +1966,44 @@ function logic.get()
         local player    = bp.player
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
+        local inQueue   = helpers['queue'].inQueue
+        local add       = helpers['queue'].add
         local get       = private.settings.get
-
+        
         if player.status == 0 then
             local target = helpers['target'].getTarget() or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
             local active = helpers['runes'].getActive()
-
-            if get('ja') and _act then
-
-            end
-
+            
             if get('hate').enabled and target then
 
                 -- FLASH.
-                if _cast and isReady('MA', "Flash") then
-                    helpers['queue'].addToFront(bp.MA["Flash"], target)                            
+                if isReady('MA', "Flash") and isReady('MA', "Flash") and _cast then
+                    bp.helpers['queue'].addToFront(bp.MA["Flash"], target)
+
+                -- FOIL.
+                elseif isReady('MA', "Foil") and isReady('MA', "Foil") and _cast then
+                    bp.helpers['queue'].addToFront(bp.MA["Foil"], target)
+
                 end
                 
                 -- DELAYED HATE ACTIONS.
-                if _act and (os.clock()-timers.hate) > get('hate').delay and active > 0 then
+                if (os.clock()-timers.hate) > get('hate').delay and active > 0 then
                 
                     -- VALLATION.
-                    if get('vallation') and isReady('JA', "Vallation") then
-                        helpers['queue'].addToFront(bp.JA["Vallation"], player)
+                    if get('vallation') and isReady('JA', "Vallation") and not bp.helpers['buffs'].buffActive(531) and not bp.helpers['buffs'].buffActive(535) and active == helpers['runes'].maxRunes() and _act then
+                        add(bp.JA["Vallation"], player)
+                        timers.hate = os.clock()
+
+                    -- VALIANCE.
+                    elseif get('valiance') and isReady('JA', "Valiance") and not bp.helpers['buffs'].buffActive(531) and not bp.helpers['buffs'].buffActive(535) and active == helpers['runes'].maxRunes() and _act then
+                        add(bp.JA["Valiance"], player)
                         timers.hate = os.clock()
                         
                     -- PFLUG.
-                    elseif get('pflug') and isReady('JA', "Pflug") then
-                        helpers['queue'].addToFront(bp.JA["Pflug"], player)
+                    elseif get('pflug') and isReady('JA', "Pflug") and not bp.helpers['buffs'].buffActive(533) and active == helpers['runes'].maxRunes() and _act then
+                        add(bp.JA["Pflug"], player)
                         timers.hate = os.clock()
                         
                     end
@@ -1454,12 +2012,48 @@ function logic.get()
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') then
 
-            end
+                -- RUNE ENCHANMENTS.
+                if get('runes') then
+                    helpers['runes'].handleRunes()
+                end
 
-            if get('debuffs') and target then
+                if get('embolden').enabled and isReady('JA', "Embolden") and not helpers['buffs'].buffActive(534) and _act and _cast and target then
 
+                    if isReady('MA', get('embolden').name) then
+                        add(bp.JA["Embolden"], player)
+                        add(bp.MA[get('embolden').name], player)
+                    end
+
+                end
+
+                -- PHALANX.
+                if isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) and _cast and target then
+                    add(bp.MA["Phalanx"], player)
+
+                -- SWORDPLAY.
+                elseif get('swordplay') and isReady('JA', "Swordplay") and not helpers['buffs'].buffActive(532) and _act and target then
+                    add(bp.JA["Swordplay"], player)
+
+                -- STONESKIN.
+                elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) and _cast then
+                    add(bp.MA["Stoneskin"], player)
+
+                -- AQUAVEIL.
+                elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) and _cast then
+                    add(bp.MA["Aquaveil"], player)
+
+                -- BLINK.
+                elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) and _cast then
+                    add(bp.MA["Blink"], player)
+                    
+                -- SPIKES.
+                elseif get('spikes').enabled and isReady('MA', get('spikes').name) and hasSpikes() and _cast then
+                    add(bp.MA[get('spikes')], player)
+
+                end
+            
             end
 
         elseif player.status == 1 then
@@ -1469,14 +2063,82 @@ function logic.get()
 
             if get('hate').enabled and target then
 
+                -- FLASH.
+                if isReady('MA', "Flash") and isReady('MA', "Flash") and _cast then
+                    bp.helpers['queue'].addToFront(bp.MA["Flash"], target)
+
+                -- FOIL.
+                elseif isReady('MA', "Foil") and isReady('MA', "Foil") and _cast then
+                    bp.helpers['queue'].addToFront(bp.MA["Foil"], target)
+
+                end
+                
+                -- DELAYED HATE ACTIONS.
+                if (os.clock()-timers.hate) > get('hate').delay and active > 0 then
+                
+                    -- VALLATION.
+                    if get('vallation') and isReady('JA', "Vallation") and not bp.helpers['buffs'].buffActive(531) and not bp.helpers['buffs'].buffActive(535) and active == helpers['runes'].maxRunes() and _act then
+                        add(bp.JA["Vallation"], player)
+                        timers.hate = os.clock()
+
+                    -- VALIANCE.
+                    elseif get('valiance') and isReady('JA', "Valiance") and not bp.helpers['buffs'].buffActive(531) and not bp.helpers['buffs'].buffActive(535) and active == helpers['runes'].maxRunes() and _act then
+                        add(bp.JA["Valiance"], player)
+                        timers.hate = os.clock()
+                        
+                    -- PFLUG.
+                    elseif get('pflug') and isReady('JA', "Pflug") and not bp.helpers['buffs'].buffActive(533) and active == helpers['runes'].maxRunes() and _act then
+                        add(bp.JA["Pflug"], player)
+                        timers.hate = os.clock()
+                        
+                    end
+                    
+                end
+
             end
 
-            if get('buffs') and target then
+            if get('buffs') then
 
-            end
+                -- RUNE ENCHANMENTS.
+                if get('runes') then
+                    helpers['runes'].handleRunes()
+                end
 
-            if get('debuffs') and target then
+                if get('embolden').enabled and isReady('JA', "Embolden") and not helpers['buffs'].buffActive(534) and _act and _cast then
 
+                    if isReady('MA', get('embolden').name) then
+                        add(bp.JA["Embolden"], player)
+                        add(bp.MA[get('embolden').name], player)
+                    end
+
+                end
+
+                -- PHALANX.
+                if isReady('MA', "Phalanx") and not helpers['buffs'].buffActive(116) and _cast then
+                    add(bp.MA["Phalanx"], player)
+
+                -- SWORDPLAY.
+                elseif get('swordplay') and isReady('JA', "Swordplay") and not helpers['buffs'].buffActive(532) and _act then
+                    add(bp.JA["Swordplay"], player)
+
+                -- STONESKIN.
+                elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) and _cast then
+                    add(bp.MA["Stoneskin"], player)
+
+                -- AQUAVEIL.
+                elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) and _cast then
+                    add(bp.MA["Aquaveil"], player)
+
+                -- BLINK.
+                elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) and _cast then
+                    add(bp.MA["Blink"], player)
+                    
+                -- SPIKES.
+                elseif get('spikes').enabled and isReady('MA', get('spikes').name) and hasSpikes() and _cast then
+                    add(bp.MA[get('spikes')], player)
+
+                end
+            
             end
 
         end

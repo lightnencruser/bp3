@@ -3,6 +3,7 @@ local player    = windower.ffxi.get_player()
 local files     = require('files')
 local texts     = require('texts')
 local f = files.new(string.format('bp/helpers/settings/distance/%s_settings.lua', player.name))
+require('vectors')
 
 if not f:exists() then
   f:write(string.format('return %s', T({}):tovstring()))
@@ -19,6 +20,7 @@ function distance.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
 
     -- Public Variables.
     self.distance   = nil
@@ -68,15 +70,7 @@ function distance.new()
     end
     self.writeSettings()
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-
-    self.render = function()
+    private.render = function()
         local target    = windower.ffxi.get_mob_by_target('t') or false
         local color     = {string.format('%s,%s,%s', 25, 165, 200), string.format('%s,%s,%s', 25, 165, 200)}
         local update    = ''
@@ -90,8 +84,8 @@ function distance.new()
 
         end
 
-        if target and target.distance then
-            self.distance = (target.distance):sqrt()
+        if bp and bp.me and target and target.distance then
+            self.distance = ((V{bp.me.x, bp.me.y, bp.me.z} - V{target.x, target.y, target.z}):length())
 
             if self.distance > 0 and self.distance ~= nil then
                 update = string.format('%05.2f', self.distance)
@@ -115,6 +109,14 @@ function distance.new()
 
     end
 
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+        end
+
+    end
+
     self.pos = function(x, y)
         local x = tonumber(x) or self.layout.pos.x
         local y = tonumber(y) or self.layout.pos.y
@@ -131,6 +133,30 @@ function distance.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = table.remove(commands, 1)
+
+        if bp and bp.player and helper and helper:lower() == 'distance' then
+
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command == 'pos' and commands[2] then
+                    self.pos(commands[2], commands[3] or false)
+                end
+
+            end
+
+        end
+
+    end)
+
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+    end)
 
     return self
 

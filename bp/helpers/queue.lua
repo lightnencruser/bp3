@@ -222,15 +222,27 @@ function queue.new()
                                 local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
 
                                 if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(action) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
                                 end
 
                             else
 
                                 if distance < (ranges[action.range]+target.model_size) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
                                 end
 
+                            end
+
+                        elseif action.en == 'Ready' and bp.helpers['charges'].current > 0 then
+
+                            if action.prefix == '/pet' then
+                                local pet = windower.ffxi.get_mob_by_target('pet') or false
+                                local distance  = ( (target.x-pet.x)^2 + (target.y-pet.y)^2 ):sqrt()
+                                
+                                if pet and distance < (ranges[action.range]+target.model_size+pet.model_size) and (target.distance):sqrt() < 21 and not self.inQueue(action) and player['vitals'].mp >= action.mp_cost then
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
+                                end
+                            
                             end
 
                         end
@@ -253,10 +265,10 @@ function queue.new()
                                     end
 
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Self') and target.id == player.id and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                 elseif action.type == 'Geomancy' and (action.en):match('Geo-') and T(action.targets):contains('Enemy') and helpers['target'].isEnemy(target) and player['vitals'].mp >= action.mp_cost then
-                                    self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                    self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                 elseif not self.inQueue(action, target) and not (action.en):match('Geo-') and player['vitals'].mp >= action.mp_cost then
 
@@ -269,11 +281,11 @@ function queue.new()
                                     elseif (action.en):match('Indi-') and player['vitals'].mp >= action.mp_cost then
                                         
                                         if player.id ~= target.id and bp.helpers['actions'].isReady('JA', "Entrust") and helpers['party'].isInParty(target.id, false) then
-                                            self.queue:push({action=bp.JA['Entrust'], target=me, priority=priority, attempts=1})
-                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                            self.queue:insert(1, {action=bp.JA['Entrust'], target=me, priority=priority, attempts=1})
+                                            self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                         elseif player.id == target.id then
-                                            self.queue:push({action=action, target=target, priority=priority, attempts=1})
+                                            self.queue:insert(1, {action=action, target=target, priority=priority, attempts=1})
 
                                         end
                                     

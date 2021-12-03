@@ -83,6 +83,20 @@ function cures.new()
     end
     private.persist()
 
+    private.writeSettings = function()
+        private.persist()
+
+        if f:exists() then
+            f:write(string.format('return %s', T(self.settings):tovstring()))
+
+        elseif not f:exists() then
+            f:write(string.format('return %s', T({}):tovstring()))
+
+        end
+
+    end
+    private.writeSettings()
+
     private.buildParty = function()
         self.party      = {}
         self.alliance   = {}
@@ -278,78 +292,11 @@ function cures.new()
         end
 
     end
-
-    -- Static Functions.
-    self.writeSettings = function()
-        private.persist()
-
-        if f:exists() then
-            f:write(string.format('return %s', T(self.settings):tovstring()))
-
-        elseif not f:exists() then
-            f:write(string.format('return %s', T({}):tovstring()))
-
-        end
-
-    end
-    self.writeSettings()
-
-    self.setPriority = function(target, urgency)
-
-        if bp and target and urgency then
-
-            if tonumber(urgency) ~= nil and tonumber(urgency) >= 0 and tonumber(urgency) <= 100 then
-                priorities[target.id] = tonumber(urgency)
-                bp.helpers['popchat'].pop(string.format('%s\'s cure priority now set to %d.', target.name, urgency))
-                
-            else
-                bp.helpers['popchat'].pop('PLEASE ENTER A NUMBER BETWEEN 0 & 100!')
-
-            end
-
-        end
-
-    end
-
-    self.getPriority = function(target)
-
-        if target then
-
-            if type(target) == 'table' and target.id then
-                return priorities[target.id] or 0
-
-            elseif type(target) == 'number' or tonumber(target) ~= nil then
-                return priorities[tonumber(target)] or 0
-
-            elseif type(target) == 'string' and tonumber(target) == nil then
-                return priorities[windower.ffxi.get_mob_by_name(target).id] or 0
-
-            end
-
-        end
-        return 0
-
-    end
     
     -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
             bp = buddypal
-        end
-
-    end
-
-    self.changeMode = function()
-
-        if bp then
-            self.mode = (self.mode + 1)
-            
-            if self.mode > #modes then
-                self.mode = 1
-            end
-            bp.helpers['popchat'].pop(string.format('CURE MODE: %s', modes[self.mode]))
-            self.writeSettings()
-
         end
 
     end
@@ -419,16 +366,120 @@ function cures.new()
 
     end
 
+    self.setPriority = function(target, urgency)
+
+        if bp then
+
+            if target and target.id then
+                            
+                if urgency ~= nil and urgency >= 0 and urgency <= 100 then
+                    priorities[target.id] = urgency
+                    bp.helpers['popchat'].pop(string.format('PRIORITY FOR %s SET TO: %03d.', target.name or 'TARGET', urgency))
+
+                else
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID NUMBER BETWEEN 1 & 100!')
+
+                end
+
+            else
+                bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+
+            end
+
+        end
+
+        if target and urgency then
+
+            if tonumber(urgency) ~= nil and tonumber(urgency) >= 0 and tonumber(urgency) <= 100 then
+                priorities[target.id] = tonumber(urgency)
+            end
+
+        end
+
+    end
+
+    self.getPriority = function(target)
+
+        if target then
+
+            if type(target) == 'table' and target.id then
+                return priorities[target.id] or 0
+
+            elseif type(target) == 'number' or tonumber(target) ~= nil then
+                return priorities[tonumber(target)] or 0
+
+            elseif type(target) == 'string' and tonumber(target) == nil then
+                return priorities[windower.ffxi.get_mob_by_name(target).id] or 0
+
+            end
+
+        end
+        return 0
+
+    end
+
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1] or false
+
+        if helper and helper == 'cures' then
+            table.remove(commands, 1)
+            
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if T{'p','!','priority'}:contains(command) and commands[2] then
+                    local target = windower.ffxi.get_mob_by_target('t') or false
+                    local value = tonumber(commands[2])
+
+                    if target then
+                        
+                        if value ~= nil then
+                            self.setPriority(windower.ffxi.get_mob_by_target('t'), value)
+
+                        else
+                            bp.helpers['popchat'].pop('PLEASE ENTER A VALID NUMBER VALUE FOR TARGETS PRIORITY!')
+
+                        end
+
+                    else
+                        bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+
+                    end
+
+                elseif command == 'power' and commands[2] and tonumber(commands[2]) ~= nil then
+                    local power = tonumber(commands[2])
+
+                    if power >= 1 and power <= 100 then
+                        self.power = power
+                        bp.helpers['popchat'].pop(string.format('CURE POWER MULTIPLIER NOW SET TO: %d%%', self.power))
+
+                    else
+                        bp.helpers['popchat'].pop('PLEASE ENTER A NUMBER BETWEEN 1 & 100!')
+
+                    end
+
+                end
+    
+            else
+                self.mode = self.mode < #modes and (self.mode + 1) or 1
+                bp.helpers['popchat'].pop(string.format('CURE MODE: %s', modes[self.mode]))
+    
+            end
+            private.writeSettings()
+
+        end
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         private.buildParty()
     
     end)
 
     private.events.zonechange = windower.register_event('zone change', function(new, old)
-        private.persist()
-        self.writeSettings()
-
+        private.writeSettings()
     end)
     
     return self

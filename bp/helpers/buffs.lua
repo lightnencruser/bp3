@@ -615,26 +615,35 @@ function buffs.new()
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
+        local helper = commands[1] or false
+
+        if helper and helper == 'buffs' then
+            table.remove(commands, 1)
         
-        if commands[1] and commands[1]:lower() == 'buffs' then
+            if commands[1] then
+                local command = commands[1]:lower()
             
-            if commands[2] then
-                local command = commands[2]:lower()
-                local target = windower.ffxi.get_mob_by_target('t') or false
+                if command then
+                    local target = windower.ffxi.get_mob_by_target('t') or false
 
-                if (command == '+' or command == 'a') and target and commands[3] then
-                    private.add(target, commands[3])
+                    if (command == '+' or command == 'a') and target and commands[2] then
+                        private.add(target, commands[2])
 
-                elseif (command == '-' or command == 'r') and target and commands[3] then
-                    private.remove(target, commands[3])
+                    elseif (command == '-' or command == 'r') and target and commands[2] then
+                        private.remove(target, commands[2])
 
-                elseif (command == 'clear' or command == 'c') then
-                    private.reset()
+                    elseif (command == 'clear' or command == 'c') then
+                        private.reset()
 
-                elseif command == 'pos' and commands[3] then
-                    private.pos(commands[3], commands[4] or false)
+                    elseif command == 'pos' and commands[2] then
+                        private.pos(commands[2], commands[3] or false)
+
+                    end
 
                 end
+
+            else
+                windower.send_command('bp set debuffs')
 
             end
             private.writeSettings()

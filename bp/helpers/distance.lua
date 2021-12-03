@@ -109,15 +109,7 @@ function distance.new()
 
     end
 
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-        end
-
-    end
-
-    self.pos = function(x, y)
+    private.pos = function(x, y)
         local x = tonumber(x) or self.layout.pos.x
         local y = tonumber(y) or self.layout.pos.y
 
@@ -130,6 +122,14 @@ function distance.new()
         elseif bp and (not x or not y) then
             bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
+        end
+
+    end
+
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
         end
 
     end
@@ -148,15 +148,16 @@ function distance.new()
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
-        local helper = table.remove(commands, 1)
+        local helper = commands[1]
 
         if bp and bp.player and helper and helper:lower() == 'distance' then
+            table.remove(commands[1])
 
             if commands[1] then
                 local command = commands[1]:lower()
 
                 if command == 'pos' and commands[2] then
-                    self.pos(commands[2], commands[3] or false)
+                    private.pos(commands[2], commands[3] or false)
                 end
 
             end

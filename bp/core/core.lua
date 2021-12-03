@@ -2035,7 +2035,7 @@ function core.new()
                 for i in ipairs(commands) do
                     local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
 
-                    if type(value) == 'number' and value >= 10 and <= 30 then
+                    if type(value) == 'number' and value >= 10 and value <= 30 then
                         flags.distance = value
                         bp.helpers['popchat'].pop(string.format('AUTO-FULL CIRCLE DISTANCE SET TO: %s.', flags.distance))
 
@@ -2513,9 +2513,10 @@ function core.new()
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
-        local helper = table.remove(commands, 1)
+        local helper = commands[1]
 
         if bp and bp.player and helper and helper:lower() == 'set' then
+            table.remove(commands, 1)
             local flag = windower.convert_auto_trans(table.remove(commands, 1)):lower()
             
             if private.flags[flag] ~= nil and type(private.flags[flag]) ~= 'boolean' then

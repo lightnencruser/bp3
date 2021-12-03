@@ -59,7 +59,7 @@ function logic.get()
     end
 
     local hasSpikes = function()
-        local spikes = T(34,35,38,173)
+        local spikes = T{34,35,38,173}
 
         if bp and bp.player then
         
@@ -77,13 +77,31 @@ function logic.get()
     end
 
     local hasStorm = function()
-        local storms = T(178,179,180,181,182,183,184,185)
+        local storms = T{178,179,180,181,182,183,184,185}
 
         if bp and bp.player then
         
             for _,v in ipairs(bp.player.buffs) do
                         
                 if storms:contains(v) then
+                    return true
+                end
+                
+            end
+        
+        end
+        return false
+
+    end
+
+    local hasAftermath = function()
+        local levels = T{270,271,272}
+
+        if bp and bp.player then
+        
+            for _,v in ipairs(bp.player.buffs) do
+                        
+                if levels:contains(v) then
                     return true
                 end
                 
@@ -127,8 +145,8 @@ function logic.get()
                 bp.helpers['status'].fixStatus()
 
                 do -- Handle Skillup.
-                    local skillup = private.settings.get('skillup')[1]
-                    local skill = private.settings.get('skillup')[2]
+                    local skillup = private.settings.get('skillup').enabled
+                    local skill = private.settings.get('skillup').skill
 
                     if skillup then
                         local food = helpers['inventory'].findItemByName("B.E.W. Pitaru")
@@ -164,12 +182,13 @@ function logic.get()
                     end
 
                     -- Handle using ranged attacks.
-                    if private.settings.get('ra').enabled and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' then
+                    if private.settings.get('ra').enabled and #helpers['queue'].queue.data == 0 and helpers['equipment'].ammo and helpers['equipment'].ammo.en ~= 'Gil' and helpers['equipment'].ammo.damage > 0 then
                         helpers['queue'].add(helpers['actions'].unique.ranged, target)
                     end
 
                 end
                 private.core.automate(bp)
+                private.handleWeaponskills(bp, target)
 
                 if private.subs[player.sub_job] then
                     private.subs[player.sub_job]()
@@ -177,6 +196,141 @@ function logic.get()
 
             end
             helpers['queue'].handle()
+
+        end
+
+    end
+
+    private.handleWeaponskills = function(bp, target)
+        local player    = bp.player
+        local helpers   = bp.helpers
+        local add       = bp.helpers['queue'].add
+        local inQueue   = helpers['queue'].inQueue
+        local isReady   = helpers['actions'].isReady
+        local get       = private.settings.get
+
+        if player.status == 1 and bp.helpers['actions'].canAct() and get('ws').enabled and player['vitals'].tp >= 1000 then
+            local target = target or windower.ffxi.get_mob_by_target('t')
+            local distance = helpers['distance'].getDistance(target)
+            
+            if target and distance < 6 and distance ~= 0 then
+                local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
+
+                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+
+                    if get('sanguine blade') and get('sanguine blade').enabled and current.hpp <= get('sanguine blade').hpp and current.tp >= get('ws').tp and isReady('WS', "Sanguine Blade") then
+                        add(bp.WS["Sanguine Blade"], player)
+
+                    elseif get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
+                        add(bp.WS["Moonlight"], player)
+
+                    elseif get('myrkr') and get('myrkr').enabled and current.mpp <= get('myrkr').mpp and current.tp >= get('ws').tp and isReady('WS', "Myrkr") then
+                        add(bp.WS["Myrkr"], player)
+
+                    elseif current.tp >= get('ws').tp and isReady('WS', get('ws').name) then
+                        add(bp.WS[get('ws').name], target)
+
+                    end
+
+                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                    local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
+                    
+                    if aftermath and isReady('WS', aftermath) then
+                        add(bp.WS[aftermath], target)
+                    end
+
+                end
+
+            elseif distance > 8 then
+                local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
+                
+                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+
+                    if get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
+                        add(bp.WS["Moonlight"], player)
+
+                    elseif get('myrkr') and get('myrkr').enabled and current.mpp <= get('myrkr').mpp and current.tp >= get('ws').tp and isReady('WS', "Myrkr") then
+                        add(bp.WS["Myrkr"], player)
+
+                    elseif get('ra').name == "Mistral Axe" and current.main and current.main.skill == 5 and current.tp >= get('ra').tp and isReady('WS', "Mistral Axe") then
+                        add(bp.WS["Mistral Axe"], target)
+
+                    elseif current.ranged and current.ammo and current.tp >= get('ra').tp and current.ammo.en ~= 'Gil' and isReady('WS', get('ra').name) then
+                        add(bp.WS[get('ra').name], target)
+
+                    end
+
+                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                    local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
+
+                    if aftermath and isReady('WS', aftermath) then
+                        add(bp.WS[aftermath], target)
+                    end
+
+                end
+
+            end
+
+        elseif player.status == 0 and bp.helpers['actions'].canAct() and get('ws').enabled and target then
+            local distance = helpers['distance'].getDistance(target)
+            
+            if target and distance < 6 and distance ~= 0 then
+                local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
+
+                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+
+                    if get('sanguine blade') and get('sanguine blade').enabled and current.hpp <= get('sanguine blade').hpp and current.tp >= get('ws').tp and isReady('WS', "Sanguine Blade") then
+                        add(bp.WS["Sanguine Blade"], player)
+
+                    elseif get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
+                        add(bp.WS["Moonlight"], player)
+
+                    elseif get('myrkr') and get('myrkr').enabled and current.mpp <= get('myrkr').mpp and current.tp >= get('ws').tp and isReady('WS', "Myrkr") then
+                        add(bp.WS["Myrkr"], player)
+
+                    elseif current.tp >= get('ws').tp and isReady('WS', get('ws').name) then
+                        add(bp.WS[get('ws').name], target)
+
+                    end
+
+                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                    local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
+
+                    if aftermath and isReady('WS', aftermath) then
+                        add(bp.WS[aftermath], target)
+                    end
+
+                end
+
+            elseif distance > 8 and get('ra').enabled then
+                local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
+
+                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+
+                    if get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
+                        add(bp.WS["Moonlight"], player)
+
+                    elseif get('myrkr') and get('myrkr').enabled and current.mpp <= get('myrkr').mpp and current.tp >= get('ws').tp and isReady('WS', "Myrkr") then
+                        add(bp.WS["Myrkr"], player)
+
+                    elseif get('ra').name == "Mistral Axe" and current.main and current.main.skill == 5 and current.tp >= get('ra').tp and isReady('WS', "Mistral Axe") then
+                        add(bp.WS["Mistral Axe"], target)
+
+                    elseif current.ranged and current.ammo and current.tp >= get('ra').tp and current.ammo.en ~= 'Gil' and isReady('WS', get('ra').name) then
+                        add(bp.WS[get('ra').name], target)
+
+                    end
+
+                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                    local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
+
+                    if aftermath and isReady('WS', aftermath) then
+                        add(bp.WS[aftermath], target)
+                    end
+
+                end
+
+            end
 
         end
 

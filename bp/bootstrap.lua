@@ -15,7 +15,7 @@ bootstrap.load = function()
     }
 
     self.enabled        = true
-    self.delay          = 0.6
+    self.delay          = 0.25
     self.party          = false
     self.player         = false
     self.me             = false
@@ -378,7 +378,6 @@ bootstrap.load = function()
                 
                 if not self.helpers['buffs'].buffActive(69) and not self.helpers['buffs'].buffActive(71) then
                     self.core.handleAutomation()
-
                 end            
                 self.pinger = os.clock()
 
@@ -618,7 +617,7 @@ bootstrap.load = function()
     
                     end
                 
-                else
+                elseif pack['Category'] ~= 1 then
                     self.helpers['queue'].ready = (os.clock() + 1)
     
                 end

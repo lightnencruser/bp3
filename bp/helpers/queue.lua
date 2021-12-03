@@ -135,7 +135,7 @@ function queue.new()
     end
 
     -- Public Functions.
-    self.writeSettings = function()
+    private.writeSettings = function()
 
         if f:exists() then
             f:write(string.format('return %s', T(self.settings):tovstring()))
@@ -145,7 +145,7 @@ function queue.new()
         end
 
     end
-    self.writeSettings()
+    private.writeSettings()
 
     self.clear = function()
         self.queue:clear()
@@ -590,7 +590,7 @@ function queue.new()
             local type      = self.getType(action)
             local special   = T{'Raise','Raise II','Raise III','Arise'}
             local ranges    = helpers['actions'].getRanges()
-
+            
             if player and action and target and priority and attempts and type and ranges then
 
                 if type == 'JobAbility' then
@@ -725,7 +725,7 @@ function queue.new()
                     end
 
                 elseif type == 'WeaponSkill' then
-
+                    
                     if helpers['target'].allowed(target) then
                         local mob      = windower.ffxi.get_mob_by_id(target.id)
                         local distance = mob.distance:sqrt()
@@ -1016,15 +1016,14 @@ function queue.new()
     end
 
     self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
         if bp and x and y then
             self.display:pos(x, y)
             self.layout.pos.x = x
             self.layout.pos.y = y
-            self.writeSettings()
+            private.writeSettings()
         
         elseif bp and (not x or not y) then
             bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
@@ -1034,14 +1033,33 @@ function queue.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1] or false
+
+        if helper and helper == 'queue' then
+            table.remove(commands, 1)
+            
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command == 'pos' and commands[2] then
+                    self.pos(commands[2], commands[3] or false)
+                end
+    
+            end
+
+        end
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         private.render()
-
     end)
 
     private.events.zonechange = windower.register_event('zone change', function()
         self.clear()
-        self.writeSettings()
+        private.writeSettings()
         
     end)
 

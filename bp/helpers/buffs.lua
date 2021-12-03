@@ -639,8 +639,7 @@ function buffs.new()
             end
             private.writeSettings()
 
-        end
-        
+        end        
 
     end)
 

@@ -295,8 +295,6 @@ function cures.new()
     self.writeSettings()
 
     self.setPriority = function(target, urgency)
-        local target    = target or false
-        local urgency   = urgency or false
 
         if bp and target and urgency then
 
@@ -314,7 +312,6 @@ function cures.new()
     end
 
     self.getPriority = function(target)
-        local target = target or false
 
         if target then
 

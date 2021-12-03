@@ -1,5 +1,5 @@
-local pup = {}
-function pup.get()
+local job = {}
+function job.get()
     local self = {}
 
     local private = {}
@@ -22,7 +22,7 @@ function pup.get()
     end
 
     private.items = function(bp)
-    
+
         if bp and bp.helpers['actions'].canItem() then
 
             if bp.helpers['buffs'].buffActive(15) then
@@ -50,4 +50,4 @@ function pup.get()
     return self
 
 end
-return pup.get()
+return job.get()

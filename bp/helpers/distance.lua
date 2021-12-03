@@ -134,6 +134,17 @@ function distance.new()
 
     end
 
+    self.getDistance = function(target)
+        local m = windower.ffxi.get_mob_by_target('me') or false
+        local t = target or false
+
+        if m and t then
+            return ((V{m.x, m.y, m.z} - V{t.x, t.y, t.z}):length())
+        end
+        return 0
+
+    end
+
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}

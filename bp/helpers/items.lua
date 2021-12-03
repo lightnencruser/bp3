@@ -16,6 +16,7 @@ function items.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local items     = {
 
         res[6391],  res[6312],  res[6358],  res[6533],
@@ -66,7 +67,7 @@ function items.new()
     persist()
 
     -- Static Functions.
-    self.writeSettings = function()
+    private.writeSettings = function()
         persist()
 
         if f:exists() then
@@ -78,20 +79,7 @@ function items.new()
         end
 
     end
-    self.writeSettings()
-
-    self.toggle = function()
-        
-        if self.enabled then
-            self.enabled = false
-
-        else
-            self.enabled = true
-        
-        end
-        bp.helpers['popchat'].pop(string.format('AUTO-ITEM USE: %s', tostring(self.enabled)))
-    
-    end        
+    private.writeSettings()
 
     -- Public Functions.
     self.setSystem = function(buddypal)
@@ -102,7 +90,6 @@ function items.new()
     end
     
     self.queueItems = function()
-        local bp = bp or false
 
         if bp and self.enabled and bp.helpers['inventory'].hasSpace() and not bp.helpers['target'].getTarget() then
             local player = windower.ffxi.get_player()
@@ -119,6 +106,18 @@ function items.new()
         end
 
     end
+
+    -- Private Functions.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        
+        if bp and commands[1] and commands[1]:lower() == 'items' then
+            self.enabled = self.enabled ~= true and true or false
+            bp.helpers['popchat'].pop(string.format('AUTO-USE ITEMS: %s.', tostring(self.enabled)))
+        end
+        private.writeSettings()
+
+    end)
 
     return self
 

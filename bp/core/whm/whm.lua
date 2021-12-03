@@ -1,24 +1,28 @@
-local whm = {}
-function whm.get()
+local job = {}
+function job.get()
     local self = {}
 
     local private = {}
 
-    self.automate = function(bp, settings)
-        private.items(bp, settings)
+    self.automate = function(bp)
+        local get = bp.core.get
 
-        if bp and bp.player and bp.player.status == 1 then
-            
+        do
+            private.items(bp, settings)
+            if bp and bp.player and bp.player.status == 1 then
+                
 
-        elseif bp and bp.player and bp.player.status == 0 then
-            
+            elseif bp and bp.player and bp.player.status == 0 then
+                
+
+            end
 
         end
         
     end
 
-    private.items = function(bp, settings)
-    
+    private.items = function(bp)
+
         if bp and bp.helpers['actions'].canItem() then
 
             if bp.helpers['buffs'].buffActive(15) then
@@ -46,4 +50,4 @@ function whm.get()
     return self
 
 end
-return whm.get()
+return job.get()

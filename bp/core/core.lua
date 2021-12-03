@@ -1,12 +1,6 @@
 local core      = {}
-local player    = windower.ffxi.get_player()
 local files     = require('files')
-local f = files.new(string.format('bp/core/%s/settings/%s.lua', player.main_job:lower(), player.name))
-require('tables')
-
-if not f:exists() then
-  f:write(string.format('return %s', T({}):tovstring()))
-end
+                  require('tables')
 
 function core.new()
     local self = {}
@@ -14,37 +8,36 @@ function core.new()
     -- Static Variables.
     local bp        = false
     local private   = {events={}, set={}}
-    local settings  = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job:lower(), player.name))
 
     -- Private Variables
-    private.flags   = settings or {}
+    private.flags   = {}
     private.naming  = {
 
-        ['debuffs']     = "AUTO-DEBUFFING",
-        ['buffs']       = "AUTO-SELF BUFFING",
-        ['tank']        = "DEFENSIVE MODE",
-        ['1hr']         = "AUTO-1HRs",
-        ['ja']          = "AUTO-JOB ABILITIES",
-        ['items']       = "AUTO-ITEMS",
-        ['nuke']        = "NUKE MODE",
+        ["debuffs"]     = "AUTO-DEBUFFING",
+        ["buffs"]       = "AUTO-SELF BUFFING",
+        ["tank"]        = "DEFENSIVE MODE",
+        ["1hr"]         = "AUTO-1HRs",
+        ["ja"]          = "AUTO-JOB ABILITIES",
+        ["items"]       = "AUTO-ITEMS",
+        ["nuke"]        = "NUKE MODE",
 
     }
     private.default = {
 
-        ['am']                      = {enabled=false, tp=3000},
-        ['ra']                      = {enabled=false, tp=1000, name="Hot Shot"},
-        ['ws']                      = {enabled=false, tp=1000, name="Combo"},
-        ['hate']                    = {enabled=false, delay=2, aoe=false},
-        ['skillup']                 = {enabled=false, skill="Enhancing Magic"},
-        ['food']                    = {enabled=false, name=""},
-        ['items']                   = false,
-        ['buffs']                   = false,
-        ['debuffs']                 = false,
-        ['tank']                    = false,
-        ['1hr']                     = false,
-        ['ja']                      = false,
+        ["am"]                      = {enabled=false, tp=3000},
+        ["ra"]                      = {enabled=false, tp=1000, name="Hot Shot"},
+        ["ws"]                      = {enabled=false, tp=1000, name="Combo"},
+        ["hate"]                    = {enabled=false, delay=2, aoe=false},
+        ["skillup"]                 = {enabled=false, skill="Enhancing Magic"},
+        ["food"]                    = {enabled=false, name=""},
+        ["items"]                   = false,
+        ["buffs"]                   = false,
+        ["debuffs"]                 = false,
+        ["tank"]                    = false,
+        ["1hr"]                     = false,
+        ["ja"]                      = false,
 
-        ['WAR'] = {
+        ["WAR"] = {
             ["provoke"]             = false,
             ["berserk"]             = false,
             ["defender"]            = false,
@@ -55,42 +48,47 @@ function core.new()
             ["tomahawk"]            = false,
             ["restraint"]           = false,
             ["blood rage"]          = false,
-            ['sanguine blade']      = {enabled=false, hpp=55},
+            ["sanguine blade"]      = {enabled=false, hpp=45},
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['MNK'] = {
+        ["MNK"] = {
             ["chakra"]              = {enabled=false, hpp=45},
             ["chi blast"]           = false,
+            ["impetus"]             = false,
+            ["footwork"]            = {enabled=false, impetus=false},
             ["counterstance"]       = false,
             ["mantra"]              = false,
             ["formless strikes"]    = false,
             ["perfect counter"]     = false,
         },
 
-        ['WHM'] = {
+        ["WHM"] = {
             ["afflatus solace"]     = false,
             ["afflatus misery"]     = false,
-            ["martyr"]              = false,
+            ["martyr"]              = {enabled=false, hpp=45, target=""},
             ["devotion"]            = {enabled=false, mpp=45, target=""},
             ["sacrosanctity"]       = false,
             ["boost"]               = {enabled=false, name="Boost-STR"},
             ["aquaveil"]            = false,
             ["blink"]               = false,
             ["stoneskin"]           = false,
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['BLM'] = {
+        ["BLM"] = {
             ["elemental seal"]      = false,
             ["mana wall"]           = false,
             ["cascade"]             = {enabled=false, tp=1000},
             ["enmity douse"]        = false,
             ["manawell"]            = false,
             ["spikes"]              = {enabled=false, name="Blaze Spikes"},
-            ['drain']               = {enabled=false, hpp=55},
-            ['aspir']               = {enabled=false, mpp=55},
+            ["drain"]               = {enabled=false, hpp=55},
+            ["aspir"]               = {enabled=false, mpp=55},
+            ["myrkr"]               = {enabled=false, mpp=45},
         },
 
-        ['RDM'] = {
+        ["RDM"] = {
             ["convert"]             = {enabled=false, mpp=55, hpp=55},
             ["composure"]           = false,
             ["saboteur"]            = false,
@@ -100,11 +98,11 @@ function core.new()
             ["blink"]               = false,
             ["aquaveil"]            = false,
             ["en"]                  = {enabled=false, name="Enfire", tier=1},
-            ['sanguine blade']      = {enabled=false, hpp=55},
+            ["sanguine blade"]      = {enabled=false, hpp=55},
             ["stoneskin"]           = false,
         },
 
-        ['THF'] = {
+        ["THF"] = {
             ["steal"]               = false,
             ["sneak attack"]        = false,
             ["flee"]                = false,
@@ -117,7 +115,7 @@ function core.new()
             ["bully"]               = false,
         },
 
-        ['PLD'] = {
+        ["PLD"] = {
             ["holy circle"]         = false,
             ["shield bash"]         = false,
             ["sentinel"]            = false,
@@ -129,10 +127,11 @@ function core.new()
             ["divine emblem"]       = false,
             ["sepulcher"]           = false,
             ["palisade"]            = false,
-            ['sanguine blade']      = {enabled=false, hpp=55},
+            ["sanguine blade"]      = {enabled=false, hpp=55},
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['DRK'] = {
+        ["DRK"] = {
             ["arcane circle"]       = false,
             ["last resort"]         = false,
             ["weapon bash"]         = false,
@@ -145,13 +144,14 @@ function core.new()
             ["scarlet delirium"]    = false,
             ["absorb"]              = {enabled=false, name="Absorb-ACC"},
             ["endark"]              = false,
-            ['spikes']              = false,
-            ['drain']               = {enabled=false, hpp=55},
-            ['aspir']               = {enabled=false, mpp=55},
-            ['sanguine blade']      = {enabled=false, hpp=55},
+            ["spikes"]              = false,
+            ["drain"]               = {enabled=false, hpp=55},
+            ["aspir"]               = {enabled=false, mpp=55},
+            ["sanguine blade"]      = {enabled=false, hpp=55},
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['BST'] = {
+        ["BST"] = {
             ["reward"]              = {enabled=false, pet_hpp=55},
             ["call beast"]          = false,
             ["bestial loyalty"]     = false,
@@ -163,7 +163,7 @@ function core.new()
             ["run wild"]            = false,
         },
 
-        ['RNG'] = {
+        ["RNG"] = {
             ["sharpshot"]           = false,
             ["scavenge"]            = false,
             ["camouflage"]          = false,
@@ -178,19 +178,18 @@ function core.new()
             ["hover shot"]          = false,
         },
 
-        ['SMN'] = {
+        ["SMN"] = {
             ["elemental siphon"]    = {enabled=false, mpp=55},
             ["apogee"]              = false,
             ["mana cede"]           = false,
             ["assault"]             = false,
-            ["blood pact: rage"]    = false,
-            ["blood pact: ward"]    = false,
-            ['summon']              = {enabled=false, name="Carbuncle"},
+            ["summon"]              = {enabled=false, name="Carbuncle"},
             ["bpr"]                 = {enabled=false, pacts={}},
             ["bpw"]                 = {enabled=false, pacts={}},
+            ["myrkr"]               = {enabled=false, mpp=45},
         },
 
-        ['SAM'] = {
+        ["SAM"] = {
             ["warding circle"]      = false,
             ["third eye"]           = false,
             ["hasso"]               = false,
@@ -203,9 +202,10 @@ function core.new()
             ["sengikori"]           = false,
             ["hamanoha"]            = false,
             ["hagakure"]            = false,
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['NIN'] = {
+        ["NIN"] = {
             ["yonin"]               = false,
             ["innin"]               = false,
             ["sange"]               = false,
@@ -214,7 +214,7 @@ function core.new()
             ["utsusemi"]            = false,
         },
 
-        ['DRG'] = {
+        ["DRG"] = {
             ["call wyvern"]         = false,
             ["ancient circle"]      = false,
             ["jump"]                = false,
@@ -232,23 +232,24 @@ function core.new()
             ["steady wing"]         = false,
         },
 
-        ['BLU'] = {
+        ["BLU"] = {
             ["burst affinity"]      = false,
             ["chain affinity"]      = false,
             ["convergence"]         = false,
             ["diffusion"]           = false,
             ["efflux"]              = false,
             ["unbridled learning"]  = false,
-            ['sanguine blade']      = {enabled=false, hpp=55},
+            ["sanguine blade"]      = {enabled=false, hpp=55},
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['COR'] = {
+        ["COR"] = {
             ["quick draw"]          = {enabled=false, name="Light Shot"},
             ["random deal"]         = false,
             ["triple shot"]         = false,
         },
 
-        ['PUP'] = {
+        ["PUP"] = {
             ["activate"]            = false,
             ["repair"]              = {enabled=false, pet_hpp=55},
             ["maintenance"]         = false,
@@ -257,7 +258,7 @@ function core.new()
             ["maneuver"]            = false,
         },
 
-        ['DNC'] = {
+        ["DNC"] = {
             ["contradance"]         = false,
             ["saber dance"]         = false,
             ["fan dance"]           = false,
@@ -269,7 +270,7 @@ function core.new()
             ["jigs"]                = {enabled=false, name="Chocobo Jig"},
         },
 
-        ['SCH'] = {
+        ["SCH"] = {
             ["light arts"]          = false,
             ["dark arts"]           = false,
             ["sublimation"]         = {enabled=false, mpp=65},
@@ -279,20 +280,28 @@ function core.new()
             ["helix"]               = {enabled=false, name="Pyrohelix"},
             ["storms"]              = {enabled=false, name="Firestorm"},
             ["spikes"]              = {enabled=false, name="Blaze Spikes"},
-            ['drain']               = {enabled=false, hpp=55},
-            ['aspir']               = {enabled=false, mpp=55},
+            ["drain"]               = {enabled=false, hpp=55},
+            ["aspir"]               = {enabled=false, mpp=55},
             ["aquaveil"]            = false,
             ["blink"]               = false,
             ["stoneskin"]           = false,
+            ["myrkr"]               = {enabled=false, mpp=45},
         },
 
-        ['GEO'] = {
+        ["GEO"] = {
             ["theurgic focus"]      = false,
-            ['drain']               = {enabled=false, hpp=55},
-            ['aspir']               = {enabled=false, mpp=55},
+            ["full circle"]         = {enabled=false, distance=22},
+            ["lasting emanation"]   = false,
+            ["ecliptic attrition"]  = false,
+            ["life cycle"]          = false,
+            ["blaze of glory"]      = false,
+            ["dematerialize"]       = false,            
+            ["drain"]               = {enabled=false, hpp=55},
+            ["aspir"]               = {enabled=false, mpp=55},
+            ["moonlight"]           = {enabled=false, mpp=45},
         },
 
-        ['RUN'] = {
+        ["RUN"] = {
             ["runes"]               = false,
             ["vallation"]           = false,
             ["swordplay"]           = false,
@@ -308,7 +317,7 @@ function core.new()
             ["liement"]             = false,
             ["one for all"]         = false,
             ["spikes"]              = {enabled=false, name="Blaze Spikes"},
-            ['sanguine blade']      = {enabled=false, hpp=55},
+            ["sanguine blade"]      = {enabled=false, hpp=55},
             ["aquaveil"]            = false,
             ["blink"]               = false,
             ["stoneskin"]           = false,
@@ -320,18 +329,33 @@ function core.new()
     private.persist = function()
         local player = windower.ffxi.get_player()
         local flags = {update={}, initilize=false}
+        local f = files.new(string.format('bp/core/%s/settings/%s.lua', player.main_job:lower(), player.name))
+            
+        if f:exists() then
+            private.flags = dofile(string.format('%sbp/core/%s/settings/%s.lua', windower.addon_path, player.main_job:lower(), player.name))
+            coroutine.schedule(function()
+                bp.helpers['popchat'].pop(string.format('%s CORE SETTINGS LOADED!', player.main_job))
+            
+            end, 2)
 
-        if settings then
+        else
+            private.flags = {}
+            coroutine.schedule(function()
+                bp.helpers['popchat'].pop(string.format('%s CORE SETTINGS FILE HAS BEEN GENERATED!', player.main_job))
+                private.setDefaults(player.main_job)
+                private.writeSettings()
+            
+            end, 2)
 
-            if T(private.flags):length() == 0 then
-                flags.initilize = true
-            end
+            
+        end
+
+        if private.flags then
 
             for name, value in pairs(private.default[player.main_job]) do
                 
                 if private.flags[name] == nil then
                     private.flags[name] = value
-                    table.insert(flags.update, name:upper())
                 end
 
             end
@@ -342,7 +366,6 @@ function core.new()
 
                     if private.flags[name] == nil then
                         private.flags[name] = value
-                        table.insert(flags.update, name:upper())
 
                     else
 
@@ -350,7 +373,6 @@ function core.new()
                             
                             if private.flags[name][i] == nil then
                                 private.flags[name][i] = v
-                                table.insert(flags.update, i:upper())
                             end
 
                         end
@@ -361,7 +383,6 @@ function core.new()
                     
                     if private.flags[name] == nil then
                         private.flags[name] = value
-                        table.insert(flags.update, name:upper())
                     end
 
                 end
@@ -370,22 +391,12 @@ function core.new()
 
         end
 
-        if not flags.initilize and flags.update[1] ~= nil then
-            coroutine.schedule(function()
-                bp.helpers['popchat'].pop(string.format('NEW SETTINGS: {%s}!\nADDED TO %s SETTINGS FILE!', table.concat(flags.update, ', '), player.main_job))
-            end, 2)
-
-        elseif flags.initilize then
-            coroutine.schedule(function()
-                bp.helpers['popchat'].pop(string.format('%s CORE SETTINGS FILE HAS BEEN CREATED!', player.main_job))
-            end, 2)
-            
-        end
-
     end
+    private.persist()
 
     private.writeSettings = function()
-        private.persist()
+        local player = windower.ffxi.get_player()
+        local f = files.new(string.format('bp/core/%s/settings/%s.lua', player.main_job:lower(), player.name))
 
         if f:exists() then
             f:write(string.format('return %s', T(private.flags):tovstring()))
@@ -395,7 +406,6 @@ function core.new()
         end
 
     end
-    private.writeSettings()
 
     private.set = function(name, commands, subjob)
         local set = {}
@@ -622,6 +632,25 @@ function core.new()
 
         end
 
+        set['footwork'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and commands[1] then
+                local value = commands[1]:lower()
+                
+                if value:sub(1, #value) == ('impetus'):sub(1, #value) then
+                    flags.impetus = flags.impetus ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('FOOTWORK ENABLED DURING IMPETUS: %s.', tostring(flags.impetus)))
+                end
+
+            elseif #commands == 0 then
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-FOOTWORK: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
         set['hate'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
@@ -700,6 +729,76 @@ function core.new()
 
         end
 
+        set['myrkr'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if value then
+
+                        if type(value) == 'number' then
+                            
+                            if value >= 25 and value <= 75 then
+                                flags.mpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-MYRKR MP%% SET TO: %s.', tostring(flags.mpp)))
+            
+                            else
+                                bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 25 & 75!')
+            
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            elseif #commands == 0 then
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-MYRKR: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
+        set['moonlight'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if value then
+
+                        if type(value) == 'number' then
+                            
+                            if value >= 25 and value <= 75 then
+                                flags.mpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-MOONLIGHT MP%% SET TO: %s.', tostring(flags.mpp)))
+            
+                            else
+                                bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 25 & 75!')
+            
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            elseif #commands == 0 then
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-MOONLIGHT: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
         set['chakra'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
@@ -730,6 +829,75 @@ function core.new()
             elseif #commands == 0 then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-CHAKRA: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
+        set['martyr'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+            local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
+
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if (value or target) then
+                        
+                        if type(value) == 'number' then
+                            
+                            if value >= 10 and value <= 75 then
+                                flags.hpp = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-MARTYR HP%% SET TO: %s.', flags.hpp))
+        
+                            else
+                                bp.helpers['popchat'].pop('ENTER A HP% VALUE BETWEEN 10 & 75!')
+        
+                            end
+
+                        end
+                        
+                        if target and target.name ~= bp.player.name then
+                            local target = value ~= nil and windower.ffxi.get_mob_by_name(value) or target
+
+                            if target and bp.helpers['party'].isInParty(target) then
+                                flags.target = target.name
+                                bp.helpers['popchat'].pop(string.format('AUTO-MARTYR TARGET SET TO: %s.', flags.target))
+
+                            else
+                                bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            elseif #commands == 0 then
+                
+                if not target then
+                    flags.enabled = flags.enabled ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('AUTO-MARTYR: %s.', tostring(flags.enabled)))
+
+                else
+
+                    if target and target.name ~= bp.player.name then
+
+                        if target and bp.helpers['party'].isInParty(target) then
+                            flags.target = target.name
+                            bp.helpers['popchat'].pop(string.format('AUTO-MARTYR TARGET SET TO: %s.', flags.target))
+
+                        else
+                            bp.helpers['popchat'].pop('INVALID TARGET SELECTED!')
+
+                        end
+
+                    end
+
+                end
 
             end
 
@@ -1083,11 +1251,8 @@ function core.new()
 
                     if tier and T{1,2}:contains(tier) then
                         flags.tier = tier
+                        flags.name = flags.tier < 2 and spell or string.format('%s II', spell)
                         bp.helpers['popchat'].pop(string.format('AUTO-ENSPELL TIER SET TO: %s.', flags.tier))
-
-                        do -- Set the new name value if the tier changed.
-                            flags.name = flags.tier < 2 and spell or string.format('%s II', spell)
-                        end
 
                     else
                         bp.helpers['popchat'].pop('SPELL TIER MUST BE 1 OR 2!')
@@ -1358,58 +1523,44 @@ function core.new()
 
         set['bpr'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
-            local pacts = {
+            local rages = {
 
-                rage = {
-        
-                    ['Carbuncle']   = {'Poison Nails','Meteorite','Holy Mist'},
-                    ['Cait Sith']   = {'Regal Scratch','Level ? Holy', 'Regal Gash'},
-                    ['Ifrit']       = {'Flaming Crush','Meteor Strike','Conflag Strike'},
-                    ['Shiva']       = {'Double Slap','Rush','Heavenly Strike'},
-                    ['Garuda']      = {'Claw','Predator Claws','Wind Blade'},
-                    ['Titan']       = {'Mountain Buster','Geocrush','Crag Throw'},
-                    ['Ramuh']       = {'Thunderspark','Thunderstorm','Volt Strike'},
-                    ['Leviathan']   = {'Spinning Dive','Grand Fall'},
-                    ['Fenrir']      = {'Eclipse Bite','Lunar Bay','Impact'},
-                    ['Diabolos']    = {'Nether Blast','Night Terror'},
-                    ['Siren']       = {'Sonic Buffet','Hysteric Assault'},
-        
-                },
-                
-                ward = {
-        
-                    ['Carbuncle']   = {'Shining Ruby','Glittering Ruby','Healing Ruby II','Soothing Ruby'},
-                    ['Cait Sith']   = {'Mewing Lullaby'},
-                    ['Ifrit']       = {'Crimson Howl','Inferno Howl'},
-                    ['Shiva']       = {'Crystal Blessing'},
-                    ['Garuda']      = {'Whispering Wind','Hastega II'},
-                    ['Titan']       = {'Earthen Armor'},
-                    ['Ramuh']       = {'Rolling Thunder','Shock Squall'},
-                    ['Leviathan']   = {'Spring Water'},
-                    ['Fenrir']      = {'Ecliptic Growl','Ecliptic Howl'},
-                    ['Diabolos']    = {'Dream Shroud'},
-                    ['Siren']       = {'Bitter Elegy','Wind\'s Blessing'},
-        
-                },
-        
+                ['Carbuncle']   = {'Poison Nails','Meteorite','Holy Mist'},
+                ['Cait Sith']   = {'Regal Scratch','Level ? Holy', 'Regal Gash'},
+                ['Ifrit']       = {'Flaming Crush','Meteor Strike','Conflag Strike'},
+                ['Shiva']       = {'Double Slap','Rush','Heavenly Strike'},
+                ['Garuda']      = {'Claw','Predator Claws','Wind Blade'},
+                ['Titan']       = {'Mountain Buster','Geocrush','Crag Throw'},
+                ['Ramuh']       = {'Thunderspark','Thunderstorm','Volt Strike'},
+                ['Leviathan']   = {'Spinning Dive','Grand Fall'},
+                ['Fenrir']      = {'Eclipse Bite','Lunar Bay','Impact'},
+                ['Diabolos']    = {'Nether Blast','Night Terror'},
+                ['Siren']       = {'Sonic Buffet','Hysteric Assault'},
+
             }
 
-            if flags and commands[1] and commands[2] then
+            if flags and commands[1] then
                 local summons = {'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}
                 local pet = windower.convert_auto_trans(commands[1])
-                local pact = windower.convert_auto_trans(commands[2])
+                local match = commands[2]
                 local error = true
 
                 for _,summon in ipairs(summons) do
 
-                    if pet:lower():sub(1, #pet) == summon:lower():sub(1, #pet) and pacts.rage[summon] and pacts.ward[summon] then
+                    if pet:lower():sub(1, #pet) == summon:lower():sub(1, #pet) and rages[summon] then
+                        error = false
 
-                        for avatar, rage in pairs(pacts.rage[summon]) do
+                        for index, rage in pairs(rages[summon]) do
+                            local current = flags.pacts[summon]
 
-                            if pact:lower():sub(1, #pact) == rage:lower():sub(1, #pact) then
-                                flags.pacts[avatar] = rage
-                                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT: RAGE SET TO: %s.', flags.pacts[avatar]))
-                                error = false
+                            if current and current:lower() == rage:lower() then
+                                flags.pacts[summon] = index < #rages[summon] and rages[summon][index + 1] or rages[summon][1]
+                                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT: RAGE SET TO: %s.', flags.pacts[summon]))
+                                break
+
+                            elseif not current then
+                                flags.pacts[summon] = rages[summon][1]
+                                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT: RAGE SET TO: %s.', flags.pacts[summon]))
                                 break
 
                             end
@@ -1421,12 +1572,12 @@ function core.new()
                 end
 
                 if error then
-                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID BLOOD PACT: RAGE NAME!')
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID PET NAME!')
                 end
 
             else
                 flags.enabled = flags.enabled ~= true and true or false
-                bp.helpers['popchat'].pop(string.format('AUTO-SUMMON: %s.', tostring(flags.enabled)))
+                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT RAGES: %s.', tostring(flags.enabled)))
 
             end
 
@@ -1434,6 +1585,62 @@ function core.new()
 
         set['bpw'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+            local wards = {
+
+                ['Carbuncle']   = {'Shining Ruby','Glittering Ruby','Healing Ruby II','Soothing Ruby'},
+                ['Cait Sith']   = {'Mewing Lullaby'},
+                ['Ifrit']       = {'Crimson Howl','Inferno Howl'},
+                ['Shiva']       = {'Crystal Blessing'},
+                ['Garuda']      = {'Whispering Wind','Hastega II'},
+                ['Titan']       = {'Earthen Armor'},
+                ['Ramuh']       = {'Rolling Thunder','Shock Squall'},
+                ['Leviathan']   = {'Spring Water'},
+                ['Fenrir']      = {'Ecliptic Growl','Ecliptic Howl'},
+                ['Diabolos']    = {'Dream Shroud'},
+                ['Siren']       = {'Bitter Elegy','Wind\'s Blessing'},
+
+            }
+
+            if flags and commands[1] then
+                local summons = {'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}
+                local pet = windower.convert_auto_trans(commands[1])
+                local error = true
+
+                for _,summon in ipairs(summons) do
+
+                    if pet:lower():sub(1, #pet) == summon:lower():sub(1, #pet) and wards[summon] then
+                        error = false
+
+                        for index, rage in pairs(wards[summon]) do
+                            local current = flags.pacts[summon]
+
+                            if current and current:lower() == rage:lower() then
+                                flags.pacts[summon] = index < #wards[summon] and wards[summon][index + 1] or wards[summon][1]
+                                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT: WARD SET TO: %s.', flags.pacts[summon]))
+                                break
+
+                            elseif not current then
+                                flags.pacts[summon] = wards[summon][1]
+                                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT: WARD SET TO: %s.', flags.pacts[summon]))
+                                break
+
+                            end
+
+                        end
+
+                    end
+
+                end
+
+                if error then
+                    bp.helpers['popchat'].pop('PLEASE ENTER A VALID PET NAME!')
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT WARDS: %s.', tostring(flags.enabled)))
+
+            end
 
         end
 
@@ -1820,6 +2027,33 @@ function core.new()
 
         end
 
+        set['full circle'] = function(name, commands, subjob)
+            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+
+            if flags and #commands > 0 then
+                
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if type(value) == 'number' and value >= 10 and <= 30 then
+                        flags.distance = value
+                        bp.helpers['popchat'].pop(string.format('AUTO-FULL CIRCLE DISTANCE SET TO: %s.', flags.distance))
+
+                    else
+                        bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 10 & 30!')
+
+                    end
+
+                end
+
+            else
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-FULL CIRCLE: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
         set['vivacious pulse'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
@@ -1907,6 +2141,329 @@ function core.new()
         
         if bp and bp.player and name and commands and set[name] then
             set[name](name, commands, subjob or false)
+        end
+
+    end
+
+    private.setDefaults = function(job)
+        setDefault = {}
+
+        setDefault['WAR'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("sanguine blade",      {enabled=true,  hpp=40})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("provoke",             true)
+            self.set("berserk",             true)
+            self.set("defender",            true)
+            self.set("warcry",              true)
+            self.set("aggressor",           true)
+            self.set("retaliation",         true)
+            self.set("warrior's charge",    true)
+            self.set("restraint",           true)
+            self.set("blood rage",          true)
+
+        end
+
+        setDefault['MNK'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1000, name="Victory Smite"})
+            self.set("chakra",              {enabled=true,  hpp=45})
+            self.set("footwork",            {enabled=true,  impetus=true})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("impetus",             true)
+            self.set("chi blast",           true)
+            self.set("mantra",              true)
+            self.set("formless strikes",    true)
+
+        end
+
+        setDefault['WHM'] = function()
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("boost",               {enabled=true,  name="Boost-STR"})
+            self.set("devotion",            {enabled=true,  mpp=45})
+            self.set("martyr",              {enabled=true,  hpp=15})
+            self.set("moonlight",           {enabled=true,  mpp=40})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("afflatus solace",     true)
+            self.set("sacrosanctity",       true)
+            self.set("stoneskin",           true)
+
+        end
+
+        setDefault['BLM'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=false})
+            self.set("spikes",              {enabled=true,  name="Ice Spikes"})
+            self.set("drain",               {enabled=true,  hpp=45})
+            self.set("aspir",               {enabled=true,  mpp=65})
+            self.set("cascade",             {enabled=true,  tp=2000})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("elemental seal",      true)
+            self.set("mana wall",           true)
+            self.set("enmity douse",        true)
+            self.set("manawell",            true)
+
+        end
+
+        setDefault['RDM'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("convert",             {enabled=true,  mpp=15, hpp=45})
+            self.set("gain",                {enabled=true,  name="Gain-DEX"})
+            self.set("en",                  {enabled=true,  name="Enfire", tier=1})
+            self.set("spikes",              {enabled=true,  name="Ice Spikes"})
+            self.set("sanguine blade",      {enabled=true,  hpp=40})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("composure",           true)
+            self.set("saboteur",            true)
+            self.set("spontaneity",         true)
+            self.set("stoneskin",           true)
+
+
+        end
+
+        setDefault['THF'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Rudra's Storm"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("sneak attack",        true)
+            self.set("trick attack",        true)
+            self.set("steal",               true)
+            self.set("mug",                 true)
+            self.set("assassin's charge",   true)
+            self.set("feint",               true)
+            self.set("despoil",             true)
+            self.set("conspirator",         true)
+            self.set("bully",               true)
+
+        end
+
+        setDefault['PLD'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("chivalry",            {enabled=true,  mpp=55, tp=1500})
+            self.set("sanguine blade",      {enabled=true,  hpp=40})
+            self.set("cover",               {enabled=true})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("holy circle",         true)
+            self.set("shield bash",         true)
+            self.set("sentinel",            true)
+            self.set("rampart",             true)
+            self.set("majesty",             true)
+            self.set("fealty",              true)
+            self.set("divine emblem",       true)
+            self.set("sepulcher",           true)
+            self.set("palisade",            true)
+
+        end
+
+        setDefault['DRK'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Cross Reaper"})
+            self.set("spikes",              {enabled=true,  name="Dread Spikes"})
+            self.set("absorb",              {enabled=true,  name="Absorb-ACC"})
+            self.set("sanguine blade",      {enabled=true,  hpp=40})
+            self.set("drain",               {enabled=true,  hpp=45})
+            self.set("aspir",               {enabled=true,  mpp=65})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("arcane circle",       true)
+            self.set("last resort",         true)
+            self.set("weapon bash",         true)
+            self.set("souleater",           true)
+            self.set("consume mana",        true)
+            self.set("dark seal",           true)
+            self.set("diabolic eye",        true)
+            self.set("nether void",         true)
+            self.set("arcane crest",        true)
+            self.set("scarlet delirium",    true)
+            self.set("endark",              true)
+
+        end
+
+        setDefault['BST'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+
+        end
+
+        setDefault['BRD'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+
+        end
+
+        setDefault['RNG'] = function()
+            self.set("ra",                  {enabled=true,  tp=1500, name="Trueflight"})
+            self.set("ws",                  {enabled=false, tp=1750, name="Savage Blade"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("sharpshot",           true)
+            self.set("scavenge",            true)
+            self.set("camouflage",          true)
+            self.set("barrage",             true)
+            self.set("velocity shot",       true)
+            self.set("double shot",         true)
+            self.set("bounty shot",         true)
+            self.set("hover shot",          true)
+            self.set("unlimited shot",      true)
+
+
+        end
+
+        setDefault['SMN'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=false, tp=1750, name="Myrkr"})
+            self.set("summon",              {enabled=true,  name="Ifrit"})
+            self.set("myrkr",               {enabled=true,  mpp=45})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("apogee",              true)
+            self.set("mana cede",           true)
+            self.set("assault",             true)
+
+        end
+
+        setDefault['SAM'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Tachi: Fudo"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("third eye",           true)
+            self.set("hasso",               true)
+            self.set("meditate",            true)
+            self.set("sekkanoki",           true)
+            self.set("konzen-ittai",        true)
+            self.set("snegikori",           true)
+            self.set("hamanoha",            true)
+            self.set("hagakure",            true)
+
+        end
+
+        setDefault['NIN'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Blade: Hi"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("innin",               true)
+            self.set("issekigan",           true)
+            self.set("utsusemi",            true)
+
+        end
+
+        setDefault['DRG'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Impulse Drive"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("call wyvern",         true)
+            self.set("jump",                true)
+            self.set("high jump",           true)
+            self.set("super jump",          true)
+            self.set("deep breathing",      true)
+            self.set("angon",               true)
+            self.set("spirit jump",         true)
+            self.set("soul jump",           true)
+            self.set("restoring breath",    true)
+
+        end
+
+        setDefault['BLU'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Expiacion"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+
+        end
+
+        setDefault['COR'] = function()
+            self.set("ra",                  {enabled=false, tp=1750, name="Leaden Salute"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("quick draw",          true)
+            self.set("triple shot",         true)
+
+        end
+
+        setDefault['PUP'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=false,  tp=1750, name="Victory Smite"})
+            self.set("repair",              {enabled=true,   pet_hpp=55})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("activate",            true)
+            self.set("cooldown",            true)
+            self.set("deploy",              true)
+            self.set("maneuver",            true)
+
+        end
+
+        setDefault['DNC'] = function()
+            self.set("ra",                  {enabled=false, tp=1500, name="Empyreal Arrow"})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+
+        end
+
+        setDefault['SCH'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+
+        end
+
+        setDefault['GEO'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=false,  tp=1750, name="Hexa Strike"})
+            self.set("full circle",         {enabled=true,   distance=22})
+            self.set("drain",               {enabled=true,   hpp=55})
+            self.set("aspir",               {enabled=true,   mpp=45})
+            self.set("moonlight",           {enabled=true,   mpp=45})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("ecliptic attrition",  true)
+            self.set("life cycle",          true)
+            self.set("blaze of glory",      true)
+            self.set("dameterialize",       true)
+
+        end
+
+        setDefault['RUN'] = function()
+            self.set("ra",                  {enabled=false})
+            self.set("ws",                  {enabled=true,  tp=1750, name="Resolution"})
+            self.set("vivacious pulse",     {enabled=true,  hpp=55, mpp=55})
+            self.set("embolden",            {enabled=true,  name="Protect IV"})
+            self.set("buffs",               true)
+            self.set("ja",                  true)
+            self.set("runes",               true)
+            self.set("vallation",           true)
+            self.set("swordplay",           true)
+            self.set("pflug",               true)
+            self.set("valiance",            true)
+            self.set("battuta",             true)
+            self.set("liement",             true)
+
+        end
+
+        if bp and job then
+            setDefault[job]()
+            private.writeSettings()
+
         end
 
     end
@@ -1999,6 +2556,10 @@ function core.new()
 
         end
 
+    end)
+
+    private.events.jobchange = windower.register_event('job change', function(new, old)
+        private.persist()
     end)
 
     return self

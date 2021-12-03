@@ -1083,18 +1083,77 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
+                local pet = windower.ffxi.get_mob_by_target('pet') or false
+                
+                if pet and pet.status == 1 then
+
+                    if get('bpr').enabled and get('bpr').pacts[pet.name] and isReady('JA', "Blood Pact: Rage") then
+                        
+                        if get('mana cede') and isReady('JA', "Mana Cede") then
+                            add(bp.JA["Mana Cede"], player)
+                        end
+
+                        if get('apogee') and isReady('JA', "Apogee") then
+                            add(bp.JA["Apogee"], player)
+                        end
+                        add(bp.JA[get('bpr').pacts[pet.name]], target)
+                    
+                    elseif get('bpw').enabled and get('bpw').pacts[pet.name] and isReady('JA', "Blood Pact: Ward") then
+                        local ward = bp.JA[get('bpw').pacts[pet.name]]
+
+                        if get('buffs') and helpers['target'].castable(player, ward) then
+                            add(bp.JA[get('bpw').pacts[pet.name]], player)
+    
+                        else
+                            add(bp.JA[get('bpw').pacts[pet.name]], target)
+    
+                        end
+
+                    end
+
+                elseif pet and (target or pet.status == 0) then
+                    
+                    if get('assault') and isReady('JA', "Blood Pact: Rage") and target then
+                        add(bp.JA["Assault"], target)
+                        
+                    else
+                        
+                        if get('bpr').enabled and get('bpr').pacts[pet.name] and isReady('JA', "Blood Pact: Rage") and target then
+                            
+                            if get('mana cede') and isReady('JA', "Mana Cede") then
+                                add(bp.JA["Mana Cede"], player)
+                            end
+    
+                            if get('apogee') and isReady('JA', "Apogee") then
+                                add(bp.JA["Apogee"], player)
+                            end
+                            add(bp.JA[get('bpr').pacts[pet.name]], target)
+
+                        elseif get('bpw').enabled and get('bpw').pacts[pet.name] and isReady('JA', "Blood Pact: Ward") then
+                            local ward = bp.JA[get('bpw').pacts[pet.name]]
+
+                            if get('buffs') and helpers['target'].castable(player, ward) then
+                                add(bp.JA[get('bpw').pacts[pet.name]], player)
+        
+                            else
+                                add(bp.JA[get('bpw').pacts[pet.name]], target)
+        
+                            end
+    
+                        end
+
+                    end
+
+                end
 
             end
 
-            if get('hate').enabled and target then
+            if get('summon').enabled and _cast then
+                local pet = windower.ffxi.get_mob_by_target('pet') or false
 
-            end
-
-            if get('buffs') and target then
-
-            end
-
-            if get('debuffs') and target then
+                if not pet and isReady('MA', get('summon').name) and player['vitals'].mpp >= 5 then
+                    add(bp.MA[get('summon').name], player)
+                end
 
             end
 
@@ -1103,15 +1162,78 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+                local pet = windower.ffxi.get_mob_by_target('pet') or false
+                
+                if pet and pet.status == 1 then
+
+                    if get('bpr').enabled and get('bpr').pacts[pet.name] and isReady('JA', "Blood Pact: Rage") then
+                        
+                        if get('mana cede') and isReady('JA', "Mana Cede") then
+                            add(bp.JA["Mana Cede"], player)
+                        end
+
+                        if get('apogee') and isReady('JA', "Apogee") then
+                            add(bp.JA["Apogee"], player)
+                        end
+                        add(bp.JA[get('bpr').pacts[pet.name]], target)
+
+                    elseif get('bpw').enabled and get('bpw').pacts[pet.name] and isReady('JA', "Blood Pact: Ward") then
+                        local ward = bp.JA[get('bpw').pacts[pet.name]]
+
+                        if get('buffs') and helpers['target'].castable(player, ward) then
+                            add(bp.JA[get('bpw').pacts[pet.name]], player)
+    
+                        else
+                            add(bp.JA[get('bpw').pacts[pet.name]], target)
+    
+                        end
+
+                    end
+
+                elseif pet and pet.status == 0 then
+                    
+                    if get('assault') and isReady('JA', "Blood Pact: Rage") then
+                        add(bp.JA["Assault"], target)
+                        
+                    else
+                        
+                        if get('bpr').enabled and get('bpr').pacts[pet.name] and isReady('JA', "Blood Pact: Rage") then
+                            
+                            if get('mana cede') and isReady('JA', "Mana Cede") then
+                                add(bp.JA["Mana Cede"], player)
+                            end
+    
+                            if get('apogee') and isReady('JA', "Apogee") then
+                                add(bp.JA["Apogee"], player)
+                            end
+                            add(bp.JA[get('bpr').pacts[pet.name]], target)
+
+                        elseif get('bpw').enabled and get('bpw').pacts[pet.name] and isReady('JA', "Blood Pact: Ward") then
+                            local ward = bp.JA[get('bpw').pacts[pet.name]]
+
+                            if get('buffs') and helpers['target'].castable(player, ward) then
+                                add(bp.JA[get('bpw').pacts[pet.name]], player)
+        
+                            else
+                                add(bp.JA[get('bpw').pacts[pet.name]], target)
+        
+                            end
+    
+                        end
+
+                    end
+
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('summon').enabled and _cast then
+                local pet = windower.ffxi.get_mob_by_target('pet') or false
 
-            end
-
-            if get('debuffs') and target then
+                if not pet and isReady('MA', get('summon').name) and player['vitals'].mpp >= 5 then
+                    add(bp.MA[get('summon').name], player)
+                end
 
             end
 
@@ -1687,27 +1809,55 @@ function logic.get()
             local target = helpers['target'].getTarget() or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
+            local moves  = helpers['buffs'].getFinishingMoves()
 
-            if get('ja') and _act then
+            if get('ja') and _act and target then
 
                 -- FLOURISHES.
-                if target and get('flourishes').enabled then -- UPDATE**
-                    local flourish_1 = get('flourishes').cat_1
-                    local flourish_2 = get('flourishes').cat_2
+                if get('flourishes').enabled then
+                    local f1 = get('flourishes').cat_1
+                    local f2 = get('flourishes').cat_2
+                    local f3 = get('flourishes').cat_3
 
+                    if moves > 0 then
+
+                        if isReady('JA', f1) and f1 ~= 'Animated Flourish' then
+                            add(bp.JA[f1], target)
+                        
+                        elseif isReady('JA', f2) then
+                            add(bp.JA[f2], target)
+
+                        elseif isReady('JA', f3) then
+                            add(bp.JA[f3], target)
+
+                        end
+
+                    end
+
+                end
+
+                -- STEPS.
+                if get('steps').enabled and isReady('JA', get('steps').name) then
+                    add(bp.JA[get('steps').name], target)
                 end
 
             end
 
-            if get('hate').enabled and target then
+            if get('hate').enabled and _act and target then
+
+                -- ANIMATED FLOURISH.
+                if moves > 0 and isReady('JA', f1) and f1 == 'Animated Flourish' then
+                    add(bp.JA[f1], target)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('buffs') and _act and target then
 
-            end
-
-            if get('debuffs') and target then
+                -- SAMBAS.
+                if get('sambas').enabled and isReady('JA', get('sambas').name) then
+                    add(bp.JA[get('sambas').name], player)
+                end
 
             end
 
@@ -1715,16 +1865,55 @@ function logic.get()
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
+            local moves  = helpers['buffs'].getFinishingMoves()
 
-            if get('hate').enabled and target then
+            if get('ja') and _act then
+
+                -- FLOURISHES.
+                if get('flourishes').enabled then
+                    local f1 = get('flourishes').cat_1
+                    local f2 = get('flourishes').cat_2
+                    local f3 = get('flourishes').cat_3
+
+                    if moves > 0 then
+
+                        if isReady('JA', f1) and f1 ~= 'Animated Flourish' then
+                            add(bp.JA[f1], target)
+                        
+                        elseif isReady('JA', f2) then
+                            add(bp.JA[f2], target)
+
+                        elseif isReady('JA', f3) then
+                            add(bp.JA[f3], target)
+
+                        end
+
+                    end
+
+                end
+
+                -- STEPS.
+                if get('steps').enabled and isReady('JA', get('steps').name) then
+                    add(bp.JA[get('steps').name], target)
+                end
 
             end
 
-            if get('buffs') and target then
+            if get('hate').enabled and _act then
+
+                -- ANIMATED FLOURISH.
+                if moves > 0 and isReady('JA', f1) and f1 == 'Animated Flourish' then
+                    add(bp.JA[f1], target)
+                end
 
             end
 
-            if get('debuffs') and target then
+            if get('buffs') and _act then
+
+                -- SAMBAS.
+                if get('sambas').enabled and isReady('JA', get('sambas').name) then
+                    add(bp.JA[get('sambas').name], player)
+                end
 
             end
 

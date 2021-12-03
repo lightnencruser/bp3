@@ -50,9 +50,9 @@ function burst.new()
 
     -- Private Functions.
     private.registerSkillchain = function(data)
-        local enabled = bp.core.getSetting('BURST')
+        --local enabled = bp.core.getSetting('BURST')
 
-        if bp and data and enabled and bp.settings['Enabled'] then
+        if bp and data and enabled and bp.enabled then
             local packed = bp.packets.parse('incoming', data)
             local target = bp.helpers['target'].getTarget()
 

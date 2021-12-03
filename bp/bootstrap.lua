@@ -9,7 +9,7 @@ bootstrap.load = function()
     local directory = string.format('bp/settings/%s', player.name)
     local helpers   = {
         
-        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','dax','debuffs','debug','distance','enmity','equipment',
+        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','debuffs','debug','distance','enmity','equipment',
         'inventory','items','invites','keybinds','maintenance','maps','menus','merits','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
@@ -267,7 +267,7 @@ bootstrap.load = function()
             c = c:lower()
             
             if self.commands[c] then
-                --self.commands[c].capture(a)
+                self.commands[c].capture(a)
 
             elseif c == 'toggle' then
                 self.enabled = self.enabled ~= true and true or false

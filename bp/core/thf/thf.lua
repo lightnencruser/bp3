@@ -1,5 +1,5 @@
-local thf = {}
-function thf.get()
+local job = {}
+function job.get()
     local self = {}
 
     local private = {}
@@ -28,4 +28,4 @@ function thf.get()
     return self
 
 end
-return thf.get()
+return job.get()

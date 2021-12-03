@@ -22,7 +22,7 @@ function logic.get()
     end
     loadJob(player.main_job)
 
-    local hasShadows = function()
+    self.hasShadows = function()
         local shadows = T{444,445,446}
 
         if bp and bp.player then
@@ -40,7 +40,7 @@ function logic.get()
 
     end
 
-    local hasEnspell = function()
+    self.self.hasEnspell = function()
         local enspells = T{94,95,96,97,98,99,277,278,279,280,281,282}
 
         if bp and bp.player then
@@ -58,7 +58,7 @@ function logic.get()
 
     end
 
-    local hasSpikes = function()
+    self.self.hasSpikes = function()
         local spikes = T{34,35,38,173}
 
         if bp and bp.player then
@@ -76,7 +76,7 @@ function logic.get()
 
     end
 
-    local hasStorm = function()
+    self.self.hasStorm = function()
         local storms = T{178,179,180,181,182,183,184,185}
 
         if bp and bp.player then
@@ -94,7 +94,7 @@ function logic.get()
 
     end
 
-    local hasAftermath = function()
+    self.self.hasAftermath = function()
         local levels = T{270,271,272}
 
         if bp and bp.player then
@@ -216,7 +216,7 @@ function logic.get()
             if target and distance < 6 and distance ~= 0 then
                 local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
 
-                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+                if ((get('am').enabled and self.hasAftermath()) or not get('am').enabled) then
 
                     if get('sanguine blade') and get('sanguine blade').enabled and current.hpp <= get('sanguine blade').hpp and current.tp >= get('ws').tp and isReady('WS', "Sanguine Blade") then
                         add(bp.WS["Sanguine Blade"], player)
@@ -232,7 +232,7 @@ function logic.get()
 
                     end
 
-                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                elseif get('am').enabled and not self.hasAftermath() and current.tp >= get('am').tp and current.main then
                     local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
                     
                     if aftermath and isReady('WS', aftermath) then
@@ -244,7 +244,7 @@ function logic.get()
             elseif distance > 8 then
                 local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
                 
-                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+                if ((get('am').enabled and self.hasAftermath()) or not get('am').enabled) then
 
                     if get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
                         add(bp.WS["Moonlight"], player)
@@ -260,7 +260,7 @@ function logic.get()
 
                     end
 
-                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                elseif get('am').enabled and not self.hasAftermath() and current.tp >= get('am').tp and current.main then
                     local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
 
                     if aftermath and isReady('WS', aftermath) then
@@ -277,7 +277,7 @@ function logic.get()
             if target and distance < 6 and distance ~= 0 then
                 local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
 
-                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+                if ((get('am').enabled and self.hasAftermath()) or not get('am').enabled) then
 
                     if get('sanguine blade') and get('sanguine blade').enabled and current.hpp <= get('sanguine blade').hpp and current.tp >= get('ws').tp and isReady('WS', "Sanguine Blade") then
                         add(bp.WS["Sanguine Blade"], player)
@@ -293,7 +293,7 @@ function logic.get()
 
                     end
 
-                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                elseif get('am').enabled and not self.hasAftermath() and current.tp >= get('am').tp and current.main then
                     local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
 
                     if aftermath and isReady('WS', aftermath) then
@@ -305,7 +305,7 @@ function logic.get()
             elseif distance > 8 and get('ra').enabled then
                 local current = {tp=player['vitals'].tp, hpp=player['vitals'].hpp, mpp=player['vitals'].mpp, main=helpers['equipment'].main, ranged=helpers['equipment'].ranged, ammo=helpers['equipment'].ammo}
 
-                if ((get('am').enabled and hasAftermath()) or not get('am').enabled) then
+                if ((get('am').enabled and self.hasAftermath()) or not get('am').enabled) then
 
                     if get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
                         add(bp.WS["Moonlight"], player)
@@ -321,7 +321,7 @@ function logic.get()
 
                     end
 
-                elseif get('am').enabled and not hasAftermath() and current.tp >= get('am').tp and current.main then
+                elseif get('am').enabled and not self.hasAftermath() and current.tp >= get('am').tp and current.main then
                     local aftermath = bp.helpers['aftermath'].getWeaponskill(current.main.en)
 
                     if aftermath and isReady('WS', aftermath) then
@@ -596,7 +596,7 @@ function logic.get()
             if get('buffs') and _cast then
 
                 -- SPIKES.
-                if get('spikes').enabled and not hasSpikes() and isReady('MA', get('spikes').name) then
+                if get('spikes').enabled and not self.hasSpikes() and isReady('MA', get('spikes').name) then
                     add(bp.MA[get('spikes').name], player)
                 end
 
@@ -620,7 +620,7 @@ function logic.get()
             -- SPIKES.
             if get('buffs') and _cast then
 
-                if get('spikes').enabled and not hasSpikes() and isReady('MA', get('spikes').name) then
+                if get('spikes').enabled and not self.hasSpikes() and isReady('MA', get('spikes').name) then
                     add(bp.MA[get('spikes').name], player)
                 end
 
@@ -681,7 +681,7 @@ function logic.get()
                     add(bp.MA["Refresh"], player)
 
                 -- ENSPELLS.
-                elseif get('en').enabled and not hasEnspell() then
+                elseif get('en').enabled and not self.hasEnspell() then
                         
                     if isReady('MA', get('en').name) then
                         add(bp.MA[get('en').name], player)
@@ -700,7 +700,7 @@ function logic.get()
                     add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif isReady('MA', get('spikes').name) and not hasSpikes() then
+                elseif isReady('MA', get('spikes').name) and not self.hasSpikes() then
                     add(bp.MA[get('spikes')], player)
                     
                 end 
@@ -740,7 +740,7 @@ function logic.get()
                     add(bp.MA["Refresh"], player)
 
                 -- ENSPELLS.
-                elseif get('en').enabled and not hasEnspell() then
+                elseif get('en').enabled and not self.hasEnspell() then
                         
                     if isReady('MA', get('en').name) then
                         add(bp.MA[get('en').name], player)
@@ -759,7 +759,7 @@ function logic.get()
                     add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif isReady('MA', get('spikes').name) and hasSpikes() then
+                elseif isReady('MA', get('spikes').name) and self.hasSpikes() then
                     add(bp.MA[get('spikes')], player)
                     
                 end 
@@ -1444,7 +1444,7 @@ function logic.get()
                 if (not get('hasso') and not get('seigan')) or (helpers['buffs'].buffActive(353) or helpers['buffs'].buffActive(354)) then
 
                     -- THIRD EYE.
-                    if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and target and not hasShadows() then
+                    if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and target and not self.hasShadows() then
                         add(bp.JA["Third Eye"], player)
                     end
 
@@ -1500,7 +1500,7 @@ function logic.get()
                 if (not get('hasso') and not get('seigan')) or (helpers['buffs'].buffActive(353) or helpers['buffs'].buffActive(354)) then
 
                     -- THIRD EYE.
-                    if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and not hasShadows() then
+                    if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and not self.hasShadows() then
                         add(bp.JA["Third Eye"], player)
                     end
 
@@ -1547,7 +1547,7 @@ function logic.get()
                 if get('utsusemi') and (os.clock()-timers.utsusemi) > 1.5 and _cast then
                     local tools = helpers['inventory'].findItemByName("Shihei")
 
-                    if tools and not hasShadows() then
+                    if tools and not self.hasShadows() then
                         local queue = helpers['queue'].queue
                         local check = false
                         
@@ -1607,7 +1607,7 @@ function logic.get()
                 if get('utsusemi') and (os.clock()-timers.utsusemi) > 1.5 and _cast then
                     local tools = helpers['inventory'].findItemByName("Shihei")
 
-                    if tools and not hasShadows() then
+                    if tools and not self.hasShadows() then
                         local queue = helpers['queue'].queue.data
                         local check = false
                         
@@ -2135,10 +2135,10 @@ function logic.get()
                     -- STORMS.
                     if get('storms').enabled and _cast then
 
-                        if helpers['buffs'].buffActive(358) and not hasStorm() then
+                        if helpers['buffs'].buffActive(358) and not self.hasStorm() then
                             add(bp.MA["Aurorastorm"], player)
 
-                        elseif helpers['buffs'].buffActive(359) and not hasStorm() then
+                        elseif helpers['buffs'].buffActive(359) and not self.hasStorm() then
                             add(bp.MA[get('storms').name], player)
 
                         end
@@ -2162,7 +2162,7 @@ function logic.get()
                         add(bp.MA["Blink"], player)
                         
                     -- SPIKES.
-                    elseif isReady('MA', get('spikes').name) and hasSpikes() and target then
+                    elseif isReady('MA', get('spikes').name) and self.hasSpikes() and target then
                         add(bp.MA[get('spikes')], player)
                         
                     end
@@ -2233,10 +2233,10 @@ function logic.get()
                     -- STORMS.
                     if get('storms').enabled and _cast then
 
-                        if helpers['buffs'].buffActive(358) and not hasStorm() then
+                        if helpers['buffs'].buffActive(358) and not self.hasStorm() then
                             add(bp.MA["Aurorastorm"], player)
 
-                        elseif helpers['buffs'].buffActive(359) and not hasStorm() then
+                        elseif helpers['buffs'].buffActive(359) and not self.hasStorm() then
                             add(bp.MA[get('storms').name], player)
 
                         end
@@ -2260,7 +2260,7 @@ function logic.get()
                         add(bp.MA["Blink"], player)
                         
                     -- SPIKES.
-                    elseif isReady('MA', get('spikes').name) and hasSpikes() then
+                    elseif isReady('MA', get('spikes').name) and self.hasSpikes() then
                         add(bp.MA[get('spikes')], player)
                         
                     end
@@ -2392,7 +2392,7 @@ function logic.get()
                     add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif get('spikes').enabled and isReady('MA', get('spikes').name) and hasSpikes() and _cast then
+                elseif get('spikes').enabled and isReady('MA', get('spikes').name) and self.hasSpikes() and _cast then
                     add(bp.MA[get('spikes')], player)
 
                 end
@@ -2477,7 +2477,7 @@ function logic.get()
                     add(bp.MA["Blink"], player)
                     
                 -- SPIKES.
-                elseif get('spikes').enabled and isReady('MA', get('spikes').name) and hasSpikes() and _cast then
+                elseif get('spikes').enabled and isReady('MA', get('spikes').name) and self.hasSpikes() and _cast then
                     add(bp.MA[get('spikes')], player)
 
                 end

@@ -78,7 +78,7 @@ function job.get()
                     end
 
                     -- WARRIORS CHARGE.
-                    if get('warrior\'s charge') and isready('JA', "Warrior's Charge") and player['vitals'].tp >= get('ws').tp then
+                    if get('warrior\'s charge') and isReady('JA', "Warrior's Charge") and player['vitals'].tp >= get('ws').tp then
                         add(bp.JA["Warrior's Charge"], player)
                     end
     
@@ -147,7 +147,7 @@ function job.get()
                     end
 
                     -- WARRIORS CHARGE.
-                    if target and get('warrior\'s charge') and isready('JA', "Warrior's Charge") and player['vitals'].tp >= get('ws').tp then
+                    if target and get('warrior\'s charge') and isReady('JA', "Warrior's Charge") and player['vitals'].tp >= get('ws').tp then
                         add(bp.JA["Warrior's Charge"], player)
                     end
     

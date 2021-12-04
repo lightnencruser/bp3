@@ -22,6 +22,27 @@ function logic.get()
     end
     loadJob(player.main_job)
 
+    -- Public Functions.
+    self.setSystem = function(buddypal)
+        if buddypal then
+            bp = buddypal
+            private.settings.setSystem(bp)            
+        end
+
+    end
+
+    self.get = function(name)
+        return private.settings.get(name)
+    end
+
+    self.set = function(name, value)
+
+        if name and value then
+            private.settings.set(name, value)
+        end
+
+    end
+
     self.hasShadows = function()
         local shadows = T{444,445,446}
 
@@ -94,6 +115,24 @@ function logic.get()
 
     end
 
+    self.hasBoost = function()
+        local boosts = T{119,120,121,122,123,124,125}
+
+        if bp and bp.player then
+        
+            for _,v in ipairs(bp.player.buffs) do
+                        
+                if boosts:contains(v) then
+                    return true
+                end
+                
+            end
+        
+        end
+        return false
+
+    end
+
     self.hasAftermath = function()
         local levels = T{270,271,272}
 
@@ -109,27 +148,6 @@ function logic.get()
         
         end
         return false
-
-    end
-
-    -- Public Functions.
-    self.setSystem = function(buddypal)
-        if buddypal then
-            bp = buddypal
-            private.settings.setSystem(bp)            
-        end
-
-    end
-
-    self.get = function(name)
-        return private.settings.get(name)
-    end
-
-    self.set = function(name, value)
-
-        if name and value then
-            private.settings.set(name, value)
-        end
 
     end
 
@@ -339,6 +357,7 @@ function logic.get()
     private.subs['WAR'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local buff      = helpers['buffs'].buffActive
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
         local add       = helpers['queue'].add
@@ -361,23 +380,23 @@ function logic.get()
             if get('buffs') and target and _act then
 
                 -- BERSERK.
-                if target and not get('tank') and get('berserk') and isReady('JA', "Berserk") and not inQueue(bp.JA["Defender"]) then
+                if target and not get('tank') and get('berserk') and isReady('JA', "Berserk") and not inQueue(bp.JA["Defender"]) and not buff(56) then
                     add(bp.JA["Berserk"], player)
 
                 -- DEFENDER.
-                elseif target and get('tank') and get('defender') and isReady('JA', "Defender") and not inQueue(bp.JA["Berserk"]) then
+                elseif target and get('tank') and get('defender') and isReady('JA', "Defender") and not inQueue(bp.JA["Berserk"]) and not buff(57) then
                     add(bp.JA["Defender"], player)
 
                 -- WARCRY.
-                elseif target and get('warcry') and isReady('JA', "Warcry") then
+                elseif target and get('warcry') and isReady('JA', "Warcry") and not buff(68) then
                     add(bp.JA["Warcry"], player)
 
                 -- AGGRESSOR.
-                elseif target and get('aggressor') and isReady('JA', "Aggressor") then
+                elseif target and get('aggressor') and isReady('JA', "Aggressor") and not buff(58) then
                     add(bp.JA["Aggressor"], player)
 
                 -- RETALIATION.
-                elseif target and get('retaliation') and isReady('JA', "Retaliation") then
+                elseif target and get('retaliation') and isReady('JA', "Retaliation") and not buff(405) then
                     add(bp.JA["Retaliation"], player)
 
                 end
@@ -401,23 +420,23 @@ function logic.get()
             if get('buffs') and _act then
 
                 -- BERSERK.
-                if not get('tank') and get('berserk') and isReady('JA', "Berserk") and not inQueue(bp.JA["Defender"]) then
+                if not get('tank') and get('berserk') and isReady('JA', "Berserk") and not inQueue(bp.JA["Defender"]) and not buff(56) then
                     add(bp.JA["Berserk"], player)
 
                 -- DEFENDER.
-                elseif get('tank') and get('defender') and isReady('JA', "Defender") and not inQueue(bp.JA["Berserk"]) then
+                elseif get('tank') and get('defender') and isReady('JA', "Defender") and not inQueue(bp.JA["Berserk"]) and not buff(57) then
                     add(bp.JA["Defender"], player)
 
                 -- WARCRY.
-                elseif get('warcry') and isReady('JA', "Warcry") then
+                elseif get('warcry') and isReady('JA', "Warcry") and not buff(68) then
                     add(bp.JA["Warcry"], player)
 
                 -- AGGRESSOR.
-                elseif get('aggressor') and isReady('JA', "Aggressor") then
+                elseif get('aggressor') and isReady('JA', "Aggressor") and not buff(58) then
                     add(bp.JA["Aggressor"], player)
 
                 -- RETALIATION.
-                elseif get('retaliation') and isReady('JA', "Retaliation") then
+                elseif get('retaliation') and isReady('JA', "Retaliation") and not buff(405) then
                     add(bp.JA["Retaliation"], player)
 
                 end
@@ -431,6 +450,7 @@ function logic.get()
     private.subs['MNK'] = function()
         local player    = bp.player
         local helpers   = bp.helpers
+        local buff      = helpers['buffs'].buffActive
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
         local add       = helpers['queue'].add
@@ -458,19 +478,19 @@ function logic.get()
             if get('buffs') and target and _act then
 
                 -- FOCUS.
-                if get('focus') and isReady('JA', "Focus") then
+                if get('focus') and isReady('JA', "Focus") and not buff(59) then
                     add(bp.JA["Focus"], player)
 
                 -- DODGE.
-                elseif get('dodge') and isReady('JA', "Dodge") then
+                elseif get('dodge') and isReady('JA', "Dodge") and not buff(60) then
                     add(bp.JA["Dodge"], player)
 
                 -- COUNTERSTANCE.
-                elseif get('counterstance') and isReady('JA', "Counterstance") then
+                elseif get('counterstance') and isReady('JA', "Counterstance") and not buff(61) then
                     add(bp.JA["Counterstance"], player)
 
                 -- FOOTWORK.
-                elseif get('footwork') and isReady('JA', "Footwork") then
+                elseif get('footwork').enabled and isReady('JA', "Footwork") and not buff(406) then
                     add(bp.JA["Footwork"], player)
 
                 end
@@ -499,19 +519,19 @@ function logic.get()
             if get('buffs') and _act then
 
                 -- FOCUS.
-                if get('focus') and isReady('JA', "Focus") then
+                if get('focus') and isReady('JA', "Focus") and not buff(59) then
                     add(bp.JA["Focus"], player)
 
                 -- DODGE.
-                elseif get('dodge') and isReady('JA', "Dodge") then
+                elseif get('dodge') and isReady('JA', "Dodge") and not buff(60) then
                     add(bp.JA["Dodge"], player)
 
                 -- COUNTERSTANCE.
-                elseif get('counterstance') and isReady('JA', "Counterstance") then
+                elseif get('counterstance') and isReady('JA', "Counterstance") and not buff(61) then
                     add(bp.JA["Counterstance"], player)
 
                 -- FOOTWORK.
-                elseif get('footwork') and isReady('JA', "Footwork") then
+                elseif get('footwork') and isReady('JA', "Footwork") and not buff(406) then
                     add(bp.JA["Footwork"], player)
 
                 end

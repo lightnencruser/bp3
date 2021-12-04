@@ -40,7 +40,7 @@ function logic.get()
 
     end
 
-    self.self.hasEnspell = function()
+    self.hasEnspell = function()
         local enspells = T{94,95,96,97,98,99,277,278,279,280,281,282}
 
         if bp and bp.player then
@@ -58,7 +58,7 @@ function logic.get()
 
     end
 
-    self.self.hasSpikes = function()
+    self.hasSpikes = function()
         local spikes = T{34,35,38,173}
 
         if bp and bp.player then
@@ -76,7 +76,7 @@ function logic.get()
 
     end
 
-    self.self.hasStorm = function()
+    self.hasStorm = function()
         local storms = T{178,179,180,181,182,183,184,185}
 
         if bp and bp.player then
@@ -94,7 +94,7 @@ function logic.get()
 
     end
 
-    self.self.hasAftermath = function()
+    self.hasAftermath = function()
         local levels = T{270,271,272}
 
         if bp and bp.player then

@@ -1462,19 +1462,15 @@ function core.new()
         set['elemental siphon'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands > 0 then
-                
-                if commands[1] then
-                    local value = tonumber(commands[1])
+            if flags and commands[1] then
+                local value = tonumber(commands[1])
 
-                    if value and value > 1 and value < 75 then
-                        flags.mpp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-ELEMENTAL SIPHON MP%% SET TO: %s.', flags.mpp))
+                if value and value > 1 and value < 75 then
+                    flags.mpp = value
+                    bp.helpers['popchat'].pop(string.format('AUTO-ELEMENTAL SIPHON MP%% SET TO: %s.', flags.mpp))
 
-                    else
-                        bp.helpers['popchat'].pop('MP% MUST BE A NUMBER BETWEEN 1 & 75!')
-
-                    end
+                else
+                    bp.helpers['popchat'].pop('MP% MUST BE A NUMBER BETWEEN 1 & 75!')
 
                 end
 
@@ -1751,19 +1747,15 @@ function core.new()
         set['repair'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands > 0 then
-                
-                if commands[1] then
-                    local value = tonumber(commands[1])
+            if flags and commands[1] then
+                local value = tonumber(commands[1])
 
-                    if value and value > 1 and value < 75 then
-                        flags.hpp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-REPAIR HP%% SET TO: %s.', flags.hpp))
+                if value and value > 1 and value < 75 then
+                    flags.hpp = value
+                    bp.helpers['popchat'].pop(string.format('AUTO-REPAIR HP%% SET TO: %s.', flags.hpp))
 
-                    else
-                        bp.helpers['popchat'].pop('HP% MUST BE A NUMBER BETWEEN 1 & 75!')
-
-                    end
+                else
+                    bp.helpers['popchat'].pop('HP% MUST BE A NUMBER BETWEEN 1 & 75!')
 
                 end
 
@@ -1968,19 +1960,15 @@ function core.new()
         set['sublimation'] = function(name, commands, subjob)
             local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
 
-            if flags and #commands > 0 then
-                
-                if commands[1] then
-                    local value = tonumber(commands[1]) ~= nil and tonumber(commands[1]) or commands[1]
+            if flags and commands[1] then
+                local value = tonumber(commands[1]) ~= nil and tonumber(commands[1]) or commands[1]
 
-                    if type(value) == 'number' and value >= 1 and value <= 60 then
-                        flags.mpp = value
-                        bp.helpers['popchat'].pop(string.format('AUTO-SUBLIMATION MP%% SET TO: %s.', flags.mpp))
+                if type(value) == 'number' and value >= 1 and value <= 60 then
+                    flags.mpp = value
+                    bp.helpers['popchat'].pop(string.format('AUTO-SUBLIMATION MP%% SET TO: %s.', flags.mpp))
 
-                    else
-                        bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1 & 60!')
-
-                    end
+                else
+                    bp.helpers['popchat'].pop('VALUE MUST BE BETWEEN 1 & 60!')
 
                 end
 

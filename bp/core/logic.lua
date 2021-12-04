@@ -1159,7 +1159,7 @@ function logic.get()
             if get('ja') and _act then
 
                 -- SCAVENGE.
-                if get('scavenge') and isready('JA', "Scavenge") then
+                if get('scavenge') and isReady('JA', "Scavenge") then
                     add(bp.JA["Scavenge"], player)
                 end
 
@@ -1168,11 +1168,11 @@ function logic.get()
             if get('buffs') and target and _act then
 
                 -- SHARPSHOT.
-                if get('sharpshot') and isready('JA', "Sharpshot") then
+                if get('sharpshot') and isReady('JA', "Sharpshot") then
                     add(bp.JA["Sharpshot"], player)
 
                 -- BARRAGE.
-                elseif get('barrage') and isready('JA', "Barrage") then
+                elseif get('barrage') and isReady('JA', "Barrage") then
 
                     if get('camouflage') and isReady('JA', "Camouflage") then
                         add(bp.JA["Camouflage"], player)
@@ -1184,11 +1184,11 @@ function logic.get()
                     end
 
                 -- VELOCITY SHOT.
-                elseif get('velocity shot') and isready('JA', "Velocity Shot") then
+                elseif get('velocity shot') and isReady('JA', "Velocity Shot") then
                     add(bp.JA["Velocity Shot"], player)
 
                 -- UNLIMITED SHOT.
-                elseif get('unlimited shot') and isready('JA', "Unlimited Shot") then
+                elseif get('unlimited shot') and isReady('JA', "Unlimited Shot") then
                     add(bp.JA["Unlimited Shot"], player)
 
                 end
@@ -1203,7 +1203,7 @@ function logic.get()
             if get('ja') and _act then
 
                 -- SCAVENGE.
-                if get('scavenge') and isready('JA', "Scavenge") then
+                if get('scavenge') and isReady('JA', "Scavenge") then
                     add(bp.JA["Scavenge"], player)
                 end
 
@@ -1212,11 +1212,11 @@ function logic.get()
             if get('buffs') and _act then
 
                 -- SHARPSHOT.
-                if get('sharpshot') and isready('JA', "Sharpshot") then
+                if get('sharpshot') and isReady('JA', "Sharpshot") then
                     add(bp.JA["Sharpshot"], player)
 
                 -- BARRAGE.
-                elseif get('barrage') and isready('JA', "Barrage") then
+                elseif get('barrage') and isReady('JA', "Barrage") then
 
                     if get('camouflage') and isReady('JA', "Camouflage") then
                         add(bp.JA["Camouflage"], player)
@@ -1228,11 +1228,11 @@ function logic.get()
                     end
 
                 -- VELOCITY SHOT.
-                elseif get('velocity shot') and isready('JA', "Velocity Shot") then
+                elseif get('velocity shot') and isReady('JA', "Velocity Shot") then
                     add(bp.JA["Velocity Shot"], player)
 
                 -- UNLIMITED SHOT.
-                elseif get('unlimited shot') and isready('JA', "Unlimited Shot") then
+                elseif get('unlimited shot') and isReady('JA', "Unlimited Shot") then
                     add(bp.JA["Unlimited Shot"], player)
 
                 end
@@ -1429,7 +1429,7 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
-                local sekka = windower.ffxi.get_mob_by_name(get('sekkanoki').target) or false
+                local shiki = get('shikikoyo').target ~= "" and windower.ffxi.get_mob_by_name(get('shikikoyo').target) or false
 
                 -- MEDITATE
                 if get('meditate') and isReady('JA', "Meditate") and (os.clock()-timers.meditate) > 30 then
@@ -1438,9 +1438,9 @@ function logic.get()
                     
                 end
 
-                -- SEKKANOKI.
-                if get('sekkanoki').enabled and sekka and isReady('JA', "Sekkanoki") and helpers['buffs'].buffActive(408) and helpers['party'].isInParty(sekka) and target then
-                    add(bp.JA["Sekkanoki"], sekka)
+                -- SHIKIKOYO.
+                if get('shikikoyo').enabled and shiki and isReady('JA', "Shikikoyo") and helpers['party'].isInParty(shiki) then
+                    add(bp.JA["Shikikoyo"], shiki)
                 end
 
             end
@@ -1468,6 +1468,11 @@ function logic.get()
                         add(bp.JA["Third Eye"], player)
                     end
 
+                    -- SEKKANOKI.
+                    if get('sekkanoki') and isReady('JA', "Sekkanoki") and not helpers['buffs'].buffActive(408) and player['vitals'].tp >= 2000 then
+                        add(bp.JA["Sekkanoki"], player)
+                    end
+
                     -- KONZEN-ITTAI.
                     if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= 400 and player['vitals'].tp <= 750 and (os.clock()-timers.konzen) > 60 and target then
                         add(bp.JA["Konzen-Ittai"])
@@ -1485,7 +1490,7 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
-                local sekka = windower.ffxi.get_mob_by_name(get('sekkanoki').target) or false
+                local shiki = get('shikikoyo').target ~= "" and windower.ffxi.get_mob_by_name(get('shikikoyo').target) or false
 
                 -- MEDITATE
                 if get('meditate') and isReady('JA', "Meditate") and (os.clock()-timers.meditate) > 30 then
@@ -1494,9 +1499,9 @@ function logic.get()
                     
                 end
 
-                -- SEKKANOKI.
-                if get('sekkanoki').enabled and sekka and isReady('JA', "Sekkanoki") and helpers['buffs'].buffActive(408) and helpers['party'].isInParty(sekka) then
-                    add(bp.JA["Sekkanoki"], sekka)
+                -- SHIKIKOYO.
+                if get('shikikoyo').enabled and shiki and isReady('JA', "Shikikoyo") and helpers['party'].isInParty(shiki) then
+                    add(bp.JA["Shikikoyo"], shiki)
                 end
 
             end
@@ -1522,6 +1527,11 @@ function logic.get()
                     -- THIRD EYE.
                     if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and not self.hasShadows() then
                         add(bp.JA["Third Eye"], player)
+                    end
+
+                    -- SEKKANOKI.
+                    if get('sekkanoki') and isReady('JA', "Sekkanoki") and not helpers['buffs'].buffActive(408) and player['vitals'].tp >= 2000 then
+                        add(bp.JA["Sekkanoki"], player)
                     end
 
                     -- KONZEN-ITTAI.

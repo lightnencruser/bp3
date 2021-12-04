@@ -15,7 +15,7 @@ bootstrap.load = function()
     }
 
     self.enabled        = true
-    self.delay          = 0.25
+    self.delay          = 0.5
     self.party          = false
     self.player         = false
     self.me             = false

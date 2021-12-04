@@ -56,7 +56,7 @@ function job.get()
                         add(bp.JA["Defender"], player)
     
                     -- WARCRY.
-                    elseif get('warcry') and isReady('JA', "Warcry") and not buff(68) and not buff(460) and inQueue(bp.JA["Blood Rage"]) then
+                    elseif get('warcry') and isReady('JA', "Warcry") and not buff(68) and not buff(460) and inQueue(bp.JA["Blood Rage"]) and inQueue(bp.JA["Warcry"]) then
                         add(bp.JA["Warcry"], player)
     
                     -- AGGRESSOR.
@@ -72,7 +72,7 @@ function job.get()
                         add(bp.JA["Restraint"], player)
 
                     -- BLOOD RAGE.
-                    elseif get('blood rage') and isReady('JA', "Blood Rage") and not buff(460) and not buff(68) and not inQueue(bp.JA["Warcry"]) then
+                    elseif get('blood rage') and isReady('JA', "Blood Rage") and not buff(460) and not buff(68) and not inQueue(bp.JA["Blood Rage"]) and not inQueue(bp.JA["Warcry"]) then
                         add(bp.JA["Blood Rage"], player)
     
                     end
@@ -125,7 +125,7 @@ function job.get()
                         add(bp.JA["Defender"], player)
     
                     -- WARCRY.
-                    elseif target and get('warcry') and isReady('JA', "Warcry") and not buff(68) then
+                    elseif get('warcry') and isReady('JA', "Warcry") and not buff(68) and not buff(460) and inQueue(bp.JA["Blood Rage"]) and inQueue(bp.JA["Warcry"]) then
                         add(bp.JA["Warcry"], player)
     
                     -- AGGRESSOR.
@@ -141,7 +141,7 @@ function job.get()
                         add(bp.JA["Restraint"], player)
 
                     -- BLOOD RAGE.
-                    elseif target and get('blood rage') and isReady('JA', "Blood Rage") and not buff(460) and not buff(68) and not inQueue(bp.JA["Warcry"]) then
+                    elseif get('blood rage') and isReady('JA', "Blood Rage") and not buff(460) and not buff(68) and not inQueue(bp.JA["Blood Rage"]) and not inQueue(bp.JA["Warcry"]) then
                         add(bp.JA["Blood Rage"], player)
     
                     end

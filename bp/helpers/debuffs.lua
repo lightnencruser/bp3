@@ -290,6 +290,29 @@ function debuffs.new()
 
     end
 
+    private.cast = function()
+
+        if bp and bp.core.get('debuffs') then
+            local player = bp.player
+
+            if self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
+                
+                for _,spell in pairs(self.debuffs[player.main_job_id]) do
+                    local timer     = (spell.delay-(os.clock()-spell.last)) > 0 and (spell.delay-(os.clock()-spell.last)) or 0
+                    local target    = bp.helpers['target'].getTarget()
+
+                    if target and timer <= 0 and not bp.helpers['queue'].inQueue(spell) and bp.helpers['actions'].isReady('MA', spell.name) and bp.helpers['target'].castable(target, bp.MA[spell.name]) then
+                        bp.helpers['queue'].add(bp.MA[spell.name], target)
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
     private.pos = function(x, y)
         local x = tonumber(x) or self.layout.pos.x
         local y = tonumber(y) or self.layout.pos.y
@@ -310,29 +333,6 @@ function debuffs.new()
     self.setSystem = function(buddypal)
         if buddypal then
             bp = buddypal
-        end
-
-    end
-    
-    self.cast = function()
-
-        if bp and bp.core.get('debuffs') then
-            local player = bp.player
-
-            if self.debuffs[player.main_job_id] and self.debuffs[player.main_job_id][T(self.debuffs):length()] ~= nil then
-                
-                for _,spell in pairs(self.debuffs[player.main_job_id]) do
-                    local timer     = (spell.delay-(os.clock()-spell.last)) > 0 and (spell.delay-(os.clock()-spell.last)) or 0
-                    local target    = bp.helpers['target'].getTarget()
-
-                    if target and timer <= 0 and not bp.helpers['queue'].inQueue(spell) and bp.helpers['actions'].isReady('MA', spell.name) and bp.helpers['target'].castable(target, bp.MA[spell.name]) then
-                        bp.helpers['queue'].add(bp.MA[spell.name], target)
-                    end
-
-                end
-
-            end
-
         end
 
     end
@@ -551,7 +551,7 @@ function debuffs.new()
             if player and actor and target then
 
                 if pack['Category'] == 4 and actor.id == player.id then
-                    self.reset(param)                    
+                    private.reset(param)                    
                 end
     
             end
@@ -563,7 +563,7 @@ function debuffs.new()
     private.events.commands = windower.register_event('time change', function(new, old)
 
         if bp and bp.core and bp.core.get('debuffs') then
-            self.cast()
+            private.cast()
         end
 
     end)

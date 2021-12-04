@@ -255,7 +255,7 @@ function core.new()
             ["maintenance"]         = false,
             ["cooldown"]            = false,
             ["deploy"]              = false,
-            ["maneuver"]            = false,
+            ["maneuvers"]           = {enabled=false, maneuver1="Fire Maneuver", maneuver2="Wind Maneuver", maneuver3="Light Maneuver"}
         },
 
         ["DNC"] = {
@@ -407,11 +407,11 @@ function core.new()
 
     end
 
-    private.set = function(name, commands, subjob)
+    private.set = function(name, commands)
         local set = {}
         
-        set['am'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['am'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -429,7 +429,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-AFTERMATH: %s.', tostring(flags.enabled)))
 
@@ -437,8 +437,8 @@ function core.new()
 
         end
 
-        set['ra'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['ra'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local set = false
 
             if flags and #commands > 0 then
@@ -494,7 +494,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-RANGED: %s.', tostring(flags.enabled)))
 
@@ -502,8 +502,8 @@ function core.new()
 
         end
 
-        set['ws'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['ws'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local set = false
 
             if flags and #commands > 0 then
@@ -560,7 +560,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-WEAPONSKILL: %s.', tostring(flags.enabled)))
 
@@ -568,8 +568,8 @@ function core.new()
 
         end
 
-        set['skillup'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['skillup'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -592,7 +592,7 @@ function core.new()
 
                 end
             
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-SKILLUP: %s.', tostring(flags.enabled)))
 
@@ -600,8 +600,8 @@ function core.new()
 
         end
 
-        set['food'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['food'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -632,8 +632,8 @@ function core.new()
 
         end
 
-        set['footwork'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['footwork'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and commands[1] then
                 local value = commands[1]:lower()
@@ -651,8 +651,8 @@ function core.new()
 
         end
 
-        set['hate'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['hate'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -694,8 +694,8 @@ function core.new()
 
         end
 
-        set['sanguine blade'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['sanguine blade'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -729,8 +729,8 @@ function core.new()
 
         end
 
-        set['myrkr'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['myrkr'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -764,8 +764,8 @@ function core.new()
 
         end
 
-        set['moonlight'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['moonlight'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -799,8 +799,8 @@ function core.new()
 
         end
 
-        set['chakra'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['chakra'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -834,8 +834,8 @@ function core.new()
 
         end
 
-        set['martyr'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['martyr'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and #commands > 0 then
@@ -903,8 +903,8 @@ function core.new()
 
         end
 
-        set['devotion'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['devotion'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and #commands > 0 then
@@ -972,8 +972,8 @@ function core.new()
 
         end
 
-        set['boost'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['boost'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -1008,8 +1008,8 @@ function core.new()
 
         end
 
-        set['cascade'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['cascade'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -1043,8 +1043,8 @@ function core.new()
 
         end
 
-        set['spikes'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['spikes'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -1094,8 +1094,8 @@ function core.new()
 
         end
 
-        set['drain'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['drain'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -1129,8 +1129,8 @@ function core.new()
 
         end
 
-        set['aspir'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['aspir'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -1164,8 +1164,8 @@ function core.new()
 
         end
 
-        set['convert'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['convert'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             
             if flags and #commands > 0 then
                 
@@ -1197,7 +1197,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-CONVERT: %s.', tostring(flags.enabled)))
 
@@ -1205,8 +1205,8 @@ function core.new()
 
         end
 
-        set['gain'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['gain'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -1233,7 +1233,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-GAIN: %s.', tostring(flags.enabled)))
 
@@ -1241,8 +1241,8 @@ function core.new()
 
         end
 
-        set['en'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['en'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -1275,7 +1275,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-ENSPELL: %s.', tostring(flags.enabled)))
 
@@ -1283,8 +1283,8 @@ function core.new()
 
         end
 
-        set['cover'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['cover'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and (commands[1] or target) and target.name ~= bp.player.name then
@@ -1312,8 +1312,8 @@ function core.new()
 
         end
 
-        set['chivalry'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['chivalry'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
 
@@ -1362,8 +1362,8 @@ function core.new()
 
         end
 
-        set['absorb'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['absorb'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
@@ -1377,7 +1377,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-ABSORB: %s.', tostring(flags.enabled)))
 
@@ -1385,8 +1385,8 @@ function core.new()
 
         end
 
-        set['reward'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['reward'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -1404,7 +1404,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-REWARD: %s.', tostring(flags.enabled)))
 
@@ -1412,8 +1412,8 @@ function core.new()
 
         end
 
-        set['ready'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['ready'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -1422,7 +1422,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-REWARD: %s.', tostring(flags.enabled)))
 
@@ -1430,8 +1430,8 @@ function core.new()
 
         end
 
-        set['decoy shot'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['decoy shot'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and (#commands > 0 or target) and target.name ~= bp.player.name then
@@ -1459,8 +1459,8 @@ function core.new()
 
         end
 
-        set['elemental siphon'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['elemental siphon'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and commands[1] then
                 local value = tonumber(commands[1])
@@ -1474,7 +1474,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-ELEMENTAL SIPHON: %s.', tostring(flags.enabled)))
 
@@ -1482,8 +1482,8 @@ function core.new()
 
         end
 
-        set['summon'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['summon'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local options = {'Carbuncle','Cait Sith','Ifrit','Shiva','Garuda','Ramuh','Titan','Leviathan','Fenrir','Diabolos','Siren','Atomos'}
@@ -1509,7 +1509,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-SUMMON: %s.', tostring(flags.enabled)))
 
@@ -1517,8 +1517,8 @@ function core.new()
 
         end
 
-        set['bpr'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['bpr'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local rages = {
 
                 ['Carbuncle']   = {'Poison Nails','Meteorite','Holy Mist'},
@@ -1571,7 +1571,7 @@ function core.new()
                     bp.helpers['popchat'].pop('PLEASE ENTER A VALID PET NAME!')
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT RAGES: %s.', tostring(flags.enabled)))
 
@@ -1579,8 +1579,8 @@ function core.new()
 
         end
 
-        set['bpw'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['bpw'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local wards = {
 
                 ['Carbuncle']   = {'Shining Ruby','Glittering Ruby','Healing Ruby II','Soothing Ruby'},
@@ -1632,7 +1632,7 @@ function core.new()
                     bp.helpers['popchat'].pop('PLEASE ENTER A VALID PET NAME!')
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-BLOOD PACT WARDS: %s.', tostring(flags.enabled)))
 
@@ -1640,8 +1640,8 @@ function core.new()
 
         end
 
-        set['shikikoyo'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['shikikoyo'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
             local target = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t') or false
 
             if flags and #commands > 0 then
@@ -1709,8 +1709,8 @@ function core.new()
 
         end
 
-        set['quick draw'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['quick draw'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local options = {'Fire Shot','Water Shot','Thunder Shot','Earth Shot','Wind SHot','Ice SHot','Light Shot','Dark Shot'}
@@ -1736,7 +1736,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-QUICK DRAW: %s.', tostring(flags.enabled)))
 
@@ -1744,8 +1744,8 @@ function core.new()
 
         end
 
-        set['repair'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['repair'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and commands[1] then
                 local value = tonumber(commands[1])
@@ -1759,7 +1759,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-REPAIR: %s.', tostring(flags.enabled)))
 
@@ -1767,8 +1767,38 @@ function core.new()
 
         end
 
-        set['sambas'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['maneuvers'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+            local list = T{'Fire Maneuver','Water Maneuver','Wind Maneuver','Ice Maneuver','Earth Maneuver','Thunder Maneuver','Light Maneuver','Dark Maneuver'}
+
+            if flags and #commands > 0 then
+                
+                for i,v in ipairs(commands) do
+                    local value = windower.convert_auto_trans(v)
+
+                    for _,maneuver in ipairs(list) do
+
+                        if value:lower() == maneuver:sub(1, #value):lower() then
+                            flags[string.format('maneuver%s', i)] = maneuver
+                            bp.helpers['popchat'].pop(string.format('AUTO-MANEUVER #%s SET TO: %s.', i, flags[string.format('maneuver%s', i)]))
+                            break
+                            
+                        end
+                    
+                    end                        
+
+                end
+
+            elseif flags ~= nil then
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-MANEUVERS: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
+        set['sambas'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local spell = windower.convert_auto_trans(commands[1])
@@ -1782,7 +1812,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-SAMBA: %s.', tostring(flags.enabled)))
 
@@ -1790,8 +1820,8 @@ function core.new()
 
         end
 
-        set['steps'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['steps'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local options = {'Quickstep','Box Step','Stutter Step','Feather Step'}
@@ -1817,7 +1847,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-STEP: %s.', tostring(flags.enabled)))
 
@@ -1825,8 +1855,8 @@ function core.new()
 
         end
 
-        set['flourishes'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['flourishes'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local cat1 = T{'Animated Flourish','Desperate Flourish','Violent Flourish'}
@@ -1914,7 +1944,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-FLOURISHES: %s.', tostring(flags.enabled)))
 
@@ -1922,9 +1952,9 @@ function core.new()
 
         end
 
-        set['jigs'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
-
+        set['jigs'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+            
             if flags and #commands > 0 then
                 local options = {'Spectral Jig','Chocobo Jig','Chocobo Jig II'}
                 local spell = windower.convert_auto_trans(commands[1])
@@ -1949,7 +1979,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-JIG: %s.', tostring(flags.enabled)))
 
@@ -1957,8 +1987,8 @@ function core.new()
 
         end
 
-        set['sublimation'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['sublimation'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and commands[1] then
                 local value = tonumber(commands[1]) ~= nil and tonumber(commands[1]) or commands[1]
@@ -1972,7 +2002,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-SUBLIMATION: %s.', tostring(flags.enabled)))
 
@@ -1980,8 +2010,8 @@ function core.new()
 
         end
 
-        set['storms'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['storms'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local options = {'Sandstorm','Rainstorm','Windstorm','Firestorm','Hailstorm','Thunderstorm','Voidstorm','Aurorastorm'}
@@ -2007,7 +2037,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-STORMS: %s.', tostring(flags.enabled)))
 
@@ -2015,8 +2045,8 @@ function core.new()
 
         end
 
-        set['full circle'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['full circle'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -2034,7 +2064,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-FULL CIRCLE: %s.', tostring(flags.enabled)))
 
@@ -2042,8 +2072,8 @@ function core.new()
 
         end
 
-        set['vivacious pulse'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['vivacious pulse'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 
@@ -2075,7 +2105,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-VIVACIOUS PULSE: %s.', tostring(flags.enabled)))
 
@@ -2083,8 +2113,8 @@ function core.new()
 
         end
 
-        set['embolden'] = function(name, commands, subjob)
-            local flags = subjob ~= true and private.flags[name] or private.flags[bp.player.sub_job][name]
+        set['embolden'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
                 local options = {'Protect','Crusade','Temper','Phalanx','Foil'}
@@ -2119,7 +2149,7 @@ function core.new()
 
                 end
 
-            else
+            elseif flags ~= nil then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-EMBOLDEN: %s.', tostring(flags.enabled)))
 
@@ -2127,9 +2157,54 @@ function core.new()
 
         end
         
-        if bp and bp.player and name and commands and set[name] then
-            set[name](name, commands, subjob or false)
+        if bp and bp.player and name and commands then
+            local found = false
+            
+            for i in pairs(set) do
+                
+                if name:lower() == i:sub(1, #name):lower() then
+                    set[i](i, commands)
+                    found = true
+                    break
+
+                end
+
+            end
+
+            if not found then
+
+                for i, flag in pairs(private.flags) do
+                    
+                    if type(flag) == 'boolean' and name:lower() == i:sub(1, #name):lower() then
+                        private.flags[i] = private.flags[i] ~= true and true or false
+                        bp.helpers['popchat'].pop(string.format('AUTO-%s: %s.', i, tostring(private.flags[i])))
+                        found = true
+                        break                       
+
+                    end
+
+                end
+
+                if not found then
+
+                    for i, flag in pairs(private.flags[bp.player.sub_job]) do
+                    
+                        if type(flag) == 'boolean' and name:lower() == i:sub(1, #name):lower() then
+                            private.flags[bp.player.sub_job][i] = private.flags[bp.player.sub_job][i] ~= true and true or false
+                            bp.helpers['popchat'].pop(string.format('AUTO-%s: %s.', i, tostring(private.flags[bp.player.sub_job][i])))
+                            found = true
+                            break                       
+    
+                        end
+    
+                    end
+
+                end
+
+            end
+
         end
+        private.writeSettings()
 
     end
 
@@ -2177,7 +2252,6 @@ function core.new()
             self.set("buffs",               true)
             self.set("ja",                  true)
             self.set("afflatus solace",     true)
-            self.set("sacrosanctity",       true)
             self.set("stoneskin",           true)
 
         end
@@ -2507,41 +2581,9 @@ function core.new()
             table.remove(commands, 1)
             local flag = windower.convert_auto_trans(table.remove(commands, 1)):lower()
             
-            if private.flags[flag] ~= nil and type(private.flags[flag]) ~= 'boolean' then
+            do
                 private.set(flag, commands)
-
-            else
-                
-                if private.flags[bp.player.sub_job] and private.flags[bp.player.sub_job][flag] ~= nil then
-
-                    if type(private.flags[bp.player.sub_job][flag]) ~= 'boolean' then
-                        private.set(flag, commands, true)
-                        
-                    elseif type(private.flags[bp.player.sub_job][flag]) == 'boolean' then    
-                        local message = private.naming[flag] ~= nil and private.naming[flag] or flag
-                        
-                        if private.flags[bp.player.sub_job][flag] ~= nil then
-                            private.flags[bp.player.sub_job][flag] = private.flags[bp.player.sub_job][flag] ~= true and true or false
-                            bp.helpers['popchat'].pop(string.format('%s: %s.', message, tostring(private.flags[bp.player.sub_job][flag])))
-
-                        end
-
-                    end
-
-                elseif private.flags[flag] ~= nil and type(private.flags[flag]) == 'boolean' then
-                    private.flags[flag] = private.flags[flag] ~= true and true or false
-                    
-                    if private.naming[flag] then
-                        bp.helpers['popchat'].pop(string.format('%s: %s.', private.naming[flag], tostring(private.flags[flag])))
-
-                    else
-                        bp.helpers['popchat'].pop(string.format('%s: %s.', flag, tostring(private.flags[flag])))
-                    end
-
-                end
-
-            end
-            private.writeSettings()
+            end            
 
         end
 

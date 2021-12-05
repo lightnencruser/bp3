@@ -352,12 +352,12 @@ function core.new()
 
         if private.flags then
 
-            for name, value in pairs(private.default[player.main_job]) do
-                
-                if private.flags[name] == nil then
-                    private.flags[name] = value
+            if private.default[player.main_job] then
+                for name, value in pairs(private.default[player.main_job]) do
+                    if private.flags[name] == nil then
+                        private.flags[name] = value
+                    end
                 end
-
             end
 
             for name, value in pairs(private.default) do

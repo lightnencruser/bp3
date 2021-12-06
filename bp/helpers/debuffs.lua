@@ -337,9 +337,17 @@ function debuffs.new()
 
     end
 
+    self.cast = function()
+        private.cast()
+    end
+
+    self.reset = function()
+        private.reset()
+    end
+
     self.add = function(spell, delay)
         local delay = delay or 180
-        
+
         if bp and bp.player and spell and type(spell) == 'table' and tonumber(delay) ~= nil then
             local player = bp.player
 
@@ -482,8 +490,8 @@ function debuffs.new()
                     if command == '+' and commands[2] then
                         local spell = {}
                         local delay = tonumber(commands[#commands]) or 180
-                        
-                        for i=3, #commands do
+
+                        for i=2, #commands do
 
                             if commands[i] and tonumber(commands[i]) == nil then
                                 table.insert(spell, commands[i])
@@ -550,8 +558,20 @@ function debuffs.new()
             
             if player and actor and target then
 
-                if pack['Category'] == 4 and actor.id == player.id then
-                    private.reset(param)                    
+                -- Finish Casting.
+                if pack['Category'] == 4 and actor.id == player.id and bp.res.spells[param] and self.debuffs[player.main_job_id] and private.exists(bp.res.spells[param]) then
+                    local spell = bp.res.spells[param]
+
+                    for _,v in ipairs(self.debuffs[player.main_job_id]) do
+
+                        if spell.id == v.id then
+                            v.last = os.clock()
+                            break
+                        
+                        end
+
+                    end
+
                 end
     
             end
@@ -563,7 +583,11 @@ function debuffs.new()
     private.events.commands = windower.register_event('time change', function(new, old)
 
         if bp and bp.core and bp.core.get('debuffs') then
-            private.cast()
+
+            if bp.player and bp.player.main_job ~= 'RDM' then
+                private.cast()
+            end
+
         end
 
     end)

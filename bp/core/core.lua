@@ -55,6 +55,8 @@ function core.new()
         ["MNK"] = {
             ["chakra"]              = {enabled=false, hpp=45},
             ["chi blast"]           = false,
+            ["dodge"]               = false,
+            ["focus"]               = false,
             ["impetus"]             = false,
             ["footwork"]            = {enabled=false, impetus=false},
             ["counterstance"]       = false,
@@ -2236,6 +2238,8 @@ function core.new()
             self.set("footwork",            {enabled=true,  impetus=true})
             self.set("buffs",               true)
             self.set("ja",                  true)
+            self.set("dodge",               true)
+            self.set("focus",               true)
             self.set("impetus",             true)
             self.set("chi blast",           true)
             self.set("mantra",              true)

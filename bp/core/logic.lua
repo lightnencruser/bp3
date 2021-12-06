@@ -14,6 +14,8 @@ function logic.get()
 
     -- Private Functions.
     local loadJob = function(job)
+        local player = windower.ffxi.get_player()
+        private.core = {}
         
         if files.new(string.format('bp/core/%s/%s.lua', player.main_job:lower(), player.main_job)):exists() then
             private.core = dofile(string.format('%sbp/core/%s/%s.lua', windower.addon_path, player.main_job:lower(), player.main_job))
@@ -475,28 +477,6 @@ function logic.get()
 
             end
 
-            if get('buffs') and target and _act then
-
-                -- FOCUS.
-                if get('focus') and isReady('JA', "Focus") and not buff(59) then
-                    add(bp.JA["Focus"], player)
-
-                -- DODGE.
-                elseif get('dodge') and isReady('JA', "Dodge") and not buff(60) then
-                    add(bp.JA["Dodge"], player)
-
-                -- COUNTERSTANCE.
-                elseif get('counterstance') and isReady('JA', "Counterstance") and not buff(61) then
-                    add(bp.JA["Counterstance"], player)
-
-                -- FOOTWORK.
-                elseif get('footwork').enabled and isReady('JA', "Footwork") and not buff(406) then
-                    add(bp.JA["Footwork"], player)
-
-                end
-
-            end
-
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
@@ -728,7 +708,7 @@ function logic.get()
             end
 
         elseif player.status == 1 then
-            local target = helpers['target'].getTarget() or windowr.ffxi.get_mob_by_target('t') or false
+            local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
@@ -765,22 +745,6 @@ function logic.get()
                     if isReady('MA', get('en').name) then
                         add(bp.MA[get('en').name], player)
                     end
-                    
-                -- STONESKIN.
-                elseif get('stoneskin') and isReady('MA', "Stoneskin") and not helpers['buffs'].buffActive(37) then
-                    add(bp.MA["Stoneskin"], player)
-
-                -- AQUAVEIL.
-                elseif get('aquaveil') and isReady('MA', "Aquaveil") and not helpers['buffs'].buffActive(39) then
-                    add(bp.MA["Aquaveil"], player)
-
-                -- BLINK.
-                elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not helpers['buffs'].buffActive(36) then
-                    add(bp.MA["Blink"], player)
-                    
-                -- SPIKES.
-                elseif isReady('MA', get('spikes').name) and self.hasSpikes() then
-                    add(bp.MA[get('spikes')], player)
                     
                 end 
 
@@ -932,10 +896,11 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
+                local cover = get('cover').target ~= "" and windower.ffxi.get_mob_by_name(get('cover').target) or false
 
                 -- COVER.
-                if get('cover').enabled and isReady('JA', "Cover") and helpers['party'].isInParty(windower.ffxi.get_mob_by_name(get('cover').target)) and helpers['enmity'].hasEnmity(windower.ffxi.get_mob_by_name(get('cover').target)) then
-                    add(bp.MA["Cover"], windower.ffxi.get_mob_by_name(get('cover').target))
+                if get('cover').enabled and isReady('JA', "Cover") and cover and helpers['party'].isInParty(cover) and helpers['enmity'].hasEnmity(cover) then
+                    add(bp.JA["Cover"], cover)
 
                 -- SHIELD BASH.
                 elseif get('shield bash') and isReady('JA', "Shield Bash") then
@@ -1429,18 +1394,12 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
-                local shiki = get('shikikoyo').target ~= "" and windower.ffxi.get_mob_by_name(get('shikikoyo').target) or false
 
                 -- MEDITATE
                 if get('meditate') and isReady('JA', "Meditate") and (os.clock()-timers.meditate) > 30 then
                     add(bp.JA["Meditate"], player)
                     timers.meditate = os.clock()
                     
-                end
-
-                -- SHIKIKOYO.
-                if get('shikikoyo').enabled and shiki and isReady('JA', "Shikikoyo") and helpers['party'].isInParty(shiki) then
-                    add(bp.JA["Shikikoyo"], shiki)
                 end
 
             end
@@ -1461,7 +1420,7 @@ function logic.get()
 
                 end
 
-                if (not get('hasso') and not get('seigan')) or (helpers['buffs'].buffActive(353) or helpers['buffs'].buffActive(354)) then
+                if (not get('hasso') and not get('seigan')) or (helpers['buffs'].buffActive(353) or helpers['buffs'].buffActive(354)) and target then
 
                     -- THIRD EYE.
                     if get('third eye') and isReady('JA', "Third Eye") and not helpers['buffs'].buffActive(67) and not helpers['buffs'].buffActive(36) and target and not self.hasShadows() then
@@ -1474,7 +1433,7 @@ function logic.get()
                     end
 
                     -- KONZEN-ITTAI.
-                    if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= 400 and player['vitals'].tp <= 750 and (os.clock()-timers.konzen) > 60 and target then
+                    if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= math.floor((get('ws').tp/3)*2) and (os.clock()-timers.konzen) > 60 then
                         add(bp.JA["Konzen-Ittai"])
                         timers.konzen = os.clock()
 
@@ -1490,18 +1449,12 @@ function logic.get()
             local _act   = helpers['actions'].canAct()
 
             if get('ja') and _act then
-                local shiki = get('shikikoyo').target ~= "" and windower.ffxi.get_mob_by_name(get('shikikoyo').target) or false
 
                 -- MEDITATE
                 if get('meditate') and isReady('JA', "Meditate") and (os.clock()-timers.meditate) > 30 then
                     add(bp.JA["Meditate"], player)
                     timers.meditate = os.clock()
                     
-                end
-
-                -- SHIKIKOYO.
-                if get('shikikoyo').enabled and shiki and isReady('JA', "Shikikoyo") and helpers['party'].isInParty(shiki) then
-                    add(bp.JA["Shikikoyo"], shiki)
                 end
 
             end
@@ -1535,7 +1488,7 @@ function logic.get()
                     end
 
                     -- KONZEN-ITTAI.
-                    if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= 400 and player['vitals'].tp <= 750 and (os.clock()-timers.konzen) > 60 then
+                    if get('konzen-ittai') and isReady('JA', "Konzen-Ittai") and player['vitals'].tp >= math.floor((get('ws').tp/3)*2) and (os.clock()-timers.konzen) > 60 then
                         add(bp.JA["Konzen-Ittai"])
                         timers.konzen = os.clock()
 
@@ -2549,6 +2502,10 @@ function logic.get()
 
         end
 
+    end)
+
+    private.events.jobchange = windower.register_event('job change', function()
+        loadJob()
     end)
 
     return self

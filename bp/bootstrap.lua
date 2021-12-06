@@ -10,7 +10,7 @@ bootstrap.load = function()
     local helpers   = {
         
         'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','debuffs','debug','distance','enmity','equipment',
-        'inventory','items','invites','keybinds','maintenance','maps','menus','merits','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
+        'inventory','items','invites','keybinds','maintenance','maps','menus','merits','moneyteam','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
 
@@ -412,7 +412,7 @@ bootstrap.load = function()
                 if pack['Category'] == 2 then
     
                     if actor.name == player.name then
-                        self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)['Ranged'])
+                        self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays()['Ranged'])
                         self.helpers['queue'].remove(self.helpers['actions'].unique.ranged, actor)    
                     end
     
@@ -420,7 +420,7 @@ bootstrap.load = function()
                 elseif pack['Category'] == 3 then
     
                     if actor.name == player.name then
-                        self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)['WeaponSkill'])
+                        self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays()['WeaponSkill'])
                         self.helpers['queue'].remove(self.res.weapon_skills[param], actor)    
                     end
     
@@ -431,7 +431,7 @@ bootstrap.load = function()
                         local spell = self.res.spells[param] or false
     
                         if spell and type(spell) == 'table' and spell.type then    
-                            self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays(bp)[spell.type] or 1)
+                            self.helpers['queue'].ready = (os.clock() + self.helpers['actions'].getDelays()[spell.type] or 1)
                             self.helpers['queue'].remove(spell, actor)
                         
                         else

@@ -388,7 +388,6 @@ function status.new()
 
     self.isSpellRemoval = function(id)
         return spells:contains(id)
-
     end
 
     self.checkStatus = function(target, spell)

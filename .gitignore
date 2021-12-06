@@ -3,5 +3,6 @@ bp/helpers/settings
 bp/settings/*.lua
 empyrean
 moneyteam
+moneyteam.lua
 roboto
 bp/helpers/crafting.lua

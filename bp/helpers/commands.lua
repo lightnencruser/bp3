@@ -1,11 +1,4 @@
-local commands  = {}
-local files     = require('files')
-local money     = false
-
-if files.new('bp/helpers/moneyteam/moneyteam.lua'):exists() then
-    money = dofile(string.format('%sbp/helpers/moneyteam/moneyteam.lua', windower.addon_path))
-end
-
+local commands = {}
 commands.new = function()
     local self = {}
 

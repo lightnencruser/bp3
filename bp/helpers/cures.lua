@@ -26,8 +26,8 @@ function cures.new()
         
         ['Cure'] = {
 
-            {id=1,      priority=false, min=100},
-            {id=2,      priority=false, min=200},
+            {id=1,      priority=false, min=50},
+            {id=2,      priority=false, min=150},
             {id=3,      priority=false, min=475},
             {id=4,      priority=true,  min=775},
             {id=5,      priority=true,  min=975},
@@ -37,7 +37,7 @@ function cures.new()
         
         ['Curaga'] = {
             
-            {id=7,      priority=false, min=100},
+            {id=7,      priority=false, min=90},
             {id=8,      priority=false, min=200},
             {id=9,      priority=true,  min=475},
             {id=10,     priority=true,  min=775},
@@ -123,6 +123,7 @@ function cures.new()
         local selected = {target=false, weight=0, missing=0, count=0}
         local r = 10
                 
+        private.sort(self.party)
         for _,t in ipairs(self.party) do
             local target = windower.ffxi.get_mob_by_id(t.id) or false
 
@@ -162,13 +163,54 @@ function cures.new()
         
         if bp and bp.player and missing then
             local player = bp.player
-
+            
             if bp.player.main_job_level == 99 then
             
-                for i,v in ipairs(allowed['Cure']) do
+                for _,cure in ipairs(allowed['Cure']) do
                     
-                    if v.id and v.min and not T{1,2}:contains(v.id) and bp.res.spells[v.id] and (v.min + (v.min * (self.power / 100))) <= missing then
-                        spell = bp.res.spells[v.id]
+                    if cure.id and cure.min and not T{1,2}:contains(cure.id) and bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        spell = bp.res.spells[cure.id]
+                    end
+
+                end
+
+            elseif bp.player.main_job_level < 99 then
+                local job = {main = {id=bp.player.main_job_id, level=bp.player.main_job_level}, sub = {id=bp.player.sub_job_id, level=bp.player.sub_job_level}}
+
+                for _,cure in ipairs(allowed['Cure']) do
+                    
+                    if bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost then
+                        local main = bp.res.spells[cure.id].levels[job.main.id] or false
+                        local sub = bp.res.spells[cure.id].levels[job.sub.id] or false
+
+                        if main then
+
+                            if main < 100 and job.main.level >= main then
+                                
+                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                                    spell = bp.res.spells[cure.id]
+                                end
+
+                            elseif main >= 100 and jpoints >= main then
+
+                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                                    spell = bp.res.spells[cure.id]
+                                end
+
+                            end
+
+                        elseif sub then
+
+                            if sub < 100 and job.sub.level >= sub then
+                                
+                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                                    spell = bp.res.spells[cure.id]
+                                end
+
+                            end
+
+                        end
+
                     end
 
                 end
@@ -185,14 +227,59 @@ function cures.new()
         
         if bp and bp.player and missing then
             local player = bp.player
-            
-            for i,v in ipairs(allowed['Curaga']) do
-                
-                if v.id and v.min and not T{11}:contains(v.id) and bp.res.spells[v.id] and (v.min + (v.min * (self.power / 100))) <= missing then
-                    spell = bp.res.spells[v.id]
 
-                elseif i == #allowed['Curaga'] then --???
-                    spell = bp.res.spells[v.id]
+            if bp.player.main_job_level == 99 then
+            
+                for _,cure in ipairs(allowed['Curaga']) do
+                    
+                    if cure.id and cure.min and not T{11}:contains(v.id) and bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        spell = bp.res.spells[cure.id]
+
+                    --elseif i == #allowed['Curaga'] then --???
+                        --spell = bp.res.spells[v.id]
+
+                    end
+
+                end
+
+            elseif bp.player.main_job_level < 99 then
+                local job = {main = {id=bp.player.main_job_id, level=bp.player.main_job_level}, sub = {id=bp.player.sub_job_id, level=bp.player.sub_job_level}}
+
+                for _,cure in ipairs(allowed['Curaga']) do
+
+                    if bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost then
+                        local main = bp.res.spells[cure.id].levels[job.main.id] or false
+                        local sub = bp.res.spells[cure.id].levels[job.sub.id] or false
+
+                        if main then
+
+                            if main < 100 and job.main.level >= main then
+                                
+                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                                    spell = bp.res.spells[cure.id]
+                                end
+
+                            elseif main >= 100 and jpoints >= main then
+
+                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                                    spell = bp.res.spells[cure.id]
+                                end
+
+                            end
+
+                        elseif sub then
+
+                            if sub < 100 and job.sub.level >= sub then
+                                
+                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                                    spell = bp.res.spells[cure.id]
+                                end
+
+                            end
+
+                        end
+
+                    end
 
                 end
 
@@ -214,9 +301,9 @@ function cures.new()
             for i,v in ipairs(data) do
                     
                 if type(v) == 'table' and type(action) == 'table' and type(target) == 'table' and v.action and v.target and (v.action.type == 'WhiteMagic' or v.action.type == 'Waltz') then
-
+                    
                     if v.target.id == target.id and v.action.en ~= action.en and ((v.action.en):match('Cure') or (v.action.en):match('Cura')) and not bp.helpers['queue'].inQueue(bp.MA[action.en], target) then
-
+                        
                         if i > 2 and priority:contains(action.en) then
                             bp.helpers['queue'].addToFront(bp.MA[action.en], target)
                             bp.helpers['queue'].queue:remove(i)
@@ -292,6 +379,12 @@ function cures.new()
         end
 
     end
+
+    private.sort = function(t)
+        table.sort(t, function(a, b)
+            return a.missing > b.missing
+        end)
+    end
     
     -- Public Functions.
     self.setSystem = function(buddypal)
@@ -334,7 +427,7 @@ function cures.new()
 
                 if selected and selected.target and selected.count and selected.missing and selected.count > 2 then
                     local cure = private.estimateCuraga(selected.missing)
-
+                    
                     if cure and not bp.helpers['queue'].inQueue(bp.MA[cure.en]) then
                         private.updateCure(cure, selected.target)         
                     end
@@ -344,7 +437,8 @@ function cures.new()
             end
 
             if self.mode == 3 and (is_whm or cure_only) and not is_dancer then
-                
+                private.sort(self.alliance)
+
                 for _,v in ipairs(self.alliance) do
                     local cure = private.estimateCure(v.missing) or false
                     local target = windower.ffxi.get_mob_by_id(v.id) or false

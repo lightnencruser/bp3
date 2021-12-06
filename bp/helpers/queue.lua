@@ -412,7 +412,7 @@ function queue.new()
                     elseif action_type == 'Magic' and helpers['actions'].canCast() and not self.inQueue(action, target) then
                         
                         if (helpers['actions'].isReady('MA', action.en) or action.prefix == '/song') and player['vitals'].mp > action.mp_cost then
-
+                            
                             if distance < ((ranges[action.range]+target.model_size) + 2) then
 
                                 if action.prefix == '/song' and helpers['party'].isInParty(target.id, false) then
@@ -684,14 +684,14 @@ function queue.new()
 
                         if attempts == 15 then
                             helpers['queue'].remove(res.spells[action.id], target)
-                          
-                        elseif action.prefix ~= '/song' and (not helpers['actions'].canCast() or not helpers['actions'].isReady('MA', action.en) or player['vitals'].mp < action.mp_cost) then
+                            
+                        elseif action.prefix ~= '/song' and (not (action.en):match('Cure') and not (action.en):match('Cura')) and (not helpers['actions'].canCast() or not helpers['actions'].isReady('MA', action.en) or player['vitals'].mp < action.mp_cost) then
                             helpers['queue'].remove(res.spells[action.id], target)
-                          
+                            
                         elseif distance < (ranges[action.range]+size) then
-                                                      
+                                                        
                             if T{'Carbuncle','Ifrit','Ramuh','Shiva','Garuda','Cait Sith','Leviathan','Titan','Siren','Atomos','Odin','Alexander','Fenrir','Diabolos'}:contains(action.en) and pet then
-                              helpers['queue'].remove(res.spells[action.id], target)
+                                helpers['queue'].remove(res.spells[action.id], target)
 
                             elseif bp.helpers['status'].isSpellRemoval(action.id) then
 
@@ -699,19 +699,19 @@ function queue.new()
                                     helpers['queue'].remove(res.spells[action.id], target)
 
                                 else
-                                    bp.helpers['actions'].locked = {flag=true, x=bp.me.x, y=bp.me.y, z=bp.me.z}
+                                    --bp.helpers['actions'].locked = {flag=true, x=bp.me.x, y=bp.me.y, z=bp.me.z}
                                     windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
                                     helpers['queue'].attempt()
                                     helpers['coms'].send(action, player.name, attempts)
 
                                 end
-                                                      
+                                                        
                             else
-                              bp.helpers['actions'].locked = {flag=true, x=bp.me.x, y=bp.me.y, z=bp.me.z}
-                              windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
-                              helpers['queue'].attempt()
-                              helpers['coms'].send(action, player.name, attempts)
-                          
+                                --bp.helpers['actions'].locked = {flag=true, x=bp.me.x, y=bp.me.y, z=bp.me.z} SPELL INTERUPT LOCK.
+                                windower.send_command(string.format("input %s '%s' %s", action.prefix, action.en, target.id))
+                                helpers['queue'].attempt()
+                                helpers['coms'].send(action, player.name, attempts)
+                            
                             end
 
                         elseif distance > (ranges[action.range]+size) then

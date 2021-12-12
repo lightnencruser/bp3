@@ -232,7 +232,7 @@ function cures.new()
             
                 for _,cure in ipairs(allowed['Curaga']) do
                     
-                    if cure.id and cure.min and not T{11}:contains(v.id) and bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                    if cure.id and cure.min and not T{11}:contains(cure.id) and bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
                         spell = bp.res.spells[cure.id]
 
                     --elseif i == #allowed['Curaga'] then --???
@@ -396,14 +396,14 @@ function cures.new()
 
     self.handleCuring = function()
 
-        if bp and self.party and self.alliance and self.mode ~= 1 and bp.helpers['queue'].checkReady() then
+        if bp and self.party and self.alliance and self.mode ~= 1 and bp.helpers['queue'].checkReady() and not bp.helpers['actions'].moving then
             local player = bp.player
             local selected = private.getCuragaWeight()
             local cure_only = S{'RDM','SCH','PLD'}:contains(player.main_job) or S{'RDM','SCH','PLD'}:contains(player.sub_job) and true or false
             local is_whm = (player.main_job == 'WHM' or player.sub_job) and true or false
             local is_dancer = player.main_job == 'DNC' and true or false
             
-            if ((selected.count <= 2 and is_whm) or cure_only) and not is_dancer then
+            if (is_whm or cure_only) and not is_dancer then
                 
                 for _,v in ipairs(self.party) do
                     local cure = private.estimateCure(v.missing) or false

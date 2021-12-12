@@ -53,6 +53,7 @@ function songs.new()
                     bp.helpers['songs'].sing(commands)
 
                 end
+                bp.helpers['songs'].writeSettings()
 
             end
 

@@ -26,17 +26,29 @@ function paths.new()
     self.busy       = false
 
     -- Private Functions.
-    private.save = function()
+    private.save = function(clear)
         local zone = bp.info.zone
         local f = files.new(('bp/helpers/settings/maps/%s/%s.lua'):format(zone, zone))
         
-        if #map.data > 0 then
+        if (#map.data > 0 or clear) then
             f:write(('return %s'):format(T(map):tovstring()))
 
             do
                 private.unregister('recording')
                 bp.helpers['popchat'].pop(('MAP: %s; SAVED.'):format(bp.res.zones[zone].en))
             end
+
+        end
+
+    end
+
+    private.clear = function()
+        local zone = bp.info.zone
+
+        do
+            map.data = {}
+            bp.helpers['popchat'].pop(('MAP: %s; CLEARED.'):format(bp.res.zones[zone].en))
+            private.save(true)
 
         end
 
@@ -248,7 +260,7 @@ function paths.new()
                     -- FIND ALL NODES NEAR BY THAT ARE A SPECIFIC DISTANCE AND ADD THEM TO TEMP LIST.
                     for _,v in ipairs(private.map) do
                         
-                        if v.x ~= private.path[#private.path].x and v.y ~= private.path[#private.path].y and math.abs(v.z-private.path[#private.path].z) <= 2.5 then
+                        if v.x ~= private.path[#private.path].x and v.y ~= private.path[#private.path].y and math.abs(v.z-private.path[#private.path].z) <= 4 then
                             
                             if bp.helpers['target'].distance(v, private.path[#private.path]) <= (radius * 2) then
                                 table.insert(temp, v)
@@ -365,6 +377,7 @@ function paths.new()
                     bp.helpers['actions'].stop()
                     private.path = {}
                     self.busy = false
+                    print('stop')
 
                 end
                 
@@ -408,9 +421,18 @@ function paths.new()
                             end)
 
                         else
-                            bp.helpers['actions'].stop()
-                            private.path = {}
-                            self.busy = false
+
+                            private.events['find_coordinates'] = windower.register_event('prerender', function()
+
+                                if bp.helpers['target'].inRange(target, math.random(2,5)) then
+                                    bp.helpers['actions'].stop()
+                                    private.unregister('find_coordinates')
+                                    private.path = {}
+                                    self.busy = false
+
+                                end
+
+                            end)
 
                         end
 
@@ -441,8 +463,11 @@ function paths.new()
             elseif c == 'stop' then
                 private.stopPath()
 
+            elseif c == 'clear' then
+                private.clear()
+
             elseif c == 'test' then
-                self.run(self.build({id=17735991, x=20, y=-115, z=0}))
+                self.run(self.build(map.data[math.random(1,#map.data)]))
 
             end
 
@@ -451,7 +476,9 @@ function paths.new()
     end)
 
     private.events.zone = windower.register_event('zone change', function(new, old)
-        private.load()
+        coroutine.schedule(function()
+            private.load()
+        end, 3)
 
     end)
 

@@ -1,7 +1,10 @@
 local job = {}
 function job.get()
     local self = {}
-    local private = {}
+
+    -- Private Variables.
+    local private   = {events={}}
+    local timers    = {}
 
     self.automate = function(bp)
         local player    = bp.player
@@ -13,8 +16,12 @@ function job.get()
         local get       = bp.core.get
         local pet       = windower.ffxi.get_mob_by_target('pet') or false
 
+        if not private.bp then
+            private.bp = bp
+        end
+
         do
-            private.items(bp, settings)
+            private.items()
             if bp and bp.player and bp.player.status == 1 then
                 local target  = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
                 local _act    = bp.helpers['actions'].canAct()
@@ -31,16 +38,16 @@ function job.get()
                         end
 
                         -- REPAIR.
-                        if get('repair').enabled and pet.hpp <= get('repair').pet_hpp and isReady('JA', "Repair") and oil and oil ~= 'Gil' and oil:sub(1, 13) == 'Automaton Oil' then
+                        if get('repair').enabled and pet.hpp <= get('repair').pet_hpp and isReady('JA', "Repair") and oil and oil.en ~= 'Gil' and oil.en:sub(1, 13) == 'Automaton Oil' then
                             add(bp.JA["Repair"], player)
-
-                        -- COOLDOWN.
-                        elseif get('cooldown') and isReady('JA', "Cooldown") and private.getActive() > 2 then
-                            add(bp.JA["Cooldown"], player)
-
                         end
 
-                    else
+                        -- COOLDOWN.
+                        if get('cooldown') and isReady('JA', "Cooldown") and private.getActive() > 2 then
+                            add(bp.JA["Cooldown"], player)
+                        end
+
+                    elseif (not pet or not T{2,3}:contains(pet.status)) then
 
                         -- ACTIVATE.
                         if get('activate') then
@@ -59,52 +66,36 @@ function job.get()
 
                 end
 
-                if get('buffs') and _act then
-                    local current = {}
+                if get('buffs') and _act and not buff(299) then
                     local active = private.getActive()
-                    local buffs = bp.player.buffs
-                    local max = 3
-                        
+                     
                     -- MANEUVERS.
-                    if get('maneuvers').enabled and active > 0 and active < max and bp.helpers['actions'].isReady('JA', "Fire Maneuver") then
-                        
-                        -- GET CURRENT ACTIVATED.
-                        for _,v in ipairs(buffs) do
-                            if T{300,301,302,303,304,305,306,307}:contains(v) then
-                                table.insert(current, v)
+                    if get('maneuvers').enabled and active > 0 and active < 3 and isReady('JA', "Fire Maneuver") then
+                        local current = {}
+                        local needed = {}
+
+                        -- BUILD MANEUVERS NEEDED.
+                        for i,v in pairs(get('maneuvers')) do
+                            if i:sub(1,8) == 'maneuver' then
+                                table.insert(needed, v)
                             end
                         end
 
-                        for i=1, 4 do
-                            local maneuver = get('maneuvers')[string.format('maneuver%s', i)]
-
-                            if maneuver ~= nil then
-
-                                if #current > 0 then
-
-                                    for i, buff in ipairs(current) do
-
-                                        if bp.BUFFS[maneuver] and bp.BUFFS[maneuver].id == buff then
-                                            table.remove(current, i)
-                                        end
-
-                                    end
-
-                                else
-
-                                    if not private.maneuverInQueue() and isReady('JA', maneuver) then
-                                        add(bp.JA[maneuver], player)
-                                        break
-                                        
-                                    end
-
+                        -- GET CURRENT MANEUVERS.
+                        for _,v in ipairs(player.buffs) do
+                            for i,vv in ipairs(needed) do
+                                if bp.res.buffs[v] and bp.res.buffs[v].en == vv then
+                                    table.remove(needed, i)
+                                    break
                                 end
-
                             end
-
                         end
 
-                    elseif get('maneuvers').enabled and active == 0 and isReady('JA', "Fire Maneuver") and not private.maneuverInQueue() then
+                        if #needed > 0 then
+                            add(bp.JA[needed[1]], player)
+                        end                        
+
+                    elseif get('maneuvers').enabled and active == 0 and isReady('JA', "Fire Maneuver") then
                         add(bp.JA[get('maneuvers').maneuver1], player)
 
                     end
@@ -118,25 +109,25 @@ function job.get()
 
                 if get('ja') and _act then
 
-                    if pet then
+                    if pet and not T{2,3}:contains(pet.status) then
                         local oil = bp.helpers['equipment'].ammo
-                        
+
                         -- DEPLOY.
-                        if target and get('deploy') and pet.status == 0 and isReady('JA', "Deploy") then
+                        if get('deploy') and pet.status == 0 and isReady('JA', "Deploy") then
                             add(bp.JA["Deploy"], target)
                         end
 
                         -- REPAIR.
-                        if get('repair').enabled and pet.hpp <= get('repair').pet_hpp and isReady('JA', "Repair") and oil and oil ~= 'Gil' and oil:sub(1, 13) == 'Automaton Oil' then
+                        if get('repair').enabled and pet.hpp <= get('repair').pet_hpp and isReady('JA', "Repair") and oil and oil.en ~= 'Gil' and oil.en:sub(1, 13) == 'Automaton Oil' then
                             add(bp.JA["Repair"], player)
-
-                        -- COOLDOWN.
-                        elseif get('cooldown') and isReady('JA', "Cooldown") and private.getActive() > 2 then
-                            add(bp.JA["Cooldown"], player)
-
                         end
 
-                    else
+                        -- COOLDOWN.
+                        if get('cooldown') and isReady('JA', "Cooldown") and private.getActive() > 2 then
+                            add(bp.JA["Cooldown"], player)
+                        end
+
+                    elseif (not pet or not T{2,3}:contains(pet.status)) then
 
                         -- ACTIVATE.
                         if get('activate') then
@@ -155,52 +146,37 @@ function job.get()
 
                 end
 
-                if get('buffs') and _act then
-                    local current = {}
+                if target and get('buffs') and _act and not buff(299) then
                     local active = private.getActive()
-                    local buffs = bp.player.buffs
-                    local max = 3
                      
                     -- MANEUVERS.
-                    if get('maneuvers').enabled and active > 0 and active < max and bp.helpers['actions'].isReady('JA', "Fire Maneuver") then
-                        
-                        -- GET CURRENT ACTIVATED.
-                        for _,v in ipairs(buffs) do
-                            if T{300,301,302,303,304,305,306,307}:contains(v) then
-                                table.insert(current, v)
+                    if get('maneuvers').enabled and active > 0 and active < 3 and isReady('JA', "Fire Maneuver") then
+                        local current = {}
+                        local needed = {}
+
+                        -- BUILD MANEUVERS NEEDED.
+                        for i,v in pairs(get('maneuvers')) do
+                            if i:sub(1,8) == 'maneuver' then
+                                table.insert(needed, v)
                             end
                         end
 
-                        for i=1, 4 do
-                            local maneuver = get('maneuvers')[string.format('maneuver%s', i)]
-
-                            if maneuver ~= nil then
-
-                                if #current > 0 then
-
-                                    for i, buff in ipairs(current) do
-
-                                        if bp.BUFFS[maneuver] and bp.BUFFS[maneuver].id == buff then
-                                            table.remove(current, i)
-                                        end
-
-                                    end
-
-                                else
-
-                                    if not private.maneuverInQueue() and isReady('JA', maneuver) then
-                                        add(bp.JA[maneuver], player)
-                                        break
-                                        
-                                    end
-
+                        -- GET CURRENT MANEUVERS.
+                        for _,v in ipairs(player.buffs) do
+                            for i,vv in ipairs(needed) do
+                                if bp.res.buffs[v] and bp.res.buffs[v].en == vv then
+                                    table.remove(needed, i)
+                                    break
                                 end
-
                             end
-
                         end
 
-                    elseif target and get('maneuvers').enabled and active == 0 and isReady('JA', "Fire Maneuver") and not private.maneuverInQueue() then
+                        if #needed > 0 then
+                            add(bp.JA[needed[1]], player)
+                        end
+                        
+
+                    elseif target and get('maneuvers').enabled and active == 0 and isReady('JA', "Fire Maneuver") then
                         add(bp.JA[get('maneuvers').maneuver1], player)
 
                     end
@@ -213,17 +189,17 @@ function job.get()
         
     end
 
-    private.items = function(bp)
+    private.items = function()
 
     end
 
     private.getActive = function()
         local list = T{300,301,302,303,304,305,306,307}
 
-        if bp and bp.player then
+        if private.bp and private.bp.player then
             local count = 0
 
-            for _,v in ipairs(bp.player.buffs) do
+            for _,v in ipairs(private.bp.player.buffs) do
 
                 if list:contains(v) then
                     count = (count + 1)
@@ -234,24 +210,6 @@ function job.get()
 
         end
         return 0
-
-    end
-
-    private.maneuverInQueue = function()
-        
-        if bp and bp.helpers then
-            local data = bp.helpers['queue'].queue.data
-
-            for _,v in ipairs(data) do
-                
-                if v.action and v.action.type and v.action.type == 'PetCommand' and v.action.id >= 141 and v.action.id <= 148 then
-                    return true
-                end
-
-            end
-
-        end
-        return false
 
     end
 

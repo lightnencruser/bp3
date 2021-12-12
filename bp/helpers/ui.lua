@@ -12,14 +12,20 @@ function ui.new()
     local self = {}
 
     -- Private Variables.
-    local bp        = false
-    local private   = {events={}, enabled=true, icons={}, castbar={}, background=images.new({color={alpha = 255}, texture={fit=false}, draggable=false})}
-    local settings  = dofile(string.format('%sbp/helpers/settings/ui/%s_settings.lua', windower.addon_path, player.name))
-    local current   = {}
+    local bp            = false
+    local private       = {events={}, enabled=true, icons={}, castbar={}, background=images.new({color={alpha = 255}, texture={fit=false}, draggable=false})}
+    local settings      = dofile(string.format('%sbp/helpers/settings/ui/%s_settings.lua', windower.addon_path, player.name))
+    local resolution    = {x=windower.get_windower_settings().x_res, y=windower.get_windower_settings().y_res}
+    local current       = {}
+    local map           = {
+
+        ['am'] = string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, ''),
+
+    }
 
     do -- Set the image data and build icon resource.
         private.background:path(string.format("%sbp/resources/ui/ui_main.png", windower.addon_path))
-        private.background:size(670, 202)
+        private.background:size(300, 125)
         private.background:pos(5, 5)
         private.background:update()
 
@@ -56,8 +62,8 @@ function ui.new()
         private.background:show()
 
         if bp and bp.player and private.background then
-            local x, y = private.background:size()
-            local pos = {x=private.background:pos_x(), y=private.background:pos_y()}
+            local x, y      = private.background:size()
+            local pos       = {x=private.background:pos_x(), y=private.background:pos_y()}
 
             for i,v in ipairs(current) do
 
@@ -65,31 +71,31 @@ function ui.new()
                     table.insert(private.icons, {id=i, icon=images.new({color={alpha = 255}, texture={fit=false}, draggable=false}), border=images.new({color={alpha = 255}, texture={fit=false}, draggable=false})})
 
                     if i == 1 then
-                        local offset = {x=(pos.x + ((i-1)*21) + 6), y=(pos.y + 6)}
+                        local offset = {x=(pos.x + ((i-1)*20) + 5), y=(pos.y + 5)}
 
                         private.icons[i].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, settings[v]))
-                        private.icons[i].icon:size(21, 21)
+                        private.icons[i].icon:size(20, 20)
                         private.icons[i].icon:pos(offset.x, offset.y)
                         private.icons[i].icon:show()
                         private.icons[i].icon:update()
 
                         private.icons[i].border:path(string.format("%sbp/resources/ui/icon_true.png", windower.addon_path))
-                        private.icons[i].border:size(21, 21)
+                        private.icons[i].border:size(20, 20)
                         private.icons[i].border:pos(offset.x, offset.y)
                         private.icons[i].border:show()
                         private.icons[i].border:update()
 
-                    else
-                        local offset = {x=(private.icons[i-1].icon:pos_x() + 30), y=(private.icons[i-1].icon:pos_y())}
+                    elseif i < 10 then
+                        local offset = {x=(private.icons[i-1].icon:pos_x() + 25), y=(private.icons[i-1].icon:pos_y())}
 
                         private.icons[i].icon:path(string.format("%sbp/resources/icons/buffs/%s.png", windower.addon_path, settings[v]))
-                        private.icons[i].icon:size(21, 21)
+                        private.icons[i].icon:size(20, 20)
                         private.icons[i].icon:pos(offset.x, offset.y)
                         private.icons[i].icon:show()
                         private.icons[i].icon:update()
 
                         private.icons[i].border:path(string.format("%sbp/resources/ui/icon_true.png", windower.addon_path))
-                        private.icons[i].border:size(21, 21)
+                        private.icons[i].border:size(20, 20)
                         private.icons[i].border:pos(offset.x, offset.y)
                         private.icons[i].border:show()
                         private.icons[i].border:update()
@@ -138,7 +144,8 @@ function ui.new()
         end
 
     end)
-
+    
+    --[[
     private.events.prerender = windower.register_event('prerender', function()
 
         if bp and bp.player then
@@ -148,7 +155,6 @@ function ui.new()
     
     end)
 
-    --[[
     private.events.load = windower.register_event('load', function()
 
         coroutine.schedule(function()
@@ -161,7 +167,7 @@ function ui.new()
 
                         if name == bp.player.sub_job then
                             table.insert(current, name)
-
+                            print(name)
                             if not settings[name] then
                                 settings[name] = 1
                             end
@@ -170,7 +176,7 @@ function ui.new()
 
                     else
                         table.insert(current, name)
-
+                        print(name)
                         if not settings[name] then
                             settings[name] = 1
                         end

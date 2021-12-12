@@ -28,6 +28,7 @@ function core.new()
         ["ra"]                      = {enabled=false, tp=1000, name="Hot Shot"},
         ["ws"]                      = {enabled=false, tp=1000, name="Combo"},
         ["hate"]                    = {enabled=false, delay=2, aoe=false},
+        ["burst"]                   = {enabled=false, element="", tier=2, multi=false},
         ["skillup"]                 = {enabled=false, skill="Enhancing Magic"},
         ["food"]                    = {enabled=false, name=""},
         ["items"]                   = false,
@@ -36,6 +37,7 @@ function core.new()
         ["tank"]                    = false,
         ["1hr"]                     = false,
         ["ja"]                      = false,
+        ["nuke"]                    = false,
 
         ["WAR"] = {
             ["provoke"]             = false,
@@ -240,12 +242,15 @@ function core.new()
             ["convergence"]         = false,
             ["diffusion"]           = false,
             ["efflux"]              = false,
+            ["winds of promy."]     = false,
             ["unbridled learning"]  = false,
             ["sanguine blade"]      = {enabled=false, hpp=55},
             ["moonlight"]           = {enabled=false, mpp=45},
+            ["aspir"]               = {enabled=false, mpp=45},
         },
 
         ["COR"] = {
+            ["rolls"]               = false,
             ["quick draw"]          = {enabled=false, name="Light Shot"},
             ["random deal"]         = false,
             ["triple shot"]         = false,
@@ -667,7 +672,7 @@ function core.new()
 
                             if value == 'aoe' then
                                 flags.aoehate = flags.aoehate ~= true and true or false
-                                bp.helpers['popchat'].pop(string.format('AOE HATE SPELLS: %s.', tostring(flags.enabled)))
+                                bp.helpers['popchat'].pop(string.format('AOE HATE SPELLS: %s.', tostring(flags.aoehate)))
 
                             end
 
@@ -691,6 +696,63 @@ function core.new()
             elseif #commands == 0 then
                 flags.enabled = flags.enabled ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-ENMITY: %s.', tostring(flags.enabled)))
+
+            end
+
+        end
+
+        set['burst'] = function(name, commands)
+            local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
+
+            if flags and #commands > 0 then
+
+                for i in ipairs(commands) do
+                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+
+                    if value then
+                        local elements = S{'Fire','Blizzard','Stone','Aero','Water','Thunder'}
+
+                        if type(value) == 'string' then
+
+                            if value == 'multi' then
+                                flags.multi = flags.multi ~= true and true or false
+                                bp.helpers['popchat'].pop(string.format('MULTIPLE MAGIC BURST ATTEMPTS: %s.', tostring(flags.multi)))
+
+                            else
+
+                                for _,element in ipairs(elements) do
+
+                                    if value:lower() == element:sub(1, #value):lower() then
+                                        flags.element = element
+                                        bp.helpers['popchat'].pop(string.format('AUTO-MAGIC BURST ELEMENT SET TO: %s.', flags.element))
+                                        break
+
+                                    end
+
+                                end
+
+                            end
+
+                        elseif type(value) == 'number' then
+                            
+                            if value >= 1 and value <= 6 then
+                                flags.tier = value
+                                bp.helpers['popchat'].pop(string.format('AUTO-MAGIC BURST TIER SET TO: %s.', flags.tier))
+
+                            else
+                                bp.helpers['popchat'].pop('BURST TIER VALUE MUST BE A NUMBER BETWEEN 1 & 6!')
+
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            elseif #commands == 0 then
+                flags.enabled = flags.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('AUTO-MAGIC BURST: %s.', tostring(flags.enabled)))
 
             end
 
@@ -2221,13 +2283,13 @@ function core.new()
             self.set("ja",                  true)
             self.set("provoke",             true)
             self.set("berserk",             true)
-            self.set("defender",            true)
             self.set("warcry",              true)
             self.set("aggressor",           true)
             self.set("retaliation",         true)
             self.set("warrior's charge",    true)
             self.set("restraint",           true)
             self.set("blood rage",          true)
+            self.set("meditate",            true)
 
         end
 
@@ -2451,6 +2513,9 @@ function core.new()
             self.set("ws",                  {enabled=true,  tp=1750, name="Expiacion"})
             self.set("buffs",               true)
             self.set("ja",                  true)
+            self.set("chain affinity",      true)
+            self.set("efflux",              true)
+            self.set("unbridled learning",  true)
 
         end
 
@@ -2459,6 +2524,7 @@ function core.new()
             self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
             self.set("buffs",               true)
             self.set("ja",                  true)
+            self.set("rolls",               true)
             self.set("quick draw",          true)
             self.set("triple shot",         true)
 
@@ -2490,6 +2556,7 @@ function core.new()
             self.set("ws",                  {enabled=true,  tp=1750, name="Savage Blade"})
             self.set("buffs",               true)
             self.set("ja",                  true)
+            self.set("light arts",          true)
 
         end
 

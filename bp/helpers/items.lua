@@ -19,22 +19,22 @@ function items.new()
     local private   = {events={}}
     local items     = {
 
-        res[6391],  res[6312],  res[6358],  res[6533],
-        res[6392],  res[6313],  res[6359],  res[6534],
-        res[5947],  res[6314],  res[6360],  res[6572],
-        res[6541],  res[6315],  res[6361],  res[6573],
-        res[6542],  res[6316],  res[6362],  res[5854],
-        res[6543],  res[6317],  res[6363],  res[5855],
-        res[6544],  res[6318],  res[6364],  res[5856],
-        res[6545],  res[6319],  res[6365],  res[5857],
-        res[6546],  res[6320],  res[6366],  res[5858],
-        res[6547],  res[6321],  res[6382],  res[5946],
-        res[6548],  res[6322],  res[6383],  res[6590],
-        res[6549],  res[6323],  res[6384],  res[6591],
-        res[6550],  res[6324],  res[6385],  res[6592],
-        res[6551],  res[6325],  res[6386],  res[6593],
-        res[6552],  res[6326],  res[6387],  res[6594],
-        res[6553],  res[6327],  res[6388],  res[6595],
+        res[6391],  res[6312],  res[6358],  res[6533],  res[6147],  res[6162],  res[6178],
+        res[6392],  res[6313],  res[6359],  res[6534],  res[6148],  res[6163],  res[6179],
+        res[5947],  res[6314],  res[6360],  res[6572],  res[6149],  res[6164],
+        res[6541],  res[6315],  res[6361],  res[6573],  res[6150],  res[6165],
+        res[6542],  res[6316],  res[6362],  res[5854],  res[6151],  res[6166],
+        res[6543],  res[6317],  res[6363],  res[5855],  res[6152],  res[6167],
+        res[6544],  res[6318],  res[6364],  res[5856],  res[6153],  res[6168],
+        res[6545],  res[6319],  res[6365],  res[5857],  res[6154],  res[6169],
+        res[6546],  res[6320],  res[6366],  res[5858],  res[6155],  res[6170],
+        res[6547],  res[6321],  res[6382],  res[5946],  res[6156],  res[6171],
+        res[6548],  res[6322],  res[6383],  res[6590],  res[6157],  res[6172],
+        res[6549],  res[6323],  res[6384],  res[6591],  res[6158],  res[6173],
+        res[6550],  res[6324],  res[6385],  res[6592],  res[6159],  res[6174],
+        res[6551],  res[6325],  res[6386],  res[6593],  res[6160],  res[6175],
+        res[6552],  res[6326],  res[6387],  res[6594],  res[6161],  res[6176],
+        res[6553],  res[6327],  res[6388],  res[6595],  res[6161],  res[6177],
         res[6554],  res[6328],  res[6389],
         res[6555],  res[6329],  res[6390],
         res[6556],  res[6330],  res[6403],
@@ -92,7 +92,7 @@ function items.new()
     self.queueItems = function()
 
         if bp and self.enabled and bp.helpers['inventory'].hasSpace() and not bp.helpers['target'].getTarget() then
-            local player = windower.ffxi.get_player()
+            local player = bp.player
 
             for _,v in ipairs(items) do
 

@@ -580,7 +580,7 @@ function queue.new()
 
     self.handle = function()
 
-        if bp and self.queue and self.queue:length() > 0 and (os.clock()-protection) > 1 and self.checkReady() then
+        if bp and self.queue and self.queue:length() > 0 and (os.clock()-protection) > 1 and self.checkReady() and not bp.helpers['actions'].moving then
             local player    = bp.player
             local helpers   = bp.helpers
             local action    = self.queue[1].action

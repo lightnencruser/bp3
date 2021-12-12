@@ -86,7 +86,6 @@ function rolls.new()
     }
 
     -- Public Variables.
-    self.enabled    = false
     self.rolls      = self.settings.rolls or {self.allowed[109], self.allowed[105]}
     self.crooked    = self.settings.crooked or false
     self.cap        = self.settings.cap or 7
@@ -142,6 +141,14 @@ function rolls.new()
     end
     resetDisplay()
 
+    -- Private Functions.
+    private.reset = function()
+        bp.core.set("rolls", false)
+        self.active = {false, false}
+        self.writeSettings()
+
+    end
+
     -- Static Functions.
     self.writeSettings = function()
         persist()
@@ -155,19 +162,6 @@ function rolls.new()
 
     end
     self.writeSettings()
-
-    private.zoneChange = function()
-        self.writeSettings()
-        self.active = {false, false}
-        self.enabled = false
-    end
-
-    private.jobChange = function()
-        self.writeSettings()
-        self.active = {false, false}
-        resetDisplay()
-
-    end
 
     -- Public Functions.
     self.setSystem = function(buddypal)
@@ -228,7 +222,7 @@ function rolls.new()
     self.setCap = function(cap)
         local cap = tonumber(cap) or false
 
-        if bp and cap and cap ~= nil and cap > 0 and cap < 11 then
+        if bp and cap and cap ~= nil and cap >= 1 and cap < 11 then
             self.cap = cap
             bp.helpers['popchat'].pop(string.format('NEW ROLL CAP IS %d!', self.cap))
             self.writeSettings()
@@ -502,7 +496,7 @@ function rolls.new()
         local count     = 1
 
         if bp.player and (player.main_job == 'COR' or player.sub_job == 'COR') then
-            table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[self.enabled], tostring(self.enabled):upper()))
+            table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[bp.core.get('rolls')], tostring(bp.core.get('rolls')):upper()))
 
             if player.main_job == 'COR' then
                 table.insert(render, string.format('\\cs(%s)Crooked Cards\\cr | \\cs(%s)Rolling\\cr\n', colors[self.crooked], colors[self.rolling]))
@@ -618,9 +612,8 @@ function rolls.new()
 
                 end
 
-            elseif not command then
-                self.enabled = self.enabled ~= true and true or false
-                bp.helpers['popchat'].pop(string.format('CORSAIR ROLLS: %s.', tostring(self.enabled)))
+            else
+                windower.send_command('bp set rolls')
 
             end
 
@@ -632,7 +625,7 @@ function rolls.new()
     private.events.prerender = windower.register_event('prerender', function()
         self.render()
         
-        if bp and bp.player and (os.clock()-private.timer) > bp.delay then
+        if bp and bp.player and bp.helpers['queue'].checkReady() and not bp.helpers['actions'].moving then
             local buffs = T(bp.player.buffs)
 
             if buffs:contains(308) then
@@ -740,12 +733,12 @@ function rolls.new()
     end)
 
     private.events.jobchange = windower.register_event('job change', function(new, old)
-        private.jobChange()
+        private.reset()
     
     end)
 
     private.events.zonechange = windower.register_event('zone change', function(new, old)
-        private.zoneChange()
+        private.reset()
     
     end)
 

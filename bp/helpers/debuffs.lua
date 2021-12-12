@@ -74,7 +74,7 @@ function debuffs.new()
     private.clear = function()
 
         if bp and bp.player and self.debuffs[bp.player.main_job_id] then
-            helpers['popchat'].pop(string.format('Clearing all debuffs from %s!', res.jobs[player.main_job_id].en))
+            bp.helpers['popchat'].pop(string.format('Clearing all debuffs from %s!', res.jobs[player.main_job_id].en))
             self.debuffs[bp.player.main_job_id] = {}
             private.writeSettings()
 
@@ -486,7 +486,7 @@ function debuffs.new()
 
                 if command then
                     local target = windower.ffxi.get_mob_by_target('t') or false
-
+                    
                     if command == '+' and commands[2] then
                         local spell = {}
                         local delay = tonumber(commands[#commands]) or 180
@@ -578,18 +578,6 @@ function debuffs.new()
     
         end
         
-    end)
-
-    private.events.commands = windower.register_event('time change', function(new, old)
-
-        if bp and bp.core and bp.core.get('debuffs') then
-
-            if bp.player and bp.player.main_job ~= 'RDM' then
-                private.cast()
-            end
-
-        end
-
     end)
 
     return self

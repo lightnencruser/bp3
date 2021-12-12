@@ -2,13 +2,19 @@ local job = {}
 function job.get()
     local self = {}
 
-    local private = {}
+    -- Private Variables.
+    local bp        = false
+    local private   = {events={}}
 
     self.automate = function(bp)
+        if buddypal and not bp then
+            bp = bp
+        end
+
         local get = bp.core.get
 
         do
-            private.items(bp, settings)
+            private.items()
             if bp and bp.player and bp.player.status == 1 then
                 
 
@@ -21,7 +27,7 @@ function job.get()
         
     end
 
-    private.items = function(bp)
+    private.items = function()
 
     end
 

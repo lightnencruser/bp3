@@ -36,7 +36,7 @@ function controllers.new()
             for _,v in ipairs(controllers) do
                 local check = false
 
-                if v == name then
+                if v:lower() == name:lower() then
                     return true
                 end
 
@@ -50,7 +50,7 @@ function controllers.new()
     private.add = function(name)
 
         if bp and name and not private.exists(name) then
-            table.insert(controllers, name)
+            table.insert(controllers, name:lower())
             bp.helpers['popchat'].pop(string.format('%s added to controllers list.', name))
 
         end
@@ -64,7 +64,7 @@ function controllers.new()
 
             for i,v in ipairs(controllers) do
 
-                if v == name then
+                if v:lower() == name:lower() then
                     table.remove(controllers, i)
                     bp.helpers['popchat'].pop(string.format('%s removed from the controllers list.', name))
                     break
@@ -115,7 +115,7 @@ function controllers.new()
     self.isAllowed = function(name)
 
         if name and type(name) == 'string' then
-            return T(controllers):contains(name)
+            return T(controllers):contains(name:lower())
         end
         
     end

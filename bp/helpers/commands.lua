@@ -17,7 +17,7 @@ commands.new = function()
 
         if bp and message and sender then
             local allowed = bp.helpers['controllers'].isAllowed(sender)
-
+            
             if gm then
                 return
             end
@@ -786,6 +786,9 @@ commands.new = function()
                     
                 elseif command == "meriph" and bp.helpers["party"].isInParty(target, false) then
                     bp.helpers['queue'].add(bp.MA["Recall-Meriph"], player)
+
+                elseif command == "speed" then
+                    windower.send_command('input /ma "Chocobo Mazurka" <me>')
                 
                 end
             
@@ -1174,8 +1177,8 @@ commands.new = function()
             if count == 1 and message[1] then
                 local command = message[1]:lower()
                 
-                if command == "nopeeee" and bp.helpers["target"].castable(target, bp.MA["Haste"]) then
-                    bp.helpers['queue'].add(bp.MA["Haste"], target)
+                if command == "speed" then
+                    windower.send_command('input /ma "Bolter\'s Roll" <me>')
                 end
             
             -- Multiple Commands were sent.

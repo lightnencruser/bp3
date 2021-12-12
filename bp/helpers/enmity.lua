@@ -147,7 +147,7 @@ function enmity.new()
         
     end
 
-    self.pos = function(x, y)
+    private.pos = function(x, y)
         local x = tonumber(x) or self.layout.pos.x
         local y = tonumber(y) or self.layout.pos.y
 
@@ -165,6 +165,26 @@ function enmity.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1]
+
+        if bp and bp.player and helper and helper:lower() == 'enmity' then
+            table.remove(commands, 1)
+
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command ~= 'pos' and commands[2] then
+                    self.pos(commands[2], commands[3] or false)    
+                end
+
+            end
+
+        end
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         private.render()
 

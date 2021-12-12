@@ -50,7 +50,6 @@ function burst.new()
 
     -- Private Functions.
     private.registerSkillchain = function(data)
-        --local enabled = bp.core.getSetting('BURST')
 
         if bp and data and enabled and bp.enabled then
             local packed = bp.packets.parse('incoming', data)
@@ -311,6 +310,16 @@ function burst.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1] or false
+
+        if helper and helper:lower() == 'burst' then
+            windower.send_command('bp set burst')
+        end        
+
+    end)
+
     private.events.actions = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
         
         if bp and id == 0x028 then

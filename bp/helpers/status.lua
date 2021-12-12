@@ -24,6 +24,7 @@ function status.new()
     local priority  = self.settings.priorities or {}
     local debug     = false
     local timer     = {last=0, delay=1}
+    local bluemage  = T{144,145,134,135,186,13,21,146,147,148,149,167,174,175,194,217,223,404,557,558,559,560,561,562,563,564,11,12,128,129,130,131,132,133,136,137,138,139,140,141,142,567}
     local spells    = T{14,15,16,17,18,19,20,143}
     local allowed   = T{15,14,17,2,19,193,7,9,20,144,145,134,135,186,13,21,146,147,148,149,167,174,175,194,217,223,404,557,558,559,560,561,562,563,564,3,4,5,6,8,31,566,11,12,128,129,130,131,132,133,136,137,138,139,140,141,142,567}
     local map       = {
@@ -307,11 +308,32 @@ function status.new()
 
     end
 
+    self.windsRemoval = function()
+
+        if bp and bp.player and private.statuses[bp.player.id] then
+
+            if #private.statuses[bp.player.id].list > 0 then
+
+                for _,remove in ipairs(private.statuses[bp.player.id].list) do
+
+                    if windsRemoval:contains(remove) then
+                        return true
+                    end
+
+                end
+
+            end
+
+        end
+        return false
+
+    end
+
     self.fixStatus = function()
 
         if #private.statuses > 0 and (bp.player.main_job == 'WHM' or bp.player.sub_job == 'WHM') then
 
-            for i,m in pairs(map) do
+            for i,m in ipairs(map) do
                 local list = T(m.list)
                 
                 for _,v in ipairs(private.statuses) do

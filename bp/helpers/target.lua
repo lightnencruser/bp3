@@ -613,10 +613,8 @@ function target.new()
     end
 
     self.isDead = function(target)
-        local target    = target or false
-        local dead      = T{2,3}
 
-        if target and type(target) == 'table' and dead:contains(target.status) then
+        if target and target.status and T{2,3}:contains(target.status) then
             return true
         end
         return false

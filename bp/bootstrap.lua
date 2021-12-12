@@ -9,7 +9,7 @@ bootstrap.load = function()
     local directory = string.format('bp/settings/%s', player.name)
     local helpers   = {
         
-        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','debuffs','debug','distance','enmity','equipment',
+        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','debuffs','debug','distance','enmity','equipment','gil','roe',
         'inventory','items','invites','keybinds','maintenance','maps','menus','merits','moneyteam','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
@@ -303,7 +303,7 @@ bootstrap.load = function()
                 end
     
             elseif c == 'mode' then
-                self.helpers['maintenance'].toggle(self)
+                self.helpers['maintenance'].toggle()
 
             elseif c == 'music' then
                 windower.send_command(('setbgm %s'):format(math.random(1,255)))
@@ -384,6 +384,7 @@ bootstrap.load = function()
             elseif self.enabled and self.blocked[zone] and not self.shutdown[zone] and (os.clock() - self.pinger) > self.delay then
 
                 if not self.helpers['buffs'].buffActive(69) and not self.helpers['buffs'].buffActive(71) then
+                    self.helpers['items'].queueItems()
                     self.helpers['queue'].handle()
 
                 end            

@@ -424,8 +424,7 @@ function bubbles.new()
     end
 
     self.getDirection = function(rotation)
-        local bp        = bp or false
-        local rotation  = rotation or 0
+        local rotation = rotation or 0
 
         if bp then
 
@@ -462,50 +461,52 @@ function bubbles.new()
 
     self.handle = function(target)
 
-        if bp and bp.player and bp.player.main_job == 'GEO' then
-            local pet = windower.ffxi.get_mob_by_target('pet') or false
-            local bubbles = self.bubbles
-            local get = bp.core.get
+        if bp and bp.player and bp.helpers['queue'].checkReady() and not bp.helpers['actions'].moving and bp.player.main_job == 'GEO' then
+            local pet       = windower.ffxi.get_mob_by_target('pet') or false
+            local isReady   = bp.helpers['actions'].isReady
+            local queue     = bp.helpers['queue']
+            local bubbles   = self.bubbles
+            local get       = bp.core.get
             
             -- HANDLE GEO-SPELLS.
             if not pet and target then
                 
-                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady('MA', bubbles[2].en) and not bp.helpers['queue'].inQueue(bp.MA[bubbles[2].en]) then
+                if self.flags.geo and bubbles[2] and isReady('MA', bubbles[2].en) and not queue.inQueue(bp.MA[bubbles[2].en]) then
                     
-                    if get('blaze of glory') and bp.helpers['actions'].isReady('JA', "Blaze of Glory") then
-                        bp.helpers['queue'].add(bp.JA['Blaze of Glory'], 'me')
-                        bp.helpers['queue'].add(bp.MA[bubbles[2].en], target)
+                    if get('blaze of glory') and isReady('JA', "Blaze of Glory") then
+                        queue.add(bp.JA['Blaze of Glory'], 'me')
+                        queue.add(bp.MA[bubbles[2].en], target)
 
                     else
-                        bp.helpers['queue'].add(bp.MA[bubbles[2].en], target)
+                        queue.add(bp.MA[bubbles[2].en], target)
 
                     end
 
                 end
             
-            elseif pet and (pet.distance):sqrt() > (get('full circle').distance+5) and self.flags.circle and bp.helpers['actions'].isReady('JA', "Full Circle") and not bp.helpers['queue'].inQueue(bp.JA['Full Circle'], 'me') then
-                bp.helpers['queue'].clear()
-                bp.helpers['queue'].addToFront(bp.JA['Full Circle'], 'me')
+            elseif pet and (pet.distance):sqrt() > (get('full circle').distance + 5) and self.flags.circle and isReady('JA', "Full Circle") and not queue.inQueue(bp.JA['Full Circle'], 'me') then
+                queue.clear()
+                queue.addToFront(bp.JA['Full Circle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady('JA', "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp.JA['Ecliptic Attrition'], 'me') then
-                bp.helpers['queue'].addToFront(bp.JA['Ecliptic Attrition'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and isReady('JA', "Ecliptic Attrition") and not queue.inQueue(bp.JA['Ecliptic Attrition'], 'me') then
+                queue.addToFront(bp.JA['Ecliptic Attrition'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady('JA', "Life Cycle") and not bp.helpers['queue'].inQueue(bp.JA['Life Cycle'], 'me') then
-                bp.helpers['queue'].addToFront(bp.JA['Life Cycle'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and isReady('JA', "Life Cycle") and not queue.inQueue(bp.JA['Life Cycle'], 'me') then
+                queue.addToFront(bp.JA['Life Cycle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady('JA', "Dematerialize") and not bp.helpers['queue'].inQueue(bp.JA['Dematerialize'], 'me') then
-                bp.helpers['queue'].addToFront(bp.JA['Dematerialize'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and isReady('JA', "Dematerialize") and not queue.inQueue(bp.JA['Dematerialize'], 'me') then
+                queue.addToFront(bp.JA['Dematerialize'], 'me')
 
             end
 
             -- HANDLE INDI-SPELLS.
-            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady('MA', bubbles[1].en) and not bp.helpers['queue'].inQueue(bp.MA[bubbles[1].en]) then
-                bp.helpers['queue'].add(bp.MA[bubbles[1].en], 'me')
+            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and isReady('MA', bubbles[1].en) and not queue.inQueue(bp.MA[bubbles[1].en]) then
+                queue.add(bp.MA[bubbles[1].en], 'me')
             end
 
             -- HANDLE ENTRUST SPELLS.
-            if self.flags.entrust and bp.helpers['actions'].isReady('JA', "Entrust") and not bp.helpers['queue'].inQueue(bp.MA[bubbles[3].en]) and bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
-                bp.helpers['queue'].add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
+            if self.flags.entrust and isReady('JA', "Entrust") and not queue.inQueue(bp.MA[bubbles[3].en]) and bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
+                queue.add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
 
             end
 
@@ -516,11 +517,13 @@ function bubbles.new()
     -- Private Events.
     private.events.commands = windower.register_event('addon command', function(...)
         local commands = T{...}
+        local helper = commands[1]
         
-        if commands[1] and commands[1]:lower() == 'bubbles' then
+        if helper and helper:lower() == 'bubbles' then
+            table.remove(commands, 1)
             
-            if commands[2] then
-                local command = commands[2]:lower()
+            if commands[1] then
+                local command = commands[1]:lower()
 
                 if command == 'display' then
                     
@@ -548,16 +551,16 @@ function bubbles.new()
                     self.flags.entrust = self.flags.entrust ~= true and true or false
                     bp.helpers['popchat'].pop(string.format('ENTRUST-SPELLS: %s', tostring(self.flags.entrust)))
 
-                elseif command == 'pos' and commands[3] then
-                    private.pos(commands[3], commands[4] or false)
+                elseif command == 'pos' and commands[2] then
+                    private.pos(commands[2], commands[3] or false)
                 
-                elseif commands[3] then
-                    self.setBubbles(commands[3], commands[4] or false, commands[5] or false)
+                else
+                    self.setBubbles(commands[1], commands[2] or false, commands[3] or false)
 
                 end
-                private.writeSettings()
 
             end
+            private.writeSettings()
 
         end        
 

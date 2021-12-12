@@ -1,7 +1,10 @@
 local job = {}
 function job.get()
     local self = {}
-    local private = {}
+
+    -- Private Variables.
+    local private   = {events={}}
+    local timers    = {}
 
     self.automate = function(bp)
         local player    = bp.player
@@ -12,12 +15,39 @@ function job.get()
         local add       = helpers['queue'].add
         local get       = bp.core.get
 
+        if not private.bp then
+            private.bp = bp
+        end
+
         do
-            private.items(bp, settings)
+            private.items()
             if bp and bp.player and bp.player.status == 1 then
                 local target  = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
                 local _act    = bp.helpers['actions'].canAct()
                 local _cast   = bp.helpers['actions'].canCast()
+
+                -- RERAISE.
+                if not buff(113) and _cast then
+
+                    if player.job_points['whm'].jp_spent >= 100 and isReady('MA', "Reraise IV") then
+                        add(bp.MA["Reraise IV"], player)
+
+                    elseif player.job_points['whm'].jp_spent < 100 then
+
+                        if isReady('MA', "Reraise III") then
+                            add(bp.MA["Reraise III"], player)
+
+                        elseif isReady('MA', "Reraise II") then
+                            add(bp.MA["Reraise II"], player)
+
+                        elseif isReady('MA', "Reraise") then
+                            add(bp.MA["Reraise"], player)
+
+                        end
+
+                    end
+
+                end
 
                 if get('ja') and _act then
 
@@ -50,15 +80,17 @@ function job.get()
                         -- AFFLATUS.
                         if get('afflatus solace') and isReady('JA', "Afflatus Solace") then
                             add(bp.JA["Afflatus Solace"], player)
+                            add(bp.JA["Light Arts"], player)
 
                         elseif get('afflatus misery') and isReady('JA', "Afflatus Misery") then
                             add(bp.JA["Afflatus Misery"], player)
+                            add(bp.JA["Light Arts"], player)
 
                         end
 
                     else
 
-                        if (get('afflatus solace') or get('afflatus misery')) and (buff(417) or buff(418)) then
+                        if (get('afflatus solace') or get('afflatus misery')) and (buff(417) or buff(418) or not _act) and buff(358) then
 
                             -- BOOSTS.
                             if get('boost').enabled and not bp.core.hasBoost() and isReady('MA', get('boost').name) then
@@ -83,7 +115,7 @@ function job.get()
                                 add(bp.JA["Sacrosanctity"], player)
                             end
 
-                        elseif not get('afflatus solace') and not get('afflatus misery') then
+                        elseif (not get('afflatus solace') and not get('afflatus misery') or not _act) then
 
                             -- BOOSTS.
                             if get('boost').enabled and not bp.core.hasBoost() and isReady('MA', get('boost').name) then
@@ -119,6 +151,29 @@ function job.get()
                 local _act    = bp.helpers['actions'].canAct()
                 local _cast   = bp.helpers['actions'].canCast()
 
+                -- RERAISE.
+                if not buff(113) and _cast then
+
+                    if player.job_points['whm'].jp_spent >= 100 and isReady('MA', "Reraise IV") then
+                        add(bp.MA["Reraise IV"], player)
+
+                    elseif player.job_points['whm'].jp_spent < 100 then
+
+                        if isReady('MA', "Reraise III") then
+                            add(bp.MA["Reraise III"], player)
+
+                        elseif isReady('MA', "Reraise II") then
+                            add(bp.MA["Reraise II"], player)
+
+                        elseif isReady('MA', "Reraise") then
+                            add(bp.MA["Reraise"], player)
+
+                        end
+
+                    end
+
+                end
+
                 if get('ja') and _act then
 
                     -- MARTYR.
@@ -158,7 +213,7 @@ function job.get()
 
                     else
 
-                        if (get('afflatus solace') or get('afflatus misery')) and (buff(417) or buff(418)) then
+                        if (get('afflatus solace') or get('afflatus misery')) and (buff(417) or buff(418) or not _act) then
 
                             -- BOOSTS.
                             if target and get('boost').enabled and not bp.core.hasBoost() and isReady('MA', get('boost').name) and _cast then
@@ -220,7 +275,7 @@ function job.get()
         
     end
 
-    private.items = function(bp)
+    private.items = function()
 
     end
 

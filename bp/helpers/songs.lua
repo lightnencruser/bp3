@@ -108,6 +108,7 @@ function songs.new()
             self.settings.position  = self.position
             self.settings.warning   = self.warning
             self.settings.dummy     = self.dummy
+            self.settings.delay     = self.delay
             self.settings.layout    = self.layout
 
         end

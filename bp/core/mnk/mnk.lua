@@ -2,7 +2,9 @@ local job = {}
 function job.get()
     local self = {}
 
-    local private = {}
+    -- Private Variables.
+    local private   = {events={}}
+    local timers    = {}
 
     self.automate = function(bp)
         local player    = bp.player
@@ -12,9 +14,13 @@ function job.get()
         local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = bp.core.get
+        
+        if not private.bp then
+            private.bp = bp
+        end
 
         do
-            private.items(bp, settings)
+            private.items()
             if bp and bp.player and bp.player.status == 1 then
                 local target  = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
                 local _act    = bp.helpers['actions'].canAct()
@@ -90,46 +96,6 @@ function job.get()
                         add(bp.JA["Chi Blast"], target)
     
                     end
-
-                    -- MANTRA.
-                    if target and get('mantra') and isReady('JA', "Mantra") then
-                        add(bp.JA["Mantra"], player)
-                    end
-
-                    -- FORMLESS STRIKES.
-                    if target and get('formless strikes') and isReady('JA', "Formless Strikes") then
-                        add(bp.JA["Formless Strikes"], player)
-                    end
-    
-                end
-    
-                if get('buffs') and target and _act then
-    
-                    -- FOCUS.
-                    if target and get('focus') and isReady('JA', "Focus") and not buff(59) then
-                        add(bp.JA["Focus"], player)
-    
-                    -- DODGE.
-                    elseif target and get('dodge') and isReady('JA', "Dodge") and not buff(60) then
-                        add(bp.JA["Dodge"], player)
-    
-                    -- COUNTERSTANCE.
-                    elseif target and get('counterstance') and isReady('JA', "Counterstance") and not buff(61) then
-                        add(bp.JA["Counterstance"], player)
-
-                    -- PERFECT COUNTER.
-                    elseif target and get('perfect counter') and isReady('JA', "Perfect Counter") and not buff(436) then
-                        add(bp.JA["Perfect Counter"], player)
-    
-                    -- FOOTWORK.
-                    elseif target and get('footwork').enabled and isReady('JA', "Footwork") and not buff(406) and (not buff(461) or get('footwork').impetus) then
-                        add(bp.JA["Footwork"], player)
-
-                    -- IMPETUS.
-                    elseif target and get('impetus') and isReady('JA', "Footwork") and not buff(461) and (not buff(460) or get('footwork').impetus) then
-                        add(bp.JA["Impetus"], player)
-    
-                    end
     
                 end
 
@@ -139,7 +105,7 @@ function job.get()
         
     end
 
-    private.items = function(bp)
+    private.items = function()
 
     end
 

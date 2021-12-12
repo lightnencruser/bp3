@@ -155,10 +155,10 @@ function logic.get()
 
     self.handleAutomation = function()
 
-        if bp and bp.player and bp.helpers['queue'].ready and not bp.helpers['actions'].moving then
-            local target = bp.helpers['target'].getTarget() or false
-            local helpers = bp.helpers
-            local player = bp.player
+        if bp and bp.player and bp.helpers['queue'].checkReady() and not bp.helpers['actions'].moving then
+            local target    = bp.helpers['target'].getTarget() or false
+            local helpers   = bp.helpers
+            local player    = bp.player
 
             do
                 bp.helpers['cures'].handleCuring()
@@ -210,6 +210,14 @@ function logic.get()
                 private.core.automate(bp)
                 private.handleWeaponskills(bp, target)
 
+                if self.get('buffs') then
+                    helpers['buffs'].cast()
+                end
+
+                if self.get('debuffs') then
+                    helpers['debuffs'].cast()
+                end
+
                 if private.subs[player.sub_job] then
                     private.subs[player.sub_job]()
                 end
@@ -221,7 +229,8 @@ function logic.get()
 
     end
 
-    private.handleWeaponskills = function(bp, target)
+    private.handleWeaponskills = function(bp)
+        local target    = bp.helpers['target'].targets.player or false
         local player    = bp.player
         local helpers   = bp.helpers
         local add       = bp.helpers['queue'].add
@@ -229,8 +238,7 @@ function logic.get()
         local isReady   = helpers['actions'].isReady
         local get       = private.settings.get
 
-        if player.status == 1 and bp.helpers['actions'].canAct() and get('ws').enabled and player['vitals'].tp >= 1000 then
-            local target = target or windower.ffxi.get_mob_by_target('t')
+        if target and player.status == 1 and bp.helpers['actions'].canAct() and get('ws').enabled and player['vitals'].tp >= 1000 then
             local distance = helpers['distance'].getDistance(target)
             
             if target and distance < 6 and distance ~= 0 then
@@ -239,7 +247,7 @@ function logic.get()
                 if ((get('am').enabled and self.hasAftermath()) or not get('am').enabled) then
 
                     if get('sanguine blade') and get('sanguine blade').enabled and current.hpp <= get('sanguine blade').hpp and current.tp >= get('ws').tp and isReady('WS', "Sanguine Blade") then
-                        add(bp.WS["Sanguine Blade"], player)
+                        add(bp.WS["Sanguine Blade"], target)
 
                     elseif get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
                         add(bp.WS["Moonlight"], player)
@@ -291,7 +299,8 @@ function logic.get()
 
             end
 
-        elseif player.status == 0 and bp.helpers['actions'].canAct() and get('ws').enabled and target then
+        elseif target and player.status == 0 and bp.helpers['actions'].canAct() and get('ws').enabled and helpers['target'].getTarget() then
+            local target = helpers['target'].getTarget()
             local distance = helpers['distance'].getDistance(target)
             
             if target and distance < 6 and distance ~= 0 then
@@ -300,7 +309,7 @@ function logic.get()
                 if ((get('am').enabled and self.hasAftermath()) or not get('am').enabled) then
 
                     if get('sanguine blade') and get('sanguine blade').enabled and current.hpp <= get('sanguine blade').hpp and current.tp >= get('ws').tp and isReady('WS', "Sanguine Blade") then
-                        add(bp.WS["Sanguine Blade"], player)
+                        add(bp.WS["Sanguine Blade"], target)
 
                     elseif get('moonlight') and get('moonlight').enabled and current.mpp <= get('moonlight').mpp and current.tp >= get('ws').tp and isReady('WS', "Moonlight") then
                         add(bp.WS["Moonlight"], player)
@@ -362,6 +371,7 @@ function logic.get()
         local buff      = helpers['buffs'].buffActive
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -455,6 +465,7 @@ function logic.get()
         local buff      = helpers['buffs'].buffActive
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -527,6 +538,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -534,6 +546,22 @@ function logic.get()
             local target = helpers['target'].getTarget() or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
+
+            -- RERAISE.
+            if not buff(113) and _cast then
+
+                if isReady('MA', "Reraise III") then
+                    add(bp.MA["Reraise III"], player)
+
+                elseif isReady('MA', "Reraise II") then
+                    add(bp.MA["Reraise II"], player)
+
+                elseif isReady('MA', "Reraise") then
+                    add(bp.MA["Reraise"], player)
+
+                end
+
+            end
 
             if get('buffs') and _cast then
 
@@ -557,6 +585,22 @@ function logic.get()
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
+
+            -- RERAISE.
+            if not buff(113) and _cast then
+
+                if isReady('MA', "Reraise III") then
+                    add(bp.MA["Reraise III"], player)
+
+                elseif isReady('MA', "Reraise II") then
+                    add(bp.MA["Reraise II"], player)
+
+                elseif isReady('MA', "Reraise") then
+                    add(bp.MA["Reraise"], player)
+
+                end
+
+            end
 
             if get('buffs') and _cast then
 
@@ -585,6 +629,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -603,12 +648,12 @@ function logic.get()
             end
 
             -- DRAIN.
-            if target and get('drain').enabled and _cast and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") then
+            if target and get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
                 add(bp.MA["Drain"], target)
             end
 
             -- ASPIR.
-            if target and get('aspir').enabled and _cast and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") then
+            if target and get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
                 add(bp.MA["Aspir"], target)
             end
 
@@ -627,12 +672,12 @@ function logic.get()
             end
 
             -- DRAIN.
-            if target and get('drain').enabled and _cast and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") then
+            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
                 add(bp.MA["Drain"], target)
             end
 
             -- ASPIR.
-            if target and get('aspir').enabled and _cast and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") then
+            if get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
                 add(bp.MA["Aspir"], target)
             end
 
@@ -645,6 +690,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -759,26 +805,18 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
-        
+
         if player.status == 0 then
             local target = helpers['target'].getTarget() or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
-            if get('ja') and target and _act then
-
-                -- STEAL.
-                if target and get('steal') and isReady('JA', "Steal") then
-                    add(bp.JA["Steal"], target)
-
-                -- MUG.
-                elseif target and get('mug') and isReady('JA', "Mug") then
-                    add(bp.JA["Mug"], target)
-
-                end
-
+            -- FLEE.
+            if not target and get('flee') and isReady('JA', "Flee") and not buff(32) then
+                add(bp.JA["Flee"], player)
             end
 
         elseif player.status == 1 then
@@ -786,26 +824,26 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
             
-            if get('ja') and target and _act then
+            if get('ja') and _act then
                 
                 -- STEAL.
-                if target and get('steal') and isReady('JA', "Steal") then
+                if get('steal') and isReady('JA', "Steal") then
                     add(bp.JA["Steal"], target)
 
                 -- MUG.
-                elseif target and get('mug') and isReady('JA', "Mug") then
+                elseif get('mug') and isReady('JA', "Mug") then
                     add(bp.JA["Mug"], target)
 
                 end
 
             end
 
-            if get('buffs') and target and _act then
+            if get('buffs') and _act then
                 local behind = helpers['actions'].isBehind(target)
                 local facing = helpers['actions'].isFacing(target)
                 
                 -- SNEAK ATTACK.
-                if get('sneak attack') and isReady('JA', 'Sneak Attack') and player['vitals'].tp < 1000 then
+                if get('sneak attack') and isReady('JA', 'Sneak Attack') and not helpers['buffs'].buffActive(65) and player['vitals'].tp < get('ws').tp and (not get('am') or self.hasAftermath()) then
                     
                     if isReady('JA', 'Hide') then
                         add(bp.JA["Hide"], player)
@@ -817,7 +855,7 @@ function logic.get()
                     end
 
                 -- TRICK ATTACK.
-                elseif get('trick attack') and isReady('JA', 'Trick Attack') and player['vitals'].tp < 1000 then
+                elseif get('trick attack') and isReady('JA', 'Trick Attack') and not helpers['buffs'].buffActive(87) and player['vitals'].tp < get('ws').tp and (not get('am') or self.hasAftermath()) then
 
                     if behind then
                         add(bp.JA["Trick Attack"], player)
@@ -836,6 +874,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -951,6 +990,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1007,6 +1047,16 @@ function logic.get()
 
             end
 
+            -- DRAIN.
+            if target and get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
+                add(bp.MA["Drain"], target)
+            end
+
+            -- ASPIR.
+            if target and get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
+                add(bp.MA["Aspir"], target)
+            end
+
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
@@ -1060,6 +1110,16 @@ function logic.get()
 
             end
 
+            -- DRAIN.
+            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
+                add(bp.MA["Drain"], target)
+            end
+
+            -- ASPIR.
+            if get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
+                add(bp.MA["Aspir"], target)
+            end
+
         end
 
     end
@@ -1069,6 +1129,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1091,6 +1152,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1113,6 +1175,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1213,6 +1276,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1385,6 +1449,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1413,7 +1478,7 @@ function logic.get()
                     if get('hasso') and isReady('JA', "Hasso") and not helpers['buffs'].buffActive(353) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
                         add(bp.JA["Hasso"], player)
 
-                    elseif get('hasso') and isReady('JA', "Seigan") and not helpers['buffs'].buffActive(354) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
+                    elseif get('seigan') and isReady('JA', "Seigan") and not helpers['buffs'].buffActive(354) and get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
                         add(bp.JA["Seigan"], player)
 
                     end
@@ -1468,7 +1533,7 @@ function logic.get()
                     if get('hasso') and isReady('JA', "Hasso") and not helpers['buffs'].buffActive(353) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
                         add(bp.JA["Hasso"], player)
 
-                    elseif get('hasso') and isReady('JA', "Seigan") and not helpers['buffs'].buffActive(354) and not get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
+                    elseif get('seigan') and isReady('JA', "Seigan") and not helpers['buffs'].buffActive(354) and get('tank') and T{4,6,7,8,10,12}:contains(weapon.skill) then
                         add(bp.JA["Seigan"], player)
 
                     end
@@ -1507,6 +1572,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1639,6 +1705,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1717,6 +1784,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1767,8 +1835,24 @@ function logic.get()
 
             if get('buffs') and target and _cast then
 
+                -- HASTE.
+                if not buff(93) then
+
+                    if player.main_job_level >= 99 and isReady('MA', "Erratic Flutter") then
+                        add(bp.MA["Erratic Flutter"], player)
+
+                    elseif player.main_job_level >= 99 and isReady('MA', "Animating Wail") then
+                        add(bp.MA["Animating Wail"], player)
+
+                    elseif player.main_job_level <= 48 and isReady('MA', "Refueling") then
+                        add(bp.MA["Refueling"], player)
+
+                    end
+
+                end
+
                 -- COCOON.
-                if isReady('MA', "Cocoon") and helpers['buffs'].buffActive(93) then
+                if isReady('MA', "Cocoon") and not helpers['buffs'].buffActive(93) then
                     add(bp.MA["Cocoon"], player)
                 end
 
@@ -1821,8 +1905,24 @@ function logic.get()
 
             if get('buffs') and _cast then
 
+                -- HASTE.
+                if not buff(93) then
+
+                    if player.main_job_level >= 99 and isReady('MA', "Erratic Flutter") then
+                        add(bp.MA["Erratic Flutter"], player)
+
+                    elseif player.main_job_level >= 99 and isReady('MA', "Animating Wail") then
+                        add(bp.MA["Animating Wail"], player)
+
+                    elseif player.main_job_level <= 48 and isReady('MA', "Refueling") then
+                        add(bp.MA["Refueling"], player)
+
+                    end
+
+                end
+
                 -- COCOON.
-                if isReady('MA', "Cocoon") and helpers['buffs'].buffActive(93) then
+                if isReady('MA', "Cocoon") and not helpers['buffs'].buffActive(93) then
                     add(bp.MA["Cocoon"], player)
                 end
 
@@ -1837,6 +1937,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -1867,7 +1968,7 @@ function logic.get()
                     bp.helpers['rolls'].roll()
 
                 -- TRIPLE SHOT.
-                elseif get('ra').enabled and isReady('JA', "Triple Shot") and helpers['buffs'].buffActive(467) and target then
+                elseif get('ra').enabled and isReady('JA', "Triple Shot") and not helpers['buffs'].buffActive(467) and target then
                     add(bp.JA["Triple Shot"], player)
 
                 end
@@ -1901,7 +2002,7 @@ function logic.get()
                     bp.helpers['rolls'].roll()
 
                 -- TRIPLE SHOT.
-                elseif get('ra').enabled and isReady('JA', "Triple Shot") and helpers['buffs'].buffActive(467) and target then
+                elseif get('ra').enabled and isReady('JA', "Triple Shot") and not helpers['buffs'].buffActive(467) and target then
                     add(bp.JA["Triple Shot"], player)
 
                 end
@@ -1917,6 +2018,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -2063,6 +2165,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -2155,12 +2258,12 @@ function logic.get()
             end
 
             -- DRAIN.
-            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast and target then
+            if target and get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
                 add(bp.MA["Drain"], target)
             end
 
             -- ASPIR.
-            if get('aspir').enabled and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") and _cast and target then
+            if target and get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
                 add(bp.MA["Aspir"], target)
             end
 
@@ -2258,7 +2361,7 @@ function logic.get()
             end
 
             -- ASPIR.
-            if get('aspir').enabled and player['vitals'].mpp <= get('drain').mpp and isReady('MA', "Aspir") and _cast then
+            if get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
                 add(bp.MA["Aspir"], target)
             end
 
@@ -2271,6 +2374,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
 
@@ -2279,10 +2383,30 @@ function logic.get()
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
 
+            -- DRAIN.
+            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
+                add(bp.MA["Drain"], target)
+            end
+
+            -- ASPIR.
+            if get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
+                add(bp.MA["Aspir"], target)
+            end
+
         elseif player.status == 1 then
             local target = helpers['target'].getTarget() or windower.ffxi.get_mob_by_target('t') or false
             local _cast  = helpers['actions'].canCast()
             local _act   = helpers['actions'].canAct()
+
+            -- DRAIN.
+            if get('drain').enabled and player['vitals'].hpp <= get('drain').hpp and isReady('MA', "Drain") and _cast then
+                add(bp.MA["Drain"], target)
+            end
+
+            -- ASPIR.
+            if get('aspir').enabled and player['vitals'].mpp <= get('aspir').mpp and isReady('MA', "Aspir") and _cast then
+                add(bp.MA["Aspir"], target)
+            end
 
         end
 
@@ -2293,6 +2417,7 @@ function logic.get()
         local helpers   = bp.helpers
         local isReady   = helpers['actions'].isReady
         local inQueue   = helpers['queue'].inQueue
+        local buff      = helpers['buffs'].buffActive
         local add       = helpers['queue'].add
         local get       = private.settings.get
         

@@ -382,6 +382,7 @@ function buffs.new()
 
         if bp and spell and target then
             local index = private.getPlayerIndex(target.id)
+            local spell = private.getSpell(spell)
             
             if index and spell and spell.id and private.buffing[index] and private.buffing[index].spells[spell.id] then
                 private.buffing[index].spells[spell.id].text:destroy()
@@ -454,7 +455,7 @@ function buffs.new()
                     
                     for _,id in ipairs(spells) do
 
-                        if allowed[id] and bp.helpers['actions'].isReady('MA', allowed[id].en) then
+                        if allowed[id] then
                             return allowed[id]
                         end
 
@@ -643,7 +644,7 @@ function buffs.new()
                 end
 
             else
-                windower.send_command('bp set debuffs')
+                windower.send_command('bp set buffs')
 
             end
             private.writeSettings()
@@ -703,14 +704,6 @@ function buffs.new()
             private.receive(message)
         end
     
-    end)
-
-    private.events.commands = windower.register_event('time change', function(new, old)
-        
-        if bp and bp.core and bp.core.get('buffs') then
-            self.cast()
-        end
-
     end)
 
     return self

@@ -166,7 +166,7 @@ function invites.new()
 
     private.events.party = windower.register_event('party invite', function(sender, id)
         
-        if T(join):contains(sender) then
+        if T(join):contains(sender:lower()) then
             windower.send_command('wait 0.75; input /join')
         end
     

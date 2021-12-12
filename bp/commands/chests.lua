@@ -55,7 +55,7 @@ function chests.new()
                 end
 
             elseif not command then
-                bp.helpers['chests'].openChest(bp)
+                bp.helpers['chests'].openChest()
                 
             end
 

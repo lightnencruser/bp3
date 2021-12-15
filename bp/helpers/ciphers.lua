@@ -17,7 +17,7 @@ function ciphers.new()
         local target
 
         if item then
-
+            
             for _,v in ipairs(npc) do
 
                 if windower.ffxi.get_mob_by_name(v) and (windower.ffxi.get_mob_by_name(v).distance):sqrt() < 6 then
@@ -95,7 +95,7 @@ function ciphers.new()
         
         if bp and check and type(check) == 'table' then
             local allowed = bp.res.spells:type('Trust')
-
+            
             for i,v in pairs(allowed) do
                 
                 if v and v.en and (check.en):sub(9, #check.en) == v.en then

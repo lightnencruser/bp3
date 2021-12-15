@@ -659,7 +659,8 @@ bootstrap.load = function()
             end
     
         elseif id == 0x05c then
-    
+            local test = true
+
             if self.helpers['menus'].enabled and not injected then
                 local unpacked  = { original:sub(5,36):unpack("C32") }
                 local packed    = {}
@@ -675,7 +676,7 @@ bootstrap.load = function()
                 end
                 windower.packets.inject_incoming(0x05c, original:sub(1,4)..table.concat(packed, ''))
                 return true
-    
+
             end
     
         elseif id == 0x03C then

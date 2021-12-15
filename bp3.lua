@@ -23,14 +23,17 @@ local aliases = {
     {'oils',        "ord rr input /item 'Silent Oil' <me>"},
     {'vshard',      "ord rr input /item 'V. Con. Shard' <me>"},
     {'ontic',       "ord rr input /item 'Ontic Extermity' <me>"},
-    {'demring',     "ord rr bp demring"},
     {'woe',         "ord rr ent buy"},
 
     -- RINGS.
     {'wring',       "bp wring"},
     {'demring',     "bp demring"},
-    {'wrings',      "ord a bp wring"},
-    {'demrings',    "ord a bp demring"},
+    {'wrings',      "ord @ bp wring"},
+    {'demrings',    "ord @ bp demring"},
+
+    -- ITEMS.
+    {'mars',        "bp trade mars:1"},
+    {'venus',       "bp trade venus:1"},
 
 }
 bp.helpers['alias'].register(aliases)

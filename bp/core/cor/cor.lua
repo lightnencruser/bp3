@@ -30,7 +30,7 @@ function job.get()
 
                     -- QUICK DRAW.
                     if get('quick draw').enabled and isReady('JA', get('quick draw').name) then
-                        add(bp.JA[get('quick draw').name], player)
+                        add(bp.JA[get('quick draw').name], target)
     
                     -- RANDOM DEAL.
                     elseif get('random deal') and isReady('JA', "Random Deal") then
@@ -64,7 +64,7 @@ function job.get()
 
                     -- QUICK DRAW.
                     if target and get('quick draw').enabled and isReady('JA', get('quick draw').name) then
-                        add(bp.JA[get('quick draw').name], player)
+                        add(bp.JA[get('quick draw').name], target)
     
                     -- RANDOM DEAL.
                     elseif get('random deal') and isReady('JA', "Random Deal") then

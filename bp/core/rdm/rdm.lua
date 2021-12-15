@@ -101,10 +101,10 @@ function job.get()
                             if player.job_points['rdm'].jp_spent >= 1200 and isReady('MA', "Refresh III") then
                                 add(bp.MA["Refresh III"], player)
 
-                            elseif player.main_job_level >= 82 and isReady('MA', "Refresh II") then
+                            elseif player.main_job_level >= 82 and player.job_points['rdm'].jp_spent < 1200 and isReady('MA', "Refresh II") then
                                 add(bp.MA["Refresh II"], player)
 
-                            elseif player.main_job_level < 82 and isReady('MA', "Refresh") then
+                            elseif player.main_job_level < 82 and player.job_points['rdm'].jp_spent < 1200 and isReady('MA', "Refresh") then
                                 add(bp.MA["Refresh"], player)
                             
                             end
@@ -205,10 +205,10 @@ function job.get()
                             if player.job_points['rdm'].jp_spent >= 1200 and isReady('MA', "Refresh III") then
                                 add(bp.MA["Refresh III"], player)
 
-                            elseif player.main_job_level >= 82 and isReady('MA', "Refresh II") then
+                            elseif player.main_job_level >= 82 and player.job_points['rdm'].jp_spent < 1200 and isReady('MA', "Refresh II") then
                                 add(bp.MA["Refresh II"], player)
 
-                            elseif player.main_job_level < 82 and isReady('MA', "Refresh") then
+                            elseif player.main_job_level < 82 and player.job_points['rdm'].jp_spent < 1200 and isReady('MA', "Refresh") then
                                 add(bp.MA["Refresh"], player)
                             
                             end

@@ -1,9 +1,9 @@
 bp/core/*/settings
-bp/helpers/settings
 bp/settings/*.lua
-empyrean
-moneyteam.lua
-roboto.lua
+bp/helpers/settings
+bp/helpers/moneyteam.lua
+bp/helpers/empyrean.lua
+bp/helpers/roboto.lua
 bp/helpers/crafting.lua
-chests.lua
-roe.lua
+bp/helpers/chests.lua
+bp/helpers/roe.lua

@@ -189,6 +189,14 @@ function accolades.new()
         end
 
     end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x034 and self.busy then
+            self.purchase(original)
+        end
+
+    end)
     
     return self
     

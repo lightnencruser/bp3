@@ -119,6 +119,9 @@ function target.new()
         elseif bp and bp.player and bp.player.status == 1 and self.getTarget() and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
             self.setTarget(windower.ffxi.get_mob_by_target('t'))
 
+        elseif bp and bp.player and bp.player.status ~= 1 then
+            self.targets.player = false
+
         end
 
         if self.targets.player and (not self.allowed(self.targets.player) or (self.targets.player.distance):sqrt() > 35) then

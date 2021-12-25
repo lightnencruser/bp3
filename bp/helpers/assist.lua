@@ -309,10 +309,10 @@ function assist.new()
     private.events.timechange = windower.register_event('time change', function(new, old)
         private.act()
 
-        if bp then
+        if bp and private.engage and private.assist then
             local target = bp.helpers['target'].getTarget()
 
-            if private.engage and private.assist and target and bp.player.status == 0 and bp.helpers['target'].canEngage(target) then
+            if target and bp.player.status == 0 and bp.helpers['target'].canEngage(target) then
                 bp.helpers['actions'].engage(target)
             end
 

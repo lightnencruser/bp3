@@ -154,7 +154,7 @@ function logic.get()
     end
 
     self.handleAutomation = function()
-
+        
         if bp and bp.player and bp.helpers['queue'].checkReady() and not bp.helpers['actions'].moving then
             local target    = bp.helpers['target'].getTarget() or false
             local helpers   = bp.helpers

@@ -126,7 +126,7 @@ function actions.new()
 
             -- Rebuild the packet based on material data.
             for _,material in ipairs(materials) do
-
+                
                 if material and material.count then
                     local item  = bp.helpers['inventory'].findItemIndexByName(material.name, 0, material.count) or false
                     local count = bp.helpers['inventory'].getCountByIndex(item)

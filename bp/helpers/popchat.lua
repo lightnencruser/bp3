@@ -134,7 +134,7 @@ function popchat.new()
         if bp and bp.player and helper and helper:lower() == 'popchat' and #commands > 0 then
             local message = {}
     
-            for i=2, #commands do
+            for i=1, #commands do
                 table.insert(message, commands[i])
             end
             self.pop(table.concat(message, ' '))

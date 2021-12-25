@@ -43,7 +43,7 @@ function job.get()
                     end
 
                     -- SPONTANEITY.
-                    if get('spontaneity') and isReady('JA', "Spontaneity") and not buff(230) then
+                    if get('spontaneity') and isReady('JA', "Spontaneity") and not buff(230) and get('buffs') then
                         add(bp.JA["Spontaneity"], player)
                     end
     
@@ -160,7 +160,7 @@ function job.get()
                     end
 
                     -- SPONTANEITY.
-                    if target and get('spontaneity') and isReady('JA', "Spontaneity") and not buff(230) then
+                    if target and get('spontaneity') and isReady('JA', "Spontaneity") and not buff(230) and get('buffs') then
                         add(bp.JA["Spontaneity"], player)
                     end
     
@@ -222,7 +222,7 @@ function job.get()
                             add(bp.MA["Aquaveil"], player)
         
                         -- BLINK.
-                        elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not buff(36) then
+                        elseif get('blink') and isReady('MA', "Blink") and not get('utsusemi') and not buff(36) and not bp.core.hasShadows() then
                             add(bp.MA["Blink"], player)
                             
                         -- SPIKES.

@@ -4,6 +4,7 @@ function sparks.new()
     
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local items     = dofile(string.format("%sbp/resources/sparks_list.lua", windower.addon_path))
     local name      = false
     local purchase  = false
@@ -127,6 +128,26 @@ function sparks.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local a = T{...}
+        local c = a[1] or false
+    
+        if c and c == 'sparks' then
+            local command = a[2] or false
+
+        end        
+
+    end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x034 and self.busy then
+            self.purchase(original)
+        end
+
+    end)
     
     return self
     

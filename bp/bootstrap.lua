@@ -9,7 +9,7 @@ bootstrap.load = function()
     local directory = string.format('bp/settings/%s', player.name)
     local helpers   = {
         
-        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','debuffs','debug','distance','enmity','equipment','gil','roe',
+        'accolades','actions','aftermath','alias','autoload','assist','attachments','bits','bpsocket','bubbles','buffs','burst','chests','ciphers','commands','coms','console','controls','controllers','cures','debuffs','debug','distance','enmity','equipment','roe',
         'inventory','items','invites','keybinds','maintenance','maps','menus','merits','moneyteam','noknock','party','paths','popchat','queue','roboto','rolls','romans','runes','songs','sparks','speed','status','spaz','stratagems','stunner','target','trust','crafting','itemizer'
     
     }
@@ -364,10 +364,10 @@ bootstrap.load = function()
 
     ActionPacket.open_listener(self.helpers['noknock'].block)
     events.prerender = windower.register_event('prerender', function()
-        self.party = windower.ffxi.get_party() or false
+        self.party  = windower.ffxi.get_party() or false
         self.player = windower.ffxi.get_player() or false
-        self.info = windower.ffxi.get_info() or false
-        self.me = windower.ffxi.get_mob_by_target('me') or false
+        self.info   = windower.ffxi.get_info() or false
+        self.me     = windower.ffxi.get_mob_by_target('me') or false
         self.hideUI = (bp.info.mog_house or bp.info.chat_open) or (bp.info.menu_open and self.player.status ~= 1 and not windower.ffxi.get_mob_by_target('t')) and true or false
 
         if self.player then
@@ -617,9 +617,6 @@ bootstrap.load = function()
                         end
     
                     end
-                
-                elseif pack['Category'] ~= 1 then
-                    self.helpers['queue'].ready = (os.clock() + 1)
     
                 end
     
@@ -632,70 +629,14 @@ bootstrap.load = function()
     events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
     
         if id == 0x0dd then
-            self.helpers['party'].updateJobs(original)
-    
-        elseif id == 0x034 then
-            local menu_hacks = self.helpers['menus'].enabled
-    
-            if menu_hacks and not injected then
-                return self.helpers['menus'].capture(original)
-    
-            elseif not menu_hacks then
-    
-                if self.helpers['sparks'].busy then
-                    self.helpers['sparks'].purchase(original)
-    
-                elseif self.helpers['accolades'].busy then
-                    self.helpers['accolades'].purchase(original)
-    
-                elseif self.helpers['chests'].busy then
-                    return self.helpers['chests'].handleChest(original)
-    
-                elseif self.helpers['maps'].busy then
-                    self.helpers['maps'].buyMaps(original)
-    
-                end
-    
-            end
-    
-        elseif id == 0x05c then
-            local test = true
-
-            if self.helpers['menus'].enabled and not injected then
-                local unpacked  = { original:sub(5,36):unpack("C32") }
-                local packed    = {}
-                
-                for i,v in ipairs(unpacked) do
-    
-                    if i > 7 then
-                        packed[i] = ('C'):pack(unpacked[i])
-                    else
-                        packed[i] = ('C'):pack(255)
-                    end
-    
-                end
-                windower.packets.inject_incoming(0x05c, original:sub(1,4)..table.concat(packed, ''))
-                return true
-
-            end
-    
-        elseif id == 0x03C then
-            local money = false
-    
-            if self.files.new('bp/helpers/moneyteam/moneyteam.lua'):exists() then
-                money = dofile(string.format('%sbp/helpers/moneyteam/moneyteam.lua', windower.addon_path))
-            end
-    
-        elseif id == 0x058 then
+            --self.helpers['party'].updateJobs(original)
     
         elseif id == 0x037 then
             local packed = self.packets.parse('incoming', original)
     
             if packed then
-                local player = windower.ffxi.get_player()
-    
-                -- Update saved packet data for injection.
-                if player and player.id == packed['Player'] and packed['Status'] ~= 31 then
+
+                if self.player and self.player.id == packed['Player'] and packed['Status'] ~= 31 then
                     self.helpers['maintenance'].updateData(original)
                 end
     
@@ -706,9 +647,8 @@ bootstrap.load = function()
             local packed = self.packets.parse('incoming', original)
     
             if packed then
-                local player = windower.ffxi.get_player()
     
-                if player and player.id == packed['Player'] then
+                if self.player and self.player.id == packed['Player'] then
                     return self.helpers['speed'].adjustSpeed(id, original)
                 end
     

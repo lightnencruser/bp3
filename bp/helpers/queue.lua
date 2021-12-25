@@ -177,10 +177,9 @@ function queue.new()
     end
     
     self.checkReady = function()
-        local player      = windower.ffxi.get_player() or false
-        local ready       = {[0]=0,[1]=1}
+        local ready = {[0]=0,[1]=1}
 
-        if (os.clock()-self.ready) > 0 and player and ready[player.status] then
+        if bp and bp.player and (os.clock()-self.ready) > 0 and bp.player and ready[bp.player.status] then
 
             if not loaded then
                 bp.helpers['equipment'].update()
@@ -579,7 +578,7 @@ function queue.new()
     end
 
     self.handle = function()
-
+        
         if bp and self.queue and self.queue:length() > 0 and (os.clock()-protection) > 1 and self.checkReady() and not bp.helpers['actions'].moving then
             local player    = bp.player
             local helpers   = bp.helpers

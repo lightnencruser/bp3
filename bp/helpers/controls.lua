@@ -2,6 +2,7 @@ local controls  = {}
 local player    = windower.ffxi.get_player()
 local files     = require('files')
 local texts     = require('texts')
+require('vectors')
 local f = files.new(string.format('bp/helpers/settings/controls/%s_settings.lua', player.name))
 
 if not f:exists() then
@@ -13,6 +14,7 @@ function controls.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local delays    = {assist=2, distance=0.45, facing=1}
     local times     = {assist=0, distance=0, facing=0}
 
@@ -101,20 +103,18 @@ function controls.new()
                 local target = windower.ffxi.get_mob_by_id(target.id) or false
                     
                 if player and target and player.status == 1 then
-                    local pSize     = player.model_size
-                    local variation = (0.75)
-                    local maximum   = (3-pSize)
-                    local distance  = target.distance:sqrt()
+                    local distance  = ((V{player.x, player.y, player.z} - V{target.x, target.y, target.z}):length())
+                    local maximum   = ((3-player.model_size) + target.model_size)
                     
                     if distance > maximum then
                         helpers['actions'].move(target.x, target.y)
                         times.distance = os.clock()
                             
-                    elseif distance < maximum and distance > (maximum-variation) then
+                    elseif distance <= (maximum-0.25) and distance >= (maximum-1) then
                         self.stop()
                         times.distance = os.clock()
                             
-                    elseif distance < (maximum-variation) then
+                    elseif distance < (maximum-1) then
                         self.stepBackwards()
                         times.distance = os.clock()
                             
@@ -157,36 +157,15 @@ function controls.new()
         if bp and command ~= '' then
 
             if (command == 'face' or command == 'f') then
-
-                if self.facing then
-                    self.facing = false
-
-                else
-                    self.facing = true
-
-                end
+                self.facing = self.facing ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-FACING TARGETS: %s', tostring(self.facing)))
 
             elseif (command == 'distance' or command == 'd') then
-
-                if self.distance then
-                    self.distance = false
-
-                else
-                    self.distance = true
-
-                end
+                self.distance = self.distance ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-DISTANCING TARGETS: %s', tostring(self.distance)))
 
             elseif (command == 'assist' or command == 'a') then
-
-                if self.assist then
-                    self.assist = false
-
-                else
-                    self.assist = true
-
-                end
+                self.assist = self.assist ~= true and true or false
                 bp.helpers['popchat'].pop(string.format('AUTO-ASSIST PARTY: %s', tostring(self.assist)))
 
             end
@@ -230,6 +209,37 @@ function controls.new()
     self.stop = function()
         windower.ffxi.run(false)
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1]
+
+        if bp and bp.player and helper and helper:lower() == 'controls' then
+            table.remove(commands, 1)
+
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command ~= 'range' then
+                    self.toggle(command)
+    
+                elseif command == 'range' and commands[2] and tonumber(commands[2]) ~= nil then
+                    self.range = tonumber(commands[2])
+                    bp.helpers['popchat'].pop(string.format('ASSIST RANGE NOW SET TO: %s.', self.range))
+    
+                end
+
+            end
+
+        end
+
+    end)
+
+    private.events.prerender = windower.register_event('prerender', function()
+        self.checkDistance()
+        self.checkFacing()
+    end)
 
     return self
 

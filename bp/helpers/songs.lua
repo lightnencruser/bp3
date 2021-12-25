@@ -108,6 +108,7 @@ function songs.new()
             self.settings.position  = self.position
             self.settings.warning   = self.warning
             self.settings.dummy     = self.dummy
+            self.settings.delay     = self.delay
             self.settings.layout    = self.layout
 
         end
@@ -255,8 +256,6 @@ function songs.new()
     end
 
     self.valid = function(song)
-        local bp    = bp or false
-        local song  = song or false
 
         if bp and song and (type(song) == 'number' or tonumber(song) ~= nil) then
 
@@ -274,7 +273,6 @@ function songs.new()
     end
 
     self.changeDummy = function()
-        local bp = bp or false
 
         if bp then
             self.position = (self.position + 1)
@@ -291,7 +289,6 @@ function songs.new()
     end
 
     self.toggleWarning = function()
-        local bp = bp or false
 
         if bp then
 
@@ -311,12 +308,10 @@ function songs.new()
     end
 
     self.sing = function(commands)
-        local bp        = bp or false
-        local commands  = commands or false
         
         -- Song Command Structure: songs <song1> <song2> <song3> <song4> <song5> <target>
         if bp and commands then
-            local player    = windower.ffxi.get_player()
+            local player    = bp.player
             local helpers   = bp.helpers
             local loop      = false
             local target    = false
@@ -325,11 +320,6 @@ function songs.new()
             
             -- Reset Pianissimo.
             self.piano = false
-
-            -- Clear the queue for incoming songs if it was not to loop.
-            if not T(commands):contains('loop') then
-                --helpers['queue'].clear()
-            end
             
             if commands[#commands]:sub(1, 1) == '*' and helpers['party'].getMember(commands[#commands]:sub(2, #commands[#commands]), false) then
                 target = helpers['party'].getMember(commands[#commands]:sub(2, #commands[#commands]), false)
@@ -354,24 +344,24 @@ function songs.new()
             end
 
             -- Determine if NiTro CAN used.
-            if bp.core.getSetting('JA') and helpers['actions'].isReady('JA', 'Nightingale') and helpers['actions'].isReady('JA', 'Troubadour') then
+            if bp.core.get('ja') and helpers['actions'].isReady('JA', 'Nightingale') and helpers['actions'].isReady('JA', 'Troubadour') then
                 flags.ja = true
             end
 
             -- Adjust songs allowed if one-hour is enabled and available.
-            if bp.core.getSetting('1HR') and flags.ja and helpers['actions'].isReady('JA', 'Soul Voice') and helpers['actions'].isReady('JA', 'Clarion Call') then
+            if bp.core.get('1hr') and flags.ja and helpers['actions'].isReady('JA', 'Soul Voice') and helpers['actions'].isReady('JA', 'Clarion Call') then
                 count.allowed   = (count.allowed + 1)
                 flags.specials  = true
 
             -- If enabled but used and the buff is currently active.
-            elseif bp.core.getSetting('1HR') and not flags.ja and self.specialIsActive(bp) then
+            elseif bp.core.get('1hr') and not flags.ja and self.specialIsActive() then
                 count.allowed   = (count.allowed + 1)
                 flags.specials  = true
 
             end
 
             -- Trigger a warning message if NiTro is down but one-hours are enabled and available.
-            if bp.core.getSetting('JA') and bp.core.getSetting('1HR') and not flags.ja and not self.specialIsActive(bp) then
+            if bp.core.get('ja') and bp.core.get('1hr') and not flags.ja and not self.specialIsActive() then
                 windower.send_command('p ***WARNING!*** NITRO IS UNAVAILABLE AND 1HR IS CURRENTLY ACTIVATED!')
             end
 
@@ -511,7 +501,6 @@ function songs.new()
     end
 
     self.getSongsAllowed = function()
-        local bp = bp or false
 
         if bp then
             local helpers = bp.helpers
@@ -530,29 +519,18 @@ function songs.new()
     end
 
     self.hasHonorMarch = function()
-        local bp = bp or false
 
-        if bp then
-            local helpers = bp.helpers
-
-            if helpers['inventory'].inBag('Marsyas') then
-                return true
-            end
-
+        if bp and bp.helpers['inventory'].inBag('Marsyas') then
+            return true
         end
         return false
 
     end
 
     self.specialIsActive = function()
-        local bp = bp or false
 
-        if bp then
-
-            if bp.helpers['buffs'].buffActive(52) and bp.helpers['buffs'].buffActive(499) then
-                return true
-            end
-
+        if bp and bp.helpers['buffs'].buffActive(52) and bp.helpers['buffs'].buffActive(499) then
+            return true
         end
         return false
 
@@ -590,7 +568,6 @@ function songs.new()
     -- Private Events.
     private.events.prerender = windower.register_event('prerender', function()
         private.render()
-
     end)
     
 

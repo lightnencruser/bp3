@@ -4,6 +4,7 @@ function maps.new()
 
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local vendors   = {
         
         [17780860] = {id=17780860, index=124, menuid=10000, maps=255},
@@ -23,8 +24,6 @@ function maps.new()
     end
     
     self.buyMaps = function(data)
-        local bp    = bp or false
-        local data  = data or false
 
         if bp and data then
             local packed = bp.packets.parse('incoming', data)
@@ -83,6 +82,26 @@ function maps.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local a = T{...}
+        local c = a[1] or false
+    
+        if c and c == 'sparks' then
+            local command = a[2] or false
+
+        end        
+
+    end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x034 and self.busy then
+            self.buyMaps(original)
+        end
+
+    end)
 
     return self
 

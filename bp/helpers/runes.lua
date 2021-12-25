@@ -22,7 +22,8 @@ function runes.new()
 
     -- Private Functions.
     local bp        = false
-    local timer     = {last=2, delay=30}
+    local private   = {events={}}
+    local timer     = {last=0, delay=30}
     local modes     = {'RESISTANCE','DAMAGE'}
     local valid     = {523,524,525,526,527,528,529,530}
     local runes     = {
@@ -52,17 +53,17 @@ function runes.new()
     }
 
     -- Public Variables.
-    self.runes      = self.settings.runes or {self.allowed[365], self.allowed[365], self.allowed[365]}
-    self.mode       = self.settings.mode or 1
+    private.runes       = self.settings.runes or {self.allowed[365], self.allowed[365], self.allowed[365]}
+    private.mode        = self.settings.mode or 1 
 
     -- Private Functions.
     local persist = function()
         local next = next
 
         if self.settings then
-            self.settings.runes   = self.runes
-            self.settings.mode    = self.mode
             self.settings.layout  = self.layout
+            self.settings.runes   = private.runes
+            self.settings.mode    = private.mode
 
         end
 
@@ -100,7 +101,7 @@ function runes.new()
     resetDisplay()
 
     -- Static Functions.
-    self.writeSettings = function()
+    private.writeSettings = function()
         persist()
 
         if f:exists() then
@@ -111,49 +112,68 @@ function runes.new()
         end
 
     end
-    self.writeSettings()
+    private.writeSettings()
 
-    self.zoneChange = function()
-        self.writeSettings()
-    end
+    private.render = function()
 
-    self.jobChange = function()
-        self.writeSettings()
-        persist()
-        resetDisplay()
+        if bp and bp.player then
+            local player = bp.player
+            local update = {}
 
-    end
+            if bp.hideUI then
+                
+                if self.display:visible() then
+                    self.display:hide()
+                end
+                return
 
-    self.render = function()
-        local player = bp.player
-        local update = {}
-
-        if bp.hideUI then
-            
-            if self.display:visible() then
-                self.display:hide()
             end
-            return
+            
+            if player.main_job == 'RUN' then
+
+                for i,v in ipairs(private.runes) do
+
+                    if v.en then
+                        table.insert(update, string.format(' \\cs(%s)%s\\cr', colors[v.en][private.mode], v.en))
+                    end
+
+                end
+                self.display:text(string.format('{%s%s%s}', (''):lpad(' ', 3), table.concat(update, '  + '), (''):rpad(' ', 3)))
+                self.display:update()
+                self.display:show()
+
+            elseif player.sub_job == 'RUN' then
+                
+                for i=1, 1 do
+                    table.insert(update, string.format(' \\cs(%s)%s\\cr', colors[private.runes[i].en][private.mode], private.runes[i].en))
+                end
+                self.display:text(string.format('{%s%s%s}', (''):lpad(' ', 3), table.concat(update, '  + '), (''):rpad(' ', 3)))
+                self.display:update()
+                self.display:show()
+
+            elseif self.display:visible() then
+                self.display:text('')
+                self.display:update()
+                self.display:hide()
+
+            end
 
         end
+
+    end
+
+    private.pos = function(x, y)
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
+
+        if bp and x and y then
+            self.display:pos(x, y)
+            self.layout.pos.x = x
+            self.layout.pos.y = y
+            private.writeSettings()
         
-        if (player.main_job == 'RUN' or player.sub_job == 'RUN') then
-
-            for i,v in ipairs(self.runes) do
-                    
-                if v.en then
-                    table.insert(update, string.format(' \\cs(%s)%s\\cr', colors[v.en][self.mode], v.en))
-                end
-
-            end
-            self.display:text(string.format('{%s%s%s}', (''):lpad(' ', 3), table.concat(update, '  + '), (''):rpad(' ', 3)))
-            self.display:update()
-            self.display:show()
-
-        elseif self.display:visible() then
-            self.display:text('')
-            self.display:update()
-            self.display:hide()
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
         end
 
@@ -175,16 +195,16 @@ function runes.new()
             if r1 and r1 ~= nil then
             
                 if type(r1) == 'table' and r1.en then
-                    self.runes[1] = r1
+                    private.runes[1] = r1
 
                 elseif (type(r1) == 'number' or tonumber(r1) ~= nil) and self.allowed[r1] then
-                    self.runes[1] = self.allowed[r1]
+                    private.runes[1] = self.allowed[r1]
 
                 elseif type(r1) == 'string' and bp.JA[r1] then
-                    self.runes[1] = bp.JA[r1]
+                    private.runes[1] = bp.JA[r1]
 
                 elseif type(r1) == 'string' and bp.JA[runes[r1]] then
-                    self.runes[1] = bp.JA[runes[r1]]
+                    private.runes[1] = bp.JA[runes[r1]]
 
                 end
 
@@ -193,16 +213,16 @@ function runes.new()
             if r2 and r2 ~= nil then
             
                 if type(r2) == 'table' and r2.en then
-                    self.runes[2] = r2
+                    private.runes[2] = r2
 
                 elseif (type(r2) == 'number' or tonumber(r2) ~= nil) and self.allowed[r2] then
-                    self.runes[2] = self.allowed[r2]
+                    private.runes[2] = self.allowed[r2]
 
                 elseif type(r2) == 'string' and bp.JA[r2] then
-                    self.runes[2] = bp.JA[r2]
+                    private.runes[2] = bp.JA[r2]
 
                 elseif type(r2) == 'string' and bp.JA[runes[r2]] then
-                    self.runes[2] = bp.JA[runes[r2]]
+                    private.runes[2] = bp.JA[runes[r2]]
 
                 end
 
@@ -211,22 +231,22 @@ function runes.new()
             if r3 and r3 ~= nil then
             
                 if type(r3) == 'table' and r3.en then
-                    self.runes[3] = r3
+                    private.runes[3] = r3
 
                 elseif (type(r3) == 'number' or tonumber(r3) ~= nil) and self.allowed[r3] then
-                    self.runes[3] = self.allowed[r3]
+                    private.runes[3] = self.allowed[r3]
 
                 elseif type(r3) == 'string' and bp.JA[r3] then
-                    self.runes[3] = bp.JA[r3]
+                    private.runes[3] = bp.JA[r3]
 
                 elseif type(r3) == 'string' and bp.JA[runes[r3]] then
-                    self.runes[3] = bp.JA[runes[r3]]
+                    private.runes[3] = bp.JA[runes[r3]]
 
                 end
 
             end
-            bp.helpers['popchat'].pop(string.format('RUNES NOW SET TO: %s, %s, & %s.', self.runes[1].en, self.runes[2].en, self.runes[3].en))
-            self.writeSettings()
+            bp.helpers['popchat'].pop(string.format('RUNES NOW SET TO: %s, %s, & %s.', private.runes[1].en, private.runes[2].en, private.runes[3].en))
+            private.writeSettings()
 
         end
 
@@ -326,69 +346,124 @@ function runes.new()
         
     end
 
+    self.maxRunes = function()
+
+        if bp and bp.player then
+
+            if bp.player.main_job_level < 35 then
+                return 1
+
+            elseif bp.player.main_job_level >= 35 and bp.player.main_job_level < 65 then
+                return 2
+
+            elseif bp.player.main_job_level >= 65 then
+                return 3
+
+            end
+
+        end
+        return 0
+
+    end
+
     self.handleRunes = function()
-        local bp = bp or false
+        local current = {}
+        local allowed = self.maxRunes()
 
-        if bp then
-            local buffs     = windower.ffxi.get_player().buffs
-            local active    = self.getActive(bp)
+        if bp and bp.player then
+            local buffs = bp.player.buffs
+            local active = self.getActive()
 
-            if active < 3 then
+            if bp.player.main_job == 'RUN' then
+                
+                if active > 0 and active < allowed and bp.helpers['actions'].isReady('JA', "Ignis") then
+                    
+                    -- Get current runes activated.
+                    for _,v in ipairs(buffs) do
+                        if self.validBuff(v) then
+                            table.insert(current, v)
+                        end
+                    end
 
-                if (os.clock()-timer.last) > timer.delay then
+                    for _,v in ipairs(private.runes) do
 
-                    for i=1, 3 do
-                        local rune = self.runes[i]
+                        if #current > 0 then
 
-                        if rune then
-                            helpers['queue'].add(bp.JA[rune.en], 'me')
+                            for i, buff in ipairs(current) do
+
+                                if bp.BUFFS[v.en] and bp.BUFFS[v.en].id == buff then
+                                    table.remove(current, i)
+                                end
+
+                            end
+
+                        else
+
+                            if not bp.helpers['queue'].inQueue(bp.JA[v.en]) and bp.helpers['actions'].isReady('JA', "Ignis") then
+                                bp.helpers['queue'].add(bp.JA[v.en], bp.player)
+                            end
+
                         end
 
                     end
-                    timer.last = os.clock()
 
-                end
-
-            elseif active == 0 then
-
-                for i=1, 3 do
-                    local rune = self.runes[i]
-
-                    if rune then
-                        helpers['queue'].add(bp.JA[rune.en], 'me')
+                elseif active == 0 and bp.helpers['actions'].isReady('JA', "Ignis") then
+                    
+                    if not bp.helpers['queue'].inQueue(bp.JA[private.runes[1].en]) then
+                        bp.helpers['queue'].add(bp.JA[private.runes[1].en], bp.player)
                     end
 
                 end
-                timer.last = os.clock()
+
+            elseif bp.player.sub_job == 'RUN' then
                 
+                if not T(buffs):contains(self.getBuff(private.runes[1].en).id) then
+                    
+                    if not bp.helpers['queue'].inQueue(private.runes[1]) and bp.helpers['actions'].isReady('JA', private.runes[1].en) then
+                        bp.helpers['queue'].add(bp.JA[private.runes[1].en], bp.player)                        
+                    end
+
+                end
+
             end
 
         end
 
     end
 
-    self.toggleMode = function()
-        self.mode = ( self.mode == 1 and 2 or 1 )
-        bp.helpers['popchat'].pop(string.format('RUNES MODE: %s', modes[self.mode]))
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = table.remove(commands, 1)
 
-    end
+        if bp and bp.player and helper and helper:lower() == 'runes' then
 
-    self.pos = function(x, y)
-        local x = tonumber(x) or self.layout.pos.x
-        local y = tonumber(y) or self.layout.pos.y
+            if commands[1] then
+                local command = commands[1]:lower()
 
-        if bp and x and y then
-            self.display:pos(x, y)
-            self.layout.pos.x = x
-            self.layout.pos.y = y
-            self.writeSettings()
-        
-        elseif bp and (not x or not y) then
-            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
+                if command == 'pos' and commands[2] then
+                    private.pos(commands[2], commands[3] or false)
+
+                elseif command == 'mode' then
+                    private.mode = private.mode == 1 and 2 or 1
+                    bp.helpers['popchat'].pop(string.format('RUNES MODE: %s', modes[private.mode]))
+                    private.writeSettings()
+
+                else
+                    self.setRune(commands[2] or false, commands[3] or false, commands[4] or false)
+
+                end
+
+
+            end
 
         end
 
-    end
+    end)
+
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()
+    end)
 
     return self
 

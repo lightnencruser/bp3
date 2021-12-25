@@ -4,10 +4,11 @@ function accolades.new()
     
     -- Private Variables.
     local bp        = false
+    local private   = {events={}}
     local name      = false
     local purchase  = false
     local quantity  = 0
-    local targets   = {'Igsli'}
+    local targets   = {'Urbiolaine','Igsli','Teldro-Kesdrodo','Yonolala','Nunaarl Bthtrogg'}
     local items     = {
 
         {name="Refractive Crystal", id=003, buy=8164, quantity=0, unknown1=0},
@@ -38,51 +39,53 @@ function accolades.new()
     end
 
     self.poke = function(item, count)
-        local bp        = bp or false
-        local item      = item or false
-        local count     = tonumber(count) or 1
-        local target    = false
+        local count = tonumber(count) or 1
+        local target = false
 
-        for _,v in ipairs(targets) do
-            target = windower.ffxi.get_mob_by_name(v) or false
-        end
+        if item and count ~= nil then        
 
-        if not target or (target and (target.distance):sqrt() > 6) then
-            bp.helpers['popchat'].pop("COULD NOT FIND A UNITY NPC NEARBY!!")
-            return false
-        
-        end
-
-        if bp and item and target and bp.helpers['inventory'].hasSpace(0) and count ~= nil then
-            local space = bp.helpers['inventory'].getSpace()
-
-            for i,v in ipairs(items) do
-                
-                if (v.name:lower()):match(item) then
-                    purchase = items[i]
-                    break
-
-                end
-
+            for _,v in ipairs(targets) do
+                target = windower.ffxi.get_mob_by_name(v) or false
             end
 
+            if not target or (target and (target.distance):sqrt() > 6) then
+                bp.helpers['popchat'].pop("COULD NOT FIND A UNITY NPC NEARBY!!")
+                return false
             
-            if purchase and purchase.name then
-                quantity    = count or 1
-                name        = item
-                self.busy   = true
+            end
 
-                do -- Interact with NPC.
-                    bp.helpers['actions'].doAction(target, 0, 'interact')
+            if bp and item and target and bp.helpers['inventory'].hasSpace(0) and count ~= nil then
+                local space = bp.helpers['inventory'].getSpace()
+
+                for i,v in ipairs(items) do
+                    
+                    if (v.name:lower()):match(item) then
+                        purchase = items[i]
+                        break
+
+                    end
+
                 end
 
+                
+                if purchase and purchase.name then
+                    quantity    = count or 1
+                    name        = item
+                    self.busy   = true
+
+                    do -- Interact with NPC.
+                        bp.helpers['actions'].doAction(target, 0, 'interact')
+                    end
+
+                else
+                    bp.helpers['popchat'].pop("THAT ISN'T A VALID ACCOLADES ITEM!")
+
+                end
+            
             else
-                bp.helpers['popchat'].pop("THAT ISN'T A VALID ACCOLADES ITEM!")
+                bp.helpers['popchat'].pop("NOT ENOUGH INVENTORY SPACE!")
 
             end
-        
-        else
-            bp.helpers['popchat'].pop("NOT ENOUGH INVENTORY SPACE!")
 
         end
 
@@ -157,6 +160,43 @@ function accolades.new()
         end
 
     end
+
+    -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1] or false
+
+        if helper and helper == 'accolades' then
+            table.remove(commands, 1)
+            
+            if commands[1] then
+                local item, count = {}, commands[#commands] or false
+
+                for i=1, #commands do
+                    
+                    if tonumber(commands[i]) == nil then
+                        table.insert(item, windower.convert_auto_trans(commands[i]))
+                    end
+
+                end
+                
+                if item and item ~= '' then
+                    bp.helpers['accolades'].poke(table.concat(item, ' '), count)
+                end
+            
+            end
+
+        end
+
+    end)
+
+    private.events.incoming = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x034 and self.busy then
+            self.purchase(original)
+        end
+
+    end)
     
     return self
     

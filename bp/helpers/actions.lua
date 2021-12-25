@@ -1,5 +1,6 @@
 local actions   = {}
 local res       = require('resources')
+                require('vectors')
 
 function actions.new()
     local self = {}
@@ -125,7 +126,7 @@ function actions.new()
 
             -- Rebuild the packet based on material data.
             for _,material in ipairs(materials) do
-
+                
                 if material and material.count then
                     local item  = bp.helpers['inventory'].findItemIndexByName(material.name, 0, material.count) or false
                     local count = bp.helpers['inventory'].getCountByIndex(item)
@@ -563,6 +564,95 @@ function actions.new()
 
     self.stop = function()
         windower.ffxi.run(false)
+    end
+
+    self.facing = function()
+        local m = windower.ffxi.get_mob_by_target('me') or false
+
+        if m then
+            return m.facing % math.tau
+        end
+
+    end
+
+    self.getOutgoingRotation = function()
+        local m = windower.ffxi.get_mob_by_target('me')
+        local math = math
+
+        if m then
+            return ((((m.facing % math.tau)*180)/math.pi)*256/360)
+        end
+        return 0
+
+    end
+
+    self.isFacing = function(target)
+        local m = windower.ffxi.get_mob_by_target('me')
+        local math = math
+
+        if m and target and m.facing and target.facing then
+            local m_degrees = (((m.facing % math.tau)*180)/math.pi)
+            local t_degrees = ((((target.facing)*180)/math.pi) + 180) >= 360 and ((((target.facing)*180)/math.pi)-180) or ((((target.facing)*180)/math.pi)+180)
+            local d = ((V{m.x, m.y, m.z} - V{target.x, target.y, target.z}):length())
+
+            if math.abs(m_degrees - t_degrees) <= 15 and d < (3 - (m.model_size + target.model_size)) then
+                return true
+            end
+
+        end
+        return false
+
+    end
+
+    self.isBehind = function(target)
+        local m = windower.ffxi.get_mob_by_target('me')
+        local math = math
+
+        if m and target and m.facing and target.facing then
+            local m_degrees = (((m.facing % math.tau)*180)/math.pi)
+            local t_degrees = (((target.facing)*180)/math.pi)
+            local d = ((V{m.x, m.y, m.z} - V{target.x, target.y, target.z}):length())
+            
+            if math.abs(m_degrees - t_degrees) <= 15 and d < (3 - (m.model_size + target.model_size)) then
+                return true
+            end
+
+        end
+        return false
+
+    end
+
+    self.inRange = function(target)
+        local m = windower.ffxi.get_mob_by_target('me')
+        local math = math
+
+        if m and target and m.facing and target.facing then
+            local d = ((V{m.x, m.y, m.z} - V{target.x, target.y, target.z}):length())
+
+            if d < (3 - (m.model_size + target.model_size)) then
+                return true
+            end
+
+        end
+        return false
+
+    end
+
+    self.inConal = function(target)
+        local m = windower.ffxi.get_mob_by_target('me')
+        local math = math
+
+        if m and target and m.facing and target.facing then
+            local m_degrees = (((m.facing % math.tau)*180)/math.pi)
+            local t_degrees = ((((target.facing)*180)/math.pi) + 180) >= 360 and ((((target.facing)*180)/math.pi)-180) or ((((target.facing)*180)/math.pi)+180)
+
+            if math.abs(m_degrees - t_degrees) <= 38 then
+                return true
+            end
+
+        end
+        return false
+
     end
 
     self.keyCombo = function(combo, delay)

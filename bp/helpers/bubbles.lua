@@ -73,7 +73,7 @@ function bubbles.new()
 
     -- Public Variables.
     self.bubbles        = self.settings.bubbles or {self.allowed[772], self.allowed[818], self.allowed[780]}
-    self.flags          = self.settings.flags or {indi=true, geo=true, entrust=true, ecliptic=true, dematerialize=true, circle=true, glory=true, lifecycle=true, distance=22}
+    self.flags          = self.settings.flags or {indi=true, geo=true, entrust=true}
 
     -- Private Functions
     private.persist = function()
@@ -102,20 +102,12 @@ function bubbles.new()
         self.display:stroke_alpha(self.layout.colors.stroke.alpha)
         self.display:update()
 
-        if bp and bp.player and bp.player.main_job == 'GEO' then
-            self.display:show()
-
-        else
-            self.display:hide()
-
-        end
-
     end
     private.resetDisplay()
 
     private.render = function()
         
-        if bp and self.display:visible() then
+        if bp and self.display:visible() and bp.player.main_job == 'GEO' then
             local luopan    = bp.helpers['target'].targets.luopan
             local entrust   = bp.helpers['target'].targets.entrust
             local target    = bp.helpers['target'].getTarget()
@@ -175,12 +167,15 @@ function bubbles.new()
     
             end
 
+        elseif bp and bp.player and bp.player.main_job ~= 'GEO' and self.display:visible() then
+            self.display:hide()
+
         end
 
     end
 
     -- Static Functions.
-    self.writeSettings = function()
+    private.writeSettings = function()
         private.persist()
 
         if f:exists() then
@@ -192,31 +187,24 @@ function bubbles.new()
         end
 
     end
-    self.writeSettings()
-
-    self.zoneChange = function()
-        self.writeSettings()
-
-    end
-
-    self.jobChange = function()
-        self.writeSettings()
-        private.persist()
-        private.resetDisplay()
-
-    end
+    private.writeSettings()
 
     self.getPlacement = function()
         return map.placement[placement]
     end
 
-    self.toggleDisplay = function()
+    private.pos = function(x, y)
+        local x = tonumber(x) or self.layout.pos.x
+        local y = tonumber(y) or self.layout.pos.y
 
-        if self.display:visible() then
-            self.display:hide()
-
-        else
-            self.display:show()
+        if bp and x and y then
+            self.display:pos(x, y)
+            self.layout.pos.x = x
+            self.layout.pos.y = y
+            private.writeSettings()
+        
+        elseif bp and (not x or not y) then
+            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
 
         end
 
@@ -231,8 +219,6 @@ function bubbles.new()
     end
 
     self.isGeoSpell = function(id)
-        local bp = bp or false
-        local id = id or false
 
         if bp and id then
 
@@ -250,8 +236,6 @@ function bubbles.new()
     end
 
     self.valid = function(id)
-        local bp = bp or false
-        local id = id or false
 
         if bp and id then
 
@@ -269,10 +253,6 @@ function bubbles.new()
     end
 
     self.setBubbles = function(b1, b2, b3)
-        local bp = bp or false
-        local b1 = b1 or false
-        local b2 = b2 or false
-        local b3 = b3 or false
 
         if bp and b1 then
 
@@ -329,33 +309,12 @@ function bubbles.new()
                 end
 
             end
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.togglePlacement = function()
-
-        if bp then
-
-            if placement == 1 then
-                placement = 2
-
-            elseif placement == 2 then
-                placement = 1
-
-            end
-            bp.helpers['popchat'].pop(string.format('BUBBLE PLACEMENT IS NOW SET TO: %s', map.placement[placement]))
 
         end
 
     end
 
     self.offsetBubble = function(target, param, category)
-        local target    = target or false
-        local param     = param or false
-        local category  = category or false
 
         if bp and target and param and category then
             local action    = bp.packets.new('outgoing', 0x01a)
@@ -393,10 +352,6 @@ function bubbles.new()
     end
 
     self.buildSideOffset = function(direction, size, scale)
-        local bp        = bp or false
-        local direction = direction or false
-        local size      = size or false
-        local scale     = scale or false
 
         if bp and direction and size and scale then
             local adjust = ( (size/2) * scale )
@@ -433,10 +388,6 @@ function bubbles.new()
     end
 
     self.buildFrontOffset = function(direction, size, scale)
-        local bp        = bp or false
-        local direction = direction or false
-        local size      = size or false
-        local scale     = scale or false
 
         if bp and direction and size and scale then
             local adjust = ( (size/2) * scale )
@@ -473,8 +424,7 @@ function bubbles.new()
     end
 
     self.getDirection = function(rotation)
-        local bp        = bp or false
-        local rotation  = rotation or 0
+        local rotation = rotation or 0
 
         if bp then
 
@@ -510,248 +460,54 @@ function bubbles.new()
     end
 
     self.handle = function(target)
-        local bp        = bp or false
-        local target    = target or false
-        local pet       = windower.ffxi.get_mob_by_target('pet') or false
 
-        if bp then
-            local bubbles = self.bubbles
+        if bp and bp.player and bp.helpers['queue'].checkReady() and not bp.helpers['actions'].moving and bp.player.main_job == 'GEO' then
+            local pet       = windower.ffxi.get_mob_by_target('pet') or false
+            local isReady   = bp.helpers['actions'].isReady
+            local queue     = bp.helpers['queue']
+            local bubbles   = self.bubbles
+            local get       = bp.core.get
             
             -- HANDLE GEO-SPELLS.
             if not pet and target then
                 
-                if self.flags.geo and bubbles[2] and bp.helpers['actions'].isReady('MA', bubbles[2].en) and not bp.helpers['queue'].inQueue(bp.MA[bubbles[2].en]) then
+                if self.flags.geo and bubbles[2] and isReady('MA', bubbles[2].en) and not queue.inQueue(bp.MA[bubbles[2].en]) then
                     
-                    if self.flags.glory and bp.helpers['actions'].isReady('JA', "Blaze of Glory") then
-                        bp.helpers['queue'].add(bp.JA['Blaze of Glory'], 'me')
-                        bp.helpers['queue'].add(bp.MA[bubbles[2].en], target)
+                    if get('blaze of glory') and isReady('JA', "Blaze of Glory") then
+                        queue.add(bp.JA['Blaze of Glory'], 'me')
+                        queue.add(bp.MA[bubbles[2].en], target)
 
                     else
-                        bp.helpers['queue'].add(bp.MA[bubbles[2].en], target)
+                        queue.add(bp.MA[bubbles[2].en], target)
 
                     end
 
                 end
             
-            elseif pet and (pet.distance):sqrt() > (self.flags.distance+5) and self.flags.circle and bp.helpers['actions'].isReady('JA', "Full Circle") and not bp.helpers['queue'].inQueue(bp.JA['Full Circle'], 'me') then
-                bp.helpers['queue'].clear()
-                bp.helpers['queue'].addToFront(bp.JA['Full Circle'], 'me')
+            elseif pet and (pet.distance):sqrt() > (get('full circle').distance + 5) and self.flags.circle and isReady('JA', "Full Circle") and not queue.inQueue(bp.JA['Full Circle'], 'me') then
+                queue.clear()
+                queue.addToFront(bp.JA['Full Circle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and bp.helpers['actions'].isReady('JA', "Ecliptic Attrition") and not bp.helpers['queue'].inQueue(bp.JA['Ecliptic Attrition'], 'me') then
-                bp.helpers['queue'].addToFront(bp.JA['Ecliptic Attrition'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and isReady('JA', "Ecliptic Attrition") and not queue.inQueue(bp.JA['Ecliptic Attrition'], 'me') then
+                queue.addToFront(bp.JA['Ecliptic Attrition'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and bp.helpers['actions'].isReady('JA', "Life Cycle") and not bp.helpers['queue'].inQueue(bp.JA['Life Cycle'], 'me') then
-                bp.helpers['queue'].addToFront(bp.JA['Life Cycle'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and isReady('JA', "Life Cycle") and not queue.inQueue(bp.JA['Life Cycle'], 'me') then
+                queue.addToFront(bp.JA['Life Cycle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and bp.helpers['actions'].isReady('JA', "Dematerialize") and not bp.helpers['queue'].inQueue(bp.JA['Dematerialize'], 'me') then
-                bp.helpers['queue'].addToFront(bp.JA['Dematerialize'], 'me')
+            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and isReady('JA', "Dematerialize") and not queue.inQueue(bp.JA['Dematerialize'], 'me') then
+                queue.addToFront(bp.JA['Dematerialize'], 'me')
 
             end
 
             -- HANDLE INDI-SPELLS.
-            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and bp.helpers['actions'].isReady('MA', bubbles[1].en) and not bp.helpers['queue'].inQueue(bp.MA[bubbles[1].en]) then
-                bp.helpers['queue'].add(bp.MA[bubbles[1].en], 'me')
+            if self.flags.indi and not bp.helpers['buffs'].buffActive(612) and bubbles[1] and isReady('MA', bubbles[1].en) and not queue.inQueue(bp.MA[bubbles[1].en]) then
+                queue.add(bp.MA[bubbles[1].en], 'me')
             end
 
             -- HANDLE ENTRUST SPELLS.
-            if self.flags.entrust and bp.helpers['actions'].isReady('JA', "Entrust") and not bp.helpers['queue'].inQueue(bp.MA[bubbles[3].en]) and bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
-                bp.helpers['queue'].add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
+            if self.flags.entrust and isReady('JA', "Entrust") and not queue.inQueue(bp.MA[bubbles[3].en]) and bp.helpers['target'].targets.entrust and bp.helpers['target'].getTarget() then
+                queue.add(bp.MA[bubbles[3].en], bp.helpers['target'].targets.entrust)
 
-            end
-
-        end
-
-    end
-
-    self.pos = function(x, y)
-        local bp    = bp or false
-        local x     = tonumber(x) or self.layout.pos.x
-        local y     = tonumber(y) or self.layout.pos.y
-
-        if bp and x and y then
-            self.display:pos(x, y)
-            self.layout.pos.x = x
-            self.layout.pos.y = y
-            self.writeSettings()
-        
-        elseif bp and (not x or not y) then
-            bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
-
-        end
-
-    end
-
-    self.toggleBOG = function()
-        local bp = bp or false
-
-        if bp then
-        
-            if self.flags.glory then
-                self.flags.glory = false
-
-            else
-                self.flags.glory = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('BLAZE OF GLORY: %s', tostring(self.flags.glory)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleEnhancements = function()
-        local bp = bp or false
-
-        if bp then
-        
-            if self.flags.ecliptic then
-                self.flags.ecliptic = false
-
-            else
-                self.flags.ecliptic = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('%s: %s', buffs[buff], tostring(self.flags.ecliptic)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleBuff = function()
-        local n = #buffs
-
-        if buff < n then
-            buff = (buff + 1)
-
-        elseif buff >= n then
-            buff = 1
-
-        end
-        bp.helpers['popchat'].pop(string.format('ENHANCEMENTS NOW SET TO: %s', tostring(buffs[buff])))
-        self.writeSettings()
-
-    end
-
-    self.toggleIndi = function()
-
-        if bp then
-
-            if self.flags.indi then
-                self.flags.indi = false
-
-            else
-                self.flags.indi = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('INDI-SPELLS: %s', tostring(self.flags.indi)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleGeo = function()
-
-        if bp then
-
-            if self.flags.geo then
-                self.flags.geo = false
-
-            else
-                self.flags.geo = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('GEO-SPELLS: %s', tostring(self.flags.geo)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleEntrust = function()
-
-        if bp then
-
-            if self.flags.entrust then
-                self.flags.entrust = false
-
-            else
-                self.flags.entrust = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('ENTRUST-SPELLS: %s', tostring(self.flags.entrust)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleDematerialize = function()
-
-        if bp then
-
-            if self.flags.dematerialize then
-                self.flags.dematerialize = false
-
-            else
-                self.flags.dematerialize = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('DEMATERIALIZE: %s', tostring(self.flags.dematerialize)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleLifeCycle = function()
-
-        if bp then
-
-            if self.flags.lifecycle then
-                self.flags.lifecycle = false
-
-            else
-                self.flags.lifecycle = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('LIFE CYCLE: %s', tostring(self.flags.lifecycle)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.toggleFullCircle = function()
-
-        if bp then
-
-            if self.flags.circle then
-                self.flags.circle = false
-
-            else
-                self.flags.circle = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('FULL CIRCLE: %s', tostring(self.flags.circle)))
-            self.writeSettings()
-
-        end
-
-    end
-
-    self.setDistance = function(distance)
-        local distance = distance or false
-
-        if bp and distance and tonumber(distance) ~= nil then
-            self.flags.distance = tonumber(distance)
-
-            do -- Display message and save current settings.
-                bp.helpers['popchat'].pop(string.format('FULL CIRCLE DISTANCE SET TO: %02d', self.flags.distance))
-                self.writeSettings()
-                
             end
 
         end
@@ -759,9 +515,59 @@ function bubbles.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1]
+        
+        if helper and helper:lower() == 'bubbles' then
+            table.remove(commands, 1)
+            
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command == 'display' then
+                    
+                    if not self.display:visible() then
+                        self.display:show()
+
+                    else
+                        self.display:hide()
+                    
+                    end
+                
+                elseif command == 'place' then
+                    placement = placement ~= 1 and 1 or 2
+                    bp.helpers['popchat'].pop(string.format('BUBBLE PLACEMENT IS NOW SET TO: %s', map.placement[placement]))
+
+                elseif command == 'indi' then
+                    self.flags.indi = self.flags.indi ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('INDI-SPELLS: %s', tostring(self.flags.indi)))
+
+                elseif command == 'geo' then
+                    self.flags.geo = self.flags.geo ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('GEO-SPELLS: %s', tostring(self.flags.geo)))
+
+                elseif command == 'entrust' then
+                    self.flags.entrust = self.flags.entrust ~= true and true or false
+                    bp.helpers['popchat'].pop(string.format('ENTRUST-SPELLS: %s', tostring(self.flags.entrust)))
+
+                elseif command == 'pos' and commands[2] then
+                    private.pos(commands[2], commands[3] or false)
+                
+                else
+                    self.setBubbles(commands[1], commands[2] or false, commands[3] or false)
+
+                end
+
+            end
+            private.writeSettings()
+
+        end        
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         private.render()
-
     end)
 
     private.events.actions = windower.register_event('outgoing chunk', function(id, original, modified, injected, blocked)

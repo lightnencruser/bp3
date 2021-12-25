@@ -190,8 +190,39 @@ function menus.new()
 
             end
 
+        end        
+
+    end)
+
+    private.events.commands = windower.register_event('incoming chunk', function(id, original, modified, injected, blocked)
+
+        if id == 0x034 then
+
+            if self.enabled and not injected then
+                return self.capture(original)
+            end
+
+        elseif id == 0x05c then
+
+            if self.enabled and not injected then
+                local unpacked  = { original:sub(5,36):unpack("C32") }
+                local packed    = {}
+                
+                for i,v in ipairs(unpacked) do
+
+                    if i > 7 then
+                        packed[i] = ('C'):pack(unpacked[i])
+                    else
+                        packed[i] = ('C'):pack(255)
+                    end
+
+                end
+                windower.packets.inject_incoming(0x05c, original:sub(1,4)..table.concat(packed, ''))
+                return true
+
+            end
+
         end
-        
 
     end)
 

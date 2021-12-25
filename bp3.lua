@@ -1,6 +1,6 @@
 _addon.name     = 'bp3'
 _addon.author   = 'Elidyr'
-_addon.version  = '2.20211113'
+_addon.version  = '3.20211225'
 _addon.command  = 'bp'
 local bp = require('bp/bootstrap')
 --[[ From all your friends on Lakshmi, RIP Kanobrown, and you will be forever missed in the FFXI Community. ]]--
@@ -12,19 +12,28 @@ local aliases = {
     {'bpoff',       "ord pp bp disable"},
     {'poke',        "ibruh bigpoke"},
     {'rap',         "ord rr raptor"},
-    {'lilith',      "ord rr pg maiden"},
-    {'sith',        "ord rr pg cait"},
+    {'lilith',      "ord pp pg maiden"},
+    {'cait',        "ord pp pg cait"},
+    {'alex',        "ord pp pg divine"},
     {'rads',        "ord rr temps buy radialens"},
-    {'portb',       "ord rr hp Port Bastok 2"},
-    {'selbina',     "ord rr hp Selbina"},
-    {'mha',         "ord rr hp Mhaura"},
-    {'mountup',     "ord r bp mount"},
+    {'portb',       "ord pp hp Port Bastok 2"},
+    {'selbina',     "ord pp hp Selbina"},
+    {'mha',         "ord pp hp Mhaura"},
     {'prisms',      "ord rr input /item 'Prism Powder' <me>"},
     {'oils',        "ord rr input /item 'Silent Oil' <me>"},
     {'vshard',      "ord rr input /item 'V. Con. Shard' <me>"},
     {'ontic',       "ord rr input /item 'Ontic Extermity' <me>"},
-    {'demring',     "ord rr bp demring"},
     {'woe',         "ord rr ent buy"},
+
+    -- RINGS.
+    {'wring',       "bp wring"},
+    {'demring',     "bp demring"},
+    {'wrings',      "ord @ bp wring"},
+    {'demrings',    "ord @ bp demring"},
+
+    -- ITEMS.
+    {'mars',        "bp trade mars:1"},
+    {'venus',       "bp trade venus:1"},
 
 }
 bp.helpers['alias'].register(aliases)
@@ -37,7 +46,6 @@ local keybinds = {
     '@a bp assist',
     '@m ord r bp mount',
     '@s bp request_stop',
-    '@i bp party invite',
     '@t bp target t',
     '@p bp target pt',
     '@, bp target lt',
@@ -48,8 +56,6 @@ local keybinds = {
     '@right ord p bp controls right',
     '@escape ord p bp controls escape',
     '@enter ord p bp controls enter',
-    '@w ord rr bp wring',
-    '@d ord rr bp demring',
     '@[ ord @ bp on',
     '@] ord @ bp off',
     '@/ bp mode',

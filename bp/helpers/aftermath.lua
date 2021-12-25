@@ -20,7 +20,7 @@ function aftermath.new()
         ["Almace"]              = "Chant du Cygne",
         ["Burtgang"]            = "Atonement",
         ["Murgleis"]            = "Death Blossom",
-        ["Tizona"]              = "Expacion",
+        ["Tizona"]              = "Expiacion",
         ["Sequence"]            = "Requiescat",
         ["Caladbolg"]           = "Torcleaver",
         ["Epeolatry"]           = "Dimidiation",
@@ -76,8 +76,6 @@ function aftermath.new()
     }
     
     self.getWeaponskill = function(weapon)
-        local bp        = bp or false
-        local weapon    = weapon or false
         
         if weapon and aftermaths[weapon] then
             return aftermaths[weapon]
@@ -87,7 +85,6 @@ function aftermath.new()
     end
     
     self.checkRelic = function()
-        local bp = bp or false
 
         if bp and bp.helpers['equipment'] ~= nil then
         
@@ -105,8 +102,6 @@ function aftermath.new()
     end
 
     self.getBuffByLevel = function(level)
-        local bp    = bp or false
-        local level = level or false
         
         if self.checkRelic() then
             return levels[4]

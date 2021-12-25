@@ -28,7 +28,6 @@ function coms.new()
 
     -- Private Functions
     private.persist = function()
-        local next = next
 
         if self.settings then
             self.settings.enabled   = self.enabled
@@ -55,6 +54,20 @@ function coms.new()
 
     end
     private.resetDisplay()
+
+    private.writeSettings = function()
+        private.persist()
+
+        if f:exists() then
+            f:write(string.format('return %s', T(self.settings):tovstring()))
+
+        elseif not f:exists() then
+            f:write(string.format('return %s', T({}):tovstring()))
+
+        end
+
+    end
+    private.writeSettings()
 
     private.render = function()
 
@@ -92,7 +105,6 @@ function coms.new()
     end
 
     private.receive = function(message)
-        local message = message or false
 
         if message then
             message = message:split(':::')
@@ -114,21 +126,6 @@ function coms.new()
 
     end
 
-    -- Static Functions.
-    self.writeSettings = function()
-        private.persist()
-
-        if f:exists() then
-            f:write(string.format('return %s', T(self.settings):tovstring()))
-
-        elseif not f:exists() then
-            f:write(string.format('return %s', T({}):tovstring()))
-
-        end
-
-    end
-    self.writeSettings()
-
     -- Public Functions.
     self.setSystem = function(buddypal)
         if buddypal then
@@ -138,31 +135,10 @@ function coms.new()
     end
     
     self.send = function(action, name, attempts)
-        local action    = action or false
-        local name      = name or false
-        local attempts  = attempts or 1
+        local attempts = attempts or 1
 
         if bp and action and name and attempts then
             windower.send_ipc_message(string.format('coms:::%s:::%s:::%s', name, action.en, attempts))
-        end
-
-    end
-
-    self.toggle = function()
-        local bp = bp or false
-
-        if bp then
-
-            if self.enabled then
-                self.enabled = false
-
-            else
-                self.enabled = true
-
-            end
-            bp.helpers['popchat'].pop(string.format('COMS ENABLED: %s', tostring(self.enabled)))
-            self.writeSettings()
-
         end
 
     end
@@ -175,7 +151,7 @@ function coms.new()
             self.display:pos(x, y)
             self.layout.pos.x = x
             self.layout.pos.y = y
-            self.writeSettings()
+            private.writeSettings()
         
         elseif bp and (not x or not y) then
             bp.helpers['popchat'].pop('PLEASE ENTER AN "X" OR "Y" COORDINATE!')
@@ -185,20 +161,37 @@ function coms.new()
     end
     
     -- Private Events.
-    private.events.prerender = windower.register_event('prerender', function()
-        private.render()
-        
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1] or false
+
+        if bp and helper and helper == 'coms' then
+            table.remove(commands, 1)
+            
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command == 'pos' and commands[2] then
+                    self.pos(commands[2], commands[3] or false)
+                end
+    
+            else
+                self.enabled = self.enabled ~= true and true or false
+                bp.helpers['popchat'].pop(string.format('COMS ENABLED: %s', tostring(self.enabled)))
+    
+            end
+            private.writeSettings()
+
+        end
+
     end)
 
-    private.events.zonechange = windower.register_event('zone change', function()
-        self.writeSettings()
-        
+    private.events.prerender = windower.register_event('prerender', function()
+        private.render()        
     end)
 
     private.events.jobchange = windower.register_event('job change', function()
-        self.writeSettings()
-        private.resetDisplay()
-        
+        private.resetDisplay()        
     end)
 
     private.events.ipc = windower.register_event('ipc message', function(message)

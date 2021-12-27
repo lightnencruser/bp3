@@ -112,15 +112,12 @@ function target.new()
     end
 
     private.updateTargets = function()
-        
-        if bp and bp.player and bp.player.status == 1 and not self.getTarget() and windower.ffxi.get_mob_by_target('t') then
+
+        if bp and bp.player and bp.player.status == 1 and not self.targets.player and windower.ffxi.get_mob_by_target('t') then
             self.setTarget(windower.ffxi.get_mob_by_target('t'))
 
-        elseif bp and bp.player and bp.player.status == 1 and self.getTarget() and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
+        elseif bp and bp.player and bp.player.status == 1 and self.targets.player and windower.ffxi.get_mob_by_target('t') and self.getTarget().id ~= windower.ffxi.get_mob_by_target('t').id then
             self.setTarget(windower.ffxi.get_mob_by_target('t'))
-
-        elseif bp and bp.player and bp.player.status ~= 1 then
-            self.targets.player = false
 
         end
 
@@ -236,10 +233,18 @@ function target.new()
                     self.targets.player = target
                     helpers['popchat'].pop(string.format('SETTING CURRENT PLAYER TARGET TO: %s.', target.name))
 
+                    if bp.player.main_job == 'GEO' and not self.targets.luopan then
+                        self.targets.luopan = target
+                    end
+
                 elseif self.mode == 2 and self.allowed(target) and self.canEngage(target) and not self.targets.party then
                     self.targets.party = target
                     windower.send_command(string.format('ord r* bp target share %s', target.id))
                     helpers['popchat'].pop(string.format('SETTING CURRENT PARTY TARGET TO: %s.', target.name))
+
+                    if bp.player.main_job == 'GEO' and not self.targets.luopan then
+                        self.targets.luopan = target
+                    end
 
                 end
 
@@ -741,6 +746,122 @@ function target.new()
     end
 
     -- Private Events.
+    private.events.commands = windower.register_event('addon command', function(...)
+        local commands = T{...}
+        local helper = commands[1]
+        
+        if helper and helper:lower() == 'target' then
+            table.remove(commands, 1)
+
+            if commands[1] then
+                local command = commands[1]:lower()
+
+                if command == 'set' and (commands[2] or windower.ffxi.get_mob_by_target('t')) then
+                    local target = commands[3] or windower.ffxi.get_mob_by_target('t')
+
+                    if type(target) == 'table' then
+                        self.setTarget(target)
+
+                    elseif (type(target) == 'number' or tonumber(target) ~= nil) then
+                        self.setTarget(target)
+
+                    elseif type(target) == 'string' then
+                        self.setTarget(target)
+
+                    end
+
+                elseif command == 't' then
+                    
+                    if windower.ffxi.get_mob_by_target('t') then
+                        local target = windower.ffxi.get_mob_by_target('t')
+
+                        if type(target) == 'table' and self.isEnemy(target) then
+                            self.targets.player = target
+
+                            if bp.player.main_job == 'GEO' and not self.targets.luopan then
+                                self.targets.luopan = target
+                            end
+
+                        else
+                            self.targets.player = false
+
+                        end
+
+                    end
+                    self.resetTargets()
+
+                elseif command == 'pt' then
+                    
+                    if windower.ffxi.get_mob_by_target('t') then
+                        local target = windower.ffxi.get_mob_by_target('t')
+
+                        if type(target) == 'table' and self.isEnemy(target) then
+                            self.targets.party = target
+                            windower.send_command(string.format('ord r* bp target share %s', target.id))
+
+                            if bp.player.main_job == 'GEO' and not self.targets.luopan then
+                                self.targets.luopan = target
+                            end
+
+                        else
+                            self.targets.party = false
+
+                        end
+
+                    end
+                    self.resetTargets()
+
+                elseif command == 'et' and (commands[2] or windower.ffxi.get_mob_by_target('t')) then
+                    local target = commands[2] or windower.ffxi.get_mob_by_target('t')
+
+                    if type(target) == 'table' then
+                        self.setEntrust(target)
+
+                    elseif (type(target) == 'number' or tonumber(target) ~= nil) then
+                        self.setEntrust(target)
+
+                    elseif type(target) == 'string' then
+                        self.setEntrust(target)
+
+                    end
+                    self.resetTargets()
+
+                elseif command == 'lt' and (commands[2] or windower.ffxi.get_mob_by_target('t')) then
+                    local target = commands[3] or windower.ffxi.get_mob_by_target('t')
+
+                    if type(target) == 'table' then
+                        self.setLuopan(target)
+
+                    elseif (type(target) == 'number' or tonumber(target) ~= nil) then
+                        self.setLuopan(target)
+
+                    elseif type(target) == 'string' then
+                        self.setLuopan(target)
+
+                    end
+                    self.resetTargets()
+
+                elseif command == 'share' and commands[2] and tonumber(commands[2]) ~= nil then
+                    local target = windower.ffxi.get_mob_by_id(tonumber(commands[2])) or false
+
+                    if type(target) == 'table' and self.isEnemy(target) then
+                        self.targets.party = target
+                    end
+
+                elseif command == 'mode' then
+                    self.changeMode()
+
+                elseif command == 'pos' and commands[2] then
+                    self.pos(commands[2], commands[3] or false)
+
+                end
+
+            end
+
+        end
+
+    end)
+
     private.events.prerender = windower.register_event('prerender', function()
         private.render()
 

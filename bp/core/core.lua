@@ -2626,7 +2626,7 @@ function core.new()
         local flag = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
         if flag ~= nil and type(value) == 'table' and type(flag) == 'table' then
-
+            
             for i,v in pairs(value) do
                 
                 if flag[i] ~= nil then

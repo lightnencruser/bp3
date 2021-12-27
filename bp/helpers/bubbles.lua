@@ -22,8 +22,6 @@ function bubbles.new()
     -- Private Variables.
     local bp        = false
     local private   = {events={}}
-    local buffs     = {'Ecliptic Attrition', 'Lasting Emanation'}
-    local buff      = 2
     local math      = math
     local placement = 1
     local map       = {directions={'East','Southeast','South','Southwest','West','Northwest','North','Northeast'}, placement={'Front','Side'}}
@@ -471,30 +469,63 @@ function bubbles.new()
             -- HANDLE GEO-SPELLS.
             if not pet and target then
                 
-                if self.flags.geo and bubbles[2] and isReady('MA', bubbles[2].en) and not queue.inQueue(bp.MA[bubbles[2].en]) then
+                if self.flags.geo and bubbles[2] and isReady('MA', bubbles[2].en) and not queue.inQueue(bp.MA[bubbles[2].en]) and bp.helpers['target'].targets.luopan then
                     
-                    if get('blaze of glory') and isReady('JA', "Blaze of Glory") then
-                        queue.add(bp.JA['Blaze of Glory'], 'me')
-                        queue.add(bp.MA[bubbles[2].en], target)
+                    if (bp.MA[bubbles[2].en].targets):contains('Party') then
+                        
+                        if bp.helpers['party'].isInParty(bp.helpers['target'].targets.luopan) then
+
+                            if get('blaze of glory') and isReady('JA', "Blaze of Glory") then
+                                queue.add(bp.JA['Blaze of Glory'], 'me')
+                                queue.add(bp.MA[bubbles[2].en], bp.helpers['target'].targets.luopan)
+    
+                            else
+                                queue.add(bp.MA[bubbles[2].en], bp.helpers['target'].targets.luopan)
+    
+                            end
+
+                        else
+
+                            if get('blaze of glory') and isReady('JA', "Blaze of Glory") then
+                                queue.add(bp.JA['Blaze of Glory'], 'me')
+                                queue.add(bp.MA[bubbles[2].en], player)
+    
+                            else
+                                queue.add(bp.MA[bubbles[2].en], player)
+    
+                            end
+
+                        end
 
                     else
-                        queue.add(bp.MA[bubbles[2].en], target)
+                    
+                        if get('blaze of glory') and isReady('JA', "Blaze of Glory") then
+                            queue.add(bp.JA['Blaze of Glory'], 'me')
+                            queue.add(bp.MA[bubbles[2].en], target)
+
+                        else
+                            queue.add(bp.MA[bubbles[2].en], target)
+
+                        end
 
                     end
 
                 end
             
-            elseif pet and (pet.distance):sqrt() > (get('full circle').distance + 5) and self.flags.circle and isReady('JA', "Full Circle") and not queue.inQueue(bp.JA['Full Circle'], 'me') then
+            elseif pet and get('full circle').enabled and (pet.distance):sqrt() > (get('full circle').distance + 5) and self.flags.circle and isReady('JA', "Full Circle") then
                 queue.clear()
                 queue.addToFront(bp.JA['Full Circle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 80 and self.flags.ecliptic and isReady('JA', "Ecliptic Attrition") and not queue.inQueue(bp.JA['Ecliptic Attrition'], 'me') then
+            elseif pet and (pet.distance):sqrt() < get('full circle').distance and pet.hpp >= 80 and get('ecliptic attrition') and isReady('JA', "Ecliptic Attrition") then
                 queue.addToFront(bp.JA['Ecliptic Attrition'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp <= 60 and self.flags.lifecycle and isReady('JA', "Life Cycle") and not queue.inQueue(bp.JA['Life Cycle'], 'me') then
+            elseif pet and (pet.distance):sqrt() < get('full circle').distance and pet.hpp >= 80 and get('lasting emanation') and not get('ecliptic attrition') and isReady('JA', "Lasting Emanation") then
+                queue.addToFront(bp.JA['Lasting Emanation'], 'me')
+
+            elseif pet and (pet.distance):sqrt() < get('full circle').distance and pet.hpp <= 45 and get('life cycle') and isReady('JA', "Life Cycle") then
                 queue.addToFront(bp.JA['Life Cycle'], 'me')
 
-            elseif pet and (pet.distance):sqrt() < self.flags.distance and pet.hpp >= 60 and self.flags.dematerialize and isReady('JA', "Dematerialize") and not queue.inQueue(bp.JA['Dematerialize'], 'me') then
+            elseif pet and (pet.distance):sqrt() < get('full circle').distance and pet.hpp >= 60 and get('dematerialize') and isReady('JA', "Dematerialize") then
                 queue.addToFront(bp.JA['Dematerialize'], 'me')
 
             end

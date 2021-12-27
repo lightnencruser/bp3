@@ -41,10 +41,9 @@ function job.get()
                 end
     
                 if get('buffs') and _act then
-                    local active = bp.helpers['rolls'].getActive()
     
                     -- ROLLS.
-                    if get('rolls') and active < 2 then
+                    if get('rolls') then
                         bp.helpers['rolls'].roll()
     
                     -- TRIPLE SHOT.
@@ -75,10 +74,9 @@ function job.get()
                 end
     
                 if get('buffs') and _act then
-                    local active = bp.helpers['rolls'].getActive()
     
                     -- ROLLS.
-                    if get('rolls') and active < 2 then
+                    if get('rolls') then
                         bp.helpers['rolls'].roll()
     
                     -- TRIPLE SHOT.

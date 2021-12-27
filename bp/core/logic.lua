@@ -38,8 +38,8 @@ function logic.get()
     end
 
     self.set = function(name, value)
-
-        if name and value then
+        
+        if name and value ~= nil then
             private.settings.set(name, value)
         end
 

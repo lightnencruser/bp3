@@ -394,27 +394,17 @@ function rolls.new()
         
     end
 
-    self.remove = function(id)
-        local id = id or false
-
-        if bp and id and self.validBuff(id) then
-            
-            if self.active[1] and self.getBuff(self.active[1].roll.en).id == id then
-                self.active[1] = false
+    self.roll = function()
         
-            elseif self.active[2] and self.getBuff(self.active[2].roll.en).id == id then
-                self.active[2] = false
+        if bp then
 
+            if self.active[1] and not T(bp.player.buffs):contains(self.getBuff(self.active[1].roll.en).id) then
+                self.active[1] = false
             end
 
-        end
-
-    end
-
-    self.roll = function()
-
-        if bp and #self.active <= 2 then
-            local player = bp.player
+            if self.active[2] and not T(bp.player.buffs):contains(self.getBuff(self.active[2].roll.en).id) then
+                self.active[2] = false
+            end
 
             if not self.rolling then
                 
@@ -430,7 +420,7 @@ function rolls.new()
 
                     end
 
-                elseif self.active[1] and self.active[1].id ~= self.rolls[1].id and self.active[1].en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[1].en).id) then
+                elseif self.active[1] and self.active[1].roll.id ~= self.rolls[1].id and self.active[1].roll.en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[1].en).id) then
                     local roll = self.active[1].roll
 
                     if roll and bp.helpers['actions'].isReady('JA', roll.en) then
@@ -449,24 +439,23 @@ function rolls.new()
                         bp.helpers['queue'].add(bp.JA[roll.en], player)
                     end
 
-                elseif self.active[2] and self.active[2].id ~= self.rolls[2].id and self.active[2].en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[2].en).id) then
+                elseif self.active[2] and self.active[2].roll.id ~= self.rolls[2].id and self.active[2].roll.en ~= 'Bust' and not bp.helpers['buffs'].buffActive(self.getBuff(self.rolls[2].en).id) then
                     local roll = self.active[2].roll
 
                     if roll and bp.helpers['actions'].isReady('JA', roll.en) then
                         bp.helpers['queue'].add(bp.JA[roll.en], player)
                     end
 
-                end
-                
+                end                
 
-            elseif self.rolling and self.active and self.active[self.last] and self.active[self.last].dice <= self.cap then
+            elseif self.rolling and self.active and self.active[self.last] and self.active[self.last].dice <= self.cap and self.active[self.last].dice ~= lucky[self.active[self.last].roll.en] then
                 local roll = self.rolls[self.last]
 
                 if roll and bp.helpers['actions'].isReady('JA', 'Double-Up') then
                     bp.helpers['queue'].add(bp.JA['Double-Up'], player)
                 end
             
-            elseif self.rolling and self.active and self.active[self.last] and self.active[self.last].dice > self.cap and self.active[self.last].dice < 11 then
+            elseif self.rolling and self.active and self.active[self.last] and self.active[self.last].dice > self.cap and self.active[self.last].dice < 11 and self.active[self.last].dice ~= lucky[self.active[self.last].roll.en] then
                 local roll = self.rolls[self.last]
 
                 if roll and bp.helpers['actions'].isReady('JA', 'Double-Up') and bp.helpers['actions'].isReady('JA', 'Snake Eye') then
@@ -490,19 +479,18 @@ function rolls.new()
     end
 
     self.render = function()
-        local render    = {}
-        local player    = bp.player
         local trigger   = false
+        local render    = {}
         local count     = 1
 
-        if bp.player and (player.main_job == 'COR' or player.sub_job == 'COR') then
+        if bp.player and (bp.player.main_job == 'COR' or bp.player.sub_job == 'COR') then
             table.insert(render, string.format('Corsair Rolls - Status: [ \\cs(%s)%s\\cr ]', colors[bp.core.get('rolls')], tostring(bp.core.get('rolls')):upper()))
 
-            if player.main_job == 'COR' then
+            if bp.player.main_job == 'COR' then
                 table.insert(render, string.format('\\cs(%s)Crooked Cards\\cr | \\cs(%s)Rolling\\cr\n', colors[self.crooked], colors[self.rolling]))
                 count = 2
             
-            elseif player.sub_job == 'COR' then
+            elseif bp.player.sub_job == 'COR' then
                 table.insert(render, string.format('\\cs(%s)Rolling\\cr\n', colors[self.rolling]))
                 count = 1
 
@@ -657,10 +645,6 @@ function rolls.new()
                 self.rolling = false
 
             end
-
-            if self.active and self.active[self.last] and self.active[self.last].roll and self.active[self.last].roll.en == 'Bust' and not buffs:contains(309) then
-                self.active[self.last] = false
-            end
             private.timer = os.clock()
         
         end
@@ -704,34 +688,6 @@ function rolls.new()
 
     end)
 
-    private.events.losebuff = windower.register_event('lose buff', function(id)
-        local roll1 = self.rolls[1]
-        local roll2 = self.rolls[2]
-        local buff1 = self.getBuff(roll1.en)
-        local buff2 = self.getBuff(roll2.en)
-
-        if roll1 and buff1 and buff1.id == id then
-            self.active[1] = false
-
-        elseif roll2 and buff2 and buff2.id == id then
-            self.active[2] = false
-
-        elseif id == 309 then
-
-            for i,v in ipairs(self.active) do
-                
-                if v and v.roll and v.roll.en == 'Bust' then
-                    self.active[i] = false
-                    break
-
-                end
-
-            end
-
-        end
-
-    end)
-
     private.events.jobchange = windower.register_event('job change', function(new, old)
         private.reset()
     
@@ -739,6 +695,7 @@ function rolls.new()
 
     private.events.zonechange = windower.register_event('zone change', function(new, old)
         private.reset()
+        bp.core.set("rolls", false)
     
     end)
 

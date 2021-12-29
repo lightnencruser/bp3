@@ -309,10 +309,9 @@ bootstrap.load = function()
                 windower.send_command(('setbgm %s'):format(math.random(1,255)))
     
             elseif c == 'follow' then
-                local player = windower.ffxi.get_player()
     
-                if player then
-                    windower.send_command(string.format('ord r* follow %s', player.name))
+                if self.player then
+                    windower.send_command(string.format('ord r* follow %s', self.player.name))
                 end
     
             elseif c == 'stop' then

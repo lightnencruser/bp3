@@ -579,24 +579,23 @@ function core.new()
             local flags = private.flags[bp.player.sub_job][name] ~= nil and private.flags[bp.player.sub_job][name] or private.flags[name]
 
             if flags and #commands > 0 then
+                local value = #commands > 1 and table.concat(commands, ' ') or windower.convert_auto_trans(commands[1])
+                local found = false
 
-                for i in ipairs(commands) do
-                    local value = tonumber(commands[i]) ~= nil and tonumber(commands[i]) or commands[i]
+                for _,skill in ipairs({"Enhancing Magic","Divine Magic","Enfeebling Magic","Elemental Magic","Dark Magic","Singing","Summoning","Blue Magic","Geomancy"}) do
 
-                    if value then
-                        local value = windower.convert_auto_trans(value)
-
-                        if S{"Enhancing Magic","Divine Magic","Enfeebling Magic","Elemental Magic","Dark Magic","Singing","Summoning","Blue Magic","Geomancy"}:contains(value) then 
-                            flags.name = value
-                            bp.helpers['popchat'].pop(string.format('AUTO-SKILLUP SPELL SET TO: %s.', flags.name))
-
-                        else
-                            bp.helpers['popchat'].pop('INVALID SKILL NAME!')
-
-                        end
+                    if value:lower() == skill:sub(1, #value):lower() then
+                        found = true
+                        flags.name = skill
+                        bp.helpers['popchat'].pop(string.format('AUTO-SKILLUP SPELL SET TO: %s.', flags.name))
+                        break
 
                     end
 
+                end
+
+                if not found then
+                    bp.helpers['popchat'].pop('INVALID SKILL NAME!')
                 end
             
             elseif flags ~= nil then

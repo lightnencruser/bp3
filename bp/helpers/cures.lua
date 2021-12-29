@@ -159,7 +159,7 @@ function cures.new()
     end
 
     private.estimateCure = function(missing)
-        local spell = false
+        local estimate = false
         
         if bp and bp.player and missing then
             local player = bp.player
@@ -167,50 +167,32 @@ function cures.new()
             if bp.player.main_job_level == 99 then
             
                 for _,cure in ipairs(allowed['Cure']) do
-                    
-                    if cure.id and cure.min and not T{1,2}:contains(cure.id) and bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                        spell = bp.res.spells[cure.id]
+                    local spell = bp.res.spells[cure.id]
+                                
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and not T{1,2}:contains(cure.id) and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        estimate = spell
                     end
 
                 end
 
-            elseif bp.player.main_job_level < 99 then
-                local job = {main = {id=bp.player.main_job_id, level=bp.player.main_job_level}, sub = {id=bp.player.sub_job_id, level=bp.player.sub_job_level}}
+            elseif bp.player.main_job_level < 99 and bp.player.main_job_level > 50 then
 
                 for _,cure in ipairs(allowed['Cure']) do
-                    
-                    if bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost then
-                        local main = bp.res.spells[cure.id].levels[job.main.id] or false
-                        local sub = bp.res.spells[cure.id].levels[job.sub.id] or false
+                    local spell = bp.res.spells[cure.id]
 
-                        if main then
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and not T{1}:contains(cure.id) and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        estimate = spell
+                    end
 
-                            if main < 100 and job.main.level >= main then
-                                
-                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                                    spell = bp.res.spells[cure.id]
-                                end
+                end
 
-                            elseif main >= 100 and jpoints >= main then
+            elseif bp.player.main_job_level < 50 then
 
-                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                                    spell = bp.res.spells[cure.id]
-                                end
+                for _,cure in ipairs(allowed['Cure']) do
+                    local spell = bp.res.spells[cure.id]
 
-                            end
-
-                        elseif sub then
-
-                            if sub < 100 and job.sub.level >= sub then
-                                
-                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                                    spell = bp.res.spells[cure.id]
-                                end
-
-                            end
-
-                        end
-
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        estimate = spell
                     end
 
                 end
@@ -218,12 +200,12 @@ function cures.new()
             end
             
         end
-        return spell
+        return estimate
         
     end
 
     private.estimateCuraga = function(missing)
-        local spell = false
+        local estimate = false
         
         if bp and bp.player and missing then
             local player = bp.player
@@ -231,54 +213,21 @@ function cures.new()
             if bp.player.main_job_level == 99 then
             
                 for _,cure in ipairs(allowed['Curaga']) do
-                    
-                    if cure.id and cure.min and not T{11}:contains(cure.id) and bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                        spell = bp.res.spells[cure.id]
+                    local spell = bp.res.spells[cure.id]
 
-                    --elseif i == #allowed['Curaga'] then --???
-                        --spell = bp.res.spells[v.id]
-
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and not T{11}:contains(cure.id) and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        estimate = bp.res.spells[cure.id]
                     end
 
                 end
 
-            elseif bp.player.main_job_level < 99 then
-                local job = {main = {id=bp.player.main_job_id, level=bp.player.main_job_level}, sub = {id=bp.player.sub_job_id, level=bp.player.sub_job_level}}
+            elseif bp.player.main_job_level < 50 then
 
                 for _,cure in ipairs(allowed['Curaga']) do
+                    local spell = bp.res.spells[cure.id]
 
-                    if bp.res.spells[cure.id] and player['vitals'].mp >= bp.res.spells[cure.id].mp_cost then
-                        local main = bp.res.spells[cure.id].levels[job.main.id] or false
-                        local sub = bp.res.spells[cure.id].levels[job.sub.id] or false
-
-                        if main then
-
-                            if main < 100 and job.main.level >= main then
-                                
-                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                                    spell = bp.res.spells[cure.id]
-                                end
-
-                            elseif main >= 100 and jpoints >= main then
-
-                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                                    spell = bp.res.spells[cure.id]
-                                end
-
-                            end
-
-                        elseif sub then
-
-                            if sub < 100 and job.sub.level >= sub then
-                                
-                                if cure.id and cure.min and (cure.min + (cure.min * (self.power / 100))) <= missing then
-                                    spell = bp.res.spells[cure.id]
-                                end
-
-                            end
-
-                        end
-
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                        estimate = bp.res.spells[cure.id]
                     end
 
                 end
@@ -409,7 +358,7 @@ function cures.new()
                     local cure = private.estimateCure(v.missing) or false
                     local target = windower.ffxi.get_mob_by_id(v.id) or false
                     local dead = T{2,3}
-                    
+
                     if cure and target and not bp.helpers['queue'].inQueue(bp.MA[cure.en], target) then
 
                         if (target.distance):sqrt() <= 20 and not dead:contains(target.status) then
@@ -423,7 +372,6 @@ function cures.new()
             end
 
             if selected.count > 2 and is_whm and not is_dancer then
-                local selected = private.getCuragaWeight()
 
                 if selected and selected.target and selected.count and selected.missing and selected.count > 2 then
                     local cure = private.estimateCuraga(selected.missing)

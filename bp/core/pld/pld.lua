@@ -109,7 +109,7 @@ function job.get()
                     -- ENLIGHT.
                     elseif _cast then
 
-                        if bp.player.job_points['PLD'].jp_spent >= 100 then
+                        if bp.player.job_points['pld'].jp_spent >= 100 then
 
                             if isReady('MA', "Enlight II") and not buff(274) then
                                 add(bp.MA["Enlight II"], player)
@@ -213,7 +213,7 @@ function job.get()
                     -- ENLIGHT.
                     elseif _cast then
 
-                        if bp.player.job_points['PLD'].jp_spent >= 100 then
+                        if bp.player.job_points['pld'].jp_spent >= 100 then
 
                             if isReady('MA', "Enlight II") and not buff(274) then
                                 add(bp.MA["Enlight II"], player)

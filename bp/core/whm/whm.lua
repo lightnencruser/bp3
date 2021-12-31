@@ -53,7 +53,7 @@ function job.get()
 
                     -- MARTYR.
                     if get('martyr').enabled and get('martyr').target ~= "" and isReady('JA', "Martyr") then
-                        local target = windower.ffxi..get_mob_by_name(get('martyr').name)
+                        local target = windower.ffxi.get_mob_by_name(get('martyr').name)
 
                         if target and helpers['party'].isInParty(target) and target.hpp <= get('martyr').hpp and player.hpp > 30 then
                             add(bp.JA["Martyr"], target)
@@ -63,7 +63,7 @@ function job.get()
 
                     -- DEVOTION.
                     if get('devotion').enabled and get('devotion').target ~= "" and isReady('JA', "Devotion") then
-                        local target = windower.ffxi..get_mob_by_name(get('devotion').name)
+                        local target = windower.ffxi.get_mob_by_name(get('devotion').name)
 
                         if target and helpers['party'].isInParty(target) and target.mpp <= get('devotion').mpp and player.hpp > 30 then
                             add(bp.JA["Devotion"], target)
@@ -178,7 +178,7 @@ function job.get()
 
                     -- MARTYR.
                     if get('martyr').enabled and get('martyr').target ~= "" and isReady('JA', "Martyr") then
-                        local target = windower.ffxi..get_mob_by_name(get('martyr').name)
+                        local target = windower.ffxi.get_mob_by_name(get('martyr').name)
 
                         if target and helpers['party'].isInParty(target) and target.hpp <= get('martyr').hpp and player.hpp > 30 then
                             add(bp.JA["Martyr"], target)
@@ -188,7 +188,7 @@ function job.get()
 
                     -- DEVOTION.
                     if get('devotion').enabled and get('devotion').target ~= "" and isReady('JA', "Devotion") then
-                        local target = windower.ffxi..get_mob_by_name(get('devotion').name)
+                        local target = windower.ffxi.get_mob_by_name(get('devotion').name)
 
                         if target and helpers['party'].isInParty(target) and target.mpp <= get('devotion').mpp and player.hpp > 30 then
                             add(bp.JA["Devotion"], target)

@@ -215,7 +215,7 @@ function cures.new()
                 for _,cure in ipairs(allowed['Curaga']) do
                     local spell = bp.res.spells[cure.id]
 
-                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and not T{11}:contains(cure.id) and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.min and not T{11}:contains(cure.id) and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
                         estimate = bp.res.spells[cure.id]
                     end
 
@@ -226,7 +226,7 @@ function cures.new()
                 for _,cure in ipairs(allowed['Curaga']) do
                     local spell = bp.res.spells[cure.id]
 
-                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.id and cure.min and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
+                    if spell and bp.helpers['actions'].isReady('MA', spell.en) and cure.min and player['vitals'].mp >= spell.mp_cost and (cure.min + (cure.min * (self.power / 100))) <= missing then
                         estimate = bp.res.spells[cure.id]
                     end
 
@@ -235,7 +235,7 @@ function cures.new()
             end
             
         end
-        return spell
+        return estimate
         
     end
 

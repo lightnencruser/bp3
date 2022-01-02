@@ -77,52 +77,32 @@ function party.new()
     end
 
     self.getMember = function(player, alliance)
-        local player    = player or false
-        local alliance  = alliance or false
-        local party     = windower.ffxi.get_party() or false
 
-        if player then
+        if bp and bp.party and player then
+            local player = bp.helpers['target'].getValidTarget(player)
 
-            if type(player) == "table" then
-                player = player
+            if player and alliance then
 
-            elseif type(player) == "string" and self.findByName(player, alliance) then
-                player = windower.ffxi.get_mob_by_name(self.findByName(player, alliance))
+                for i,v in pairs(bp.party) do
 
-            elseif type(player) == "number" then
-                player = windower.ffxi.get_mob_by_id(player)
-
-            else
-                return false
-
-            end
-
-        end
-
-        if player and party then
-
-            if alliance then
-
-                for i,v in pairs(party) do
-
-                    if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil and (player.name):lower() == (v.name):lower() then
-                        return player
+                    if (i:sub(1,1) == "p" or i:sub(1,1) == "a") and tonumber(i:sub(2)) ~= nil and player.id == v.mob.id then
+                        return v
                     end
 
                 end
 
-            elseif not alliance then
+            elseif player and not alliance then
 
-                for i,v in pairs(party) do
-
-                    if i:sub(1,1) == "p" and tonumber(i:sub(2)) ~= nil and (player.name):lower() == (v.name):lower() then
-                        return player
+                for i,v in pairs(bp.party) do
+                    
+                    if i:sub(1,1) == "p" and tonumber(i:sub(2)) ~= nil and player.id == v.mob.id then
+                        return v
                     end
 
                 end
 
             end
-
+        
         end
         return false
 

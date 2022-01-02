@@ -55,7 +55,7 @@ function job.get()
                     if get('martyr').enabled and get('martyr').target ~= "" and isReady('JA', "Martyr") then
                         local target = windower.ffxi.get_mob_by_name(get('martyr').name)
 
-                        if target and helpers['party'].isInParty(target) and target.hpp <= get('martyr').hpp and player.hpp > 30 then
+                        if target and helpers['party'].isInParty(target) and target.hpp <= get('martyr').hpp and player['vitals'].hpp > 30 then
                             add(bp.JA["Martyr"], target)
                         end
 
@@ -65,7 +65,7 @@ function job.get()
                     if get('devotion').enabled and get('devotion').target ~= "" and isReady('JA', "Devotion") then
                         local target = windower.ffxi.get_mob_by_name(get('devotion').name)
 
-                        if target and helpers['party'].isInParty(target) and target.mpp <= get('devotion').mpp and player.hpp > 30 then
+                        if target and helpers['party'].isInParty(target) and target.mpp <= get('devotion').mpp and player['vitals'].hpp > 30 then
                             add(bp.JA["Devotion"], target)
                         end
 
@@ -178,20 +178,30 @@ function job.get()
 
                     -- MARTYR.
                     if get('martyr').enabled and get('martyr').target ~= "" and isReady('JA', "Martyr") then
-                        local target = windower.ffxi.get_mob_by_name(get('martyr').name)
+                        local target = windower.ffxi.get_mob_by_name(get('martyr').target) or false
 
-                        if target and helpers['party'].isInParty(target) and target.hpp <= get('martyr').hpp and player.hpp > 30 then
-                            add(bp.JA["Martyr"], target)
+                        if target and helpers['party'].isInParty(target) then
+                            local member = helpers['party'].getMember(target) or false
+
+                            if member and member.mpp and member.mpp <= get('martyr').hpp and player['vitals'].hpp > 30 then
+                                add(bp.JA["Martyr"], target)
+                            end
+                            
                         end
 
                     end
 
                     -- DEVOTION.
                     if get('devotion').enabled and get('devotion').target ~= "" and isReady('JA', "Devotion") then
-                        local target = windower.ffxi.get_mob_by_name(get('devotion').name)
+                        local target = windower.ffxi.get_mob_by_name(get('devotion').target) or false
+                        
+                        if target and helpers['party'].isInParty(target) then
+                            local member = helpers['party'].getMember(target) or false
 
-                        if target and helpers['party'].isInParty(target) and target.mpp <= get('devotion').mpp and player.hpp > 30 then
-                            add(bp.JA["Devotion"], target)
+                            if member and member.mpp and member.mpp <= get('devotion').mpp and player['vitals'].hpp > 30 then
+                                add(bp.JA["Devotion"], target)
+                            end
+
                         end
 
                     end
